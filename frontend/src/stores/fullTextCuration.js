@@ -23,11 +23,18 @@ export const useFullTextCurationStore = defineStore(
     // Monotonic counter for manual annotation ids; persisted so ids stay unique across reloads.
     const seq = ref(0);
 
+    // turnId is a trusted internal conversation turn id (UUID), never user input.
+    function getTurn(turnId) {
+      // eslint-disable-next-line security/detect-object-injection
+      return turns.value[turnId];
+    }
+
     function ensure(turnId) {
-      if (!turns.value[turnId]) {
+      if (!getTurn(turnId)) {
+        // eslint-disable-next-line security/detect-object-injection
         turns.value[turnId] = { seeded: false, seed: [], annotations: [], undoStack: [] };
       }
-      return turns.value[turnId];
+      return getTurn(turnId);
     }
 
     function pushUndo(turn) {
@@ -44,15 +51,15 @@ export const useFullTextCurationStore = defineStore(
     }
 
     function isSeeded(turnId) {
-      return Boolean(turns.value[turnId]?.seeded);
+      return Boolean(getTurn(turnId)?.seeded);
     }
 
     function annotationsForTurn(turnId) {
-      return turns.value[turnId]?.annotations ?? [];
+      return getTurn(turnId)?.annotations ?? [];
     }
 
     function canUndo(turnId) {
-      return (turns.value[turnId]?.undoStack?.length ?? 0) > 0;
+      return (getTurn(turnId)?.undoStack?.length ?? 0) > 0;
     }
 
     function removeAnnotation(turnId, id) {
@@ -105,12 +112,13 @@ export const useFullTextCurationStore = defineStore(
     }
 
     function undo(turnId) {
-      const turn = turns.value[turnId];
+      const turn = getTurn(turnId);
       if (!turn || turn.undoStack.length === 0) return;
       turn.annotations = turn.undoStack.pop();
     }
 
     function dropTurn(turnId) {
+      // eslint-disable-next-line security/detect-object-injection
       delete turns.value[turnId];
     }
 

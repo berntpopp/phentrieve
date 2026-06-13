@@ -195,6 +195,15 @@ export function normalizeAnnotationStatus(status) {
   return 'affirmed';
 }
 
+function parseConfidence(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
 /**
  * Seed the note-relative annotation model from a full-text processing response.
  * Chunk-relative text attributions are converted to note offsets (falling back
@@ -236,7 +245,7 @@ export function seedAnnotationsFromResponse({ note, response }) {
       // Keep terms even when no note span resolves: they still belong in the
       // findings list (e.g. inferred terms without offsets). Such annotations
       // simply produce no highlight in the note.
-      const confidence = typeof term.confidence === 'number' ? term.confidence : null;
+      const confidence = parseConfidence(term.confidence);
       return {
         id: `auto-${term.hpo_id}-${index}`,
         hpoId: term.hpo_id,
