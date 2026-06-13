@@ -148,7 +148,8 @@ export default {
       if (!offsets) {
         return;
       }
-      this.$emit('text-select', { text, start: offsets.start, end: offsets.end });
+      const rect = range.getBoundingClientRect?.() || null;
+      this.$emit('text-select', { text, start: offsets.start, end: offsets.end, rect });
     },
   },
 };
