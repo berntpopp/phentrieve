@@ -9,7 +9,31 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
 from api.mcp.facade import create_phentrieve_mcp
+from phentrieve.evaluation.metrics import load_hpo_graph_data
+
+
+def _ontology_terms_available(*term_ids: str) -> bool:
+    """True when the prepared HPO graph contains the given terms.
+
+    ``load_hpo_graph_data`` returns empty dicts when the SQLite graph is absent
+    (e.g. the fast CI matrix, which does not run ``phentrieve data prepare``),
+    so the real ontology-similarity path cannot be exercised there. Tests that
+    need it are skipped rather than reported as failures.
+    """
+    try:
+        _ancestors, depths = load_hpo_graph_data()
+    except Exception:
+        return False
+    return all(term_id in depths for term_id in term_ids)
+
+
+requires_compare_ontology = pytest.mark.skipif(
+    not _ontology_terms_available("HP:0001250", "HP:0002133"),
+    reason="HPO ontology graph unavailable; run `phentrieve data prepare`",
+)
 
 
 def _call(tool: str, args: dict) -> dict:
@@ -69,6 +93,7 @@ def test_arg_alias_normalization_disclosed():
     assert data["_meta"]["argument_aliases_applied"] == [["sections", "details"]]
 
 
+@requires_compare_ontology
 def test_compare_real_similarity():
     data = _call(
         "phentrieve_compare_hpo_terms",
@@ -90,6 +115,7 @@ def test_compare_not_found_envelope():
     assert data["recovery_action"] == "reformulate_input"
 
 
+@requires_compare_ontology
 def test_compare_standard_mode_includes_citation():
     data = _call(
         "phentrieve_compare_hpo_terms",

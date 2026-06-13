@@ -6,10 +6,18 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+# Re-exported from phentrieve.config so tool modules can import their default
+# values from this shared module. The redundant ``X as X`` aliases mark these as
+# intentional re-exports (PEP 484), which avoids the self-assignment re-export
+# idiom that CodeQL flags as py/redundant-assignment.
 from phentrieve.config import (
-    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-    DEFAULT_NUM_RESULTS,
-    MIN_SIMILARITY_THRESHOLD,
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD as DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+)
+from phentrieve.config import (
+    DEFAULT_NUM_RESULTS as DEFAULT_NUM_RESULTS,
+)
+from phentrieve.config import (
+    MIN_SIMILARITY_THRESHOLD as MIN_SIMILARITY_THRESHOLD,
 )
 
 ResponseMode = Annotated[
@@ -86,11 +94,6 @@ ResearchAck = Annotated[
         "public-hosted instances before extraction tools will run.",
     ),
 ]
-
-# Re-exported defaults so tool signatures can reference them.
-DEFAULT_NUM_RESULTS = DEFAULT_NUM_RESULTS
-DEFAULT_CHUNK_RETRIEVAL_THRESHOLD = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
-MIN_SIMILARITY_THRESHOLD = MIN_SIMILARITY_THRESHOLD
 
 
 def require_research_ack(acknowledged: bool) -> None:
