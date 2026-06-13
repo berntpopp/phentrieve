@@ -18,6 +18,8 @@ together:
 
 ## [Unreleased]
 
+## [0.22.0] — 2026-06-13 (CLI 0.22.0 / API 0.13.0 / Frontend 0.11.8)
+
 ### Changed
 
 - **MCP server modernized to the FastMCP v3 "Gen-3" house style (breaking).**
