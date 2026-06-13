@@ -231,13 +231,21 @@ export function seedAnnotationsFromResponse({ note, response }) {
             chunkOffsets.get(Number(attr?.chunk_id));
 
           if (base != null) {
-            const start = Math.max(0, Math.min(base + Math.max(0, attr.start_char ?? 0), noteText.length));
-            const end = Math.max(0, Math.min(base + Math.max(0, attr.end_char ?? 0), noteText.length));
+            const start = Math.max(
+              0,
+              Math.min(base + Math.max(0, attr.start_char ?? 0), noteText.length)
+            );
+            const end = Math.max(
+              0,
+              Math.min(base + Math.max(0, attr.end_char ?? 0), noteText.length)
+            );
             if (end > start) return { start, end, text: noteText.slice(start, end) };
           }
 
           const resolved = resolveMatchedTextRange(noteText, attr?.matched_text_in_chunk);
-          return resolved ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) } : null;
+          return resolved
+            ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) }
+            : null;
         })
         .filter(Boolean)
         .sort((a, b) => a.start - b.start);
@@ -303,7 +311,11 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
   let cursor = 0;
   merged.forEach((range, index) => {
     if (range.start > cursor) {
-      segments.push({ key: `plain-${index}-${cursor}`, text: text.slice(cursor, range.start), highlighted: false });
+      segments.push({
+        key: `plain-${index}-${cursor}`,
+        text: text.slice(cursor, range.start),
+        highlighted: false,
+      });
     }
     segments.push({
       key: `mark-${index}-${range.start}`,

@@ -48,12 +48,7 @@
     >
       {{ translate('annotatedDocumentPane.undo.removed', 'Annotation removed') }}
       <template #actions>
-        <v-btn
-          data-testid="curation-undo-action"
-          variant="text"
-          color="primary"
-          @click="onUndo"
-        >
+        <v-btn data-testid="curation-undo-action" variant="text" color="primary" @click="onUndo">
           {{ translate('annotatedDocumentPane.undo.action', 'Undo') }}
         </v-btn>
       </template>

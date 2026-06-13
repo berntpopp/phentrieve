@@ -25,7 +25,15 @@ const i18n = createI18n({ legacy: false, locale: 'en', messages: { en }, missing
 const PopoverStub = {
   name: 'AnnotationActionPopover',
   props: ['visible', 'target', 'mode', 'canRevert', 'selectedText'],
-  emits: ['update:visible', 'close', 'change-term', 'remove-annotation', 'add-to-collection', 'annotate-selection', 'revert'],
+  emits: [
+    'update:visible',
+    'close',
+    'change-term',
+    'remove-annotation',
+    'add-to-collection',
+    'annotate-selection',
+    'revert',
+  ],
   template: '<div class="popover-stub" />',
 };
 const DialogStub = {
@@ -105,7 +113,10 @@ describe('FullTextNoteCurator', () => {
       expect.objectContaining({ text: 'microcephaly' })
     );
 
-    await dialog(wrapper).vm.$emit('submit', { term: { hpo_id: 'HP:9', label: 'Z' }, assertion: 'negated' });
+    await dialog(wrapper).vm.$emit('submit', {
+      term: { hpo_id: 'HP:9', label: 'Z' },
+      assertion: 'negated',
+    });
 
     const ann = store.annotationsForTurn('t1')[0];
     expect(ann.hpoId).toBe('HP:9');
@@ -121,7 +132,12 @@ describe('FullTextNoteCurator', () => {
         noteText,
         expanded: true,
         activePhenotypeId: null,
-        queryOptions: { model_name: 'm', language: 'en', num_results: 8, similarity_threshold: 0.1 },
+        queryOptions: {
+          model_name: 'm',
+          language: 'en',
+          num_results: 8,
+          similarity_threshold: 0.1,
+        },
       },
       global: {
         plugins: [vuetify, i18n],
@@ -163,7 +179,10 @@ describe('FullTextNoteCurator', () => {
     await popover(wrapper).vm.$emit('annotate-selection');
     await flushPromises();
 
-    await dialog(wrapper).vm.$emit('submit', { term: { hpo_id: 'HP:7', label: 'M' }, assertion: 'affirmed' });
+    await dialog(wrapper).vm.$emit('submit', {
+      term: { hpo_id: 'HP:7', label: 'M' },
+      assertion: 'affirmed',
+    });
 
     const manual = store.annotationsForTurn('t1').find((a) => a.hpoId === 'HP:7');
     expect(manual).toBeTruthy();

@@ -27,7 +27,10 @@ export function useFullTextCuration(turnId) {
   function ensureSeeded(item, text) {
     setNoteText(text);
     if (store.isSeeded(turnId)) return;
-    store.seedTurn(turnId, seedAnnotationsFromResponse({ note: noteText.value, response: item?.response }));
+    store.seedTurn(
+      turnId,
+      seedAnnotationsFromResponse({ note: noteText.value, response: item?.response })
+    );
   }
 
   const annotations = computed(() => store.annotationsForTurn(turnId));
@@ -58,7 +61,11 @@ export function useFullTextCuration(turnId) {
   }
 
   function replace(annotationId, term, assertion) {
-    store.replaceTerm(turnId, annotationId, { hpoId: term.hpo_id, label: term.label, status: assertion });
+    store.replaceTerm(turnId, annotationId, {
+      hpoId: term.hpo_id,
+      label: term.label,
+      status: assertion,
+    });
   }
 
   function remove(annotationId) {

@@ -50,8 +50,16 @@ describe('fullTextCuration store', () => {
   it('addManual appends a manual annotation with a unique id', () => {
     const s = useFullTextCurationStore();
     s.seedTurn('t1', []);
-    s.addManual('t1', { start: 5, end: 9, text: 'cccc' }, { hpoId: 'HP:7', label: 'M', status: 'affirmed' });
-    s.addManual('t1', { start: 10, end: 14, text: 'dddd' }, { hpoId: 'HP:7', label: 'M', status: 'affirmed' });
+    s.addManual(
+      't1',
+      { start: 5, end: 9, text: 'cccc' },
+      { hpoId: 'HP:7', label: 'M', status: 'affirmed' }
+    );
+    s.addManual(
+      't1',
+      { start: 10, end: 14, text: 'dddd' },
+      { hpoId: 'HP:7', label: 'M', status: 'affirmed' }
+    );
     const anns = s.annotationsForTurn('t1');
     expect(anns).toHaveLength(2);
     expect(anns[0].origin).toBe('manual');

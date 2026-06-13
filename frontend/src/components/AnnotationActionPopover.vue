@@ -24,7 +24,9 @@
         <v-list-item
           data-testid="action-annotate-selection"
           prepend-icon="mdi-plus-circle-outline"
-          :title="translate('annotatedDocumentPane.actions.annotateSelection', 'Annotate selection')"
+          :title="
+            translate('annotatedDocumentPane.actions.annotateSelection', 'Annotate selection')
+          "
           @click="handleAction('annotate-selection')"
         />
       </template>
