@@ -52,22 +52,52 @@ claude mcp add --transport http phentrieve http://127.0.0.1:8734/mcp
 
 ## Available MCP Tools
 
+Tools are namespaced with an underscore prefix (`phentrieve_*`).
+
 | Tool | Use When |
 |------|----------|
-| `phentrieve.extract_hpo_terms` | Deterministic retrieval-backed HPO term suggestions for research text |
-| `phentrieve.extract_hpo_terms_llm` | LLM-assisted full-text research annotation and grounded HPO mapping suggestions |
-| `phentrieve.search_hpo_terms` | Candidate HPO terms for a short phrase |
-| `phentrieve.compare_hpo_terms` | Similarity between two HPO IDs |
-| `phentrieve.get_server_capabilities` | Discover supported languages, models, backends, and research-use limitations |
+| `phentrieve_search_hpo_terms` | Candidate HPO terms for a short phrase |
+| `phentrieve_extract_hpo_terms` | Deterministic retrieval-backed HPO term suggestions for research text |
+| `phentrieve_extract_hpo_terms_llm` | LLM-assisted full-text research annotation and grounded HPO mapping suggestions |
+| `phentrieve_compare_hpo_terms` | Similarity between two HPO IDs |
+| `phentrieve_export_phenopacket` | Serialize an annotation set to a GA4GH Phenopacket v2 bundle |
+| `phentrieve_chunk_text` | Chunk text without retrieval (client-driven loops) |
+| `phentrieve_get_capabilities` | Discover tools, response modes, limits, error codes, and the citation contract |
+| `phentrieve_diagnostics` | Subsystem health and recent (sanitized) errors |
 
-All tools are read-only from the perspective of user data. Tool descriptions
-carry the same research-only limitation and public demo data warning.
+All tools are read-only from the perspective of user data and are annotated
+`readOnlyHint=true`. Tool descriptions carry the research-only limitation and
+public demo data warning.
+
+## Response Envelope and Token Efficiency
+
+Every tool returns a structured JSON envelope:
+
+- **Success:** `{"success": true, <domain keys>, "_meta": {...}}`
+- **Error:** `{"success": false, "error_code", "message", "retryable", "recovery_action", "_meta": {...}}`
+
+`_meta` always carries `tool`, `request_id`, `elapsed_ms`,
+`capabilities_version`, `unsafe_for_clinical_use: true`, and `next_commands`
+(ready-to-call `{tool, arguments}` workflow hints). Error codes are stable
+strings (`invalid_input`, `validation_failed`, `not_found`, `ambiguous_query`,
+`llm_quota_exhausted`, `llm_unavailable`, `upstream_unavailable`,
+`temporarily_unavailable`, `internal_error`).
+
+Pass `response_mode` (`minimal | compact | standard | full`, default `compact`)
+on any tool to control token cost. Over-budget list results are truncated and
+report `_meta.truncated`. Common argument synonyms (e.g. `query`/`phrase` →
+`text`, `limit` → `num_results`) are accepted and disclosed via
+`_meta.argument_aliases_applied`. Call `phentrieve_get_capabilities` once, then
+compare the returned `capabilities_version` to the value echoed in `_meta` to
+skip re-fetching when unchanged.
 
 ## MCP Resources
 
 | Resource | Contents |
 |----------|----------|
-| `phentrieve://capabilities` | Server capabilities, backends, transports, and tool names |
+| `phentrieve://schema/overview` | Server overview, envelope, verbosity, and safety (markdown) |
+| `phentrieve://schema/tool-guide` | Per-tool usage guide with sample calls (markdown) |
+| `phentrieve://capabilities` | Full capability descriptor with `capabilities_version` (JSON) |
 | `phentrieve://hpo/languages` | Supported language codes |
 | `phentrieve://hpo/extraction-profiles` | Standard and LLM extraction profile guidance |
 | `phentrieve://compliance/research-use` | Intended use, non-intended uses, and public demo data notice |
@@ -114,8 +144,8 @@ behavior must change the server policy rather than accepting client-supplied
 ## CLI Commands
 
 ```bash
-# Start MCP server over Streamable HTTP
-phentrieve mcp serve --http --port 8734
+# Start MCP server over Streamable HTTP (stdio has been removed)
+phentrieve mcp serve --port 8734
 
 # Display MCP configuration and tools
 phentrieve mcp info

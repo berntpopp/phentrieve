@@ -244,14 +244,13 @@ dev-all: ## Display instructions to start both API and frontend
 
 ##@ MCP Server
 
-mcp-serve: ## Start MCP server (stdio transport for Claude Desktop)
-	@echo "Starting Phentrieve MCP server (stdio)..."
-	@echo "For Claude Desktop integration, use the 'phentrieve mcp serve' command"
-	@uv run --extra mcp phentrieve mcp serve
+mcp-serve: ## Start MCP server (Streamable HTTP at /mcp)
+	@echo "Starting Phentrieve MCP server (Streamable HTTP) at http://127.0.0.1:8734/mcp"
+	@uv run --extra mcp phentrieve mcp serve --port 8734
 
-mcp-serve-http: ## Start MCP server with HTTP transport
-	@echo "Starting Phentrieve MCP server (HTTP)..."
-	@uv run --extra mcp phentrieve mcp serve --http --port 8734
+mcp-serve-http: ## Start MCP server with Streamable HTTP transport (alias of mcp-serve)
+	@echo "Starting Phentrieve MCP server (Streamable HTTP) at http://127.0.0.1:8734/mcp"
+	@uv run --extra mcp phentrieve mcp serve --port 8734
 
 mcp-info: ## Display MCP server configuration
 	@uv run --extra mcp phentrieve mcp info

@@ -31,16 +31,16 @@ decision support. Do not ask users to submit identifiable patient data to public
 demo instances.
 
 Use these MCP tools:
-- phentrieve.extract_hpo_terms for deterministic retrieval-backed HPO term suggestions.
-- phentrieve.extract_hpo_terms_llm for research-only full-text LLM-assisted extraction.
-- phentrieve.search_hpo_terms for short phenotype phrase search.
-- phentrieve.compare_hpo_terms for similarity between two HPO IDs.
-- phentrieve.get_server_capabilities when supported languages, backends, or limitations are unclear.
+- phentrieve_extract_hpo_terms for deterministic retrieval-backed HPO term suggestions.
+- phentrieve_extract_hpo_terms_llm for research-only full-text LLM-assisted extraction.
+- phentrieve_search_hpo_terms for short phenotype phrase search.
+- phentrieve_compare_hpo_terms for similarity between two HPO IDs.
+- phentrieve_get_capabilities when supported languages, backends, or limitations are unclear.
 
 Workflow:
 1. Detect or ask for the language code: en, de, es, fr, or nl.
-2. Call phentrieve.extract_hpo_terms for ordinary research annotation.
-3. Call phentrieve.extract_hpo_terms_llm only when the user asks for document-level or LLM-assisted extraction.
+2. Call phentrieve_extract_hpo_terms for ordinary research annotation.
+3. Call phentrieve_extract_hpo_terms_llm only when the user asks for document-level or LLM-assisted extraction.
 4. Use only HPO IDs returned by Phentrieve tools.
 5. Summarize HPO IDs, labels, evidence text, assertion status if present, and uncertainty.
 6. Exclude family history unless it is explicitly the research subject's phenotype.
@@ -99,10 +99,10 @@ significant for seizures. No cardiac abnormalities detected."
 
 | Tool | Use When |
 |------|----------|
-| `phentrieve.extract_hpo_terms` | Deterministic research annotation without LLM calls |
-| `phentrieve.extract_hpo_terms_llm` | Full-text LLM-assisted research extraction |
-| `phentrieve.search_hpo_terms` | Short phenotype phrase search |
-| `phentrieve.compare_hpo_terms` | Similarity between two HPO IDs |
+| `phentrieve_extract_hpo_terms` | Deterministic research annotation without LLM calls |
+| `phentrieve_extract_hpo_terms_llm` | Full-text LLM-assisted research extraction |
+| `phentrieve_search_hpo_terms` | Short phenotype phrase search |
+| `phentrieve_compare_hpo_terms` | Similarity between two HPO IDs |
 
 ## Supported Languages
 
