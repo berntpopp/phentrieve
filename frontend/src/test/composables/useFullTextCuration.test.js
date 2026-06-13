@@ -44,6 +44,16 @@ describe('useFullTextCuration', () => {
     expect(c.segments.value.some((s) => s.highlighted)).toBe(true);
   });
 
+  it('does not seed while the response is still loading, then seeds when it arrives', () => {
+    const c = useFullTextCuration('t1');
+    // Component mounted during the loading state: response not yet present.
+    c.ensureSeeded({ id: 't1', response: null }, 'She has microcephaly.');
+    expect(c.findings.value).toHaveLength(0);
+    // Response arrives: seeding now populates findings (the bug was locking in 0).
+    c.ensureSeeded(item, 'She has microcephaly.');
+    expect(c.findings.value).toHaveLength(1);
+  });
+
   it('requery calls the service with curation defaults and returns candidates + assertion', async () => {
     const c = useFullTextCuration('t1');
     const res = await c.requery('microcephaly', {

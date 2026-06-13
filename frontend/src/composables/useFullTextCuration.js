@@ -27,9 +27,13 @@ export function useFullTextCuration(turnId) {
   function ensureSeeded(item, text) {
     setNoteText(text);
     if (store.isSeeded(turnId)) return;
+    // Do not seed (or mark the turn seeded) until the response has arrived;
+    // otherwise a component mounted during the loading state would lock in an
+    // empty annotation set before the API returns its terms.
+    if (!item?.response) return;
     store.seedTurn(
       turnId,
-      seedAnnotationsFromResponse({ note: noteText.value, response: item?.response })
+      seedAnnotationsFromResponse({ note: noteText.value, response: item.response })
     );
   }
 

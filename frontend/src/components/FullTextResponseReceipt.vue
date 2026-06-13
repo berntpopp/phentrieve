@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ResultItem from './ResultItem.vue';
 import { useFullTextCuration } from '../composables/useFullTextCuration';
@@ -104,7 +104,13 @@ function translate(key, fallback) {
 }
 
 const curation = useFullTextCuration(props.item.id);
-curation.ensureSeeded(props.item, props.noteText || props.item?.query || '');
+
+// Seed once the response is available (idempotent; shared with the note curator).
+watch(
+  () => props.item?.response,
+  () => curation.ensureSeeded(props.item, props.noteText || props.item?.query || ''),
+  { immediate: true }
+);
 
 // Curated, term-level findings (auto terms minus removals, plus manual additions,
 // with replaced terms reflecting their new HPO id). Origin drives the badge.

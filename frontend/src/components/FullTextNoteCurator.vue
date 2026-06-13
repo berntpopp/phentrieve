@@ -89,7 +89,13 @@ function translate(key, fallback) {
 }
 
 const curation = useFullTextCuration(props.item.id);
-curation.ensureSeeded(props.item, props.noteText);
+
+// Seed once the response is available (the component may mount during loading).
+watch(
+  () => props.item?.response,
+  () => curation.ensureSeeded(props.item, props.noteText),
+  { immediate: true }
+);
 
 watch(
   () => props.noteText,
