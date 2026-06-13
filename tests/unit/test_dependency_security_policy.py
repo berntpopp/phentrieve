@@ -32,16 +32,22 @@ def _frontend_packages() -> dict[str, dict[str, object]]:
     return package_lock["packages"]
 
 
-def test_chromadb_stays_outside_current_unpatched_vulnerable_range() -> None:
-    """GHSA-f4j7-r4q5-qw2c affects chromadb >=1.0.0, <=1.5.9."""
+def test_chromadb_pinned_to_1x_for_bundle_compatibility() -> None:
+    """ChromaDB 1.x is required to read the published multi-vector data bundles.
+
+    GHSA-f4j7-r4q5-qw2c affects chromadb >=1.0.0,<=1.5.9 and 1.5.9 is the latest
+    available release (no patched 1.x yet), so the advisory is an accepted,
+    documented risk (see .github/workflows/security.yml) rather than downgrading
+    to 0.6.x, which cannot read the bundles (KeyError '_type').
+    """
     dependencies = _pyproject()["project"]["dependencies"]
     packages = _uv_packages()
 
     assert any(
-        "chromadb" in dependency and "<1.0.0" in dependency
+        "chromadb" in dependency and ">=1.5.9" in dependency
         for dependency in dependencies
     )
-    assert packages["chromadb"] < Version("1.0.0")
+    assert Version("1.5.9") <= packages["chromadb"] < Version("2.0.0")
 
 
 def test_esbuild_lockfile_uses_patched_version_if_present() -> None:
@@ -57,20 +63,36 @@ def test_esbuild_lockfile_uses_patched_version_if_present() -> None:
             assert Version(package["version"]) >= Version("0.28.1")
 
 
-def test_security_workflow_no_longer_ignores_chromadb_vulnerability() -> None:
+def test_security_workflow_documents_accepted_chromadb_vulnerability() -> None:
+    """chromadb 1.5.9 is required for data-bundle compatibility and has no patched
+    release, so GHSA-f4j7-r4q5-qw2c is an explicit, documented pip-audit ignore."""
     security_workflow = (
         REPO_ROOT / ".github" / "workflows" / "security.yml"
     ).read_text(encoding="utf-8")
 
-    assert "CVE-2026-45829" not in security_workflow
-    assert "GHSA-f4j7-r4q5-qw2c" not in security_workflow
+    assert "--ignore-vuln GHSA-f4j7-r4q5-qw2c" in security_workflow
+
+
+def test_dependency_review_gate_allowlists_accepted_chromadb_vulnerability() -> None:
+    """The ci.yml Dependency Review gate must allowlist the same accepted advisory
+    as the pip-audit ignore in security.yml, so chromadb 1.5.9 (required for
+    data-bundle compatibility) does not fail it on GHSA-f4j7-r4q5-qw2c."""
+    ci_workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "allowed_advisories" in ci_workflow
+    assert "GHSA-f4j7-r4q5-qw2c" in ci_workflow
 
 
 def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:
-    """ChromaDB 0.6.x emits telemetry errors with PostHog 6+ APIs."""
+    """ChromaDB 1.5.9 no longer pulls posthog; if a future resolution does, keep
+    it below the PostHog 6 capture() signature break (constrained in pyproject)."""
     packages = _uv_packages()
 
-    assert Version("2.4.0") <= packages["posthog"] < Version("6.0.0")
+    posthog = packages.get("posthog")
+    if posthog is not None:
+        assert Version("2.4.0") <= posthog < Version("6.0.0")
 
 
 def test_torch_vulnerability_exception_is_explicitly_limited_to_no_patch() -> None:

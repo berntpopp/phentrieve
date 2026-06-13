@@ -1,43 +1,34 @@
-"""HTTP MCP server entry point.
+"""Standalone HTTP MCP server entry point (FastMCP v3, Streamable HTTP).
 
-This module provides an HTTP transport for the MCP server, useful for
-web-based MCP clients. The MCP endpoint is mounted at /mcp.
+Serves the Phentrieve MCP facade on its own port with the MCP endpoint at /mcp.
 
 Usage:
-    phentrieve mcp serve --http --port 8734
+    phentrieve mcp serve --port 8734
 """
 
 from __future__ import annotations
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("phentrieve.mcp")
 
 
 def main() -> None:
-    """Run MCP server with HTTP transport.
-
-    Starts the FastAPI server with MCP mounted at /mcp endpoint.
-    """
+    """Run the Phentrieve MCP server standalone over Streamable HTTP."""
     import uvicorn
 
     from api.mcp.config import settings
     from api.mcp.facade import create_phentrieve_mcp
 
-    mcp_app = create_phentrieve_mcp().streamable_http_app()
+    mcp = create_phentrieve_mcp()
+    app = mcp.http_app(path="/mcp")
 
     logger.info(
         "Starting Phentrieve MCP server (HTTP) at http://%s:%d/mcp",
         settings.host,
         settings.port,
     )
-
-    # Run the combined server
-    uvicorn.run(
-        mcp_app,
-        host=settings.host,
-        port=settings.port,
-    )
+    uvicorn.run(app, host=settings.host, port=settings.port)
 
 
 if __name__ == "__main__":

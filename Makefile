@@ -180,8 +180,10 @@ docker-down: ## Stop Docker containers
 docker-logs: ## View Docker logs
 	$(DOCKER_COMPOSE) logs -f
 
-docker-dev: ## Start development Docker stack
-	$(DOCKER_COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml up
+docker-dev: ## Start development Docker stack (loads .env; detached; host ports 8001/8080)
+	$(DOCKER_COMPOSE) --env-file .env -f docker-compose.yml -f docker-compose.dev.yml up -d
+	@echo "Dev stack up: API http://localhost:$${API_PORT_HOST:-8001} (MCP at /mcp), frontend http://localhost:$${FRONTEND_PORT_HOST:-8080}"
+	@echo "Logs: make docker-logs"
 
 ##@ Local Development (Fast - No Docker)
 
@@ -244,14 +246,13 @@ dev-all: ## Display instructions to start both API and frontend
 
 ##@ MCP Server
 
-mcp-serve: ## Start MCP server (stdio transport for Claude Desktop)
-	@echo "Starting Phentrieve MCP server (stdio)..."
-	@echo "For Claude Desktop integration, use the 'phentrieve mcp serve' command"
-	@uv run --extra mcp phentrieve mcp serve
+mcp-serve: ## Start MCP server (Streamable HTTP at /mcp)
+	@echo "Starting Phentrieve MCP server (Streamable HTTP) at http://127.0.0.1:8734/mcp"
+	@uv run --extra mcp phentrieve mcp serve --port 8734
 
-mcp-serve-http: ## Start MCP server with HTTP transport
-	@echo "Starting Phentrieve MCP server (HTTP)..."
-	@uv run --extra mcp phentrieve mcp serve --http --port 8734
+mcp-serve-http: ## Start MCP server with Streamable HTTP transport (alias of mcp-serve)
+	@echo "Starting Phentrieve MCP server (Streamable HTTP) at http://127.0.0.1:8734/mcp"
+	@uv run --extra mcp phentrieve mcp serve --port 8734
 
 mcp-info: ## Display MCP server configuration
 	@uv run --extra mcp phentrieve mcp info

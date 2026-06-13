@@ -1,0 +1,409 @@
+"""Domain service adapters for the Phentrieve MCP tools.
+
+Each function reuses the existing ``phentrieve.*`` / ``api.*`` service layer
+directly (no HTTP round-trip) and returns a plain dict. Verbosity shaping,
+``_meta`` injection, and error enveloping happen in the tool layer; these
+adapters hold only the domain logic (including the LLM quota / fallback policy).
+"""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+import api.config as api_config
+from api.llm_quota import (
+    DailyQuotaStore,
+    QuotaExceededError,
+    QuotaStatus,
+    hash_subject_key,
+    quota_reset_at_iso,
+)
+from api.mcp.envelope import McpToolError
+from phentrieve.config import (
+    DEFAULT_ASSERTION_CONFIG,
+    DEFAULT_LANGUAGE,
+    DEFAULT_MODEL,
+    DEFAULT_MULTI_VECTOR,
+    get_default_chunk_pipeline_config,
+)
+from phentrieve.evaluation.metrics import (
+    SimilarityFormula,
+    calculate_semantic_similarity,
+    load_hpo_graph_data,
+)
+from phentrieve.llm.security_policy import resolve_public_llm_target
+from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
+from phentrieve.text_processing.config_resolver import resolve_chunking_config
+from phentrieve.text_processing.full_text_service import run_full_text_service
+from phentrieve.text_processing.pipeline import TextProcessingPipeline
+from phentrieve.utils import detect_language, normalize_id
+
+McpResult = dict[str, Any]
+
+
+# --------------------------------------------------------------------------- #
+# LLM quota helpers (ported from the previous facade)
+# --------------------------------------------------------------------------- #
+def _is_production_environment() -> bool:
+    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
+
+
+def _get_llm_quota_store() -> DailyQuotaStore:
+    return DailyQuotaStore(
+        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
+        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+    )
+
+
+def _check_mcp_llm_quota_or_raise() -> QuotaStatus:
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+    quota_status = _get_llm_quota_store().get_status(
+        subject_key=hash_subject_key("mcp:streamable-http"),
+        usage_date_utc=usage_date_utc,
+    )
+    if quota_status.quota_remaining <= 0:
+        raise QuotaExceededError(
+            quota_used=quota_status.quota_used,
+            quota_limit=quota_status.quota_limit,
+            quota_remaining=quota_status.quota_remaining,
+            usage_date_utc=quota_status.usage_date_utc,
+        )
+    return quota_status
+
+
+def _record_mcp_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
+    return _get_llm_quota_store().record_success(
+        subject_key=quota_status.subject_key,
+        usage_date_utc=quota_status.usage_date_utc,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Retrieval / extraction
+# --------------------------------------------------------------------------- #
+async def search_hpo_terms_service(
+    *,
+    text: str,
+    language: str | None,
+    num_results: int,
+    similarity_threshold: float,
+    include_details: bool,
+) -> McpResult:
+    from api.dependencies import get_dense_retriever_dependency
+
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=DEFAULT_MODEL,
+        multi_vector=DEFAULT_MULTI_VECTOR,
+    )
+    result = await execute_hpo_retrieval_for_api(
+        text=text,
+        language=language or DEFAULT_LANGUAGE,
+        retriever=retriever,
+        num_results=num_results,
+        similarity_threshold=similarity_threshold,
+        include_details=include_details,
+        detect_query_assertion=False,
+        debug=False,
+        multi_vector=DEFAULT_MULTI_VECTOR,
+    )
+    return {"results": result.get("results", [])}
+
+
+def extract_hpo_terms_service(
+    *,
+    text: str,
+    language: str | None,
+    include_details: bool,
+    include_chunk_positions: bool,
+    num_results_per_chunk: int,
+    chunk_retrieval_threshold: float,
+    service: Any = run_full_text_service,
+) -> McpResult:
+    result: McpResult = service(
+        text=text,
+        extraction_backend="standard",
+        # language=None means "autodetect" per the tool contract; resolve it here
+        # because the chunking pipeline requires a concrete language string.
+        language=language or detect_language(text, default_lang=DEFAULT_LANGUAGE),
+        include_details=include_details,
+        include_positions=include_chunk_positions,
+        num_results_per_chunk=num_results_per_chunk,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
+    )
+    return result
+
+
+def _standard_fallback_result(
+    *,
+    text: str,
+    language: str | None,
+    include_details: bool,
+    include_chunk_positions: bool,
+    num_results_per_chunk: int,
+    chunk_retrieval_threshold: float,
+    fallback_meta: dict[str, Any],
+    service: Any,
+) -> McpResult:
+    result: McpResult = service(
+        text=text,
+        extraction_backend="standard",
+        language=language,
+        include_details=include_details,
+        include_positions=include_chunk_positions,
+        num_results_per_chunk=num_results_per_chunk,
+        chunk_retrieval_threshold=chunk_retrieval_threshold,
+    )
+    result.setdefault("meta", {})
+    result["meta"].update(fallback_meta)
+    return result
+
+
+def extract_hpo_terms_llm_service(
+    *,
+    text: str,
+    language: str | None,
+    include_details: bool,
+    include_chunk_positions: bool,
+    num_results_per_chunk: int,
+    chunk_retrieval_threshold: float,
+    llm_mode: str,
+    llm_internal_mode: str,
+    allow_standard_fallback: bool,
+    service: Any = run_full_text_service,
+) -> McpResult:
+    target = resolve_public_llm_target()
+    actual_language = language or detect_language(text, default_lang=DEFAULT_LANGUAGE)
+    fallback_kwargs = {
+        "text": text,
+        "language": actual_language,
+        "include_details": include_details,
+        "include_chunk_positions": include_chunk_positions,
+        "num_results_per_chunk": num_results_per_chunk,
+        "chunk_retrieval_threshold": chunk_retrieval_threshold,
+        "service": service,
+    }
+    llm_kwargs = {
+        "text": text,
+        "extraction_backend": "llm",
+        "language": actual_language,
+        "llm_provider": target.provider,
+        "llm_model": target.model,
+        "llm_base_url": target.base_url,
+        "llm_mode": llm_mode,
+        "llm_internal_mode": llm_internal_mode,
+        "include_details": include_details,
+        "include_positions": include_chunk_positions,
+        "num_results_per_chunk": num_results_per_chunk,
+        "chunk_retrieval_threshold": chunk_retrieval_threshold,
+        "chunking_pipeline_config": get_default_chunk_pipeline_config(),
+        "assertion_config": {
+            **DEFAULT_ASSERTION_CONFIG,
+            "disable": False,
+            "language": actual_language,
+        },
+        "retrieval_model_name": DEFAULT_MODEL,
+    }
+
+    quota_status: QuotaStatus | None = None
+    if _is_production_environment():
+        try:
+            quota_status = _check_mcp_llm_quota_or_raise()
+        except QuotaExceededError as exc:
+            if not allow_standard_fallback:
+                raise
+            return _standard_fallback_result(
+                fallback_meta={
+                    "fallback_reason": "llm_quota_exhausted",
+                    "llm_quota_limit": exc.quota_limit,
+                    "llm_quota_reset_at": quota_reset_at_iso(exc.usage_date_utc),
+                },
+                **fallback_kwargs,
+            )
+
+    try:
+        result: McpResult = service(**llm_kwargs)
+    except Exception as exc:
+        if not allow_standard_fallback:
+            raise
+        return _standard_fallback_result(
+            fallback_meta={
+                "fallback_reason": "llm_backend_error",
+                "fallback_error": str(exc),
+            },
+            **fallback_kwargs,
+        )
+
+    if quota_status is not None:
+        updated = _record_mcp_llm_quota_success(quota_status)
+        result.setdefault("meta", {})
+        result["meta"].update(
+            {
+                "quota_limit": updated.quota_limit,
+                "quota_remaining": updated.quota_remaining,
+                "quota_reset_at": quota_reset_at_iso(updated.usage_date_utc),
+            }
+        )
+    return result
+
+
+# --------------------------------------------------------------------------- #
+# Similarity
+# --------------------------------------------------------------------------- #
+def compare_hpo_terms_service(
+    *, term1_id: str, term2_id: str, formula: str
+) -> McpResult:
+    t1 = normalize_id(term1_id)
+    t2 = normalize_id(term2_id)
+    similarity_formula = SimilarityFormula(formula)
+    _ancestors, depths = load_hpo_graph_data()
+    if t1 not in depths or t2 not in depths:
+        missing = [t for t in (t1, t2) if t not in depths]
+        raise McpToolError(
+            "not_found",
+            f"HPO term(s) not found in ontology data: {', '.join(missing)}.",
+            details={"term1_id": t1, "term2_id": t2},
+        )
+    return {
+        "term1_id": t1,
+        "term2_id": t2,
+        "formula_used": similarity_formula.value,
+        "similarity_score": calculate_semantic_similarity(
+            t1, t2, formula=similarity_formula
+        ),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Phenopacket export (reuses the REST router's mapping + bundle logic)
+# --------------------------------------------------------------------------- #
+def export_phenopacket_service(
+    *,
+    case_id: str,
+    case_label: str | None,
+    input_text: str | None,
+    subject: dict[str, Any] | None,
+    phenotypes: list[dict[str, Any]],
+    include_annotation_sidecar: bool,
+) -> McpResult:
+    from api.routers.phenopacket_router import (
+        _apply_request_metadata_to_bundle,
+        _map_phenotype_for_export,
+        export_phenopacket_bundle,
+    )
+    from api.schemas.phenopacket_schemas import (
+        ExportPhenotypeRequest,
+        ExportSubjectRequest,
+        PhenopacketExportRequest,
+        PhenopacketExportResponse,
+    )
+
+    export_phenotypes = [
+        ExportPhenotypeRequest(
+            hpo_id=p["hpo_id"],
+            label=p.get("label") or p["hpo_id"],
+            assertion_status="negated"
+            if p.get("assertion") == "negated"
+            else "affirmed",
+        )
+        for p in phenotypes
+    ]
+    export_request = PhenopacketExportRequest(
+        case_id=case_id,
+        case_label=case_label,
+        input_text=input_text,
+        subject=ExportSubjectRequest(**subject) if subject else None,
+        include_annotation_sidecar=include_annotation_sidecar,
+        phenotypes=export_phenotypes,
+    )
+    aggregated = [_map_phenotype_for_export(p) for p in export_request.phenotypes]
+    bundle = export_phenopacket_bundle(
+        aggregated_results=aggregated,
+        input_text=export_request.input_text,
+        include_annotation_sidecar=export_request.include_annotation_sidecar,
+    )
+    bundle = _apply_request_metadata_to_bundle(bundle, export_request)
+    return PhenopacketExportResponse.model_validate(bundle).model_dump(
+        exclude_none=True
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Chunking (no retrieval, no assertion)
+# --------------------------------------------------------------------------- #
+def chunk_text_service(
+    *, text: str, language: str | None, strategy: str | None
+) -> McpResult:
+    try:
+        config = resolve_chunking_config(strategy or "simple")
+    except Exception as exc:  # invalid strategy name (when it raises)
+        raise McpToolError(
+            "invalid_input",
+            f"Unknown chunking strategy '{strategy}'. Use a predefined strategy "
+            "such as 'simple', 'detailed', or 'sliding_window_punct_conj_cleaned'.",
+            details={"field": "strategy"},
+        ) from exc
+
+    try:
+        # Construction can raise if the (resolved) strategy needs a semantic model.
+        pipeline = TextProcessingPipeline(
+            language=language or DEFAULT_LANGUAGE,
+            chunking_pipeline_config=config,
+            assertion_config={"disable": True},
+            sbert_model_for_semantic_chunking=None,
+        )
+        processed = pipeline.process(text, include_positions=True)
+    except Exception as exc:  # e.g. a semantic strategy that needs a model
+        raise McpToolError(
+            "invalid_input",
+            "This chunking strategy requires a semantic model; use 'simple' or a "
+            "non-semantic strategy, or use phentrieve_extract_hpo_terms instead.",
+            details={"field": "strategy"},
+        ) from exc
+
+    chunks = [
+        {
+            "chunk_id": index + 1,
+            "text": chunk.get("text", ""),
+            "start_char": chunk.get("start_char"),
+            "end_char": chunk.get("end_char"),
+        }
+        for index, chunk in enumerate(processed)
+    ]
+    return {"chunks": chunks, "chunk_count": len(chunks)}
+
+
+# --------------------------------------------------------------------------- #
+# Diagnostics
+# --------------------------------------------------------------------------- #
+def _probe_ontology_data() -> str:
+    try:
+        _ancestors, depths = load_hpo_graph_data()
+        return "ok" if depths else "error"
+    except Exception:  # noqa: BLE001 - diagnostics must never raise
+        return "error"
+
+
+def diagnostics_service() -> McpResult:
+    from api.mcp.capabilities import capabilities_version
+    from api.mcp.envelope import get_recent_errors
+
+    subsystems = {
+        "ontology_data": _probe_ontology_data(),
+        "embedding_model": "lazy",
+        "llm_backend": "configured",
+        "vector_index": "lazy",
+    }
+    status = "ok" if all(v != "error" for v in subsystems.values()) else "degraded"
+    return {
+        "status": status,
+        "subsystems": subsystems,
+        "recent_errors": get_recent_errors()[-10:],
+        "minimum_workflow": [
+            "phentrieve_search_hpo_terms",
+            "phentrieve_extract_hpo_terms",
+            "phentrieve_export_phenopacket",
+        ],
+        "capabilities_version": capabilities_version(),
+    }

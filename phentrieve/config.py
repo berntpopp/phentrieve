@@ -666,6 +666,13 @@ class VectorStoreConfig:
             >>> settings = config.to_chromadb_settings()
             >>> client = chromadb.PersistentClient(path=config.path, settings=settings)
         """
+        import logging as _logging
+
         import chromadb
+
+        # ChromaDB 0.6.3 logs a harmless "capture() takes 1 positional argument
+        # but 3 were given" ERROR from its posthog telemetry even when telemetry
+        # is disabled (anonymized_telemetry=False). Silence that noisy logger.
+        _logging.getLogger("chromadb.telemetry").setLevel(_logging.CRITICAL)
 
         return chromadb.Settings(**self.settings)

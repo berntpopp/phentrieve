@@ -29,6 +29,9 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-06-13-mcp-gen3-modernization-verification.md` - verification
+  record for the FastMCP v3 MCP modernization (8 tools, Family B envelope,
+  response_mode, HTTP-only); all Python gates green.
 - `analysis/2026-05-25-llm-evidence-validation-enriched-mapping-pr-regression.md` -
   same-model focused A/B showing PR #261 regressed strict-ID CSC mapping
   performance; PR closed as superseded.
@@ -45,7 +48,10 @@ execution context.
 
 ## Current Specs
 
-- None.
+- `specs/2026-06-13-mcp-gen3-modernization-design.md` - design for bringing the
+  `api/mcp/` server up to the maintainer's Gen-3 MCP house style (Family B
+  envelope, response_mode, structured errors, capabilities versioning,
+  diagnostics, HTTP-only transport).
 
 ## Archived And Superseded
 
@@ -62,6 +68,10 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-06-13-mcp-gen3-modernization-plan.md` - completed
+  implementation plan for the FastMCP v3 MCP modernization (Family B envelope,
+  response_mode, capabilities versioning, diagnostics + phenopacket + chunk_text
+  tools, HTTP-only transport). See the design spec and verification analysis.
 - `completed/2026-05-24-full-text-multi-vector-parity-plan.md` - completed
   implementation plan for standard full-text parity with direct-query
   multi-vector aggregation.

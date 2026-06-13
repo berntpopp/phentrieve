@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.21.6"
+version = "0.22.0"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -31,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "sentence-transformers>=4.1.0,<6.0.0",
-    "chromadb>=0.6.3,<1.0.0",              # Security: avoid GHSA-f4j7-r4q5-qw2c until ChromaDB 1.x has a patched release
+    "chromadb>=1.5.9,<2.0.0",               # 1.x required to read the published multi-vector data bundles (0.6.x cannot)
     "requests>=2.31.0",
     "urllib3>=2.7.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v, PYSEC-2026-141, PYSEC-2026-142)
     "pysbd>=0.3.4",
@@ -57,7 +57,6 @@ dependencies = [
 
 [project.scripts]
 phentrieve = "phentrieve.cli:app"
-phentrieve-mcp = "api.mcp.cli:main"
 
 [project.optional-dependencies]
 # API server dependencies (for running the FastAPI backend)
@@ -67,9 +66,11 @@ api = [
     "python-dotenv>=1.0.0",
 ]
 # MCP server dependencies (for Model Context Protocol integration)
+# Streamable HTTP only, built on the standalone FastMCP v3 framework
+# (matches the maintainer's *-link MCP server family).
 mcp = [
-    "fastapi-mcp>=0.4.0,<1.0.0",
-    "mcp[cli]>=1.22.0,<2.0.0",
+    "mcp[cli]>=1.27.0,<2.0.0",
+    "fastmcp>=3.2.0,<4.0.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
@@ -98,8 +99,8 @@ analysis = [
 
 [tool.uv]
 constraint-dependencies = [
-    # ChromaDB 0.6.x declares posthog>=2.4.0 but emits runtime errors with
-    # PostHog 6+ telemetry APIs.
+    # ChromaDB 1.5.9 works with PostHog <6 telemetry APIs; pin to avoid the
+    # PostHog 6+ capture() signature break.
     "posthog>=2.4.0,<6.0.0",
 ]
 

@@ -18,6 +18,41 @@ together:
 
 ## [Unreleased]
 
+## [0.22.0] — 2026-06-13 (CLI 0.22.0 / API 0.13.0 / Frontend 0.12.0)
+
+### Changed
+
+- **MCP server modernized to the FastMCP v3 "Gen-3" house style (breaking).**
+  Tools are renamed from dotted (`phentrieve.extract_hpo_terms`) to
+  underscore-namespaced (`phentrieve_extract_hpo_terms`). Every tool now returns
+  a Family B envelope — `success` plus a `_meta` block (`tool`, `request_id`,
+  `elapsed_ms`, `response_mode`, `capabilities_version`,
+  `unsafe_for_clinical_use`, `next_commands`) — or a structured error
+  (`error_code`, `retryable`, `recovery_action`). A new `response_mode`
+  (`minimal | compact | standard | full`, default `compact`) controls token
+  cost. Clients depending on the previous response shapes or tool names must
+  update.
+- **MCP transport is Streamable HTTP only.** The stdio transport (the broken
+  `phentrieve-mcp` entry point) and the legacy `fastapi-mcp` OpenAPI bridge have
+  been removed. `phentrieve mcp serve` no longer takes `--http` (HTTP is the only
+  mode). The `fastapi-mcp` dependency is replaced by `fastmcp>=3.2`.
+
+### Added
+
+- New MCP tools: `phentrieve_export_phenopacket` (GA4GH Phenopacket v2 export),
+  `phentrieve_chunk_text` (chunk-only), and `phentrieve_diagnostics` (subsystem
+  health + recent errors). `phentrieve_get_server_capabilities` is renamed to
+  `phentrieve_get_capabilities` and now reports a content-hashed
+  `capabilities_version` and `descriptor_chars`.
+- MCP discoverability: `phentrieve://schema/overview` and
+  `phentrieve://schema/tool-guide` markdown resources, richer server
+  `instructions`, `readOnlyHint` tool annotations, structured output schemas,
+  argument-alias normalization with did-you-mean validation errors, and
+  `next_commands` workflow hints on every response.
+- MCP research-use acknowledgement parity: extraction tools require
+  `research_use_acknowledged=true` when the server runs in public-hosted or
+  research-ack mode, mirroring the REST `X-Research-Ack` gate.
+
 ## [0.20.0] — 2026-04-30 (CLI 0.20.0 / API 0.11.0 / Frontend 0.10.0)
 
 ### Changed

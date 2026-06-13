@@ -4,5 +4,5 @@
 
 [project]
 name = "phentrieve-api"
-version = "0.12.2"
+version = "0.13.0"
 description = "FastAPI backend for Phentrieve HPO term mapping"

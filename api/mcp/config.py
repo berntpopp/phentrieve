@@ -3,19 +3,15 @@
 This module provides configuration for the MCP server with sensible defaults
 and environment variable overrides. All settings use the PHENTRIEVE_MCP_ prefix.
 
-MCP Transport Modes:
-    1. stdio (default): For Claude Desktop integration via stdin/stdout
-       - Command: phentrieve mcp serve
-       - No URL needed - uses command execution
-
-    2. HTTP (same-domain): Mounts /mcp endpoint on existing API
-       - Enable via: ENABLE_MCP_HTTP=true
-       - URL: https://your-domain.com/mcp (same port as API)
+MCP Transport (Streamable HTTP only; stdio has been removed):
+    1. HTTP (same-domain): Mounts the /mcp endpoint on the existing API
+       - Enable via: ENABLE_MCP_HTTP=true (or PHENTRIEVE_MCP_ENABLE_HTTP=true)
+       - URL: https://your-domain.com/mcp (same port as the API)
        - Best for production Docker deployments
 
-    3. HTTP (standalone): Separate HTTP server for MCP only
-       - Command: phentrieve mcp serve --http --port 8735
-       - URL: http://localhost:8735/mcp
+    2. HTTP (standalone): Separate HTTP server for MCP only
+       - Command: phentrieve mcp serve --port 8734
+       - URL: http://localhost:8734/mcp
 """
 
 import os

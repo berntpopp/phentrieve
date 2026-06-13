@@ -152,6 +152,15 @@ services:
       # MCP Streamable HTTP endpoint
       # URL: https://your-domain.com/mcp
       - ENABLE_MCP_HTTP=${ENABLE_MCP_HTTP:-true}
+      # Disable ChromaDB anonymized telemetry (noisy, occasionally errors at startup)
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-False}
+      # LLM provider API keys for LLM-assisted extraction (forwarded from the
+      # gitignored .env; required for the 'llm' extraction backend / full-text).
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - PHENTRIEVE_GEMINI_API_KEY=${PHENTRIEVE_GEMINI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
 
     # Enhanced health check with longer start period for model loading
     healthcheck:
@@ -250,9 +259,8 @@ networks:
   # Internal network for service-to-service communication
   phentrieve_internal_net:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.25.0.0/16  # Explicit subnet for network isolation (changed from 172.20 to avoid conflicts)
+    # Subnet auto-assigned by Docker (default 172.16.0.0/12 pool, covered by
+    # PHENTRIEVE_TRUSTED_PROXY_CIDRS) to avoid collisions with other local stacks.
 
   # External network for Nginx Proxy Manager (NPM)
   npm_proxy_network:

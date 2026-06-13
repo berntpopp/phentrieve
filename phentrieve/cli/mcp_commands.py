@@ -18,8 +18,7 @@ app = typer.Typer(
 def _check_mcp_installed() -> bool:
     """Check if MCP dependencies are installed."""
     try:
-        import fastapi_mcp  # noqa: F401
-        import mcp.server.fastmcp  # noqa: F401
+        import fastmcp  # noqa: F401
 
         return True
     except ImportError:
@@ -28,33 +27,22 @@ def _check_mcp_installed() -> bool:
 
 @app.command("serve")
 def serve_mcp(
-    http: Annotated[
-        bool,
-        typer.Option(
-            "--http",
-            help="Use HTTP transport instead of stdio (for web clients).",
-        ),
-    ] = False,
     port: Annotated[
         int,
         typer.Option(
             "--port",
             "-p",
-            help="Port for HTTP transport (ignored for stdio).",
+            help="Port for the Streamable HTTP MCP server.",
         ),
     ] = 8734,
 ) -> None:
-    """Start Phentrieve MCP server.
+    """Start the Phentrieve MCP server over Streamable HTTP (endpoint at /mcp).
 
-    By default, uses stdio transport for Claude Desktop integration.
-    Use --http for web-based MCP clients.
+    Phentrieve serves MCP only over Streamable HTTP (stdio has been removed).
 
     Examples:
-        # For Claude Desktop (default - stdio transport)
-        phentrieve mcp serve
-
-        # For web-based MCP clients
-        phentrieve mcp serve --http --port 8734
+        # Standalone HTTP MCP server
+        phentrieve mcp serve --port 8734
     """
     if not _check_mcp_installed():
         typer.echo(
@@ -64,23 +52,14 @@ def serve_mcp(
         )
         raise typer.Exit(1)
 
-    if http:
-        # HTTP transport
-        import os
+    import os
 
-        os.environ["PHENTRIEVE_MCP_PORT"] = str(port)
+    os.environ["PHENTRIEVE_MCP_PORT"] = str(port)
 
-        from api.mcp.http_server import main as http_main
+    from api.mcp.http_server import main as http_main
 
-        typer.echo(
-            f"Starting Phentrieve MCP server (HTTP) at http://127.0.0.1:{port}/mcp"
-        )
-        http_main()
-    else:
-        # stdio transport (default) - no output to stdout (it's for protocol)
-        from api.mcp.cli import main as stdio_main
-
-        stdio_main()
+    typer.echo(f"Starting Phentrieve MCP server (HTTP) at http://127.0.0.1:{port}/mcp")
+    http_main()
 
 
 @app.command("info")
@@ -110,25 +89,37 @@ def mcp_info() -> None:
     table.add_column("Description")
 
     tool_info = {
-        "phentrieve.extract_hpo_terms": (
-            "/mcp",
-            "Quick deterministic research screening without LLM calls",
-        ),
-        "phentrieve.extract_hpo_terms_llm": (
-            "/mcp",
-            "LLM-assisted full-text research annotation",
-        ),
-        "phentrieve.search_hpo_terms": (
+        "phentrieve_search_hpo_terms": (
             "/mcp",
             "Map a short research phenotype phrase to HPO candidates",
         ),
-        "phentrieve.compare_hpo_terms": (
+        "phentrieve_extract_hpo_terms": (
+            "/mcp",
+            "Quick deterministic research screening without LLM calls",
+        ),
+        "phentrieve_extract_hpo_terms_llm": (
+            "/mcp",
+            "LLM-assisted full-text research annotation",
+        ),
+        "phentrieve_compare_hpo_terms": (
             "/mcp",
             "Compare two HPO IDs for research similarity analysis",
         ),
-        "phentrieve.get_server_capabilities": (
+        "phentrieve_export_phenopacket": (
             "/mcp",
-            "Report supported backends, languages, and configured LLM model",
+            "Serialize annotations to a GA4GH Phenopacket v2 bundle",
+        ),
+        "phentrieve_chunk_text": (
+            "/mcp",
+            "Chunk text without retrieval, for client-driven loops",
+        ),
+        "phentrieve_get_capabilities": (
+            "/mcp",
+            "Report tools, response modes, limits, and the citation contract",
+        ),
+        "phentrieve_diagnostics": (
+            "/mcp",
+            "Subsystem health and recent errors",
         ),
     }
 
