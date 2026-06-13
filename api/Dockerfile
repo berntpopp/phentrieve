@@ -286,7 +286,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     # Apply security updates to base image packages (addresses gpgv/GnuPG, libgnutls, openssl CVEs)
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
+    # Explicitly force-upgrade the OpenSSL family. A warm registry build cache can
+    # otherwise pin a stale `apt-get upgrade` layer (e.g. openssl 3.5.6-1~deb13u1)
+    # and keep shipping it across rebuilds. Naming the packages here guarantees the
+    # latest published Debian security patch (3.5.6-1~deb13u2: CVE-2026-45447 and the
+    # related PKCS7/CMS/X.509 fixes) lands, and editing this line busts the layer cache.
+    apt-get install -y --no-install-recommends --only-upgrade \
+        openssl \
+        libssl3t64 \
+    && apt-get install -y --no-install-recommends \
         ca-certificates \
         libgomp1 \
         gosu \

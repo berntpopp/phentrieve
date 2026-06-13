@@ -30,7 +30,7 @@ updates:
           - "sentence-transformers*"  # Pin to 4.x
           - "chromadb*"               # Pin to 1.x
           - "torch*"                  # Pin to 2.x
-          - "typer*"                  # Pin to 0.16.x
+          - "typer*"                  # Pin to <0.26 (0.26 breaks phentrieve/cli)
     ignore:
       # Ignore major version updates for pinned dependencies
       - dependency-name: "sentence-transformers"
@@ -39,8 +39,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "torch"
         update-types: ["version-update:semver-major"]
+      # typer 0.26 vendors click (typer._click) and breaks phentrieve/cli's lazy CLI
+      # groups; keep pinned <0.26 until the CLI is migrated (see closed PR #272).
+      # Block minor bumps too so Dependabot stops re-proposing the 0.26 range bump.
       - dependency-name: "typer"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
 
   # Frontend npm dependencies
   - package-ecosystem: "npm"
