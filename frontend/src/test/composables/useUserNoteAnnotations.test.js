@@ -33,6 +33,66 @@ describe('useUserNoteAnnotations', () => {
     expect(segments.find((segment) => segment.highlighted)?.text).toBe('seizures');
   });
 
+  it('keeps every phenotype highlighted while one is active (no hover collapse)', () => {
+    const note = 'Patient had seizures. Developmental delay documented.';
+    const chunks = [
+      { chunk_id: 1, text: 'Patient had seizures.' },
+      { chunk_id: 2, text: 'Developmental delay documented.' },
+    ];
+    const terms = [
+      {
+        hpo_id: 'HP:0001250',
+        name: 'Seizure',
+        text_attributions: [{ chunk_id: 1, start_char: 12, end_char: 20 }],
+      },
+      {
+        hpo_id: 'HP:0001263',
+        name: 'Global developmental delay',
+        text_attributions: [{ chunk_id: 2, start_char: 0, end_char: 19 }],
+      },
+    ];
+
+    const highlightedTexts = (activePhenotypeId) =>
+      buildUserNoteSegments({ note, chunks, terms, activePhenotypeId })
+        .filter((segment) => segment.highlighted)
+        .map((segment) => segment.text);
+
+    // Both mentions are highlighted at rest...
+    expect(highlightedTexts(null)).toEqual(['seizures', 'Developmental delay']);
+    // ...and stay highlighted even when one phenotype is the active/hovered one.
+    expect(highlightedTexts('HP:0001250')).toEqual(['seizures', 'Developmental delay']);
+    expect(highlightedTexts('HP:0001263')).toEqual(['seizures', 'Developmental delay']);
+  });
+
+  it('produces identical segment structure regardless of the active phenotype', () => {
+    const note = 'Patient had seizures. Developmental delay documented.';
+    const chunks = [
+      { chunk_id: 1, text: 'Patient had seizures.' },
+      { chunk_id: 2, text: 'Developmental delay documented.' },
+    ];
+    const terms = [
+      {
+        hpo_id: 'HP:0001250',
+        name: 'Seizure',
+        text_attributions: [{ chunk_id: 1, start_char: 12, end_char: 20 }],
+      },
+      {
+        hpo_id: 'HP:0001263',
+        name: 'Global developmental delay',
+        text_attributions: [{ chunk_id: 2, start_char: 0, end_char: 19 }],
+      },
+    ];
+
+    const keysFor = (activePhenotypeId) =>
+      buildUserNoteSegments({ note, chunks, terms, activePhenotypeId }).map(
+        (segment) => segment.key
+      );
+
+    // Stable keys => no DOM re-creation on hover => mouseleave always fires => no stuck highlight.
+    expect(keysFor('HP:0001250')).toEqual(keysFor(null));
+    expect(keysFor('HP:0001263')).toEqual(keysFor(null));
+  });
+
   it('resolves chunk offsets in order within the note', () => {
     const offsets = resolveChunkOffsetsInNote('alpha beta gamma', [
       { chunk_id: 1, text: 'alpha beta' },

@@ -76,7 +76,7 @@ export function resolveMatchedTextRange(noteText, matchedText) {
   };
 }
 
-export function buildUserNoteSegments({ note, chunks, terms, activePhenotypeId }) {
+export function buildUserNoteSegments({ note, chunks, terms }) {
   const fallbackText = typeof note === 'string' ? note : '';
   const normalizedChunks = Array.isArray(chunks) ? chunks : [];
   const normalizedTerms = Array.isArray(terms) ? terms : [];
@@ -91,8 +91,12 @@ export function buildUserNoteSegments({ note, chunks, terms, activePhenotypeId }
   }
 
   const chunkOffsets = resolveChunkOffsetsInNote(fallbackText, normalizedChunks);
+  // Always build highlights for every term. The hovered/active phenotype is
+  // emphasised purely via a CSS class in the template (driven by the
+  // activePhenotypeId prop), so the segment list stays stable across hovers:
+  // no annotations collapse and the <mark> DOM nodes are never re-created
+  // (which previously dropped mouseleave and left a highlight stuck).
   const highlights = normalizedTerms
-    .filter((term) => !activePhenotypeId || term?.hpo_id === activePhenotypeId)
     .flatMap((term) =>
       (Array.isArray(term.text_attributions) ? term.text_attributions : []).map((attr) => ({
         ...attr,

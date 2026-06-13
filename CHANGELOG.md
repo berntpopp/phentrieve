@@ -18,6 +18,39 @@ together:
 
 ## [Unreleased]
 
+## [0.22.1] — 2026-06-13 (CLI 0.22.1 / API 0.13.0 / Frontend 0.12.1)
+
+### Fixed
+
+- **Full-text annotation hover no longer collapses the highlights.** Hovering a
+  single annotated phrase previously filtered the note down to that one
+  phenotype, so every other highlight disappeared and the re-rendered `<mark>`
+  could leave a highlight "stuck". Annotated segments are now a pure function of
+  the note, chunks, and terms, so all mentions stay highlighted and the hovered
+  phenotype is emphasised purely via a CSS class — no annotations collapse and
+  the highlight always resets on leave.
+- **Phenotype tooltip is now readable.** The tooltip rendered near-black text on
+  Vuetify's default dark surface (~1.7:1 contrast) because the custom surface
+  style sat in a scoped `:deep()` rule that could not reach the body-teleported
+  overlay. It now uses a global, theme-aware surface (`surface` / `on-surface` /
+  `primary` tokens) that meets WCAG AA (≈21:1 label, ≈5.6:1 eyebrow) in both
+  light and dark themes.
+
+### Added
+
+- **Keyboard accessibility for annotated spans.** Annotated mentions are now
+  focusable (`tabindex`, `aria-label`), reveal their tooltip on keyboard focus
+  (`open-on-focus`), and show the same emphasis on focus as on hover (WCAG
+  1.4.13). The clinical-note expand/collapse toggle gained an accessible name.
+
+### Changed
+
+- **Local dev stack no longer enforces the public LLM daily quota.** The quota
+  gate only fires when `PHENTRIEVE_ENV=production`; `docker-compose.dev.yml` now
+  runs the dev API as `development`, so full-text LLM extraction works locally
+  without hitting the daily limit. Set `PHENTRIEVE_ENV=production` in `.env` to
+  exercise production quota behaviour.
+
 ## [0.22.0] — 2026-06-13 (CLI 0.22.0 / API 0.13.0 / Frontend 0.12.0)
 
 ### Changed

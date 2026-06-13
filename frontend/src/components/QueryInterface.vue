@@ -629,11 +629,14 @@ export default {
       this.setHoveredNotePhenotype(turnId, termIds[0]);
     },
     buildUserNoteSegments(item) {
+      // Segments are independent of the hovered phenotype on purpose: the
+      // active phenotype is emphasised via the `active-phenotype-id` prop on
+      // FullTextWorkspace (a CSS class toggle), keeping all annotations
+      // highlighted and the <mark> nodes stable across hovers.
       return deriveUserNoteSegments({
         note: this.getHistoryDisplayQuery(item),
         chunks: item?.response?.processed_chunks,
         terms: item?.response?.aggregated_hpo_terms,
-        activePhenotypeId: this.getHoveredNotePhenotype(item?.id),
       });
     },
     resolveChunkOffsetsInNote(noteText, chunks) {
