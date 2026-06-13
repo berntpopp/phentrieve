@@ -198,4 +198,4 @@ def build_capabilities(details: list[str] | None = None) -> dict[str, Any]:
 
 def capabilities_version() -> str:
     """Stable ``sha256:<16 hex>`` content hash of the base capability surface."""
-    return _cached_descriptor(())["capabilities_version"]
+    return str(_cached_descriptor(())["capabilities_version"])

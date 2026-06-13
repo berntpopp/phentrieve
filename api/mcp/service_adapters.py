@@ -121,7 +121,7 @@ def extract_hpo_terms_service(
     chunk_retrieval_threshold: float,
     service: Any = run_full_text_service,
 ) -> McpResult:
-    return service(
+    result: McpResult = service(
         text=text,
         extraction_backend="standard",
         language=language,
@@ -130,6 +130,7 @@ def extract_hpo_terms_service(
         num_results_per_chunk=num_results_per_chunk,
         chunk_retrieval_threshold=chunk_retrieval_threshold,
     )
+    return result
 
 
 def _standard_fallback_result(
@@ -143,7 +144,7 @@ def _standard_fallback_result(
     fallback_meta: dict[str, Any],
     service: Any,
 ) -> McpResult:
-    result = service(
+    result: McpResult = service(
         text=text,
         extraction_backend="standard",
         language=language,
@@ -220,7 +221,7 @@ def extract_hpo_terms_llm_service(
             )
 
     try:
-        result = service(**llm_kwargs)
+        result: McpResult = service(**llm_kwargs)
     except Exception as exc:
         if not allow_standard_fallback:
             raise

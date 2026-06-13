@@ -55,7 +55,7 @@ def resolve_mode(requested: str | None) -> ResponseMode:
         return DEFAULT_MODE
     if requested not in MODES:
         raise ValueError(f"response_mode must be one of {MODES}")
-    return requested  # type: ignore[return-value]
+    return requested
 
 
 def _shape_item(item: dict[str, Any], mode: ResponseMode) -> dict[str, Any]:
