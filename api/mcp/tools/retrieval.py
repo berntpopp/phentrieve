@@ -19,9 +19,6 @@ from api.mcp.service_adapters import (
 )
 from api.mcp.shaping import apply_response_mode, enforce_budget, resolve_mode
 from api.mcp.tools._common import (
-    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-    DEFAULT_NUM_RESULTS,
-    MIN_SIMILARITY_THRESHOLD,
     ChunkRetrievalThreshold,
     IncludeChunkPositions,
     IncludeDetails,
@@ -33,6 +30,11 @@ from api.mcp.tools._common import (
     SimilarityThreshold,
     TextArg,
     require_research_ack,
+)
+from phentrieve.config import (
+    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+    DEFAULT_NUM_RESULTS,
+    MIN_SIMILARITY_THRESHOLD,
 )
 
 if TYPE_CHECKING:

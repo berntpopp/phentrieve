@@ -6,20 +6,6 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-# Re-exported from phentrieve.config so tool modules can import their default
-# values from this shared module. The redundant ``X as X`` aliases mark these as
-# intentional re-exports (PEP 484), which avoids the self-assignment re-export
-# idiom that CodeQL flags as py/redundant-assignment.
-from phentrieve.config import (
-    DEFAULT_CHUNK_RETRIEVAL_THRESHOLD as DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-)
-from phentrieve.config import (
-    DEFAULT_NUM_RESULTS as DEFAULT_NUM_RESULTS,
-)
-from phentrieve.config import (
-    MIN_SIMILARITY_THRESHOLD as MIN_SIMILARITY_THRESHOLD,
-)
-
 ResponseMode = Annotated[
     Literal["minimal", "compact", "standard", "full"],
     Field(description="Verbosity / token budget: minimal | compact | standard | full."),
