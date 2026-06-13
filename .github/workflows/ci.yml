@@ -294,7 +294,14 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-          jq '
+          # Accepted, documented advisories that must not fail this gate. Keep in
+          # sync with the pip-audit --ignore-vuln list in security.yml.
+          # - GHSA-f4j7-r4q5-qw2c / CVE-2026-45829: chromadb >=1.0.0,<=1.5.9. ChromaDB
+          #   1.x is required to read the published multi-vector data bundles (0.6.x
+          #   fails with KeyError '_type'); 1.5.9 is the latest release and the
+          #   advisory has no patched fix yet (see security.yml and the
+          #   test_dependency_security_policy.py policy tests).
+          jq --argjson allowed_advisories '["GHSA-f4j7-r4q5-qw2c"]' '
             [
               .[]
               | select(.change_type != "removed")
@@ -302,6 +309,7 @@ jobs:
               | . as $dependency
               | ($dependency.vulnerabilities // [])[]?
               | select((.severity // "" | ascii_downcase) == "high" or (.severity // "" | ascii_downcase) == "critical")
+              | select((.advisory_ghsa_id // "") as $ghsa | ($allowed_advisories | index($ghsa)) | not)
               | {
                   manifest: $dependency.manifest,
                   ecosystem: $dependency.ecosystem,

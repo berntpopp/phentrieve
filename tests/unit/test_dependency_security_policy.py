@@ -73,6 +73,18 @@ def test_security_workflow_documents_accepted_chromadb_vulnerability() -> None:
     assert "--ignore-vuln GHSA-f4j7-r4q5-qw2c" in security_workflow
 
 
+def test_dependency_review_gate_allowlists_accepted_chromadb_vulnerability() -> None:
+    """The ci.yml Dependency Review gate must allowlist the same accepted advisory
+    as the pip-audit ignore in security.yml, so chromadb 1.5.9 (required for
+    data-bundle compatibility) does not fail it on GHSA-f4j7-r4q5-qw2c."""
+    ci_workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "allowed_advisories" in ci_workflow
+    assert "GHSA-f4j7-r4q5-qw2c" in ci_workflow
+
+
 def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:
     """ChromaDB 1.5.9 no longer pulls posthog; if a future resolution does, keep
     it below the PostHog 6 capture() signature break (constrained in pyproject)."""

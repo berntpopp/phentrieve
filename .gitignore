@@ -27,6 +27,8 @@ data/hf_cache/
 data/indexes/
 data/hpo_terms/
 data/hpo_core_data/
+# Runtime app state (e.g. LLM quota SQLite db, generated at runtime)
+data/app/
 
 # HPO SQLite database (generated data)
 data/hpo_data.db
