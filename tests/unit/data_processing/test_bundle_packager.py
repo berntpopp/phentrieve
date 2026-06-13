@@ -9,6 +9,7 @@ Issue #117: Pre-built data distribution system.
 import tarfile
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pytest
 
 from phentrieve.data_processing.bundle_manifest import BundleManifest
@@ -16,6 +17,7 @@ from phentrieve.data_processing.bundle_packager import (
     _get_index_dimension,
     _populate_manifest_from_db,
     _verify_bundle_checksums,
+    _verify_collection_exists,
     create_bundle,
     extract_bundle,
     list_available_bundles,
@@ -263,6 +265,113 @@ class TestGetIndexDimension:
 
         # Assert
         assert dimension == 768
+
+    def test_uses_telemetry_disabled_chromadb_settings(self, tmp_path):
+        """Test dimension lookup uses the project's ChromaDB settings."""
+        # Arrange
+        index_dir = tmp_path / "index"
+        index_dir.mkdir()
+
+        with patch("chromadb.PersistentClient") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.list_collections.return_value = []
+            mock_client_class.return_value = mock_client
+
+            # Act
+            _get_index_dimension(index_dir)
+
+        # Assert
+        settings = mock_client_class.call_args.kwargs["settings"]
+        assert settings.anonymized_telemetry is False
+        assert settings.is_persistent is True
+
+    def test_resolves_chromadb_0_6_collection_name_before_peek(self, tmp_path):
+        """Test dimension lookup with ChromaDB 0.6 collection name lists."""
+        # Arrange
+        index_dir = tmp_path / "index"
+        index_dir.mkdir()
+
+        mock_collection = MagicMock()
+        mock_collection.peek.return_value = {"embeddings": [[0.1, 0.2, 0.3]]}
+
+        with patch("chromadb.PersistentClient") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.list_collections.return_value = ["test_collection"]
+            mock_client.get_collection.return_value = mock_collection
+            mock_client_class.return_value = mock_client
+
+            # Act
+            dimension = _get_index_dimension(index_dir)
+
+        # Assert
+        assert dimension == 3
+        mock_client.get_collection.assert_called_once_with("test_collection")
+
+    def test_handles_numpy_embeddings_from_chromadb_peek(self, tmp_path):
+        """Test dimension lookup handles ChromaDB 0.6 numpy embedding payloads."""
+        # Arrange
+        index_dir = tmp_path / "index"
+        index_dir.mkdir()
+
+        mock_collection = MagicMock()
+        mock_collection.peek.return_value = {"embeddings": np.array([[0.1, 0.2, 0.3]])}
+
+        with patch("chromadb.PersistentClient") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.list_collections.return_value = ["test_collection"]
+            mock_client.get_collection.return_value = mock_collection
+            mock_client_class.return_value = mock_client
+
+            # Act
+            dimension = _get_index_dimension(index_dir)
+
+        # Assert
+        assert dimension == 3
+
+
+# =============================================================================
+# Tests for _verify_collection_exists()
+# =============================================================================
+
+
+class TestVerifyCollectionExists:
+    """Tests for _verify_collection_exists() function."""
+
+    def test_accepts_chromadb_0_6_collection_name_lists(self, tmp_path):
+        """Test collection lookup with ChromaDB 0.6 list_collections names."""
+        # Arrange
+        index_dir = tmp_path / "index"
+        index_dir.mkdir()
+
+        with patch("chromadb.PersistentClient") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.list_collections.return_value = ["test_collection"]
+            mock_client_class.return_value = mock_client
+
+            # Act
+            exists = _verify_collection_exists(index_dir, "test_collection")
+
+        # Assert
+        assert exists is True
+
+    def test_uses_telemetry_disabled_chromadb_settings(self, tmp_path):
+        """Test collection lookup uses the project's ChromaDB settings."""
+        # Arrange
+        index_dir = tmp_path / "index"
+        index_dir.mkdir()
+
+        with patch("chromadb.PersistentClient") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.list_collections.return_value = []
+            mock_client_class.return_value = mock_client
+
+            # Act
+            _verify_collection_exists(index_dir, "test_collection")
+
+        # Assert
+        settings = mock_client_class.call_args.kwargs["settings"]
+        assert settings.anonymized_telemetry is False
+        assert settings.is_persistent is True
 
 
 # =============================================================================

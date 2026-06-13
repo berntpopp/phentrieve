@@ -8,7 +8,6 @@ import viteCompression from 'vite-plugin-compression'
 // vite-plugin-imagemin removed due to unmaintained status and 29+ security vulnerabilities
 // Images are served as-is; consider vite-imagetools for future optimization needs
 import iconOptimizer from './vite-icon-optimizer'
-import commonjs from '@rollup/plugin-commonjs'
 
 // Read version from package.json at build time
 const packageJson = JSON.parse(
@@ -21,22 +20,13 @@ export default defineConfig(({ mode }) => ({
     __VUE_PROD_DEVTOOLS__: false,
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
     __APP_VERSION__: JSON.stringify(packageJson.version), // Inject version at build time
+    global: 'globalThis',
   },
   optimizeDeps: {
     include: ['google-protobuf'],
-    esbuildOptions: {
-      // Node.js global to browser globalThis
-      define: {
-        global: 'globalThis'
-      }
-    }
   },
   plugins: [
     vue(),
-    commonjs({
-      transformMixedEsModules: true,
-      include: [/node_modules/]
-    }),
     iconOptimizer(),
     // Brotli compression and bundle visualizer are deploy-time concerns.
     // Skip in CI to save 10-30s per build; keep for local builds so the
@@ -63,29 +53,27 @@ export default defineConfig(({ mode }) => ({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  // esbuild is Vite's default minifier; drop console/debugger in production
-  // builds only (not dev server) to preserve the dev debugging experience.
-  esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
+  // Drop console/debugger in production builds only to preserve the dev
+  // debugging experience.
+  ...(mode === 'production' ? { esbuild: { drop: ['console', 'debugger'] } } : {}),
   build: {
     target: 'es2015',
-    // Vite's default minifier is esbuild: 30-90x faster than terser with
-    // negligible compression loss. Console/debugger stripping lives in the
-    // top-level `esbuild:` config (see above) so it applies to the default
-    // minify pass.
-    commonjsOptions: {
-      transformMixedEsModules: true,
-      include: [/node_modules/],
-      exclude: [/\.mjs$/]
-    },
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          'vuetify': ['vuetify'],
-          'vendor': ['vue', 'vue-router', 'pinia'],
-          'components': [
-            './src/components/DisclaimerDialog.vue',
-            './src/components/LogViewer.vue',
-            './src/components/ResultsDisplay.vue'
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vuetify',
+              test: /[\\/]node_modules[\\/]vuetify[\\/]/
+            },
+            {
+              name: 'vendor',
+              test: /[\\/]node_modules[\\/](vue|vue-router|pinia)[\\/]/
+            },
+            {
+              name: 'components',
+              test: /[\\/]src[\\/]components[\\/](DisclaimerDialog|LogViewer|ResultsDisplay)\.vue$/
+            }
           ]
         }
       }

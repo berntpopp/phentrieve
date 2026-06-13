@@ -8,7 +8,7 @@ relevant HPO terms based on semantic similarity with input text.
 import logging
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 # NOTE: Heavy dependencies (chromadb, SentenceTransformer) are only imported
 # for type hints (TYPE_CHECKING) or lazily inside functions where actually used.
@@ -37,6 +37,13 @@ from phentrieve.utils import (
 from phentrieve.utils import (
     sanitize_log_value as _sanitize,
 )
+
+
+def _get_collection_name(collection: Any) -> str:
+    """Return a Chroma collection name across ChromaDB 0.6 and 1.x APIs."""
+    if isinstance(collection, str):
+        return collection
+    return str(collection.name)
 
 
 def connect_to_chroma(
@@ -106,7 +113,7 @@ def connect_to_chroma(
             # List available collections for debugging
             collections = client.list_collections()
             if collections:
-                collection_names = [c.name for c in collections]
+                collection_names = [_get_collection_name(c) for c in collections]
                 collection_list = ", ".join(collection_names)
                 logging.info("Available collections: %s", _sanitize(collection_list))
 
@@ -311,7 +318,7 @@ class DenseRetriever:
             batch_results = self.collection.query(
                 query_embeddings=[emb.tolist() for emb in query_embeddings],
                 n_results=query_n_results,
-                include=["documents", "metadatas", "distances"],
+                include=cast(Any, ["documents", "metadatas", "distances"]),
             )
 
             # Convert batch results to list of individual results (one per text)

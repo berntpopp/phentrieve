@@ -88,6 +88,34 @@ class TestConnectToChroma:
         assert result == mock_alternate_collection
 
     @patch("chromadb.PersistentClient")
+    @patch("phentrieve.retrieval.dense_retriever.generate_collection_name")
+    def test_collection_not_found_with_chromadb_0_6_name_alternate(
+        self, mock_gen_name, mock_client_class
+    ):
+        """Test alternate collection lookup with ChromaDB 0.6 name lists."""
+        # Arrange
+        mock_alternate_collection = Mock()
+        mock_alternate_collection.count.return_value = 50
+
+        mock_client = Mock()
+        mock_client.get_collection.side_effect = [
+            Exception("Not found"),
+            mock_alternate_collection,
+        ]
+        mock_client.list_collections.return_value = ["alternate_name"]
+        mock_client_class.return_value = mock_client
+
+        mock_gen_name.return_value = "alternate_name"
+
+        # Act
+        result = connect_to_chroma(
+            "/fake/index", "original_name", model_name="some-model"
+        )
+
+        # Assert
+        assert result == mock_alternate_collection
+
+    @patch("chromadb.PersistentClient")
     def test_chromadb_connection_error(self, mock_client_class):
         """Test error handling when ChromaDB connection fails."""
         # Arrange

@@ -49,27 +49,27 @@ def _docker_node_version() -> tuple[int, int, int] | None:
     return _parse_version(match.group(1))
 
 
-def test_frontend_package_specs_target_vite_7_and_vue_router_5_1() -> None:
+def test_frontend_package_specs_target_vite_8_and_vue_router_5_1() -> None:
     package_json = _read_frontend_package_json()
     dependencies = package_json["dependencies"]
     dev_dependencies = package_json["devDependencies"]
 
     assert dependencies["vue-router"].startswith("^5.1.")
-    assert dev_dependencies["vite"].startswith("^7.")
+    assert dev_dependencies["vite"].startswith("^8.")
 
 
-def test_frontend_lockfile_resolves_vite_7_and_vue_router_5_1() -> None:
+def test_frontend_lockfile_resolves_vite_8_and_vue_router_5_1() -> None:
     package_lock = _read_frontend_package_lock()
     packages = package_lock["packages"]
 
     assert packages[""]["dependencies"]["vue-router"].startswith("^5.1.")
-    assert packages[""]["devDependencies"]["vite"].startswith("^7.")
+    assert packages[""]["devDependencies"]["vite"].startswith("^8.")
     assert _parse_version(packages["node_modules/vue-router"]["version"]) >= (5, 1, 0)
-    assert _parse_version(packages["node_modules/vite"]["version"]) >= (7, 0, 0)
-    assert _parse_version(packages["node_modules/vite"]["version"]) < (8, 0, 0)
+    assert _parse_version(packages["node_modules/vite"]["version"]) >= (8, 0, 0)
+    assert _parse_version(packages["node_modules/vite"]["version"]) < (9, 0, 0)
 
 
-def test_frontend_docker_node_version_satisfies_vite_7_engine_floor() -> None:
+def test_frontend_docker_node_version_satisfies_vite_8_engine_floor() -> None:
     node_version = _docker_node_version()
 
     assert node_version is not None
@@ -84,7 +84,7 @@ def test_dependabot_no_longer_ignores_vue_router_minor_updates() -> None:
     assert 'dependency-name: "vue-router"' not in dependabot_config
 
 
-def test_github_actions_node_versions_satisfy_vite_7_engine_floor() -> None:
+def test_github_actions_node_versions_satisfy_vite_8_engine_floor() -> None:
     workflow_text = "\n".join(
         workflow.read_text(encoding="utf-8")
         for workflow in sorted(WORKFLOW_DIR.glob("*.yml"))
@@ -92,6 +92,14 @@ def test_github_actions_node_versions_satisfy_vite_7_engine_floor() -> None:
 
     assert "node-version: '20.19'" in workflow_text
     assert "node-version: '20'" not in workflow_text
+
+
+def test_vite_8_config_does_not_use_object_form_manual_chunks() -> None:
+    vite_config = (FRONTEND_DIR / "vite.config.js").read_text(encoding="utf-8")
+
+    assert "manualChunks: {" not in vite_config
+    assert "advancedChunks" not in vite_config
+    assert "codeSplitting" in vite_config
 
 
 def test_local_frontend_ci_reuses_existing_dependencies_by_default() -> None:

@@ -18,10 +18,12 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, cast
 
 import chromadb
 import numpy as np
 
+from phentrieve.config import VectorStoreConfig
 from phentrieve.utils import generate_collection_name, get_default_index_dir
 
 logger = logging.getLogger(__name__)
@@ -95,7 +97,14 @@ def _read_from_chroma(
     index_dir: Path, collection_name: str
 ) -> tuple[list[str], np.ndarray]:
     try:
-        client = chromadb.PersistentClient(path=str(index_dir))
+        vector_store_config = VectorStoreConfig(
+            path=str(index_dir),
+            collection_name=collection_name,
+        )
+        client = chromadb.PersistentClient(
+            path=str(index_dir),
+            settings=vector_store_config.to_chromadb_settings(),
+        )
         collection = client.get_collection(collection_name)
     except Exception as e:  # chromadb raises a variety of types
         raise FileNotFoundError(
@@ -103,7 +112,7 @@ def _read_from_chroma(
             "Run 'phentrieve index build --model-name ...' first."
         ) from e
 
-    got = collection.get(include=["embeddings"])
+    got = collection.get(include=cast(Any, ["embeddings"]))
     ids = list(got["ids"])
     embeddings = np.asarray(got["embeddings"], dtype=np.float32)
     if embeddings.ndim != 2 or embeddings.shape[0] != len(ids):

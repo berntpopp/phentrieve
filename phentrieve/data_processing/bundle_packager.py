@@ -18,11 +18,12 @@ import shutil
 import tarfile
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from phentrieve.config import (
     DEFAULT_HPO_DB_FILENAME,
     HPO_VERSION,
+    VectorStoreConfig,
 )
 from phentrieve.data_processing.bundle_manifest import (
     BundleManifest,
@@ -37,6 +38,20 @@ if TYPE_CHECKING:
     pass
 
 logger = logging.getLogger(__name__)
+
+
+def _collection_name(collection: object) -> str:
+    """Return a Chroma collection name across ChromaDB 0.6 and 1.x APIs."""
+    if isinstance(collection, str):
+        return collection
+    return str(cast(Any, collection).name)
+
+
+def _collection_from_list_entry(client: object, collection: object) -> object:
+    """Resolve ChromaDB 0.6 name-list entries to collection objects."""
+    if isinstance(collection, str):
+        return cast(Any, client).get_collection(collection)
+    return collection
 
 
 def create_bundle(
@@ -217,17 +232,23 @@ def _get_index_dimension(index_dir: Path) -> int:
     try:
         import chromadb
 
-        client = chromadb.PersistentClient(path=str(index_dir))
+        vector_store_config = VectorStoreConfig(
+            path=str(index_dir),
+            collection_name="_bundle_dimension_probe",
+        )
+        client = chromadb.PersistentClient(
+            path=str(index_dir),
+            settings=vector_store_config.to_chromadb_settings(),
+        )
         collections = client.list_collections()
         if collections:
             # Get dimension from first collection's metadata or peek
-            collection = collections[0]
+            collection = cast(Any, _collection_from_list_entry(client, collections[0]))
             # Try to peek at an embedding
             result = collection.peek(limit=1)
-            if result and result.get("embeddings"):
-                embeddings = result["embeddings"]
-                if embeddings and len(embeddings) > 0:
-                    return len(embeddings[0])
+            embeddings = result.get("embeddings") if result else None
+            if embeddings is not None and len(embeddings) > 0:
+                return len(embeddings[0])
     except Exception as e:
         logger.warning(f"Could not determine embedding dimension: {e}")
 
@@ -249,9 +270,16 @@ def _verify_collection_exists(index_dir: Path, collection_name: str) -> bool:
     try:
         import chromadb
 
-        client = chromadb.PersistentClient(path=str(index_dir))
+        vector_store_config = VectorStoreConfig(
+            path=str(index_dir),
+            collection_name=collection_name,
+        )
+        client = chromadb.PersistentClient(
+            path=str(index_dir),
+            settings=vector_store_config.to_chromadb_settings(),
+        )
         collections = client.list_collections()
-        collection_names = [c.name for c in collections]
+        collection_names = [_collection_name(c) for c in collections]
         return collection_name in collection_names
     except Exception as e:
         logger.warning(f"Could not verify collection existence: {e}")
