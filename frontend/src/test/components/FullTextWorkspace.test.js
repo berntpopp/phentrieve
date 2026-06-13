@@ -14,6 +14,7 @@ const baseSegments = [
     text: 'seizures',
     highlighted: true,
     termIds: ['HP:0001250'],
+    annotationIds: ['auto-HP:0001250-0'],
     tooltip: 'Seizure (HP:0001250)',
   },
   { key: 'plain-1', text: ' and ', highlighted: false },
@@ -22,6 +23,7 @@ const baseSegments = [
     text: 'developmental delay',
     highlighted: true,
     termIds: ['HP:0001263'],
+    annotationIds: ['auto-HP:0001263-1'],
     tooltip: 'Developmental delay (HP:0001263)',
   },
 ];
@@ -85,5 +87,37 @@ describe('FullTextWorkspace annotated note', () => {
 
     await firstMark.trigger('blur');
     expect(wrapper.emitted('clear-hover')).toBeTruthy();
+  });
+
+  it('marks expose button semantics for the curation menu', () => {
+    const wrapper = mountWorkspace();
+    const firstMark = wrapper.findAll('[data-testid="annotated-note-span"]')[0];
+    expect(firstMark.attributes('role')).toBe('button');
+    expect(firstMark.attributes('aria-haspopup')).toBe('menu');
+    expect(firstMark.attributes('aria-label')).toContain('Edit annotation');
+  });
+
+  it('emits span-activate with annotation + term ids on click', async () => {
+    const wrapper = mountWorkspace();
+    const firstMark = wrapper.findAll('[data-testid="annotated-note-span"]')[0];
+
+    await firstMark.trigger('click');
+
+    const payload = wrapper.emitted('span-activate')?.[0]?.[0];
+    expect(payload).toBeTruthy();
+    expect(payload.annotationIds).toEqual(['auto-HP:0001250-0']);
+    expect(payload.termIds).toEqual(['HP:0001250']);
+    expect(payload).toHaveProperty('rect');
+  });
+
+  it('emits span-activate on Enter and on right-click', async () => {
+    const wrapper = mountWorkspace();
+    const firstMark = wrapper.findAll('[data-testid="annotated-note-span"]')[0];
+
+    await firstMark.trigger('keydown', { key: 'Enter' });
+    expect(wrapper.emitted('span-activate')).toHaveLength(1);
+
+    await firstMark.trigger('contextmenu');
+    expect(wrapper.emitted('span-activate')).toHaveLength(2);
   });
 });

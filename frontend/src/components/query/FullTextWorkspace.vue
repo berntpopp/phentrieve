@@ -22,7 +22,13 @@
     <p v-if="!expanded" class="mb-0 text-body-2 text-medium-emphasis user-note-summary__preview">
       {{ summary }}
     </p>
-    <div v-if="expanded" data-testid="user-note-expanded" class="user-note-summary__expanded">
+    <div
+      v-if="expanded"
+      ref="expandedContainer"
+      data-testid="user-note-expanded"
+      class="user-note-summary__expanded"
+      @mouseup="onNoteMouseUp"
+    >
       <span v-for="segment in segments" :key="segment.key">
         <v-tooltip
           v-if="segment.highlighted"
@@ -42,12 +48,18 @@
                 'annotated-note-span--active':
                   activePhenotypeId && segment.termIds.includes(activePhenotypeId),
               }"
+              role="button"
+              aria-haspopup="menu"
               tabindex="0"
-              :aria-label="`Linked phenotype: ${segment.tooltip}`"
+              :aria-label="`Edit annotation: ${segment.tooltip}`"
               @mouseenter="$emit('hover', segment.termIds)"
               @mouseleave="$emit('clear-hover')"
               @focus="$emit('hover', segment.termIds)"
               @blur="$emit('clear-hover')"
+              @click="activateSpan(segment, $event)"
+              @contextmenu.prevent="activateSpan(segment, $event)"
+              @keydown.enter.prevent="activateSpan(segment, $event)"
+              @keydown.space.prevent="activateSpan(segment, $event)"
             >
               {{ segment.text }}
             </mark>
@@ -64,6 +76,8 @@
 </template>
 
 <script>
+import { computeSelectionOffsets } from '../../composables/useUserNoteAnnotations';
+
 export default {
   name: 'FullTextWorkspace',
   props: {
@@ -88,7 +102,55 @@ export default {
       default: null,
     },
   },
-  emits: ['toggle', 'hover', 'clear-hover'],
+  emits: ['toggle', 'hover', 'clear-hover', 'span-activate', 'text-select'],
+  methods: {
+    activateSpan(segment, event) {
+      const rect = event?.currentTarget?.getBoundingClientRect?.() || null;
+      this.$emit('span-activate', {
+        annotationIds: Array.isArray(segment.annotationIds) ? segment.annotationIds : [],
+        termIds: Array.isArray(segment.termIds) ? segment.termIds : [],
+        rect,
+        text: segment.text,
+      });
+    },
+    onNoteMouseUp() {
+      const selection =
+        typeof window !== 'undefined' && window.getSelection ? window.getSelection() : null;
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return;
+      }
+      const text = selection.toString().trim();
+      if (!text) {
+        return;
+      }
+      const container = this.$refs.expandedContainer;
+      if (!container) {
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      if (!container.contains(range.startContainer) || !container.contains(range.endContainer)) {
+        return;
+      }
+      // Selections fully inside a single existing mark are edited via click, not
+      // turned into a new manual annotation.
+      const startEl =
+        range.startContainer.nodeType === 1
+          ? range.startContainer
+          : range.startContainer.parentElement;
+      const endEl =
+        range.endContainer.nodeType === 1 ? range.endContainer : range.endContainer.parentElement;
+      const startMark = startEl?.closest?.('.annotated-note-span') || null;
+      const endMark = endEl?.closest?.('.annotated-note-span') || null;
+      if (startMark && startMark === endMark) {
+        return;
+      }
+      const offsets = computeSelectionOffsets(container, range);
+      if (!offsets) {
+        return;
+      }
+      this.$emit('text-select', { text, start: offsets.start, end: offsets.end });
+    },
+  },
 };
 </script>
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildUserNoteSegments,
   buildSegmentsFromAnnotations,
+  computeSelectionOffsets,
   deriveFindingsFromAnnotations,
   formatDocumentSummaryMeta,
   resolveChunkOffsetsInNote,
@@ -299,5 +300,31 @@ describe('deriveFindingsFromAnnotations', () => {
       { id: 'a1', hpoId: 'HP:1', label: 'A', status: 'affirmed', origin: 'manual', spans: [] },
     ]);
     expect(findings).toHaveLength(0);
+  });
+});
+
+describe('computeSelectionOffsets', () => {
+  it('maps a selection range to note-relative offsets across mixed nodes', () => {
+    const container = document.createElement('div');
+    container.innerHTML = 'She has <mark>microcephaly</mark> today';
+    document.body.appendChild(container);
+
+    const markText = container.querySelector('mark').firstChild;
+    const range = document.createRange();
+    range.setStart(markText, 0);
+    range.setEnd(markText, 'microcephaly'.length);
+
+    // 'She has ' is 8 chars, 'microcephaly' is 12 chars
+    expect(computeSelectionOffsets(container, range)).toEqual({ start: 8, end: 20 });
+    document.body.removeChild(container);
+  });
+
+  it('returns null for a collapsed range', () => {
+    const container = document.createElement('div');
+    container.textContent = 'plain text';
+    const range = document.createRange();
+    range.setStart(container.firstChild, 3);
+    range.setEnd(container.firstChild, 3);
+    expect(computeSelectionOffsets(container, range)).toBeNull();
   });
 });

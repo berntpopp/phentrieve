@@ -339,3 +339,40 @@ export function deriveFindingsFromAnnotations(annotations) {
 
   return [...byTerm.values()];
 }
+
+/**
+ * Compute note-relative {start, end} character offsets for a DOM selection range
+ * within a container whose text content equals the note text. Walks the
+ * container's text nodes in document order and accumulates lengths until it
+ * reaches the range's start/end containers. Returns null if the range cannot be
+ * resolved or is collapsed.
+ */
+export function computeSelectionOffsets(container, range) {
+  if (!container || !range) return null;
+
+  const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+  if (!doc || typeof doc.createTreeWalker !== 'function') return null;
+
+  const showText = typeof NodeFilter !== 'undefined' ? NodeFilter.SHOW_TEXT : 4;
+  const walker = doc.createTreeWalker(container, showText);
+
+  let start = null;
+  let end = null;
+  let acc = 0;
+  let node = walker.nextNode();
+  while (node) {
+    const length = node.textContent.length;
+    if (node === range.startContainer) start = acc + range.startOffset;
+    if (node === range.endContainer) end = acc + range.endOffset;
+    acc += length;
+    node = walker.nextNode();
+  }
+
+  if (start == null || end == null) return null;
+  if (end < start) {
+    const swap = start;
+    start = end;
+    end = swap;
+  }
+  return end > start ? { start, end } : null;
+}
