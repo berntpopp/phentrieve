@@ -45,7 +45,10 @@ execution context.
 
 ## Current Specs
 
-- None.
+- `specs/2026-06-13-mcp-gen3-modernization-design.md` - design for bringing the
+  `api/mcp/` server up to the maintainer's Gen-3 MCP house style (Family B
+  envelope, response_mode, structured errors, capabilities versioning,
+  diagnostics, HTTP-only transport).
 
 ## Archived And Superseded
 
