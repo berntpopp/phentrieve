@@ -180,8 +180,10 @@ docker-down: ## Stop Docker containers
 docker-logs: ## View Docker logs
 	$(DOCKER_COMPOSE) logs -f
 
-docker-dev: ## Start development Docker stack
-	$(DOCKER_COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml up
+docker-dev: ## Start development Docker stack (loads .env; detached; host ports 8001/8080)
+	$(DOCKER_COMPOSE) --env-file .env -f docker-compose.yml -f docker-compose.dev.yml up -d
+	@echo "Dev stack up: API http://localhost:$${API_PORT_HOST:-8001} (MCP at /mcp), frontend http://localhost:$${FRONTEND_PORT_HOST:-8080}"
+	@echo "Logs: make docker-logs"
 
 ##@ Local Development (Fast - No Docker)
 
