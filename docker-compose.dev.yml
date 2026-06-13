@@ -6,6 +6,11 @@ services:
     environment:
       # Dynamic ALLOWED_ORIGINS based on configured frontend port
       - ALLOWED_ORIGINS=http://localhost:${FRONTEND_PORT_HOST:-8080},http://localhost:${API_PORT_HOST:-8001},http://localhost:5734,http://localhost:8734
+      # Run the local dev stack as a development environment so the public LLM
+      # daily quota is NOT enforced. The quota gate only fires when
+      # PHENTRIEVE_ENV=production (see api/routers/text_processing_router.py).
+      # Set PHENTRIEVE_ENV=production in .env to test production quota behaviour.
+      - PHENTRIEVE_ENV=${PHENTRIEVE_ENV:-development}
     # Override volumes for development - map local data directory
     volumes:
       - ./data:/phentrieve_data_mount:rw
