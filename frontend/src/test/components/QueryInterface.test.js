@@ -8,7 +8,6 @@ import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
 import PhentrieveService from '../../services/PhentrieveService';
 import { logService } from '../../services/logService';
-import { useFullTextWorkspaceStore } from '../../stores/fullTextWorkspace';
 
 // Mock the API service class — methods are queryHpo() and processText()
 // (NOT query() — the real class in services/PhentrieveService.js uses queryHpo)
@@ -467,23 +466,6 @@ describe('QueryInterface (characterization)', () => {
         threshold: '0.8',
       },
     });
-  });
-
-  it('initializes a workspace turn after a text processing response arrives', async () => {
-    const wrapper = await mountQueryInterface();
-    const workspaceStore = useFullTextWorkspaceStore();
-
-    await setVmState(wrapper, {
-      queryText: 'Patient had recurrent seizures.',
-      forceEndpointMode: 'textProcess',
-    });
-
-    await wrapper.vm.submitQuery();
-
-    const latestQuery = wrapper.vm.conversationStore.queryHistory[0];
-    expect(latestQuery.type).toBe('textProcess');
-    expect(workspaceStore.hasTurn(latestQuery.id)).toBe(true);
-    expect(workspaceStore.getTurnState(latestQuery.id)?.expanded).toBe(true);
   });
 
   it('expands the submitted clinical note by default for new text-processing turns', async () => {

@@ -195,7 +195,6 @@ import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
-import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 import { useQueryInterfaceController } from '../composables/useQueryInterfaceController';
@@ -230,7 +229,6 @@ export default {
   setup() {
     const instance = getCurrentInstance();
     const conversationStore = useConversationStore();
-    const fullTextWorkspaceStore = useFullTextWorkspaceStore();
     const piiReviewFlow = usePiiReviewFlow({ logService });
 
     const {
@@ -317,7 +315,6 @@ export default {
           },
           piiReviewFlow,
           conversationStore: vm.conversationStore,
-          fullTextWorkspaceStore: vm.fullTextWorkspaceStore,
         };
       },
       service: PhentrieveService,
@@ -325,7 +322,6 @@ export default {
     });
     return {
       conversationStore,
-      fullTextWorkspaceStore,
       piiReviewDialogVisible: piiReviewFlow.piiReviewDialogVisible,
       pendingPiiSubmission: piiReviewFlow.pendingPiiSubmission,
       piiReviewFlow,
