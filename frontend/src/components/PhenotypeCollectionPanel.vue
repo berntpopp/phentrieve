@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- Floating action button for collection panel -->
-    <!-- TODO(Stream G): Replace this temporary Case Workspace bridge with store-backed case workspace wiring from fullTextWorkspace.js and QueryInterface.vue. -->
     <v-tooltip
       location="left"
       :text="bridgeLabels.openPanel"
@@ -246,7 +245,6 @@
       <template #append>
         <v-divider />
         <div class="pa-3">
-          <!-- TODO(Stream G): Wire this export action through usePhenotypeCollection.js -> PhentrieveService.js `/phenopackets/export`, using the active case from fullTextWorkspace.js instead of the legacy global collection. -->
           <v-btn
             block
             color="primary"
