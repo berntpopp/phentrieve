@@ -38,7 +38,7 @@ from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.text_processing.config_resolver import resolve_chunking_config
 from phentrieve.text_processing.full_text_service import run_full_text_service
 from phentrieve.text_processing.pipeline import TextProcessingPipeline
-from phentrieve.utils import normalize_id
+from phentrieve.utils import detect_language, normalize_id
 
 McpResult = dict[str, Any]
 
@@ -124,7 +124,9 @@ def extract_hpo_terms_service(
     result: McpResult = service(
         text=text,
         extraction_backend="standard",
-        language=language,
+        # language=None means "autodetect" per the tool contract; resolve it here
+        # because the chunking pipeline requires a concrete language string.
+        language=language or detect_language(text, default_lang=DEFAULT_LANGUAGE),
         include_details=include_details,
         include_positions=include_chunk_positions,
         num_results_per_chunk=num_results_per_chunk,
@@ -172,10 +174,10 @@ def extract_hpo_terms_llm_service(
     service: Any = run_full_text_service,
 ) -> McpResult:
     target = resolve_public_llm_target()
-    actual_language = language or DEFAULT_LANGUAGE
+    actual_language = language or detect_language(text, default_lang=DEFAULT_LANGUAGE)
     fallback_kwargs = {
         "text": text,
-        "language": language,
+        "language": actual_language,
         "include_details": include_details,
         "include_chunk_positions": include_chunk_positions,
         "num_results_per_chunk": num_results_per_chunk,

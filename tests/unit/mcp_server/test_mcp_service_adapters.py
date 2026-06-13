@@ -51,6 +51,55 @@ def test_export_phenopacket_service_round_trips_case_id():
     assert packet["id"] == "CASE-1"
 
 
+def test_extract_service_resolves_none_language():
+    # language=None must be resolved to a concrete code before the chunking
+    # pipeline runs (the conjunction chunker calls language.lower()).
+    captured = {}
+
+    def fake_service(**kwargs):
+        captured.update(kwargs)
+        return {"meta": {}, "processed_chunks": [], "aggregated_hpo_terms": []}
+
+    extract_hpo_terms_service(
+        text="The patient has seizures.",
+        language=None,
+        include_details=False,
+        include_chunk_positions=False,
+        num_results_per_chunk=5,
+        chunk_retrieval_threshold=0.5,
+        service=fake_service,
+    )
+    assert captured["language"] is not None
+    assert isinstance(captured["language"], str) and captured["language"]
+
+
+def test_extract_llm_fallback_passes_resolved_language(monkeypatch):
+    import api.config as api_config
+
+    monkeypatch.setattr(api_config, "PHENTRIEVE_ENV", "development", raising=False)
+    seen = {}
+
+    def flaky_service(**kwargs):
+        if kwargs.get("extraction_backend") == "llm":
+            raise RuntimeError("backend down")
+        seen.update(kwargs)
+        return {"meta": {}, "processed_chunks": [], "aggregated_hpo_terms": []}
+
+    extract_hpo_terms_llm_service(
+        text="Seizures and ataxia.",
+        language=None,
+        include_details=True,
+        include_chunk_positions=True,
+        num_results_per_chunk=5,
+        chunk_retrieval_threshold=0.5,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        allow_standard_fallback=True,
+        service=flaky_service,
+    )
+    assert seen.get("language")  # resolved, non-None, non-empty
+
+
 def test_extract_service_uses_injected_service():
     captured = {}
 
