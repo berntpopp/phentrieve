@@ -334,7 +334,7 @@ def chunk_text_service(
 ) -> McpResult:
     try:
         config = resolve_chunking_config(strategy or "simple")
-    except Exception as exc:  # invalid strategy name
+    except Exception as exc:  # invalid strategy name (when it raises)
         raise McpToolError(
             "invalid_input",
             f"Unknown chunking strategy '{strategy}'. Use a predefined strategy "
@@ -342,13 +342,14 @@ def chunk_text_service(
             details={"field": "strategy"},
         ) from exc
 
-    pipeline = TextProcessingPipeline(
-        language=language or DEFAULT_LANGUAGE,
-        chunking_pipeline_config=config,
-        assertion_config={"disable": True},
-        sbert_model_for_semantic_chunking=None,
-    )
     try:
+        # Construction can raise if the (resolved) strategy needs a semantic model.
+        pipeline = TextProcessingPipeline(
+            language=language or DEFAULT_LANGUAGE,
+            chunking_pipeline_config=config,
+            assertion_config={"disable": True},
+            sbert_model_for_semantic_chunking=None,
+        )
         processed = pipeline.process(text, include_positions=True)
     except Exception as exc:  # e.g. a semantic strategy that needs a model
         raise McpToolError(
