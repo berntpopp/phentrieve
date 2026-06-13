@@ -280,14 +280,17 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
     if (!ann || typeof ann.hpoId !== 'string') return;
     labelById.set(ann.hpoId, ann.label);
     (Array.isArray(ann.spans) ? ann.spans : []).forEach((span) => {
-      if (span && span.end > span.start) {
-        ranges.push({
-          start: span.start,
-          end: span.end,
-          termIds: [ann.hpoId],
-          annotationIds: [ann.id],
-        });
-      }
+      if (!span || span.end <= span.start || span.end > text.length) return;
+      // Only highlight when the stored span still matches the current note text.
+      // The clinical note is not persisted (redacted on reload), so stale offsets
+      // must degrade to plain text instead of slicing garbage out of "[redacted]".
+      if (typeof span.text === 'string' && text.slice(span.start, span.end) !== span.text) return;
+      ranges.push({
+        start: span.start,
+        end: span.end,
+        termIds: [ann.hpoId],
+        annotationIds: [ann.id],
+      });
     });
   });
 

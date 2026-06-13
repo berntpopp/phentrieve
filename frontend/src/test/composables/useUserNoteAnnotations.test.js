@@ -259,7 +259,7 @@ describe('buildSegmentsFromAnnotations', () => {
         label: 'A',
         status: 'affirmed',
         origin: 'auto',
-        spans: [{ start: 8, end: 16, text: 'microcep' }],
+        spans: [{ start: 8, end: 16, text: note.slice(8, 16) }],
       },
       {
         id: 'y',
@@ -267,7 +267,7 @@ describe('buildSegmentsFromAnnotations', () => {
         label: 'B',
         status: 'affirmed',
         origin: 'auto',
-        spans: [{ start: 12, end: 20, text: 'cephaly' }],
+        spans: [{ start: 12, end: 20, text: note.slice(12, 20) }],
       },
     ];
     const segs = buildSegmentsFromAnnotations(note, overlap).filter((s) => s.highlighted);
@@ -279,6 +279,13 @@ describe('buildSegmentsFromAnnotations', () => {
   it('returns a single plain segment when there are no annotations', () => {
     const segs = buildSegmentsFromAnnotations(note, []);
     expect(segs).toEqual([{ key: 'plain-note', text: note, highlighted: false }]);
+  });
+
+  it('degrades to plain text when stored span text no longer matches the note (redacted reload)', () => {
+    // Note text not persisted; stored offsets/text refer to the original note.
+    const segs = buildSegmentsFromAnnotations('[redacted]', annotations);
+    expect(segs.some((s) => s.highlighted)).toBe(false);
+    expect(segs.map((s) => s.text).join('')).toBe('[redacted]');
   });
 });
 

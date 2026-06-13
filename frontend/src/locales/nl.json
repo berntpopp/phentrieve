@@ -231,6 +231,7 @@
   },
   "annotatedDocumentPane": {
     "actions": {
+      "title": "Annotatiehulpmiddelen",
       "inspect": "Inspecteren",
       "addToCase": "Aan casus toevoegen",
       "changeTerm": "Term wijzigen",

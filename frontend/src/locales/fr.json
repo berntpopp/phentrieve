@@ -231,6 +231,7 @@
   },
   "annotatedDocumentPane": {
     "actions": {
+      "title": "Outils d'annotation",
       "inspect": "Inspecter",
       "addToCase": "Ajouter au cas",
       "changeTerm": "Modifier le terme",
