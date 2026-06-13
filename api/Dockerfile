@@ -161,9 +161,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         "pydantic>=2.0.0" \
         "pydantic-settings>=2.0.0" && \
     # Install MCP dependencies for the Streamable HTTP endpoint at /mcp \
+    # (FastMCP v3 framework; replaces the removed fastapi-mcp bridge) \
     pip install \
-        "fastapi-mcp>=0.4.0,<1.0.0" \
-        "mcp[cli]>=1.22.0,<2.0.0" && \
+        "mcp[cli]>=1.27.0,<2.0.0" \
+        "fastmcp>=3.2.0,<4.0.0" && \
     # Install remaining dependencies from pyproject.toml \
     pip install .
 SHELL ["/bin/sh", "-c"]
