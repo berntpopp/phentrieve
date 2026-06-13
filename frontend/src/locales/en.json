@@ -234,8 +234,34 @@
       "inspect": "Inspect",
       "addToCase": "Add to case",
       "changeTerm": "Change term",
-      "removeAnnotation": "Remove annotation"
-    }
+      "removeAnnotation": "Remove annotation",
+      "annotateSelection": "Annotate selection",
+      "revert": "Revert to original",
+      "addToCollection": "Add to collection"
+    },
+    "undo": {
+      "removed": "Annotation removed",
+      "action": "Undo"
+    },
+    "origin": {
+      "auto": "Auto",
+      "manual": "Manual"
+    },
+    "spanAriaLabel": "Edit annotation: {label}"
+  },
+  "hpoTermPicker": {
+    "changeTitle": "Change HPO term",
+    "addTitle": "Annotate selection",
+    "searchLabel": "Search HPO terms",
+    "spanLabel": "Selected text",
+    "assertionAffirmed": "Affirmed",
+    "assertionNegated": "Negated",
+    "replace": "Replace",
+    "add": "Add",
+    "cancel": "Cancel",
+    "empty": "No matching HPO terms found",
+    "loading": "Searching…",
+    "scoreLabel": "Score"
   },
   "resultsDisplay": {
     "title": "Extracted HPO Terms",
