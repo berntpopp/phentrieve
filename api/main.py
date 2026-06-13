@@ -70,7 +70,7 @@ def _try_mount_mcp(target_app: FastAPI) -> None:
         mount_phentrieve_mcp_facade(target_app)
         logger.info("Phentrieve MCP facade mounted at /mcp using Streamable HTTP")
     except ImportError:
-        # fastapi-mcp not installed - silently skip
+        # fastmcp / mcp optional dependency not installed - silently skip
         logger.debug("MCP dependencies not available - skipping /mcp mount")
     except Exception as e:
         # Log unexpected errors but don't crash the API
@@ -125,13 +125,15 @@ async def lifespan(app: FastAPI):
 
     # Mount MCP if enabled (moved from module-level to lifespan)
     _try_mount_mcp(app)
-    mcp_session_manager = getattr(app.state, "phentrieve_mcp_session_manager", None)
+    mcp_http_app = getattr(app.state, "phentrieve_mcp_http_app", None)
 
     try:
-        if mcp_session_manager is None:
+        if mcp_http_app is None:
             yield  # This is where the application runs
         else:
-            async with mcp_session_manager.run():
+            # Enter the FastMCP ASGI app's lifespan to start the
+            # StreamableHTTP session manager for the mounted /mcp sub-app.
+            async with mcp_http_app.router.lifespan_context(app):
                 yield
     finally:
         # Shutdown — cancel outstanding loads, then clear caches

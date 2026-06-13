@@ -1,9 +1,10 @@
-"""MCP server module for Phentrieve.
+"""MCP server module for Phentrieve (Streamable HTTP, FastMCP v3).
 
-This module provides Model Context Protocol (MCP) server functionality,
-enabling AI assistants like Claude to directly query HPO terms.
+Enables AI assistants to query HPO terms, extract phenotypes from research text,
+compare terms, and export GA4GH Phenopackets via the Model Context Protocol.
 """
 
-from api.mcp.server import MCP_ALLOWED_OPERATIONS, create_mcp_server
+from api.mcp.facade import create_phentrieve_mcp
+from api.mcp.server import mount_phentrieve_mcp_facade
 
-__all__ = ["create_mcp_server", "MCP_ALLOWED_OPERATIONS"]
+__all__ = ["create_phentrieve_mcp", "mount_phentrieve_mcp_facade"]
