@@ -29,12 +29,13 @@ def after_extract(aggregated: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """After extract: hand the aggregated terms to the phenopacket exporter."""
     phenotypes = [
         {
-            "hpo_id": t.get("hpo_id"),
+            # aggregated_hpo_terms use "id"; search results use "hpo_id"
+            "hpo_id": t.get("hpo_id") or t.get("id"),
             "label": t.get("label") or t.get("name"),
             "assertion": t.get("status", "affirmed"),
         }
         for t in aggregated[:25]
-        if t.get("hpo_id")
+        if t.get("hpo_id") or t.get("id")
     ]
     if not phenotypes:
         return [cmd("phentrieve_get_capabilities", details=["models"])]

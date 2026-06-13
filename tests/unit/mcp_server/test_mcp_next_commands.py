@@ -32,9 +32,11 @@ def test_after_search_empty_suggests_capabilities():
 
 
 def test_after_extract_builds_phenopacket_payload():
-    hints = after_extract([{"hpo_id": "HP:1", "name": "x", "status": "affirmed"}])
+    # aggregated_hpo_terms use the "id" key (search results use "hpo_id"); both work.
+    hints = after_extract([{"id": "HP:1", "name": "x", "status": "affirmed"}])
     assert hints[0]["tool"] == "phentrieve_export_phenopacket"
     assert hints[0]["arguments"]["phenotypes"][0]["hpo_id"] == "HP:1"
+    assert hints[0]["arguments"]["phenotypes"][0]["label"] == "x"
 
 
 def test_after_extract_empty():
