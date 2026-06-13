@@ -234,8 +234,34 @@
       "inspect": "Inspecteren",
       "addToCase": "Aan casus toevoegen",
       "changeTerm": "Term wijzigen",
-      "removeAnnotation": "Annotatie verwijderen"
-    }
+      "removeAnnotation": "Annotatie verwijderen",
+      "annotateSelection": "Selectie annoteren",
+      "revert": "Terugzetten naar origineel",
+      "addToCollection": "Aan verzameling toevoegen"
+    },
+    "undo": {
+      "removed": "Annotatie verwijderd",
+      "action": "Ongedaan maken"
+    },
+    "origin": {
+      "auto": "Automatisch",
+      "manual": "Handmatig"
+    },
+    "spanAriaLabel": "Annotatie bewerken: {label}"
+  },
+  "hpoTermPicker": {
+    "changeTitle": "HPO-term wijzigen",
+    "addTitle": "Selectie annoteren",
+    "searchLabel": "HPO-termen zoeken",
+    "spanLabel": "Geselecteerde tekst",
+    "assertionAffirmed": "Bevestigd",
+    "assertionNegated": "Ontkend",
+    "replace": "Vervangen",
+    "add": "Toevoegen",
+    "cancel": "Annuleren",
+    "empty": "Geen overeenkomende HPO-termen gevonden",
+    "loading": "Zoeken...",
+    "scoreLabel": "Score"
   },
   "resultsDisplay": {
     "title": "Geëxtraheerde HPO-termen",

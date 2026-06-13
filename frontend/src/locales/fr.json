@@ -234,8 +234,34 @@
       "inspect": "Inspecter",
       "addToCase": "Ajouter au cas",
       "changeTerm": "Modifier le terme",
-      "removeAnnotation": "Supprimer l'annotation"
-    }
+      "removeAnnotation": "Supprimer l'annotation",
+      "annotateSelection": "Annoter la sélection",
+      "revert": "Rétablir l'original",
+      "addToCollection": "Ajouter à la collection"
+    },
+    "undo": {
+      "removed": "Annotation supprimée",
+      "action": "Annuler"
+    },
+    "origin": {
+      "auto": "Auto",
+      "manual": "Manuel"
+    },
+    "spanAriaLabel": "Modifier l'annotation : {label}"
+  },
+  "hpoTermPicker": {
+    "changeTitle": "Modifier le terme HPO",
+    "addTitle": "Annoter la sélection",
+    "searchLabel": "Rechercher des termes HPO",
+    "spanLabel": "Texte sélectionné",
+    "assertionAffirmed": "Affirmé",
+    "assertionNegated": "Nié",
+    "replace": "Remplacer",
+    "add": "Ajouter",
+    "cancel": "Annuler",
+    "empty": "Aucun terme HPO correspondant",
+    "loading": "Recherche...",
+    "scoreLabel": "Score"
   },
   "resultsDisplay": {
     "title": "Termes HPO Extraits",
