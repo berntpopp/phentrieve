@@ -1,5 +1,6 @@
 <template>
   <v-app theme="light" class="app-container">
+    <AccountButton />
     <v-main class="bg-grey-lighten-4 main-container">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
@@ -308,6 +309,8 @@ import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import TutorialOverlay from './components/TutorialOverlay.vue';
 import ConversationSettings from './components/ConversationSettings.vue';
+import AccountButton from './components/auth/AccountButton.vue';
+import { useAuthStore } from './stores/auth';
 
 export default {
   name: 'App',
@@ -317,6 +320,7 @@ export default {
     LanguageSwitcher,
     TutorialOverlay,
     ConversationSettings,
+    AccountButton,
   },
   setup() {
     const {
@@ -354,6 +358,9 @@ export default {
     },
     conversationStore() {
       return useConversationStore();
+    },
+    authStore() {
+      return useAuthStore();
     },
     apiConnected() {
       const { connected } = useApiHealth();
@@ -394,6 +401,9 @@ export default {
     const { startMonitoring } = useApiHealth();
     startMonitoring();
     logService.info('API health monitoring started');
+
+    // Silently restore an existing session (refresh cookie -> access token).
+    this.authStore.initialize();
   },
   beforeUnmount() {
     // Stop API health monitoring to prevent memory leaks

@@ -465,5 +465,75 @@
     "sexFemale": "Weiblich",
     "sexMale": "Männlich",
     "sexOther": "Andere"
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden"
+    },
+    "register": {
+      "title": "Konto erstellen"
+    },
+    "forgot": {
+      "title": "Passwort zurücksetzen"
+    },
+    "fields": {
+      "email": "E-Mail",
+      "password": "Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen"
+    },
+    "actions": {
+      "login": "Anmelden",
+      "register": "Konto erstellen",
+      "sendReset": "Link zum Zurücksetzen senden"
+    },
+    "links": {
+      "forgotPassword": "Passwort vergessen?",
+      "needAccount": "Noch kein Konto? Registrieren",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "validation": {
+      "emailRequired": "E-Mail ist erforderlich",
+      "emailInvalid": "Bitte eine gültige E-Mail-Adresse eingeben",
+      "passwordRequired": "Passwort ist erforderlich",
+      "passwordMin": "Das Passwort muss mindestens 10 Zeichen lang sein",
+      "passwordMatch": "Die Passwörter stimmen nicht überein"
+    },
+    "messages": {
+      "registerSuccess": "Konto erstellt. Bitte bestätigen Sie Ihre E-Mail, um das höhere Tageskontingent freizuschalten.",
+      "resetSent": "Falls die Adresse gültig ist, wurde ein Link zum Zurücksetzen gesendet."
+    },
+    "errors": {
+      "loginFailed": "Ungültige E-Mail oder ungültiges Passwort.",
+      "locked": "Zu viele Versuche. Bitte später erneut versuchen.",
+      "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen."
+    },
+    "account": {
+      "loginRegister": "Anmelden oder registrieren",
+      "account": "Konto",
+      "signedInAs": "Angemeldet als",
+      "verified": "Bestätigt",
+      "unverified": "Nicht bestätigt",
+      "resendVerification": "Bestätigungs-E-Mail erneut senden",
+      "logout": "Abmelden",
+      "quotaToday": "Volltext-Kontingent heute: {remaining} von {limit} übrig"
+    },
+    "nudge": {
+      "loginForMore": "Melden Sie sich an für ein höheres tägliches Volltext-Kontingent"
+    },
+    "verifyView": {
+      "title": "E-Mail-Bestätigung",
+      "goHome": "Zur App",
+      "missingToken": "Diesem Bestätigungslink fehlt der Token.",
+      "success": "Ihre E-Mail ist bestätigt. Sie haben jetzt das höhere Tageskontingent.",
+      "failed": "Dieser Bestätigungslink ist ungültig oder abgelaufen."
+    },
+    "resetView": {
+      "title": "Neues Passwort wählen",
+      "submit": "Passwort aktualisieren",
+      "success": "Ihr Passwort wurde aktualisiert. Sie können sich jetzt anmelden.",
+      "missingToken": "Diesem Link zum Zurücksetzen fehlt der Token.",
+      "failed": "Dieser Link zum Zurücksetzen ist ungültig oder abgelaufen."
+    }
   }
 }

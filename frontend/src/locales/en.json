@@ -465,5 +465,75 @@
     "sexFemale": "Female",
     "sexMale": "Male",
     "sexOther": "Other"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in"
+    },
+    "register": {
+      "title": "Create account"
+    },
+    "forgot": {
+      "title": "Reset password"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password"
+    },
+    "actions": {
+      "login": "Sign in",
+      "register": "Create account",
+      "sendReset": "Send reset link"
+    },
+    "links": {
+      "forgotPassword": "Forgot password?",
+      "needAccount": "Need an account? Register",
+      "backToLogin": "Back to sign in"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 10 characters",
+      "passwordMatch": "Passwords do not match"
+    },
+    "messages": {
+      "registerSuccess": "Account created. Check your email to verify and unlock the higher daily quota.",
+      "resetSent": "If the address is valid, a password reset link has been sent."
+    },
+    "errors": {
+      "loginFailed": "Invalid email or password.",
+      "locked": "Too many attempts. Please try again later.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "account": {
+      "loginRegister": "Sign in or register",
+      "account": "Account",
+      "signedInAs": "Signed in as",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "resendVerification": "Resend verification email",
+      "logout": "Sign out",
+      "quotaToday": "Full-text quota today: {remaining} of {limit} left"
+    },
+    "nudge": {
+      "loginForMore": "Sign in for a higher daily full-text quota"
+    },
+    "verifyView": {
+      "title": "Email verification",
+      "goHome": "Go to app",
+      "missingToken": "This verification link is missing its token.",
+      "success": "Your email is verified. You now have the higher daily quota.",
+      "failed": "This verification link is invalid or has expired."
+    },
+    "resetView": {
+      "title": "Choose a new password",
+      "submit": "Update password",
+      "success": "Your password has been updated. You can now sign in.",
+      "missingToken": "This reset link is missing its token.",
+      "failed": "This reset link is invalid or has expired."
+    }
   }
 }

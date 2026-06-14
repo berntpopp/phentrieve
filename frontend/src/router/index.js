@@ -15,6 +15,16 @@ const router = createRouter({
       name: 'faq',
       component: () => import('../views/FAQView.vue'),
     },
+    {
+      path: '/verify',
+      name: 'verify-email',
+      component: () => import('../views/VerifyEmailView.vue'),
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/ResetPasswordView.vue'),
+    },
   ],
 });
 

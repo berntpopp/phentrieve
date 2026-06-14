@@ -74,6 +74,8 @@ def _set_session_cookies(
         path=AUTH_COOKIE_PATH,
     )
     # CSRF cookie is readable by JS (double-submit pattern), not HttpOnly.
+    # Path "/" so the SPA (served at the site root) can read it via
+    # document.cookie and echo it back in the X-CSRF-Token header.
     response.set_cookie(
         CSRF_COOKIE,
         csrf_raw,
@@ -81,13 +83,13 @@ def _set_session_cookies(
         httponly=False,
         secure=secure,
         samesite=samesite,
-        path=AUTH_COOKIE_PATH,
+        path="/",
     )
 
 
 def _clear_session_cookies(response: Response) -> None:
     response.delete_cookie(REFRESH_COOKIE, path=AUTH_COOKIE_PATH)
-    response.delete_cookie(CSRF_COOKIE, path=AUTH_COOKIE_PATH)
+    response.delete_cookie(CSRF_COOKIE, path="/")
 
 
 def _require_csrf(request: Request) -> None:
