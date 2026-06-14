@@ -112,7 +112,10 @@ def test_compare_not_found_envelope():
     assert data["success"] is False
     assert data["error_code"] == "not_found"
     assert data["retryable"] is False
-    assert data["recovery_action"] == "reformulate_input"
+    # D4: resolve the bogus id via search, not reformulate (no free text here).
+    assert data["recovery_action"] == "resolve_identifier"
+    next_tools = {c["tool"] for c in data["_meta"]["next_commands"]}
+    assert "phentrieve_search_hpo_terms" in next_tools
 
 
 @requires_compare_ontology

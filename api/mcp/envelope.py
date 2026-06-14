@@ -49,8 +49,10 @@ _RETRYABLE = {
 _RECOVERY = {
     "invalid_input": "reformulate_input",
     "validation_failed": "reformulate_input",
-    "not_found": "reformulate_input",
-    "ambiguous_query": "reformulate_input",
+    # D4: a bogus-but-well-formed id should be resolved (via search), not
+    # reformulated -- a compare/export call carries no free text to reformulate.
+    "not_found": "resolve_identifier",
+    "ambiguous_query": "resolve_identifier",
     "llm_quota_exhausted": "retry_backoff",
     "llm_unavailable": "switch_tool",
     "upstream_unavailable": "retry_backoff",
@@ -205,7 +207,7 @@ async def run_mcp_tool(
             "recovery_action": recovery_action_for(code),
             "_meta": {
                 **_base_meta(tool_name, request_id, elapsed, response_mode),
-                "next_commands": default_error_next_commands(tool_name),
+                "next_commands": default_error_next_commands(tool_name, code),
             },
         }
         if extra:

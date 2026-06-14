@@ -111,8 +111,16 @@ def after_chunk(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [cmd("phentrieve_search_hpo_terms", text=chunks[0].get("text", ""))]
 
 
-def default_error_next_commands(tool_name: str) -> list[dict[str, Any]]:
-    """A sensible recovery step for any error lacking an explicit fallback."""
+def default_error_next_commands(
+    tool_name: str, error_code: str | None = None
+) -> list[dict[str, Any]]:
+    """A sensible recovery step for any error lacking an explicit fallback.
+
+    D4: for a missing/ambiguous identifier, point at search to resolve it rather
+    than the generic capabilities/diagnostics steps.
+    """
+    if error_code in ("not_found", "ambiguous_query"):
+        return [cmd("phentrieve_search_hpo_terms")]
     return [
         cmd("phentrieve_get_capabilities"),
         cmd("phentrieve_diagnostics"),

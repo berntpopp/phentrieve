@@ -122,3 +122,12 @@ def test_default_error_next_commands():
     tools = {h["tool"] for h in hints}
     assert "phentrieve_get_capabilities" in tools
     assert "phentrieve_diagnostics" in tools
+
+
+def test_default_error_next_commands_resolves_identifier_for_not_found():
+    """D4: a not_found / ambiguous_query error should point at search to resolve
+    the identifier, not the generic capabilities/diagnostics."""
+    for code in ("not_found", "ambiguous_query"):
+        hints = default_error_next_commands("phentrieve_compare_hpo_terms", code)
+        tools = {h["tool"] for h in hints}
+        assert tools == {"phentrieve_search_hpo_terms"}
