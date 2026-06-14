@@ -225,6 +225,11 @@ addopts = [
     "--strict-markers",
     "--tb=short",
 
+    # Import mode: importlib avoids the prepend-mode package-name collision
+    # between tests/unit/api/ (basename "api") and the top-level api/ package,
+    # which otherwise fails collection of the full tree (e.g. under `make test`).
+    "--import-mode=importlib",
+
     # Execution - Skip slow and e2e tests by default
     "-m", "not slow and not e2e",  # E2E tests require Docker, run separately
 ]
