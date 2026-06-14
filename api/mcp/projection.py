@@ -27,6 +27,11 @@ from __future__ import annotations
 
 from typing import Any
 
+# R3: cap synonyms in the *response* (never the list used for attribution
+# matching, which lives in the retrieval/extraction layer) so include_details
+# does not dump an uncapped synonym list. Report how many were dropped.
+_SYNONYMS_RESPONSE_CAP = 10
+
 # Score copies collapsed into the single canonical ``score``.
 _DROP_SCORE_FIELDS = ("avg_score", "confidence", "max_score_from_evidence")
 # Old index/identity fields removed after normalization.
@@ -40,6 +45,19 @@ _DROP_AFTER_NORMALIZE = (
     "assertion_status",
     "count",
 )
+
+
+def cap_response_synonyms(record: dict[str, Any]) -> None:
+    """Cap ``record['synonyms']`` to the response limit in place (R3).
+
+    Adds ``synonyms_truncated`` with the dropped count when capping. No-op when
+    the field is absent or already within the limit. Only shapes the response
+    copy; the attribution-matching synonym list is untouched upstream.
+    """
+    synonyms = record.get("synonyms")
+    if isinstance(synonyms, list) and len(synonyms) > _SYNONYMS_RESPONSE_CAP:
+        record["synonyms_truncated"] = len(synonyms) - _SYNONYMS_RESPONSE_CAP
+        record["synonyms"] = synonyms[:_SYNONYMS_RESPONSE_CAP]
 
 
 def project_aggregated_terms_for_mcp(
@@ -80,6 +98,7 @@ def project_aggregated_terms_for_mcp(
         # not requested) so the MCP payload is not bloated with default-valued
         # keys (defect D7).
         out.setdefault("text_attributions", [])
+        cap_response_synonyms(out)
         out = {k: v for k, v in out.items() if v is not None}
         projected.append(out)
     return projected

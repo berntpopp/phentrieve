@@ -23,6 +23,7 @@ from api.llm_quota import (
     quota_reset_at_iso,
 )
 from api.mcp.envelope import McpToolError
+from api.mcp.projection import cap_response_synonyms
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
@@ -111,7 +112,13 @@ async def search_hpo_terms_service(
         debug=False,
         multi_vector=DEFAULT_MULTI_VECTOR,
     )
-    return {"results": result.get("results", [])}
+    results = result.get("results", [])
+    # R3: cap each result's synonym list in the response (the attribution layer
+    # keeps the full list); include_details otherwise dumps it uncapped.
+    for record in results:
+        if isinstance(record, dict):
+            cap_response_synonyms(record)
+    return {"results": results}
 
 
 def extract_hpo_terms_service(

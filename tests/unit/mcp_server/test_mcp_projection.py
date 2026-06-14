@@ -39,6 +39,26 @@ def test_single_score_field():
         assert dup not in out
 
 
+def test_synonyms_capped_with_truncation_count():
+    """R3: an uncapped synonym list in the response is a token footgun; cap it to
+    10 and report how many were dropped, without touching the (separate) list used
+    for attribution matching."""
+    term = {
+        **RAW_TERM,
+        "synonyms": [f"syn{i}" for i in range(15)],
+    }
+    out = project_aggregated_terms_for_mcp([term])[0]
+    assert out["synonyms"] == [f"syn{i}" for i in range(10)]
+    assert out["synonyms_truncated"] == 5
+
+
+def test_synonyms_not_capped_when_within_limit():
+    term = {**RAW_TERM, "synonyms": ["a", "b", "c"]}
+    out = project_aggregated_terms_for_mcp([term])[0]
+    assert out["synonyms"] == ["a", "b", "c"]
+    assert "synonyms_truncated" not in out
+
+
 def test_single_chunk_index_scheme():
     out = project_aggregated_terms_for_mcp([RAW_TERM])[0]
     assert out["chunk_ids"] == [1, 3]
