@@ -6,6 +6,7 @@ import json
 
 import pytest
 
+from api.mcp import service_adapters
 from api.mcp.envelope import McpToolError
 from api.mcp.service_adapters import (
     chunk_text_service,
@@ -13,6 +14,7 @@ from api.mcp.service_adapters import (
     extract_hpo_terms_llm_service,
     extract_hpo_terms_service,
 )
+from phentrieve.config import DEFAULT_MODEL
 
 
 def test_chunk_text_service_simple_strategy():
@@ -31,6 +33,76 @@ def test_chunk_text_service_unknown_strategy_raises_validation_failed():
     # instead of silently falling back to the default config.
     assert ei.value.error_code == "validation_failed"
     assert "simple" in str(ei.value)
+
+
+def _stub_pipeline(monkeypatch, captured):
+    """Replace TextProcessingPipeline with a recording fake that yields chunks."""
+
+    class _FakePipeline:
+        def __init__(self, **kwargs):
+            captured["sbert"] = kwargs.get("sbert_model_for_semantic_chunking")
+
+        def process(self, text, include_positions=False):
+            captured["processed"] = True
+            return [{"text": "chunk one", "start_char": 0, "end_char": 9}]
+
+    monkeypatch.setattr(service_adapters, "TextProcessingPipeline", _FakePipeline)
+
+
+def test_chunk_text_model_dependent_strategy_lazy_loads_model(monkeypatch):
+    """B2: a strategy whose resolved config contains a sliding_window stage must
+    lazy-load the cached embedding singleton and thread it into the pipeline
+    instead of hard-failing with invalid_input."""
+    calls: list[str] = []
+    captured: dict[str, object] = {}
+
+    def fake_load(model_name):
+        calls.append(model_name)
+        return "FAKE_MODEL"
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", fake_load)
+    _stub_pipeline(monkeypatch, captured)
+
+    out = chunk_text_service(
+        text="some clinical text", language="en", strategy="sliding_window"
+    )
+
+    assert calls == [DEFAULT_MODEL]
+    assert captured["sbert"] == "FAKE_MODEL"
+    assert out["chunk_count"] == 1
+    assert out["chunks"][0]["chunk_id"] == 1
+
+
+def test_chunk_text_simple_strategy_does_not_load_model(monkeypatch):
+    """B2: the model-free 'simple' strategy must not trigger a model load."""
+    calls: list[str] = []
+    captured: dict[str, object] = {}
+
+    def fake_load(model_name):
+        calls.append(model_name)
+        return "FAKE_MODEL"
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", fake_load)
+    _stub_pipeline(monkeypatch, captured)
+
+    chunk_text_service(text="some clinical text", language="en", strategy="simple")
+
+    assert calls == []
+    assert captured["sbert"] is None
+
+
+def test_chunk_text_model_load_failure_is_temporarily_unavailable(monkeypatch):
+    """B2: a genuine model-load failure must surface as temporarily_unavailable
+    (retryable), not invalid_input (which blames the caller's strategy)."""
+
+    def boom(model_name):
+        raise RuntimeError("model weights unavailable")
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", boom)
+
+    with pytest.raises(McpToolError) as ei:
+        chunk_text_service(text="x", language="en", strategy="sliding_window")
+    assert ei.value.error_code == "temporarily_unavailable"
 
 
 def test_export_phenopacket_service_round_trips_case_id():

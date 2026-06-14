@@ -473,20 +473,42 @@ def chunk_text_service(
             details={"field": "strategy"},
         ) from exc
 
+    # B2: 6 of 7 strategies need a semantic model (any config with a
+    # sliding_window stage). Lazy-load the cached embedding singleton -- the same
+    # instance search/extract warm -- instead of hard-failing, restoring parity
+    # with the documented lazy-load latency contract.
+    needs_model = any(
+        isinstance(stage, dict) and stage.get("type") == "sliding_window"
+        for stage in config
+    )
+    sbert_model = None
+    if needs_model:
+        from phentrieve.embeddings import load_embedding_model
+
+        try:
+            sbert_model = load_embedding_model(DEFAULT_MODEL)
+        except Exception as exc:
+            # A genuine load failure is a transient server condition, not a bad
+            # argument: surface it as retryable rather than blaming the strategy.
+            raise McpToolError(
+                "temporarily_unavailable",
+                "The embedding model required for this chunking strategy could "
+                "not be loaded; retry shortly or use the 'simple' strategy.",
+                details={"field": "strategy"},
+            ) from exc
+
     try:
-        # Construction can raise if the (resolved) strategy needs a semantic model.
         pipeline = TextProcessingPipeline(
             language=language or DEFAULT_LANGUAGE,
             chunking_pipeline_config=config,
             assertion_config={"disable": True},
-            sbert_model_for_semantic_chunking=None,
+            sbert_model_for_semantic_chunking=sbert_model,
         )
         processed = pipeline.process(text, include_positions=True)
-    except Exception as exc:  # e.g. a semantic strategy that needs a model
+    except Exception as exc:  # genuine processing failure, not a bad argument
         raise McpToolError(
-            "invalid_input",
-            "This chunking strategy requires a semantic model; use 'simple' or a "
-            "non-semantic strategy, or use phentrieve_extract_hpo_terms instead.",
+            "internal_error",
+            "Failed to process text with the requested chunking strategy.",
             details={"field": "strategy"},
         ) from exc
 
