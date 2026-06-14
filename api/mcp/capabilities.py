@@ -132,6 +132,14 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
         },
         "languages": _LANGUAGES,
         "chunk_strategies": list(KNOWN_CHUNK_STRATEGIES),
+        "latency_profile": {
+            "embedding_model_and_index": "lazy-loaded on first use; the first "
+            "search/extract call after startup incurs a one-time cold start, "
+            "subsequent calls are fast.",
+            "deterministic_extract": "fast (tens of ms after warm).",
+            "llm_extract": "multi-second (LLM round-trips); see _meta.observability."
+            "phase_timings for a per-phase breakdown.",
+        },
         "extraction_backends": ["standard", "llm"],
         "llm_modes": ["two_phase"],
         "llm_internal_modes": ["whole_document_grounded", "whole_document_legacy"],

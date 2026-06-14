@@ -1199,6 +1199,7 @@ def test_run_llm_backend_surfaces_grouped_observability(mocker):
     )
     assert result["meta"]["observability"] == {
         "request_count": 3,
+        "phase_timings": {},
         "extracted_phrases": 1,
         "actionable_phrases": 2,
         "phase2b_local_accept_count": 0,

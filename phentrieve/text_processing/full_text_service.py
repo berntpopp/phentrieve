@@ -871,6 +871,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     result = pipeline.run(**pipeline_kwargs)
     phase_counts = dict(result.meta.phase_counts)
     phase_request_counts = dict(result.meta.phase_request_counts)
+    phase_timings = dict(getattr(result.meta, "phase_timings", {}) or {})
     trace = dict(result.meta.trace)
 
     adapted_terms = _adapt_llm_aggregated_terms(
@@ -893,6 +894,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             "token_output": result.meta.token_output,
             "observability": {
                 "request_count": int(result.meta.request_count or 0),
+                # Per-phase wall-clock so the multi-second LLM latency is
+                # explainable (chunking vs phase1 vs phase2a vs phase2b).
+                "phase_timings": phase_timings,
                 **phase_counts,
                 "phase2b_local_accept_count": int(
                     phase_counts.get("phase2b_local_accept_count", 0) or 0
