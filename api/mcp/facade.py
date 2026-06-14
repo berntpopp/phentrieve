@@ -9,6 +9,8 @@ provided by api.mcp.envelope.run_mcp_tool.
 
 from __future__ import annotations
 
+import logging
+
 from fastmcp import FastMCP
 
 from api.mcp.middleware import ArgValidationMiddleware
@@ -25,6 +27,33 @@ from api.mcp.tools import (
     register_similarity_tools,
 )
 from api.version import get_api_version
+
+logger = logging.getLogger("phentrieve.mcp")
+
+
+async def _warmup_retriever() -> None:
+    """Load the embedding model + vector index into the process cache."""
+    from api.dependencies import get_dense_retriever_dependency
+    from phentrieve.config import DEFAULT_MODEL, DEFAULT_MULTI_VECTOR
+
+    await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=DEFAULT_MODEL,
+        multi_vector=DEFAULT_MULTI_VECTOR,
+    )
+
+
+async def warmup() -> None:
+    """Best-effort warmup so the first diagnostics/extract call is warm (defect D9).
+
+    Loads the embedding model and vector index ahead of the first request. Any
+    failure is logged and swallowed -- warmup must never prevent the server from
+    starting.
+    """
+    try:
+        await _warmup_retriever()
+        logger.info("MCP warmup complete: embedding model + vector index loaded.")
+    except Exception as exc:  # noqa: BLE001 - warmup is strictly best-effort
+        logger.warning("MCP warmup skipped (%s): first call will load lazily.", exc)
 
 
 def create_phentrieve_mcp() -> FastMCP:

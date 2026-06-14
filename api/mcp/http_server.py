@@ -15,13 +15,19 @@ logger = logging.getLogger("phentrieve.mcp")
 
 def main() -> None:
     """Run the Phentrieve MCP server standalone over Streamable HTTP."""
+    import anyio
     import uvicorn
 
     from api.mcp.config import settings
-    from api.mcp.facade import create_phentrieve_mcp
+    from api.mcp.facade import create_phentrieve_mcp, warmup
 
     mcp = create_phentrieve_mcp()
     app = mcp.http_app(path="/mcp")
+
+    # Best-effort warmup before serving so the first diagnostics/extract call is
+    # warm rather than paying the embedding-model + index load cost (defect D9).
+    # warmup() swallows its own errors, so this never blocks startup on failure.
+    anyio.run(warmup)
 
     logger.info(
         "Starting Phentrieve MCP server (HTTP) at http://%s:%d/mcp",
