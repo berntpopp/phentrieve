@@ -20,26 +20,43 @@
       </div>
 
       <v-divider class="annotation-action-popover__divider" />
-      <v-list-item
-        prepend-icon="mdi-magnify"
-        :title="translate('annotatedDocumentPane.actions.inspect', 'Inspect')"
-        @click="handleAction('inspect')"
-      />
-      <v-list-item
-        prepend-icon="mdi-plus-circle-outline"
-        :title="translate('annotatedDocumentPane.actions.addToCase', 'Add to case')"
-        @click="handleAction('add-to-case')"
-      />
-      <v-list-item
-        prepend-icon="mdi-swap-horizontal"
-        :title="translate('annotatedDocumentPane.actions.changeTerm', 'Change term')"
-        @click="handleAction('change-term')"
-      />
-      <v-list-item
-        prepend-icon="mdi-delete-outline"
-        :title="translate('annotatedDocumentPane.actions.removeAnnotation', 'Remove annotation')"
-        @click="handleAction('remove-annotation')"
-      />
+      <template v-if="mode === 'selection'">
+        <v-list-item
+          data-testid="action-annotate-selection"
+          prepend-icon="mdi-plus-circle-outline"
+          :title="
+            translate('annotatedDocumentPane.actions.annotateSelection', 'Annotate selection')
+          "
+          @click="handleAction('annotate-selection')"
+        />
+      </template>
+      <template v-else>
+        <v-list-item
+          data-testid="action-change-term"
+          prepend-icon="mdi-swap-horizontal"
+          :title="translate('annotatedDocumentPane.actions.changeTerm', 'Change term')"
+          @click="handleAction('change-term')"
+        />
+        <v-list-item
+          data-testid="action-add-to-collection"
+          prepend-icon="mdi-plus-circle-outline"
+          :title="translate('annotatedDocumentPane.actions.addToCollection', 'Add to collection')"
+          @click="handleAction('add-to-collection')"
+        />
+        <v-list-item
+          v-if="canRevert"
+          data-testid="action-revert"
+          prepend-icon="mdi-undo-variant"
+          :title="translate('annotatedDocumentPane.actions.revert', 'Revert to original')"
+          @click="handleAction('revert')"
+        />
+        <v-list-item
+          data-testid="action-remove-annotation"
+          prepend-icon="mdi-delete-outline"
+          :title="translate('annotatedDocumentPane.actions.removeAnnotation', 'Remove annotation')"
+          @click="handleAction('remove-annotation')"
+        />
+      </template>
     </v-list>
   </v-menu>
 </template>
@@ -53,7 +70,7 @@ defineProps({
     default: false,
   },
   target: {
-    type: Object,
+    type: [Object, Array, String],
     default: null,
   },
   annotationId: {
@@ -64,13 +81,22 @@ defineProps({
     type: String,
     default: '',
   },
+  mode: {
+    type: String,
+    default: 'annotation', // 'annotation' | 'selection'
+  },
+  canRevert: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits([
-  'inspect',
-  'add-to-case',
   'change-term',
   'remove-annotation',
+  'add-to-collection',
+  'annotate-selection',
+  'revert',
   'update:visible',
   'close',
 ]);

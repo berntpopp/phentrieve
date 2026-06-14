@@ -22,7 +22,13 @@
     <p v-if="!expanded" class="mb-0 text-body-2 text-medium-emphasis user-note-summary__preview">
       {{ summary }}
     </p>
-    <div v-if="expanded" data-testid="user-note-expanded" class="user-note-summary__expanded">
+    <div
+      v-if="expanded"
+      ref="expandedContainer"
+      data-testid="user-note-expanded"
+      class="user-note-summary__expanded"
+      @mouseup="onNoteMouseUp"
+    >
       <span v-for="segment in segments" :key="segment.key">
         <v-tooltip
           v-if="segment.highlighted"
@@ -41,13 +47,20 @@
               :class="{
                 'annotated-note-span--active':
                   activePhenotypeId && segment.termIds.includes(activePhenotypeId),
+                'annotated-note-span--manual': segment.manual,
               }"
+              role="button"
+              aria-haspopup="menu"
               tabindex="0"
-              :aria-label="`Linked phenotype: ${segment.tooltip}`"
+              :aria-label="`Edit annotation: ${segment.tooltip}`"
               @mouseenter="$emit('hover', segment.termIds)"
               @mouseleave="$emit('clear-hover')"
               @focus="$emit('hover', segment.termIds)"
               @blur="$emit('clear-hover')"
+              @click="activateSpan(segment, $event)"
+              @contextmenu.prevent="activateSpan(segment, $event)"
+              @keydown.enter.prevent="activateSpan(segment, $event)"
+              @keydown.space.prevent="activateSpan(segment, $event)"
             >
               {{ segment.text }}
             </mark>
@@ -64,6 +77,8 @@
 </template>
 
 <script>
+import { computeSelectionOffsets, trimSelection } from '../../composables/useUserNoteAnnotations';
+
 export default {
   name: 'FullTextWorkspace',
   props: {
@@ -88,7 +103,67 @@ export default {
       default: null,
     },
   },
-  emits: ['toggle', 'hover', 'clear-hover'],
+  emits: ['toggle', 'hover', 'clear-hover', 'span-activate', 'text-select'],
+  methods: {
+    activateSpan(segment, event) {
+      const rect = event?.currentTarget?.getBoundingClientRect?.() || null;
+      this.$emit('span-activate', {
+        annotationIds: Array.isArray(segment.annotationIds) ? segment.annotationIds : [],
+        termIds: Array.isArray(segment.termIds) ? segment.termIds : [],
+        rect,
+        text: segment.text,
+      });
+    },
+    onNoteMouseUp() {
+      const selection =
+        typeof window !== 'undefined' && window.getSelection ? window.getSelection() : null;
+      if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+        return;
+      }
+      const rawText = selection.toString();
+      if (!rawText.trim()) {
+        return;
+      }
+      const container = this.$refs.expandedContainer;
+      if (!container) {
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      if (!container.contains(range.startContainer) || !container.contains(range.endContainer)) {
+        return;
+      }
+      // Selections fully inside a single existing mark are edited via click, not
+      // turned into a new manual annotation.
+      const startEl =
+        range.startContainer.nodeType === 1
+          ? range.startContainer
+          : range.startContainer.parentElement;
+      const endEl =
+        range.endContainer.nodeType === 1 ? range.endContainer : range.endContainer.parentElement;
+      const startMark = startEl?.closest?.('.annotated-note-span') || null;
+      const endMark = endEl?.closest?.('.annotated-note-span') || null;
+      if (startMark && startMark === endMark) {
+        return;
+      }
+      const offsets = computeSelectionOffsets(container, range);
+      if (!offsets) {
+        return;
+      }
+      // Trim whitespace from the selection AND keep the offsets aligned, so the
+      // stored span text matches noteText.slice(start, end) and renders.
+      const trimmed = trimSelection(rawText, offsets.start, offsets.end);
+      if (!trimmed || trimmed.end <= trimmed.start) {
+        return;
+      }
+      const rect = range.getBoundingClientRect?.() || null;
+      this.$emit('text-select', {
+        text: trimmed.text,
+        start: trimmed.start,
+        end: trimmed.end,
+        rect,
+      });
+    },
+  },
 };
 </script>
 
@@ -139,6 +214,18 @@ export default {
 .user-note-summary__expanded mark:hover {
   background: rgba(37, 99, 235, 0.22);
   box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.18);
+}
+
+/* Manually curated annotations get a distinct hue (violet) so they read as
+   human edits versus the automatic (blue) extraction. */
+.annotated-note-span--manual {
+  background: rgba(124, 58, 237, 0.18);
+  box-shadow: inset 0 -0.42em 0 rgba(124, 58, 237, 0.16);
+}
+
+.annotated-note-span--manual:hover {
+  background: rgba(124, 58, 237, 0.26);
+  box-shadow: inset 0 -0.5em 0 rgba(124, 58, 237, 0.2);
 }
 
 .annotated-note-span--active {

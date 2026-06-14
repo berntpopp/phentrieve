@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -6,6 +7,9 @@ import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
 import FullTextResponseReceipt from '../../components/FullTextResponseReceipt.vue';
+import { useFullTextCurationStore } from '../../stores/fullTextCuration';
+
+beforeEach(() => setActivePinia(createPinia()));
 
 const vuetify = createVuetify({ components, directives });
 const i18n = createI18n({
@@ -154,5 +158,27 @@ describe('FullTextResponseReceipt', () => {
     });
 
     expect(wrapper.get('.result-item-stub').text()).toContain('uncertain');
+  });
+
+  it('reflects curated findings and shows a manual badge', async () => {
+    const store = useFullTextCurationStore();
+    // Pre-seed the turn so the receipt reads curation instead of re-seeding.
+    store.seedTurn('turn-1', [
+      {
+        id: 'manual-HP:0000252-1',
+        hpoId: 'HP:0000252',
+        label: 'Microcephaly',
+        status: 'affirmed',
+        origin: 'manual',
+        confidence: null,
+        spans: [{ start: 0, end: 12, text: 'microcephaly' }],
+      },
+    ]);
+
+    const wrapper = mountReceipt();
+
+    expect(wrapper.findAll('[data-testid="full-text-response-phenotype"]')).toHaveLength(1);
+    expect(wrapper.find('[data-testid="finding-origin-badge"]').exists()).toBe(true);
+    expect(wrapper.get('.result-item-stub').text()).toContain('Microcephaly');
   });
 });

@@ -18,6 +18,40 @@ together:
 
 ## [Unreleased]
 
+## [0.23.0] — 2026-06-14 (CLI 0.23.0 / API 0.14.0 / Frontend 0.13.0)
+
+### Added
+
+- **Interactive full-text annotation curation.** On the highlighted clinical
+  note you can now curate the automatic annotations directly: left-click,
+  right-click, or keyboard-activate a highlighted phrase to open a menu, then
+  **change the term** (re-runs the phrase through single-term query and offers
+  ranked HPO candidates in a picker dialog with definitions, scores, and an
+  affirmed/negated toggle), **remove** the annotation (with an Undo snackbar),
+  **add to collection**, or **revert** a curated term to its original value.
+  Select previously-unhighlighted text to **annotate a new span**. Edits are
+  per-turn, persisted, and provenance-tracked — findings carry an auto/manual
+  badge and manually curated spans render in a distinct colour in the note.
+- **Auto-locate terms by label.** When the extractor returns a term without
+  usable text attributions but its label appears verbatim in the note, the term
+  is now highlighted instead of only appearing in the findings list.
+
+### Changed
+
+- Removed the orphaned full-text annotation workspace cluster (~2,300 lines: the
+  superseded `FullTextAnnotationWorkspace`, `AnnotatedDocumentPane`,
+  `AnnotationInspectorPanel`, `PhenotypeFindingsPane`, `useDocumentAnnotations`,
+  `useCustomHighlightOverlay`, the `fullTextWorkspace` store/constants, and the
+  `annotationInspector` util) plus dead chunk-highlight code in `ResultsDisplay`.
+
+### Fixed
+
+- Manual annotation of a selection that includes surrounding whitespace (typical
+  of a mouse drag) now highlights correctly — the selection text and its
+  character offsets are trimmed together so the span stays aligned to the note.
+- The affirmed/negated choice in the term picker now applies; it previously had
+  no effect in the production build, so manual annotations were always affirmed.
+
 ## [0.22.1] — 2026-06-13 (CLI 0.22.1 / API 0.13.0 / Frontend 0.12.1)
 
 ### Fixed

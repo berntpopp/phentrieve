@@ -81,15 +81,16 @@
               "
             >
               <template v-if="item.type === 'textProcess'">
-                <FullTextWorkspace
-                  :summary="summarizeDocumentQuery(getHistoryDisplayQuery(item))"
-                  :meta="formatDocumentSummaryMeta(getHistoryDisplayQuery(item))"
+                <FullTextNoteCurator
+                  :item="item"
+                  :note-text="getHistoryDisplayQuery(item)"
                   :expanded="isUserNoteExpanded(item.id)"
-                  :segments="buildUserNoteSegments(item)"
                   :active-phenotype-id="getHoveredNotePhenotype(item.id)"
+                  :query-options="curationQueryOptions"
                   @toggle="toggleUserNote(item.id)"
                   @hover="handleAnnotatedTextHover(item.id, $event)"
                   @clear-hover="clearHoveredNotePhenotype(item.id)"
+                  @add-to-collection="handleAddToCollection"
                 />
               </template>
               <p v-else class="mb-0" style="white-space: pre-wrap">
@@ -127,6 +128,7 @@
               <FullTextResponseReceipt
                 v-else-if="item.type === 'textProcess'"
                 :item="item"
+                :note-text="getHistoryDisplayQuery(item)"
                 :collected-phenotypes="conversationStore.collectedPhenotypes"
                 :hovered-phenotype-id="getHoveredNotePhenotype(item.id)"
                 @add-to-collection="handleAddToCollection"
@@ -188,25 +190,18 @@ import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
 import FullTextResponseReceipt from './FullTextResponseReceipt.vue';
 import PiiReviewDialog from './PiiReviewDialog.vue';
 import QueryForm from './query/QueryForm.vue';
-import FullTextWorkspace from './query/FullTextWorkspace.vue';
+import FullTextNoteCurator from './FullTextNoteCurator.vue';
 import QueryModeControls from './query/QueryModeControls.vue';
 import QueryResultActions from './query/QueryResultActions.vue';
 import PhentrieveService from '../services/PhentrieveService';
 import { logService } from '../services/logService';
 import { useQueryPreferencesStore } from '../stores/queryPreferences';
 import { useConversationStore } from '../stores/conversation';
-import { useFullTextWorkspaceStore } from '../stores/fullTextWorkspace';
 import { useAdvancedOptions } from '../composables/useAdvancedOptions';
 import { usePhenotypeCollection } from '../composables/usePhenotypeCollection';
 import { useQueryInterfaceController } from '../composables/useQueryInterfaceController';
 import { usePiiReviewFlow } from '../composables/usePiiReviewFlow';
-import {
-  buildUserNoteSegments as deriveUserNoteSegments,
-  formatDocumentSummaryMeta as summarizeUserNoteMeta,
-  resolveChunkOffsetsInNote as resolveUserNoteChunkOffsets,
-  resolveMatchedTextRange as resolveUserNoteMatchedTextRange,
-  summarizeDocumentQuery as summarizeUserNote,
-} from '../composables/useUserNoteAnnotations';
+import { useFullTextCurationStore } from '../stores/fullTextCuration';
 
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
   llmModel: 'gemini-3.1-flash-lite',
@@ -223,14 +218,14 @@ export default {
     FullTextResponseReceipt,
     PiiReviewDialog,
     QueryForm,
-    FullTextWorkspace,
+    FullTextNoteCurator,
     QueryModeControls,
     QueryResultActions,
   },
   setup() {
     const instance = getCurrentInstance();
     const conversationStore = useConversationStore();
-    const fullTextWorkspaceStore = useFullTextWorkspaceStore();
+    const fullTextCurationStore = useFullTextCurationStore();
     const piiReviewFlow = usePiiReviewFlow({ logService });
 
     const {
@@ -317,7 +312,6 @@ export default {
           },
           piiReviewFlow,
           conversationStore: vm.conversationStore,
-          fullTextWorkspaceStore: vm.fullTextWorkspaceStore,
         };
       },
       service: PhentrieveService,
@@ -325,7 +319,7 @@ export default {
     });
     return {
       conversationStore,
-      fullTextWorkspaceStore,
+      fullTextCurationStore,
       piiReviewDialogVisible: piiReviewFlow.piiReviewDialogVisible,
       pendingPiiSubmission: piiReviewFlow.pendingPiiSubmission,
       piiReviewFlow,
@@ -413,6 +407,15 @@ export default {
     showAutoSwitchNotice() {
       return this.modeSelectionSource === 'auto' && this.forceEndpointMode === 'textProcess';
     },
+    // Query parameters reused when a curator re-queries a single span / selection.
+    curationQueryOptions() {
+      return {
+        model_name: this.selectedModel,
+        language: this.selectedLanguage,
+        num_results: 8,
+        similarity_threshold: this.similarityThreshold,
+      };
+    },
     // Access includeDetails from Pinia store (persisted in localStorage)
     includeDetails: {
       get() {
@@ -430,6 +433,16 @@ export default {
       handler(newLength) {
         logService.debug('Query history updated', {
           newHistoryLength: newLength,
+        });
+        // Drop curation state for turns evicted from history (maxHistoryLength)
+        // so the persisted curation store does not accumulate orphaned entries.
+        const liveIds = new Set(
+          (this.conversationStore.queryHistory || []).map((entry) => entry.id)
+        );
+        Object.keys(this.fullTextCurationStore.turns || {}).forEach((turnId) => {
+          if (!liveIds.has(turnId)) {
+            this.fullTextCurationStore.dropTurn(turnId);
+          }
         });
         this.$nextTick(() => {
           if (this.shouldScrollToTop && !this.userHasScrolled) {
@@ -580,12 +593,6 @@ export default {
         ? translated
         : 'Switched to Full Text for longer clinical text';
     },
-    summarizeDocumentQuery(query) {
-      return summarizeUserNote(query);
-    },
-    formatDocumentSummaryMeta(query) {
-      return summarizeUserNoteMeta(query);
-    },
     getHistoryDisplayQuery(item) {
       const redactedQuery = typeof item?.redactedQuery === 'string' ? item.redactedQuery : '';
       if (redactedQuery.trim() && redactedQuery !== REDACTED_QUERY_PLACEHOLDER) {
@@ -627,23 +634,6 @@ export default {
       }
 
       this.setHoveredNotePhenotype(turnId, termIds[0]);
-    },
-    buildUserNoteSegments(item) {
-      // Segments are independent of the hovered phenotype on purpose: the
-      // active phenotype is emphasised via the `active-phenotype-id` prop on
-      // FullTextWorkspace (a CSS class toggle), keeping all annotations
-      // highlighted and the <mark> nodes stable across hovers.
-      return deriveUserNoteSegments({
-        note: this.getHistoryDisplayQuery(item),
-        chunks: item?.response?.processed_chunks,
-        terms: item?.response?.aggregated_hpo_terms,
-      });
-    },
-    resolveChunkOffsetsInNote(noteText, chunks) {
-      return resolveUserNoteChunkOffsets(noteText, chunks);
-    },
-    resolveMatchedTextRange(noteText, matchedText) {
-      return resolveUserNoteMatchedTextRange(noteText, matchedText);
     },
     setMode(mode) {
       if (mode === 'query' && this.showAutoSwitchNotice) {

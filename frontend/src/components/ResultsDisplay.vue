@@ -81,14 +81,6 @@
       </v-list>
     </div>
 
-    <!-- Text Processing Results Display -->
-    <div v-else-if="hasTextProcessResults">
-      <FullTextAnnotationWorkspace
-        :response-data="responseData"
-        :turn-id="turnId"
-        @add-all-to-collection="$emit('add-all-to-collection', $event)"
-      />
-    </div>
     <div
       v-else-if="
         resultType === 'textProcess' &&
@@ -143,14 +135,12 @@
 <script>
 import { logService } from '../services/logService';
 import ResultItem from './ResultItem.vue';
-import FullTextAnnotationWorkspace from './FullTextAnnotationWorkspace.vue';
 import { HPO_TERM_URL } from '../constants/urls';
 
 export default {
   name: 'ResultsDisplay',
   components: {
     ResultItem,
-    FullTextAnnotationWorkspace,
   },
   props: {
     responseData: {
@@ -179,7 +169,6 @@ export default {
   emits: ['add-to-collection', 'add-all-to-collection'],
   data() {
     return {
-      highlightedAttributions: [],
       modelNameCache: new Map(), // Cache for formatted model names (performance optimization)
       expandedQueryResults: new Set(), // Track which query results have details expanded
       expandedAggregatedTerms: new Set(), // Track which aggregated terms have details expanded
@@ -211,15 +200,6 @@ export default {
     hasValidTurnId() {
       return typeof this.turnId === 'string' && this.turnId.length > 0;
     },
-    hasTextProcessResults() {
-      return (
-        this.resultType === 'textProcess' &&
-        !!this.responseData &&
-        this.hasValidTurnId &&
-        !!this.responseData.aggregated_hpo_terms &&
-        (this.processedChunks.length > 0 || this.extractionBackend === 'llm')
-      );
-    },
   },
   methods: {
     toggleQueryResultDetails(index) {
@@ -246,135 +226,6 @@ export default {
         (result.synonyms && result.synonyms.length > 0)
       );
     },
-    updateHighlightedAttributions(attributions) {
-      this.highlightedAttributions = attributions.map((attr) => ({
-        chunkId: attr.chunk_id, // Assumes API sends 1-based chunk_id
-        start: attr.start_char,
-        end: attr.end_char,
-        text: attr.matched_text_in_chunk,
-      }));
-    },
-
-    clearHighlightedAttributions() {
-      this.highlightedAttributions = [];
-    },
-
-    highlightAttributions(term) {
-      if (term.text_attributions && term.text_attributions.length > 0) {
-        // Format attributions for easier use in the component
-        this.highlightedAttributions = term.text_attributions.map((attr) => ({
-          chunkId: attr.chunk_id,
-          start: attr.start_char,
-          end: attr.end_char,
-          text: attr.matched_text_in_chunk,
-        }));
-      }
-    },
-
-    clearHighlights() {
-      this.highlightedAttributions = [];
-    },
-
-    getHighlightedChunkSegments(chunk) {
-      // Find attributions for this chunk
-      const chunkAttributions = this.highlightedAttributions.filter(
-        (attr) => attr.chunkId === chunk.chunk_id
-      );
-
-      if (chunkAttributions.length === 0) {
-        return [{ text: `"${chunk.text}"`, isHighlighted: false }];
-      }
-
-      // Sort attributions by start position
-      chunkAttributions.sort((a, b) => a.start - b.start);
-
-      const segments = [];
-      let lastEnd = 0;
-
-      for (const attr of chunkAttributions) {
-        // Add non-highlighted segment before this attribution if needed
-        if (attr.start > lastEnd) {
-          segments.push({
-            text: chunk.text.substring(lastEnd, attr.start),
-            isHighlighted: false,
-          });
-        }
-
-        // Add highlighted segment
-        segments.push({
-          text: chunk.text.substring(attr.start, attr.end),
-          isHighlighted: true,
-        });
-
-        lastEnd = attr.end;
-      }
-
-      // Add remaining text after last attribution
-      if (lastEnd < chunk.text.length) {
-        segments.push({
-          text: chunk.text.substring(lastEnd),
-          isHighlighted: false,
-        });
-      }
-
-      return segments;
-    },
-
-    scrollToChunk(chunkId) {
-      if (!chunkId) return;
-
-      // Handle array of chunk IDs - use the first one
-      if (Array.isArray(chunkId)) {
-        chunkId = chunkId[0];
-      }
-
-      logService.debug(`Attempting to scroll to and open chunk ID: ${chunkId}`);
-
-      const panelComponent = this.findChunkPanelComponent(chunkId);
-      if (panelComponent && panelComponent.$el) {
-        panelComponent.$el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Open the panel if closed
-        const panelValueToOpen = chunkId - 1; // Assuming panel value is its 0-based index
-        const openChunkPanels = this.getOpenChunkPanels();
-
-        if (openChunkPanels && !openChunkPanels.includes(panelValueToOpen)) {
-          openChunkPanels.push(panelValueToOpen);
-        }
-
-        // Flash highlight effect
-        setTimeout(() => {
-          this.flashChunkTextForChunk(chunkId);
-        }, 300); // Small delay to allow panel to open
-      } else {
-        logService.warn(`Panel ref for chunk ID ${chunkId} not found.`);
-      }
-    },
-
-    flashChunkTextForChunk(chunkId) {
-      return this.$refs.chunkResultsView?.flashChunkText?.(chunkId) ?? false;
-    },
-
-    findChunkPanelComponent(chunkId) {
-      const chunkKey = String(chunkId);
-      const chunkPanelRefs = this.$refs.chunkResultsView?.chunkPanelRefs ?? {};
-      return Object.entries(chunkPanelRefs).find(([key]) => key === chunkKey)?.[1] ?? null;
-    },
-
-    getOpenChunkPanels() {
-      const openChunkPanels = this.$refs.chunkResultsView?.openChunkPanels;
-
-      if (Array.isArray(openChunkPanels)) {
-        return openChunkPanels;
-      }
-
-      if (openChunkPanels && Array.isArray(openChunkPanels.value)) {
-        return openChunkPanels.value;
-      }
-
-      return null;
-    },
-
     getAssertionColor(status) {
       if (!status) return 'grey';
       return status === 'negated' ? 'error' : 'success';

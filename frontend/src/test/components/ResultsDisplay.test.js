@@ -41,7 +41,6 @@ describe('ResultsDisplay', () => {
       global: {
         plugins: [vuetify, i18n],
         stubs: {
-          FullTextAnnotationWorkspace: true,
           ResultItem: true,
         },
       },
@@ -51,164 +50,26 @@ describe('ResultsDisplay', () => {
     expect(serviceDebugSpy).not.toHaveBeenCalled();
   });
 
-  it('mounts the unified full-text workspace for text processing results', async () => {
-    const component = (await import('../../components/ResultsDisplay.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        resultType: 'textProcess',
-        turnId: 'turn-1',
-        responseData: {
-          meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 7 },
-          processed_chunks: [],
-          aggregated_hpo_terms: [],
-        },
-      },
-      global: {
-        plugins: [vuetify, i18n],
-        stubs: {
-          FullTextAnnotationWorkspace: true,
-          ResultItem: true,
-        },
-      },
-    });
-
-    const workspace = wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' });
-    expect(workspace.exists()).toBe(true);
-    expect(workspace.props('turnId')).toBe('turn-1');
-  });
-
-  it('passes full text response metadata through to the workspace shell', async () => {
-    const component = (await import('../../components/ResultsDisplay.vue')).default;
-    const wrapper = mount(component, {
-      props: {
-        resultType: 'textProcess',
-        turnId: 'turn-2',
-        responseData: {
-          meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 3 },
-          processed_chunks: [],
-          aggregated_hpo_terms: [],
-        },
-      },
-      global: {
-        plugins: [vuetify, i18n],
-        stubs: {
-          FullTextAnnotationWorkspace: true,
-          ResultItem: true,
-        },
-      },
-    });
-
-    const workspace = wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' });
-    expect(workspace.props('responseData')).toEqual({
-      meta: { extraction_backend: 'llm', quota_remaining: 2, quota_limit: 3 },
-      processed_chunks: [],
-      aggregated_hpo_terms: [],
-    });
-  });
-
-  it('does not mount the full-text workspace when turnId is missing', async () => {
+  it('shows the default error for text processing results without a valid turn id', async () => {
     const component = (await import('../../components/ResultsDisplay.vue')).default;
     const wrapper = mount(component, {
       props: {
         resultType: 'textProcess',
         responseData: {
-          meta: { extraction_backend: 'llm' },
+          meta: { extraction_backend: 'standard' },
           processed_chunks: [],
-          aggregated_hpo_terms: [],
+          aggregated_hpo_terms: [{ hpo_id: 'HP:0001250', name: 'Seizure' }],
         },
       },
       global: {
         plugins: [vuetify, i18n],
         stubs: {
-          FullTextAnnotationWorkspace: true,
           ResultItem: true,
         },
       },
     });
 
-    expect(wrapper.findComponent({ name: 'FullTextAnnotationWorkspace' }).exists()).toBe(false);
     expect(wrapper.text()).toContain(i18n.global.t('resultsDisplay.defaultError'));
-  });
-
-  it('re-emits bulk full-text collection actions from the workspace', async () => {
-    const component = (await import('../../components/ResultsDisplay.vue')).default;
-    const workspacePayload = [
-      { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' },
-    ];
-    const wrapper = mount(component, {
-      props: {
-        resultType: 'textProcess',
-        turnId: 'turn-3',
-        responseData: {
-          meta: { extraction_backend: 'llm' },
-          processed_chunks: [],
-          aggregated_hpo_terms: [],
-        },
-      },
-      global: {
-        plugins: [vuetify, i18n],
-        stubs: {
-          FullTextAnnotationWorkspace: {
-            name: 'FullTextAnnotationWorkspace',
-            template: '<button @click="$emit(\'add-all-to-collection\', payload)">Emit</button>',
-            data() {
-              return { payload: workspacePayload };
-            },
-          },
-          ResultItem: true,
-        },
-      },
-    });
-
-    await wrapper.get('button').trigger('click');
-
-    expect(wrapper.emitted('add-all-to-collection')).toEqual([[workspacePayload]]);
-  });
-
-  it('uses the exposed ChunkResultsView state when scrolling to attributed evidence', async () => {
-    vi.useFakeTimers();
-
-    const component = (await import('../../components/ResultsDisplay.vue')).default;
-    const firstScrollIntoView = vi.fn();
-    const firstFlashChunkText = vi.fn();
-    const secondFlashChunkText = vi.fn();
-    const firstChunkResultsView = {
-      chunkPanelRefs: {
-        2: {
-          $el: { scrollIntoView: firstScrollIntoView },
-        },
-      },
-      openChunkPanels: [],
-      flashChunkText: firstFlashChunkText,
-    };
-    const secondChunkResultsView = {
-      chunkPanelRefs: {
-        2: {
-          $el: { scrollIntoView: vi.fn() },
-        },
-      },
-      openChunkPanels: [],
-      flashChunkText: secondFlashChunkText,
-    };
-    const getElementByIdSpy = vi.spyOn(document, 'getElementById');
-
-    component.methods.scrollToChunk.call(
-      {
-        $refs: { chunkResultsView: firstChunkResultsView },
-        findChunkPanelComponent: component.methods.findChunkPanelComponent,
-        getOpenChunkPanels: component.methods.getOpenChunkPanels,
-        flashChunkTextForChunk: component.methods.flashChunkTextForChunk,
-      },
-      [2]
-    );
-    vi.advanceTimersByTime(300);
-
-    expect(firstScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
-    expect(firstChunkResultsView.openChunkPanels).toEqual([1]);
-    expect(firstFlashChunkText).toHaveBeenCalledWith(2);
-    expect(secondFlashChunkText).not.toHaveBeenCalled();
-    expect(secondChunkResultsView.openChunkPanels).toEqual([]);
-    expect(getElementByIdSpy).not.toHaveBeenCalled();
   });
 });
 

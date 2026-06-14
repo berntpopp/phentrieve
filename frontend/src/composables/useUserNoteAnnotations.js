@@ -183,3 +183,255 @@ export function buildUserNoteSegments({ note, chunks, terms }) {
 
   return segments;
 }
+
+/**
+ * Map an API aggregated-term assertion status onto the curation model's
+ * affirmed/negated/uncertain/unknown vocabulary.
+ */
+export function normalizeAnnotationStatus(status) {
+  if (status === 'absent' || status === 'negated') return 'negated';
+  if (status === 'uncertain') return 'uncertain';
+  if (status === 'unknown') return 'unknown';
+  return 'affirmed';
+}
+
+function parseConfidence(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+/**
+ * Seed the note-relative annotation model from a full-text processing response.
+ * Chunk-relative text attributions are converted to note offsets (falling back
+ * to a matched-text search). Returns one annotation per aggregated HPO term that
+ * resolves to at least one span. All seeded annotations have origin 'auto'.
+ */
+export function seedAnnotationsFromResponse({ note, response }) {
+  const noteText = typeof note === 'string' ? note : '';
+  const chunks = Array.isArray(response?.processed_chunks) ? response.processed_chunks : [];
+  const terms = Array.isArray(response?.aggregated_hpo_terms) ? response.aggregated_hpo_terms : [];
+  // Findings should not depend on note text; only span resolution does. When the
+  // note is empty we still create span-less annotations so terms reach findings.
+  if (terms.length === 0) return [];
+
+  const chunkOffsets = resolveChunkOffsetsInNote(noteText, chunks);
+
+  return terms
+    .filter((term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string')
+    .map((term, index) => {
+      const spans = (Array.isArray(term.text_attributions) ? term.text_attributions : [])
+        .map((attr) => {
+          const base =
+            chunkOffsets.get(attr?.chunk_id) ??
+            chunkOffsets.get(String(attr?.chunk_id)) ??
+            chunkOffsets.get(Number(attr?.chunk_id));
+
+          if (base != null) {
+            const start = Math.max(
+              0,
+              Math.min(base + Math.max(0, attr.start_char ?? 0), noteText.length)
+            );
+            const end = Math.max(
+              0,
+              Math.min(base + Math.max(0, attr.end_char ?? 0), noteText.length)
+            );
+            if (end > start) return { start, end, text: noteText.slice(start, end) };
+          }
+
+          const resolved = resolveMatchedTextRange(noteText, attr?.matched_text_in_chunk);
+          return resolved
+            ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) }
+            : null;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.start - b.start);
+
+      // Fallback: some backends (notably the grounded LLM extractor) return
+      // terms with no usable text attributions. If the term's own label appears
+      // verbatim in the note, locate it so the term is still highlighted.
+      if (spans.length === 0) {
+        const byLabel = resolveMatchedTextRange(noteText, term.name);
+        if (byLabel) {
+          spans.push({
+            start: byLabel.start,
+            end: byLabel.end,
+            text: noteText.slice(byLabel.start, byLabel.end),
+          });
+        }
+      }
+
+      // Keep terms even when no note span resolves: they still belong in the
+      // findings list (e.g. inferred terms without offsets). Such annotations
+      // simply produce no highlight in the note.
+      const confidence = parseConfidence(term.confidence);
+      return {
+        id: `auto-${term.hpo_id}-${index}`,
+        hpoId: term.hpo_id,
+        label: term.name,
+        status: normalizeAnnotationStatus(term.status),
+        spans,
+        origin: 'auto',
+        confidence,
+      };
+    });
+}
+
+/**
+ * Derive ordered note segments from the annotation model. Overlapping spans are
+ * merged and their term/annotation ids unioned, so a highlighted run can carry
+ * multiple linked phenotypes (preserving the multi-term tooltip behavior).
+ */
+export function buildSegmentsFromAnnotations(noteText, annotations) {
+  const text = typeof noteText === 'string' ? noteText : '';
+  const labelById = new Map();
+  const ranges = [];
+
+  (Array.isArray(annotations) ? annotations : []).forEach((ann) => {
+    if (!ann || typeof ann.hpoId !== 'string') return;
+    labelById.set(ann.hpoId, ann.label);
+    (Array.isArray(ann.spans) ? ann.spans : []).forEach((span) => {
+      if (!span || span.end <= span.start || span.end > text.length) return;
+      // Only highlight when the stored span still matches the current note text.
+      // The clinical note is not persisted (redacted on reload), so stale offsets
+      // must degrade to plain text instead of slicing garbage out of "[redacted]".
+      if (typeof span.text === 'string' && text.slice(span.start, span.end) !== span.text) return;
+      ranges.push({
+        start: span.start,
+        end: span.end,
+        termIds: [ann.hpoId],
+        annotationIds: [ann.id],
+        manual: ann.origin === 'manual',
+      });
+    });
+  });
+
+  if (ranges.length === 0) return [{ key: 'plain-note', text, highlighted: false }];
+
+  ranges.sort((left, right) => left.start - right.start);
+
+  const merged = [];
+  for (const range of ranges) {
+    const previous = merged[merged.length - 1];
+    if (previous && range.start <= previous.end) {
+      previous.end = Math.max(previous.end, range.end);
+      previous.termIds = [...new Set([...previous.termIds, ...range.termIds])];
+      previous.annotationIds = [...new Set([...previous.annotationIds, ...range.annotationIds])];
+      previous.manual = previous.manual || range.manual;
+    } else {
+      merged.push({ ...range });
+    }
+  }
+
+  const segments = [];
+  let cursor = 0;
+  merged.forEach((range, index) => {
+    if (range.start > cursor) {
+      segments.push({
+        key: `plain-${index}-${cursor}`,
+        text: text.slice(cursor, range.start),
+        highlighted: false,
+      });
+    }
+    segments.push({
+      key: `mark-${index}-${range.start}`,
+      text: text.slice(range.start, range.end),
+      highlighted: true,
+      termIds: range.termIds,
+      annotationIds: range.annotationIds,
+      manual: Boolean(range.manual),
+      tooltip: range.termIds.map((id) => `${labelById.get(id) || id} (${id})`).join(', '),
+    });
+    cursor = range.end;
+  });
+
+  if (cursor < text.length) {
+    segments.push({ key: `plain-tail-${cursor}`, text: text.slice(cursor), highlighted: false });
+  }
+
+  return segments;
+}
+
+/**
+ * Collapse the annotation model into a deduped, term-level findings list for the
+ * response receipt. A term is marked 'manual' if any of its annotations is
+ * manual. Annotations with no spans are excluded.
+ */
+export function deriveFindingsFromAnnotations(annotations) {
+  const byTerm = new Map();
+
+  (Array.isArray(annotations) ? annotations : []).forEach((ann) => {
+    if (!ann || typeof ann.hpoId !== 'string') return;
+    const existing = byTerm.get(ann.hpoId);
+    if (!existing) {
+      byTerm.set(ann.hpoId, {
+        hpo_id: ann.hpoId,
+        name: ann.label,
+        label: ann.label,
+        status: ann.status,
+        confidence: ann.confidence ?? null,
+        origin: ann.origin,
+      });
+    } else if (ann.origin === 'manual') {
+      existing.origin = 'manual';
+    }
+  });
+
+  return [...byTerm.values()];
+}
+
+/**
+ * Trim leading/trailing whitespace from a raw selection while keeping the
+ * character offsets consistent with the trimmed text. A mouse drag commonly
+ * grabs surrounding whitespace; without this the stored span text (trimmed) no
+ * longer matches noteText.slice(start, end) and the highlight is dropped.
+ * Returns null for a whitespace-only selection.
+ */
+export function trimSelection(rawText, start, end) {
+  const raw = typeof rawText === 'string' ? rawText : '';
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const leading = raw.length - raw.replace(/^\s+/, '').length;
+  const trailing = raw.length - raw.replace(/\s+$/, '').length;
+  return { text: trimmed, start: start + leading, end: end - trailing };
+}
+
+/**
+ * Compute note-relative {start, end} character offsets for a DOM selection range
+ * within a container whose text content equals the note text. Walks the
+ * container's text nodes in document order and accumulates lengths until it
+ * reaches the range's start/end containers. Returns null if the range cannot be
+ * resolved or is collapsed.
+ */
+export function computeSelectionOffsets(container, range) {
+  if (!container || !range) return null;
+
+  const doc = container.ownerDocument || (typeof document !== 'undefined' ? document : null);
+  if (!doc || typeof doc.createTreeWalker !== 'function') return null;
+
+  const showText = typeof NodeFilter !== 'undefined' ? NodeFilter.SHOW_TEXT : 4;
+  const walker = doc.createTreeWalker(container, showText);
+
+  let start = null;
+  let end = null;
+  let acc = 0;
+  let node = walker.nextNode();
+  while (node) {
+    const length = node.textContent.length;
+    if (node === range.startContainer) start = acc + range.startOffset;
+    if (node === range.endContainer) end = acc + range.endOffset;
+    acc += length;
+    node = walker.nextNode();
+  }
+
+  if (start == null || end == null) return null;
+  if (end < start) {
+    const swap = start;
+    start = end;
+    end = swap;
+  }
+  return end > start ? { start, end } : null;
+}

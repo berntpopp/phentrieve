@@ -271,11 +271,6 @@ export function useQueryInterfaceController({ getContext, service, logService })
       }
 
       context.conversationStore.updateQueryResponse(queryId, response);
-
-      if (useTextProcessMode) {
-        context.fullTextWorkspaceStore.initializeTurn(queryId);
-        context.fullTextWorkspaceStore.setExpanded(queryId, true);
-      }
     } catch (error) {
       context.conversationStore.updateQueryResponse(queryId, null, error);
       logService.error('Error submitting query/processing text', error);

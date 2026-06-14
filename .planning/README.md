@@ -29,6 +29,11 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-06-13-fulltext-annotation-curation-verification.md` - E2E
+  verification of full-text annotation curation (change/remove/annotate/undo +
+  persisted provenance) on the rebuilt Docker stack; orphan cluster removed;
+  Lighthouse unchanged; two E2E defects fixed. Plan in
+  `completed/2026-06-13-fulltext-annotation-curation-plan.md`.
 - `analysis/2026-06-13-mcp-gen3-modernization-verification.md` - verification
   record for the FastMCP v3 MCP modernization (8 tools, Family B envelope,
   response_mode, HTTP-only); all Python gates green.
@@ -48,6 +53,11 @@ execution context.
 
 ## Current Specs
 
+- `specs/2026-06-13-fulltext-annotation-curation-design.md` - design for
+  interactive curation of full-text annotations (change term via re-query,
+  remove, annotate a fresh selection, revert) with persisted auto/manual
+  provenance, plus removal of the orphaned full-text annotation workspace
+  cluster.
 - `specs/2026-06-13-mcp-gen3-modernization-design.md` - design for bringing the
   `api/mcp/` server up to the maintainer's Gen-3 MCP house style (Family B
   envelope, response_mode, structured errors, capabilities versioning,

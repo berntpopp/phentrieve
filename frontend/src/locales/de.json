@@ -231,11 +231,38 @@
   },
   "annotatedDocumentPane": {
     "actions": {
+      "title": "Annotationswerkzeuge",
       "inspect": "Pruefen",
       "addToCase": "Zum Fall hinzufuegen",
       "changeTerm": "Begriff aendern",
-      "removeAnnotation": "Annotation entfernen"
-    }
+      "removeAnnotation": "Annotation entfernen",
+      "annotateSelection": "Auswahl annotieren",
+      "revert": "Auf Original zuruecksetzen",
+      "addToCollection": "Zur Sammlung hinzufuegen"
+    },
+    "undo": {
+      "removed": "Annotation entfernt",
+      "action": "Rueckgaengig"
+    },
+    "origin": {
+      "auto": "Automatisch",
+      "manual": "Manuell"
+    },
+    "spanAriaLabel": "Annotation bearbeiten: {label}"
+  },
+  "hpoTermPicker": {
+    "changeTitle": "HPO-Begriff aendern",
+    "addTitle": "Auswahl annotieren",
+    "searchLabel": "HPO-Begriffe suchen",
+    "spanLabel": "Ausgewaehlter Text",
+    "assertionAffirmed": "Bestaetigt",
+    "assertionNegated": "Verneint",
+    "replace": "Ersetzen",
+    "add": "Hinzufuegen",
+    "cancel": "Abbrechen",
+    "empty": "Keine passenden HPO-Begriffe gefunden",
+    "loading": "Suche...",
+    "scoreLabel": "Wert"
   },
   "resultsDisplay": {
     "title": "Extrahierte HPO-Begriffe",
