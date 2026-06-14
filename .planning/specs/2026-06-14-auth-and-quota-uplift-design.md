@@ -1,6 +1,6 @@
 # Accounts and Higher Full-Text Quota - Design
 
-- Status: Approved (design), pending implementation
+- Status: Implemented (branch `feat/auth-and-quota-uplift`)
 - Date: 2026-06-14
 - Area: `api/` (FastAPI), `frontend/` (Vue 3 / Vuetify / Pinia), config, docs, tests.
 - Related: extends the IP-keyed LLM daily quota (`api/llm_quota.py`,
