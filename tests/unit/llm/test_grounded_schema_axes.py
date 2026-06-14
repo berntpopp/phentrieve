@@ -17,9 +17,18 @@ from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.types import (
     LLMExtractedPhenotype,
     LLMGroundedExtractedPhenotype,
+    LLMPhenotype,
 )
 
 pytestmark = pytest.mark.unit
+
+
+def test_llm_phenotype_forward_ref_resolved_at_import():
+    """LLMPhenotype.evidence_records is a forward reference to a class declared
+    later in the module; it must be rebuilt eagerly at import so concurrent
+    first-time validation (grouped phase-1 runs provider calls in parallel)
+    cannot race the lazy rebuild and raise a spurious instance-type error."""
+    assert LLMPhenotype.__pydantic_complete__ is True
 
 
 def test_grounded_schema_has_orthogonal_axes_with_defaults():

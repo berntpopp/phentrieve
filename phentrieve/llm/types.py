@@ -236,3 +236,14 @@ class ExtractionGroup:
     chunk_ids: list[int] = field(default_factory=list)
     text: str = ""
     estimated_prompt_tokens: int = 0
+
+
+# ``from __future__ import annotations`` makes every annotation a string, so
+# LLMPhenotype.evidence_records (list[LLMPhenotypeEvidence]) is an unresolved
+# forward reference at class-definition time -- LLMPhenotypeEvidence is declared
+# later in this module. Pydantic would otherwise resolve it lazily on the first
+# validation, and two threads validating concurrently (the grouped phase-1 path
+# runs provider calls in parallel) can race that rebuild, raising a spurious
+# "Input should be a valid instance of LLMPhenotypeEvidence". Resolve it eagerly
+# at import so model validation is thread-safe.
+LLMPhenotype.model_rebuild()
