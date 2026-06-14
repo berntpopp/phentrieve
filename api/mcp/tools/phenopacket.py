@@ -23,7 +23,9 @@ _Phenotypes = Annotated[
         min_length=1,
         description="Annotations to serialize: a list of "
         "{hpo_id, label, assertion} objects (assertion: affirmed|negated). "
-        "Hand it the aggregated_hpo_terms from an extract call.",
+        "The raw extractor shape {id, name, assertion_status} is also accepted, "
+        "and a per-item score is preserved as the evidence confidence, so you "
+        "can hand it the aggregated_hpo_terms from an extract call unchanged.",
     ),
 ]
 
