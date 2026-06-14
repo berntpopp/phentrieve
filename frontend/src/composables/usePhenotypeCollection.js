@@ -113,7 +113,7 @@ export function usePhenotypeCollection() {
               id: 'phentrieve',
               name: 'Phentrieve',
               namespacePrefix: 'Phentrieve',
-              url: 'https://phentrieve.kidney-genetics.org/',
+              url: 'https://phentrieve.org/',
               version: import.meta.env.VITE_APP_VERSION || '1.0.0',
               iriPrefix: 'phentrieve',
             },
