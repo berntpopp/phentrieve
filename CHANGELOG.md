@@ -18,7 +18,21 @@ together:
 
 ## [Unreleased]
 
-## [0.23.0] — 2026-06-14 (CLI 0.23.0 / API 0.14.0 / Frontend 0.13.0)
+## [0.23.1] — 2026-06-14 (CLI 0.23.1 / API 0.14.0 / Frontend 0.13.1)
+
+### Changed
+
+- **Frontend build toolchain migrated to vite 8 / vue-router 5.1.** Records and
+  verifies the toolchain migration tracked in #273. The repo was held on the
+  pinned vite 6 toolchain because `vue-router` 5.1.0 declares
+  `peerOptional vite "^7.0.0 || ^8.0.0"`, which made `npm ci` fail with
+  `ERESOLVE` (held back in #270/#271). The dependency bumps landed in 0.23.0
+  (vite 6 → 8 via rolldown, `vue-router` 5.0.7 → 5.1); this release closes out
+  the migration: the production build — including `vite-plugin-compression`
+  brotli output and the bundle visualizer — and the full 306-test Vitest suite
+  are green under vite 8, and the Docker/CI Node version (`20.19`) satisfies
+  vite's `^20.19.0 || >=22.12.0` requirement. The `vue-router` dependabot ignore
+  block added in #271 has been removed so normal updates resume. Closes #273.
 
 ### Added
 
