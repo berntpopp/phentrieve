@@ -27,15 +27,19 @@ def process_chunk_matches(
     chunk_retrieval_threshold: float,
     top_term_per_chunk: bool,
     assertion_statuses: list[str | None] | None,
+    chunk_negated_scope_texts: list[list[str]] | None = None,
 ) -> list[dict[str, Any]]:
     """Convert batched retriever results into per-chunk match lists.
 
     Applies chunk_retrieval_threshold, the num_results_per_chunk cap,
     the top_term_per_chunk filter, and propagates assertion_statuses
-    from the parallel list onto each match.
+    from the parallel list onto each match. The chunk-level status is the
+    fallback; ``build_evidence_map`` refines it per match using
+    ``negated_scope_texts`` (assessment defect D1).
 
     Returns one dict per input chunk with keys: chunk_idx, chunk_text,
-    matches (list of {id, name, score, assertion_status}).
+    matches (list of {id, name, score, assertion_status}), and
+    negated_scope_texts.
     """
     chunk_results: list[dict[str, Any]] = []
     for chunk_idx, chunk_text in enumerate(text_chunks):
@@ -84,6 +88,12 @@ def process_chunk_matches(
                     "chunk_idx": chunk_idx,
                     "chunk_text": chunk_text,
                     "matches": current_hpo_matches,
+                    "negated_scope_texts": (
+                        chunk_negated_scope_texts[chunk_idx]
+                        if chunk_negated_scope_texts
+                        and chunk_idx < len(chunk_negated_scope_texts)
+                        else []
+                    ),
                 }
             )
         except Exception:
@@ -140,6 +150,65 @@ def load_term_details(
     return hpo_synonyms_cache, hpo_definitions_cache
 
 
+def _find_negated_scope_spans(
+    chunk_text: str, scope_texts: list[str]
+) -> list[tuple[int, int]]:
+    """Locate each negated scope concept inside the chunk text.
+
+    The detector reports the negated concept text (e.g. "regression"); we
+    re-find it in the chunk to get chunk-relative spans, which is robust to the
+    detector running over a restored-context frame. Falls back to the scope's
+    first content word when punctuation/whitespace differs.
+    """
+    spans: list[tuple[int, int]] = []
+    low = chunk_text.lower()
+    for raw in scope_texts:
+        scope = (raw or "").strip().lower()
+        if not scope:
+            continue
+        idx = low.find(scope)
+        if idx >= 0:
+            spans.append((idx, idx + len(scope)))
+            continue
+        first = scope.replace(",", " ").split()
+        if first:
+            word = first[0]
+            widx = low.find(word)
+            if widx >= 0:
+                spans.append((widx, widx + len(word)))
+    return spans
+
+
+def _resolve_match_assertion(
+    chunk_status: str | None,
+    chunk_text: str,
+    scope_texts: list[str],
+    attributions: list[dict[str, Any]],
+) -> str | None:
+    """Refine a chunk-level negation to the matches it actually scopes.
+
+    Only the NEGATED case is span-gated (the over-negation defect D1); AFFIRMED,
+    NORMAL and UNCERTAIN pass through unchanged. When the negated scope cannot be
+    localized in the chunk, or the match has no attribution span, fall back to
+    the chunk-level status so cue-stripped single-concept chunks stay negated
+    (preserves the C1 behaviour).
+    """
+    if chunk_status != "negated" or not scope_texts:
+        return chunk_status
+    neg_spans = _find_negated_scope_spans(chunk_text, scope_texts)
+    if not neg_spans or not attributions:
+        return chunk_status
+    for attribution in attributions:
+        a_start = attribution.get("start_char")
+        a_end = attribution.get("end_char")
+        if a_start is None or a_end is None:
+            continue
+        for n_start, n_end in neg_spans:
+            if a_start < n_end and n_start < a_end:
+                return "negated"
+    return "affirmed"
+
+
 def build_evidence_map(
     chunk_results: list[dict[str, Any]],
     hpo_synonyms_cache: dict[str, list[str]],
@@ -147,13 +216,15 @@ def build_evidence_map(
     """Group match evidence by HPO ID, attaching text attributions.
 
     One list per HPO ID, each element a dict with: score, chunk_idx,
-    text, status, name, attributions_in_chunk.
+    text, status, name, attributions_in_chunk. The per-match ``status`` is
+    refined from the chunk-level assertion using span overlap (defect D1).
     """
     evidence_map: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for chunk_result in chunk_results:
         chunk_idx: Any = chunk_result["chunk_idx"]
         chunk_text: Any = chunk_result["chunk_text"]
         matches: Any = chunk_result["matches"]
+        scope_texts: list[str] = chunk_result.get("negated_scope_texts") or []
         for term in matches:
             hpo_id = term["id"]
             synonyms = hpo_synonyms_cache.get(hpo_id, [])
@@ -163,12 +234,18 @@ def build_evidence_map(
                 hpo_term_synonyms=synonyms,
                 hpo_term_id=hpo_id,
             )
+            resolved_status = _resolve_match_assertion(
+                term.get("assertion_status"),
+                chunk_text,
+                scope_texts,
+                attributions_in_chunk,
+            )
             evidence_map[hpo_id].append(
                 {
                     "score": term["score"],
                     "chunk_idx": chunk_idx,
                     "text": chunk_text,
-                    "status": term.get("assertion_status"),
+                    "status": resolved_status,
                     "name": term["name"],
                     "attributions_in_chunk": attributions_in_chunk,
                 }

@@ -647,6 +647,12 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     assertion_statuses: list[str | None] = [
         _normalize_status(chunk.get("status")) for chunk in processed_chunks
     ]
+    # Per-chunk negated concept text(s) from assertion detection, used to negate
+    # only the matches whose phrase overlaps a negated scope (defect D1).
+    chunk_negated_scope_texts: list[list[str]] = [
+        list((chunk.get("assertion_details") or {}).get("negated_scope_texts") or [])
+        for chunk in processed_chunks
+    ]
 
     # Pop kwargs once so the values are reusable across initial + adaptive paths.
     num_results_per_chunk = kwargs.pop("num_results_per_chunk", 10)
@@ -669,6 +675,7 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         min_confidence_for_aggregated=min_confidence_for_aggregated,
         assertion_statuses=assertion_statuses,
         include_details=include_details,
+        chunk_negated_scope_texts=chunk_negated_scope_texts,
     )
     aggregated_results = extraction_result.aggregated_results
     chunk_results = extraction_result.chunk_results
