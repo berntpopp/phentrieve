@@ -16,6 +16,26 @@ ResponseMode = Annotated[
     Field(description="Verbosity / token budget: minimal | compact | standard | full."),
 ]
 
+# Enumerated chunking strategies. Kept in sync with
+# phentrieve.text_processing.config_resolver.KNOWN_CHUNK_STRATEGIES by
+# test_mcp_chunk_strategy_enum (a drift guard), since a Literal needs literal
+# members at definition time.
+ChunkStrategy = Annotated[
+    Literal[
+        "simple",
+        "detailed",
+        "semantic",
+        "sliding_window",
+        "sliding_window_cleaned",
+        "sliding_window_punct_cleaned",
+        "sliding_window_punct_conj_cleaned",
+    ],
+    Field(
+        description="Predefined chunking strategy. Null = 'simple' (paragraph + "
+        "sentence). Semantic/sliding_window strategies need the embedding model."
+    ),
+]
+
 TextArg = Annotated[
     str,
     Field(

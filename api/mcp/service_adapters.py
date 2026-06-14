@@ -361,6 +361,21 @@ def export_phenopacket_service(
 def chunk_text_service(
     *, text: str, language: str | None, strategy: str | None
 ) -> McpResult:
+    from phentrieve.text_processing.config_resolver import KNOWN_CHUNK_STRATEGIES
+
+    # Reject unknown strategies explicitly (config_resolver silently falls back to
+    # the default for unknown names, so without this an invalid value would be
+    # accepted on a model-loaded server -- defect L4).
+    if strategy is not None and strategy.lower() not in KNOWN_CHUNK_STRATEGIES:
+        raise McpToolError(
+            "validation_failed",
+            f"Unknown chunking strategy '{strategy}'. Valid strategies: "
+            f"{', '.join(KNOWN_CHUNK_STRATEGIES)}.",
+            details={
+                "field": "strategy",
+                "allowed_values": list(KNOWN_CHUNK_STRATEGIES),
+            },
+        )
     try:
         config = resolve_chunking_config(strategy or "simple")
     except Exception as exc:  # invalid strategy name (when it raises)

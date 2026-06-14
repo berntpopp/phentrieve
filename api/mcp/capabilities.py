@@ -16,6 +16,7 @@ from typing import Any
 
 from api.mcp.arg_help import ARG_ALIASES
 from api.mcp.shaping import BUDGETS, DEFAULT_MODE, MODES
+from phentrieve.text_processing.config_resolver import KNOWN_CHUNK_STRATEGIES
 
 _LANGUAGES = ["en", "de", "es", "fr", "nl"]
 
@@ -130,6 +131,7 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
             "phenotypes_min": 1,
         },
         "languages": _LANGUAGES,
+        "chunk_strategies": list(KNOWN_CHUNK_STRATEGIES),
         "extraction_backends": ["standard", "llm"],
         "llm_modes": ["two_phase"],
         "llm_internal_modes": ["whole_document_grounded", "whole_document_legacy"],
@@ -146,10 +148,14 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
             "next_commands",
         ],
         "argument_alias_policy": (
-            "Common synonyms (e.g. query/phrase -> text, limit -> num_results) are "
-            "accepted IN ADDITION to each tool's canonical parameter; an applied "
-            "rewrite is disclosed under _meta.argument_aliases_applied. Pass the "
-            "canonical name shown in tool descriptions; an unknown argument returns "
+            "The canonical parameter names shown in each tool's description and "
+            "input schema are authoritative -- always prefer them. Common synonyms "
+            "(e.g. query/phrase -> text, limit -> num_results) are rewritten by a "
+            "server-side convenience layer and disclosed under "
+            "_meta.argument_aliases_applied. IMPORTANT: tool input schemas declare "
+            "additionalProperties:false, so a strict / schema-validating MCP client "
+            "will reject an alias before it reaches the server; aliases only help "
+            "non-validating callers. An unknown canonical argument returns "
             "validation_failed with a did-you-mean."
         ),
         "safety": {

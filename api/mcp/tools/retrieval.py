@@ -22,6 +22,7 @@ from api.mcp.shaping import apply_response_mode, enforce_budget, resolve_mode
 from api.mcp.tools._common import (
     DEFAULT_EXTRACT_NUM_RESULTS,
     ChunkRetrievalThreshold,
+    ChunkStrategy,
     IncludeChunkPositions,
     IncludeDetails,
     IncludeUnmatchedChunks,
@@ -42,6 +43,14 @@ from phentrieve.config import (
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
+
+
+# Detail fields that include_details=True keeps even at compact verbosity (M5).
+_DETAIL_KEEP = ("definition", "synonyms")
+
+
+def _detail_keep(include_details: bool) -> tuple[str, ...]:
+    return _DETAIL_KEEP if include_details else ()
 
 
 def _maybe_citation(meta: dict[str, Any], mode: str) -> None:
@@ -71,7 +80,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
         language: LanguageArg = None,
         num_results: NumResults = DEFAULT_NUM_RESULTS,
         similarity_threshold: SimilarityThreshold = MIN_SIMILARITY_THRESHOLD,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         response_mode: ResponseMode = "compact",
     ) -> dict[str, Any]:
         mode = resolve_mode(response_mode)
@@ -84,7 +93,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 similarity_threshold=similarity_threshold,
                 include_details=include_details,
             )
-            shaped = apply_response_mode(raw, mode)
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(shaped, mode, list_field="results")
             meta: dict[str, Any] = {
                 "next_commands": after_search(shaped.get("results", []))
@@ -145,7 +156,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             raw = project_extract_payload(
                 raw, include_unmatched_chunks=include_unmatched_chunks
             )
-            shaped = apply_response_mode(raw, mode)
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
@@ -218,7 +231,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             raw = project_extract_payload(
                 raw, include_unmatched_chunks=include_unmatched_chunks
             )
-            shaped = apply_response_mode(raw, mode)
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
@@ -253,7 +268,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
     async def chunk_text(
         text: TextArg,
         language: LanguageArg = None,
-        strategy: str | None = None,
+        strategy: ChunkStrategy | None = None,
         response_mode: ResponseMode = "compact",
     ) -> dict[str, Any]:
         mode = resolve_mode(response_mode)
