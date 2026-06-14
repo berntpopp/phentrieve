@@ -3175,7 +3175,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
     ]
 
 
-def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
+def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
     provider = FakeProvider(
         responses=[
             {
@@ -3275,13 +3275,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
+    # LLM-1: family-history mentions ("hearing loss" belongs to the mother) are
+    # no longer actionable, so they are never retrieved as proband candidates.
     assert tool_executor.queries == [
         {
             "phrases": [
                 "recurrent seizures",
                 "nystagmus",
                 "skeletal anomalies",
-                "hearing loss",
             ],
             "language": "en",
             "n_results": 50,
@@ -3339,26 +3340,9 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
                 )
             ],
         ),
-        LLMPhenotype(
-            term_id="HP:0000365",
-            label="hearing loss",
-            evidence="hearing loss",
-            assertion="family_history",
-            category="family_history",
-            confidence=0.95,
-            score=0.95,
-            evidence_records=[
-                LLMPhenotypeEvidence(
-                    phrase="hearing loss",
-                    evidence_text="hearing loss",
-                    chunk_ids=[1],
-                    match_method="local",
-                )
-            ],
-        ),
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5
-    assert result.meta.phase_counts["actionable_phrases"] == 4
+    assert result.meta.phase_counts["actionable_phrases"] == 3
 
 
 def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
@@ -3905,6 +3889,32 @@ def test_deduplicate_terms_keeps_assertion_variants():
             label="Seizure",
             assertion="negated",
             category="normal",
+        ),
+    ]
+
+    deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
+
+    assert len(deduped) == 2
+
+
+def test_deduplicate_terms_separates_by_experiencer():
+    """LLM-1: the same HPO id with the same assertion but a different experiencer
+    (proband vs family) must not collapse into one term -- the dedup key is
+    (term_id, experiencer, assertion)."""
+    terms = [
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="present",
+            category="abnormal",
+            experiencer="proband",
+        ),
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="present",
+            category="family_history",
+            experiencer="family_history",
         ),
     ]
 

@@ -57,6 +57,10 @@ class LLMPhenotype(BaseModel):
     label: str
     evidence: str | None = None
     assertion: str = AssertionStatus.PRESENT.value
+    # Who the phenotype belongs to, orthogonal to the present/absent assertion
+    # (LLM-1). Kept distinct from ``assertion`` so a proband finding and a
+    # relative's mention of the same HPO id never collapse into one term.
+    experiencer: str = "proband"
     category: str | None = None
     confidence: float | None = None
     score: float | None = None

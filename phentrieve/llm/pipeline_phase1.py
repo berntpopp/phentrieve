@@ -11,7 +11,10 @@ UNIT_TOKEN_PATTERN = re.compile(
     r"\b(?:mg/dl|mg/dL|mg/l|mg/L|g/dl|g/dL|g/l|g/L|mmol/l|mmol/L|μmol/l|μmol/L|umol/l|umol/L)\b"
 )
 
-ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected", "family_history"})
+# LLM-1: family_history is intentionally NOT actionable -- a relative's mention
+# must never be retrieved and mapped to a proband HPO term (which produced a
+# self-contradictory present+negated pair on a single id at the MCP boundary).
+ACTIONABLE_CATEGORIES = frozenset({"abnormal", "normal", "suspected"})
 SHARED_HEAD_MODIFIERS = frozenset(
     {
         "brainstem",
@@ -46,6 +49,21 @@ def normalize_category(category: str) -> str:
         "family_history": "family_history",
         "familyhistory": "family_history",
     }.get(normalized, normalized)
+
+
+def experiencer_for_category(category: str) -> str:
+    """Project the legacy category enum onto an orthogonal experiencer axis.
+
+    The category enum conflates experiencer and assertion; this recovers the
+    experiencer (proband | family_history | other) so aggregation can key on it
+    (LLM-1).
+    """
+    normalized = normalize_category(category)
+    if normalized == "family_history":
+        return "family_history"
+    if normalized == "other":
+        return "other"
+    return "proband"
 
 
 def normalize_token(token: str) -> str:

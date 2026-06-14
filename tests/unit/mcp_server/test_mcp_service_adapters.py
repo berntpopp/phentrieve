@@ -126,6 +126,30 @@ def test_export_phenopacket_service_round_trips_case_id():
     assert packet["id"] == "CASE-1"
 
 
+def test_export_excludes_family_history_phenotypes():
+    """LLM-1: a family-history mention is not a proband phenotypic feature and
+    must not be folded into an affirmed feature on the subject."""
+    out = export_phenopacket_service(
+        case_id="CASE-2",
+        case_label="demo",
+        input_text=None,
+        subject=None,
+        phenotypes=[
+            {"hpo_id": "HP:0001250", "label": "Seizure", "assertion": "affirmed"},
+            {
+                "hpo_id": "HP:0000365",
+                "label": "Hearing loss",
+                "assertion": "family_history",
+            },
+        ],
+        include_annotation_sidecar=False,
+    )
+    packet = json.loads(out["phenopacket_json"])
+    feature_ids = {feat["type"]["id"] for feat in packet.get("phenotypicFeatures", [])}
+    assert "HP:0001250" in feature_ids
+    assert "HP:0000365" not in feature_ids
+
+
 def test_extract_service_resolves_none_language():
     # language=None must be resolved to a concrete code before the chunking
     # pipeline runs (the conjunction chunker calls language.lower()).

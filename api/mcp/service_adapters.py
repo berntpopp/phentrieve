@@ -365,6 +365,10 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
             details={"field": f"phenotypes[{idx}].hpo_id"},
         )
     assertion = p.get("assertion") or p.get("status") or p.get("assertion_status")
+    # A family-history mention is not a proband phenotypic feature; never fold it
+    # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
+    if str(assertion).strip().lower() == "family_history":
+        return None
     confidence = p.get("score")
     if confidence is None:
         confidence = p.get("confidence", p.get("max_score_from_evidence"))
@@ -408,8 +412,10 @@ def export_phenopacket_service(
     )
 
     export_phenotypes = [
-        _coerce_export_phenotype(ExportPhenotypeRequest, p, idx)
+        coerced
         for idx, p in enumerate(phenotypes)
+        if (coerced := _coerce_export_phenotype(ExportPhenotypeRequest, p, idx))
+        is not None
     ]
     export_request = PhenopacketExportRequest(
         case_id=case_id,
