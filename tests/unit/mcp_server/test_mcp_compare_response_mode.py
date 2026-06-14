@@ -6,11 +6,28 @@ minimal/compact stay the lean 4-field payload.
 import pytest
 
 from api.mcp.service_adapters import compare_hpo_terms_service
-
-pytestmark = pytest.mark.unit
+from phentrieve.evaluation.metrics import load_hpo_graph_data
 
 # Related pair from the assessment (HP:0000787 vs HP:0004724).
 T1, T2 = "HP:0000787", "HP:0004724"
+
+
+def _ontology_available(*term_ids: str) -> bool:
+    """The prepared HPO graph is absent on the fast CI matrix; skip there."""
+    try:
+        _ancestors, depths = load_hpo_graph_data()
+    except Exception:
+        return False
+    return all(t in depths for t in term_ids)
+
+
+pytestmark = [
+    pytest.mark.unit,
+    pytest.mark.skipif(
+        not _ontology_available(T1, T2),
+        reason="HPO ontology graph unavailable; run `phentrieve data prepare`",
+    ),
+]
 
 
 def _compare(**kw):

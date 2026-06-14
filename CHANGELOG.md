@@ -16,9 +16,54 @@ together:
 
 ---
 
-## [Unreleased] (CLI 0.23.1 / API 0.15.2 / Frontend 0.14.0)
+## [Unreleased] (CLI 0.23.2 / API 0.15.3 / Frontend 0.14.1)
 
 ### Added
+
+- **MCP `compare_hpo_terms` now explains its score.** At `response_mode`
+  `standard`/`full` the tool returns `lca_details`: the most informative common
+  ancestor (id + label + depth), each term's depth and information-content proxy,
+  and the subsumer path length; `minimal`/`compact` keep the lean payload. The
+  tool previously ignored `response_mode` entirely (assessment D5).
+- **MCP `export_phenopacket` returns a native phenopacket object.** A
+  `phenopacket` JSON object is returned alongside the existing
+  `phenopacket_json` string (kept for backwards compatibility), so consumers no
+  longer have to `JSON.parse` an escaped blob (assessment D4, per MCP
+  structured-output guidance).
+- **MCP `search_hpo_terms` low-confidence signalling.** Each hit carries a
+  `confidence_band` (high ≥ 0.7, moderate ≥ 0.4, else low) and the response sets
+  `no_high_confidence_match` when the top hit is below the high floor, so a
+  nearest-neighbour match for out-of-domain text is not mistaken for a real one
+  (assessment D6). The default `similarity_threshold` is unchanged.
+- **MCP best-effort startup warmup** loads the embedding model + vector index
+  before serving so the first diagnostics/extract call is warm; failures are
+  logged and never block startup (assessment D9).
+- **MCP capability descriptor documents the cache-key contract.** A
+  `cache_contract` field clarifies that `capabilities_version` is the canonical
+  warm-cache key (echoed in `_meta`, stable across `details`) while
+  `descriptor_hash` is the per-descriptor content hash (assessment D8).
+
+### Fixed
+
+- **MCP deterministic extractor no longer over-negates co-located phenotypes.**
+  Negation is now applied per match by overlapping the matched phrase span with
+  the computed negated scope, so an affirmed concept beside a negated one
+  ("severe intellectual disability **without** regression") is no longer marked
+  negated; cue-stripped single-concept chunks ("no X") stay negated (assessment
+  D1, the highest-severity finding).
+- **MCP deterministic extractor surfaces co-occurring findings.** The chunker now
+  splits multi-concept spans on progression markers ("progressing to", "evolving
+  into", "followed by", …), so distinct phenotypes ("hypotonia progressing to
+  hypertonia") each surface as their own best-match chunk without raising
+  `num_results_per_chunk` (assessment D2); degenerate function-word chunks (e.g.
+  a bare "due") are dropped (assessment D3).
+- **MCP extraction payload shape.** Projected aggregated terms now carry a
+  uniform `text_attributions` key (empty list when none) and drop null padding,
+  so the schema is consistent and `full` mode is not bloated (assessment D7/D13).
+- **MCP `export_phenopacket` provenance is honest.** Client-supplied phenotypes
+  are marked `match_method: client_supplied` / `source_mode: unknown` instead of
+  fabricating `legacy_dict`/`chunk`; caller-supplied provenance is preserved
+  (assessment D11).
 
 - **Optional user accounts with a higher full-text quota.** Visitors can
   register and sign in via an unobtrusive top-right account control; a
