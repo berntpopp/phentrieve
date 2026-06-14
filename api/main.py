@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import api.config as api_config
@@ -42,6 +42,10 @@ from phentrieve.config import (
 logger = logging.getLogger(__name__)
 # Configure logging for the API using config value
 logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
+
+# Single source of truth for the versioned API path prefix (used by the routers
+# and to place the interactive docs/OpenAPI behind the reverse proxy).
+API_V1_PREFIX = "/api/v1"
 
 
 # =============================================================================
@@ -154,6 +158,12 @@ def create_app() -> FastAPI:
         title="Phentrieve API",
         version=get_api_version(),
         lifespan=lifespan,
+        # Serve the interactive docs/OpenAPI under the API prefix so they are
+        # reachable through the frontend reverse proxy (which only forwards /api
+        # and /mcp). At the app root they would be shadowed by the SPA.
+        docs_url=f"{API_V1_PREFIX}/docs",
+        redoc_url=f"{API_V1_PREFIX}/redoc",
+        openapi_url=f"{API_V1_PREFIX}/openapi.json",
     )
 
     application.add_middleware(
@@ -238,22 +248,28 @@ def create_app() -> FastAPI:
         )
 
     application.include_router(
-        query_router.router, prefix="/api/v1/query", tags=["HPO Term Query"]
+        query_router.router, prefix=f"{API_V1_PREFIX}/query", tags=["HPO Term Query"]
     )
     application.include_router(
-        health.router, prefix="/api/v1/health", tags=["Health Check"]
+        health.router, prefix=f"{API_V1_PREFIX}/health", tags=["Health Check"]
     )
     application.include_router(system.router)
     application.include_router(
         similarity_router.router,
-        prefix="/api/v1/similarity",
+        prefix=f"{API_V1_PREFIX}/similarity",
         tags=["HPO Term Similarity"],
     )
     application.include_router(phenopacket_router.router)
-    application.include_router(config_info_router.router, prefix="/api/v1")
+    application.include_router(config_info_router.router, prefix=API_V1_PREFIX)
     application.include_router(
         text_processing_router.router, tags=["Text Processing and HPO Extraction"]
     )
+
+    @application.get(API_V1_PREFIX, include_in_schema=False)
+    @application.get(f"{API_V1_PREFIX}/", include_in_schema=False)
+    async def api_v1_root() -> RedirectResponse:
+        """Redirect the API base path to the interactive Swagger docs."""
+        return RedirectResponse(url=application.docs_url or f"{API_V1_PREFIX}/docs")
 
     if api_config.PHENTRIEVE_AUTH_ENABLED:
         if not api_config.PHENTRIEVE_AUTH_JWT_SECRET:

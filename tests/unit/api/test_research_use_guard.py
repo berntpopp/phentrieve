@@ -109,7 +109,7 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
 
 
 def test_text_bearing_routes_document_research_ack_header_in_openapi(client):
-    schema = client.get("/openapi.json").json()
+    schema = client.get(client.app.openapi_url).json()
     operations = [
         schema["paths"]["/api/v1/query/"]["get"],
         schema["paths"]["/api/v1/query/"]["post"],
