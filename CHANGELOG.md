@@ -16,7 +16,63 @@ together:
 
 ---
 
-## [Unreleased] (CLI 0.23.2 / API 0.15.3 / Frontend 0.14.1)
+## [0.24.0] — 2026-06-14 (CLI 0.24.0 / API 0.16.0 / Frontend 0.15.0)
+
+MCP server stabilization: every quality dimension lifted toward >9/10, traced to
+`.planning/analysis/2026-06-14-mcp-stabilization-plan.md`. Schema/descriptor
+changes intentionally roll `capabilities_version` (the warm-client signal).
+
+### Added
+
+- **Orthogonal experiencer/assertion axes + negation qualifier (LLM-2).** The
+  Phase-1 grounded/non-grounded schemas gain `experiencer`/`assertion` enums and
+  a `negated_qualifier`, declared before the legacy `category` label so the model
+  reasons about them first; `negated_qualifier` ("X without Y") is threaded to the
+  aggregated term. The two_phase/en prompt adds a negation-scope rule and
+  few-shots (prompt `v3.0.0` → `v3.1.0`).
+- **Live diagnostics (D3).** `diagnostics` probes the real caches and reports
+  `loaded | loading | cold | error` for `embedding_model`/`vector_index` instead
+  of a constant `"lazy"`.
+- **`text_attributions` is always an array (D1).** Empty `[]` now means a
+  semantically retrieved term with no literal span (kept present at compact).
+
+### Changed
+
+- **Band-based `no_high_confidence_match` (B1).** A threshold-emptied result set
+  is correctly flagged (was the inverted `false`).
+- **`chunk_text` lazy-loads the embedding model (B2),** so all 7 advertised
+  strategies work; a genuine load failure is `temporarily_unavailable` (not
+  `invalid_input`).
+- **LLM extraction no longer mislabels relatives (LLM-1).** `family_history` is
+  dropped from the actionable set and aggregation keys on
+  `(term_id, experiencer, assertion)`, removing the self-contradictory
+  present+negated pair; the coarse chunk-status override is dropped for the LLM
+  path so "X without Y" keeps X present.
+- **One canonical phenopacket (R1).** `export_phenopacket` returns the parsed
+  `phenopacket` object as the single form; the `phenopacket_json` blob is gated to
+  `standard`/`full`. The object is kept whole at every mode.
+- **Leaner payloads.** The extract→export pre-fill is capped/compacted at
+  minimal/compact (R2); deterministic `num_results_per_chunk` defaults to 3 so the
+  exact child term is not lost (Q1); response synonyms are capped to 10 with a
+  `synonyms_truncated` count (R3).
+- **Accurate error recovery (D4).** `not_found`/`ambiguous_query` →
+  `recovery_action: resolve_identifier` with a `search` next-command.
+- **`compare` honesty (D2).** `lca_details` `ic_proxy` is renamed
+  `normalized_depth` (it is `depth/max_depth`, a structural proxy, not corpus IC).
+- **Alias-policy docs (B4)** state that alias forwarding is client-dependent and
+  canonical names are always safe.
+
+### Fixed
+
+- **Value-level blank-text envelope (B3).** Blank/whitespace `text` returns the
+  validator's reason, not the unknown-argument-name template with
+  `allowed_values`=parameter-names.
+- **Concurrent-validation race.** `LLMPhenotype`'s forward reference is resolved
+  eagerly (`model_rebuild`) so parallel grouped phase-1 cannot race the lazy
+  rebuild; the `tests/unit/api` package shadowing of the top-level `api/` package
+  is fixed via a proper test-package hierarchy so the full suite collects.
+
+## [0.23.2] — 2026-06-14 (CLI 0.23.2 / API 0.15.3 / Frontend 0.14.1)
 
 ### Added
 
