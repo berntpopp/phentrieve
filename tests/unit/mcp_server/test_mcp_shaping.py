@@ -83,6 +83,33 @@ def test_meta_passes_through_unshaped():
     assert out["_meta"] == {"definition": "keep-me"}
 
 
+def test_phenopacket_json_blob_gated_to_standard_and_full():
+    """R1: the serialized phenopacket_json string is a top-level detail field --
+    dropped at minimal/compact so the canonical `phenopacket` object is the one
+    form, kept at standard/full for consumers that want the serialized blob."""
+    raw = {
+        "phenopacket": {
+            "id": "CASE-1",
+            "phenotypicFeatures": [{"type": {"id": "HP:0001250"}}],
+        },
+        "phenopacket_json": '{"id": "CASE-1"}',
+    }
+
+    compact = apply_response_mode(raw, "compact")
+    assert compact.get("phenopacket", {}).get("id") == "CASE-1"
+    assert "phenopacket_json" not in compact
+
+    minimal = apply_response_mode(raw, "minimal")
+    assert "phenopacket_json" not in minimal
+
+    standard = apply_response_mode(raw, "standard")
+    assert "phenopacket_json" in standard
+    assert standard.get("phenopacket", {}).get("id") == "CASE-1"
+
+    full = apply_response_mode(raw, "full")
+    assert "phenopacket_json" in full
+
+
 def test_enforce_budget_truncates_and_reports():
     payload = {
         "results": [{"hpo_id": f"HP:{i:07d}", "label": "x" * 300} for i in range(300)]

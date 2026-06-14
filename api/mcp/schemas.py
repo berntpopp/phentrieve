@@ -52,7 +52,10 @@ COMPARE_SCHEMA = envelope_schema(
     similarity_score=_NUM,
     lca_details=_OBJ,
 )
+# R1: the parsed ``phenopacket`` object is the canonical form (always present);
+# ``phenopacket_json`` is the serialized blob, surfaced only at standard/full.
 PHENOPACKET_SCHEMA = envelope_schema(
+    phenopacket=_OBJ,
     phenopacket_json=_STR,
     annotation_sidecar=_OBJ,
 )

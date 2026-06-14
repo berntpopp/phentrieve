@@ -24,7 +24,7 @@ BUDGETS: dict[str, int] = {
 }
 
 # Verbose detail fields: dropped at minimal; dropped-if-present at compact;
-# kept at standard/full.
+# kept at standard/full. Applied both per-item and to top-level keys.
 _DETAIL_FIELDS = (
     "definition",
     "synonyms",
@@ -32,6 +32,9 @@ _DETAIL_FIELDS = (
     "comments",
     "text_attributions",
     "assertion_details",
+    # R1: the serialized phenopacket blob is redundant with the canonical
+    # ``phenopacket`` object at lean verbosity; surface it only at standard/full.
+    "phenopacket_json",
 )
 # Identity/score fields kept even at minimal verbosity.
 _MINIMAL_KEEP = (
@@ -116,6 +119,14 @@ def apply_response_mode(
     for key, value in payload.items():
         if key == "_meta":
             shaped[key] = value
+        elif (
+            key in _DETAIL_FIELDS
+            and key not in keep_detail_fields
+            and mode in ("minimal", "compact")
+        ):
+            # Top-level detail field (e.g. R1 phenopacket_json): drop at the lean
+            # modes, keep at standard (full is handled by the early return above).
+            continue
         elif isinstance(value, list) and value and isinstance(value[0], dict):
             shaped[key] = [_shape_item(i, mode, keep_detail_fields) for i in value]
         elif isinstance(value, dict):
