@@ -132,6 +132,27 @@ def test_compare_standard_mode_includes_citation():
     assert data["_meta"]["response_mode"] == "standard"
 
 
+def test_export_at_minimal_returns_whole_packet_without_json_blob():
+    """R1: export_phenopacket at minimal must still return the complete
+    phenopacket object (the tool's sole product) and only drop the redundant
+    phenopacket_json string -- not an empty packet."""
+    data = _call(
+        "phentrieve_export_phenopacket",
+        {
+            "case_id": "CASE-9",
+            "phenotypes": [
+                {"hpo_id": "HP:0001250", "label": "Seizure", "assertion": "affirmed"}
+            ],
+            "include_annotation_sidecar": False,
+            "response_mode": "minimal",
+        },
+    )
+    assert data["success"] is True
+    assert data["phenopacket"]["id"] == "CASE-9"
+    assert data["phenopacket"]["phenotypicFeatures"]  # non-empty, whole document
+    assert "phenopacket_json" not in data  # redundant blob gated out at minimal
+
+
 def test_invalid_response_mode_is_rejected():
     # Literal type -> middleware validation_failed before the body runs.
     data = _call("phentrieve_chunk_text", {"text": "x", "response_mode": "verbose"})

@@ -86,27 +86,30 @@ def test_meta_passes_through_unshaped():
 def test_phenopacket_json_blob_gated_to_standard_and_full():
     """R1: the serialized phenopacket_json string is a top-level detail field --
     dropped at minimal/compact so the canonical `phenopacket` object is the one
-    form, kept at standard/full for consumers that want the serialized blob."""
-    raw = {
-        "phenopacket": {
-            "id": "CASE-1",
-            "phenotypicFeatures": [{"type": {"id": "HP:0001250"}}],
-        },
-        "phenopacket_json": '{"id": "CASE-1"}',
+    form, kept at standard/full for consumers that want the serialized blob. The
+    `phenopacket` object itself is opaque and survives WHOLE at every mode (it is
+    a complete GA4GH document, never field-projected to {})."""
+    packet = {
+        "id": "CASE-1",
+        "phenotypicFeatures": [{"type": {"id": "HP:0001250"}}],
     }
+    raw = {"phenopacket": packet, "phenopacket_json": '{"id": "CASE-1"}'}
+    opaque = ("phenopacket",)
 
-    compact = apply_response_mode(raw, "compact")
-    assert compact.get("phenopacket", {}).get("id") == "CASE-1"
-    assert "phenopacket_json" not in compact
-
-    minimal = apply_response_mode(raw, "minimal")
+    minimal = apply_response_mode(raw, "minimal", opaque_keys=opaque)
+    assert minimal["phenopacket"] == packet  # not gutted to {}
     assert "phenopacket_json" not in minimal
 
-    standard = apply_response_mode(raw, "standard")
-    assert "phenopacket_json" in standard
-    assert standard.get("phenopacket", {}).get("id") == "CASE-1"
+    compact = apply_response_mode(raw, "compact", opaque_keys=opaque)
+    assert compact["phenopacket"] == packet
+    assert "phenopacket_json" not in compact
 
-    full = apply_response_mode(raw, "full")
+    standard = apply_response_mode(raw, "standard", opaque_keys=opaque)
+    assert standard["phenopacket"] == packet
+    assert "phenopacket_json" in standard
+
+    full = apply_response_mode(raw, "full", opaque_keys=opaque)
+    assert full["phenopacket"] == packet
     assert "phenopacket_json" in full
 
 

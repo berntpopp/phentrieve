@@ -77,7 +77,10 @@ def register_phenopacket_tools(mcp: FastMCP) -> None:
                     include_annotation_sidecar=include_annotation_sidecar,
                 )
             )
-            shaped = apply_response_mode(raw, mode)
+            # The phenopacket object is the canonical product: pass it through
+            # whole at every mode (never field-projected to {}); only the
+            # redundant phenopacket_json blob is gated by verbosity (R1).
+            shaped = apply_response_mode(raw, mode, opaque_keys=("phenopacket",))
             shaped["_meta"] = {
                 "next_commands": [],
                 "recommended_citation": recommended_citation(),

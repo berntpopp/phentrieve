@@ -104,6 +104,7 @@ def apply_response_mode(
     mode: ResponseMode,
     *,
     keep_detail_fields: tuple[str, ...] = (),
+    opaque_keys: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """Return a shaped copy of ``payload`` for the given mode.
 
@@ -111,13 +112,16 @@ def apply_response_mode(
     scalar and ``_meta`` keys pass through. ``full`` returns the payload unchanged.
     ``keep_detail_fields`` names detail fields (e.g. definition/synonyms) that must
     survive compact/minimal because the caller explicitly requested them
-    (honors include_details=True at compact verbosity, defect M5).
+    (honors include_details=True at compact verbosity, defect M5). ``opaque_keys``
+    names top-level values that must pass through whole, never field-projected --
+    e.g. the GA4GH ``phenopacket`` object, which is a complete document, not a row
+    of optional detail fields (R1).
     """
     if mode == "full":
         return payload
     shaped: dict[str, Any] = {}
     for key, value in payload.items():
-        if key == "_meta":
+        if key == "_meta" or key in opaque_keys:
             shaped[key] = value
         elif (
             key in _DETAIL_FIELDS
