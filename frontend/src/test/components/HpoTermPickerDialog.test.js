@@ -59,6 +59,29 @@ describe('HpoTermPickerDialog', () => {
     });
   });
 
+  it('submits the negated assertion when the negated toggle is chosen', async () => {
+    const wrapper = mountDialog({
+      mode: 'add',
+      assertion: 'affirmed',
+      candidates: [{ hpo_id: 'HP:0001518', label: 'Small for gestational age', similarity: 0.74 }],
+    });
+    await wrapper.vm.$nextTick();
+
+    document.querySelector('[data-testid="hpo-picker-negated"]').click();
+    await wrapper.vm.$nextTick();
+
+    document.querySelector('[data-testid="hpo-candidate"]').click();
+    await wrapper.vm.$nextTick();
+
+    document.querySelector('[data-testid="hpo-picker-submit"]').click();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('submit')[0][0]).toMatchObject({
+      term: { hpo_id: 'HP:0001518' },
+      assertion: 'negated',
+    });
+  });
+
   it('emits requery when the search field changes (debounced)', async () => {
     const wrapper = mountDialog({ candidates: [] });
     await wrapper.vm.$nextTick();

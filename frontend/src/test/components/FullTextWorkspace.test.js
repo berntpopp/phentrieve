@@ -89,6 +89,36 @@ describe('FullTextWorkspace annotated note', () => {
     expect(wrapper.emitted('clear-hover')).toBeTruthy();
   });
 
+  it('applies a distinct class to manually curated spans', () => {
+    const wrapper = mountWorkspace({
+      segments: [
+        { key: 'plain-0', text: 'A ', highlighted: false },
+        {
+          key: 'mark-auto',
+          text: 'auto term',
+          highlighted: true,
+          termIds: ['HP:1'],
+          annotationIds: ['auto-HP:1-0'],
+          manual: false,
+          tooltip: 'Auto (HP:1)',
+        },
+        { key: 'plain-1', text: ' and ', highlighted: false },
+        {
+          key: 'mark-manual',
+          text: 'manual term',
+          highlighted: true,
+          termIds: ['HP:2'],
+          annotationIds: ['manual-HP:2-1'],
+          manual: true,
+          tooltip: 'Manual (HP:2)',
+        },
+      ],
+    });
+    const marks = wrapper.findAll('[data-testid="annotated-note-span"]');
+    expect(marks[0].classes()).not.toContain('annotated-note-span--manual');
+    expect(marks[1].classes()).toContain('annotated-note-span--manual');
+  });
+
   it('marks expose button semantics for the curation menu', () => {
     const wrapper = mountWorkspace();
     const firstMark = wrapper.findAll('[data-testid="annotated-note-span"]')[0];

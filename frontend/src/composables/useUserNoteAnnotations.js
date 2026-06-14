@@ -304,6 +304,7 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
         end: span.end,
         termIds: [ann.hpoId],
         annotationIds: [ann.id],
+        manual: ann.origin === 'manual',
       });
     });
   });
@@ -319,6 +320,7 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
       previous.end = Math.max(previous.end, range.end);
       previous.termIds = [...new Set([...previous.termIds, ...range.termIds])];
       previous.annotationIds = [...new Set([...previous.annotationIds, ...range.annotationIds])];
+      previous.manual = previous.manual || range.manual;
     } else {
       merged.push({ ...range });
     }
@@ -340,6 +342,7 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
       highlighted: true,
       termIds: range.termIds,
       annotationIds: range.annotationIds,
+      manual: Boolean(range.manual),
       tooltip: range.termIds.map((id) => `${labelById.get(id) || id} (${id})`).join(', '),
     });
     cursor = range.end;

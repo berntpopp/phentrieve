@@ -47,6 +47,7 @@
               :class="{
                 'annotated-note-span--active':
                   activePhenotypeId && segment.termIds.includes(activePhenotypeId),
+                'annotated-note-span--manual': segment.manual,
               }"
               role="button"
               aria-haspopup="menu"
@@ -213,6 +214,18 @@ export default {
 .user-note-summary__expanded mark:hover {
   background: rgba(37, 99, 235, 0.22);
   box-shadow: inset 0 -0.5em 0 rgba(37, 99, 235, 0.18);
+}
+
+/* Manually curated annotations get a distinct hue (violet) so they read as
+   human edits versus the automatic (blue) extraction. */
+.annotated-note-span--manual {
+  background: rgba(124, 58, 237, 0.18);
+  box-shadow: inset 0 -0.42em 0 rgba(124, 58, 237, 0.16);
+}
+
+.annotated-note-span--manual:hover {
+  background: rgba(124, 58, 237, 0.26);
+  box-shadow: inset 0 -0.5em 0 rgba(124, 58, 237, 0.2);
 }
 
 .annotated-note-span--active {

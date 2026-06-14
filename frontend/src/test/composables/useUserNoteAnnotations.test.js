@@ -277,6 +277,13 @@ describe('buildSegmentsFromAnnotations', () => {
     expect(segs.map((s) => s.text).join('')).toBe(note);
   });
 
+  it('flags segments from manual annotations so they can be colored distinctly', () => {
+    const segs = buildSegmentsFromAnnotations(note, annotations).filter((s) => s.highlighted);
+    // a1 is auto, a2 is manual.
+    expect(segs[0].manual).toBe(false);
+    expect(segs[1].manual).toBe(true);
+  });
+
   it('merges overlapping spans and unions termIds', () => {
     const overlap = [
       {

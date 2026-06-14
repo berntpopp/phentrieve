@@ -31,21 +31,37 @@
           @update:model-value="onSearchInput"
           @keydown.enter.prevent="emitRequery"
         />
-        <v-btn-toggle
-          v-model="assertionValue"
-          class="mt-3"
-          density="comfortable"
-          variant="outlined"
-          divided
-          mandatory
+        <div
+          class="hpo-term-picker__assertion mt-3"
+          role="group"
+          :aria-label="
+            t('hpoTermPicker.assertionAffirmed') + ' / ' + t('hpoTermPicker.assertionNegated')
+          "
         >
-          <v-btn value="affirmed" size="small" data-testid="hpo-picker-affirmed">
+          <v-btn
+            size="small"
+            data-testid="hpo-picker-affirmed"
+            :variant="assertionValue === 'affirmed' ? 'flat' : 'outlined'"
+            :color="assertionValue === 'affirmed' ? 'success' : undefined"
+            :aria-pressed="assertionValue === 'affirmed' ? 'true' : 'false'"
+            @click="assertionValue = 'affirmed'"
+          >
+            <v-icon start size="small">mdi-check-circle-outline</v-icon>
             {{ t('hpoTermPicker.assertionAffirmed') }}
           </v-btn>
-          <v-btn value="negated" size="small" data-testid="hpo-picker-negated">
+          <v-btn
+            size="small"
+            class="ml-2"
+            data-testid="hpo-picker-negated"
+            :variant="assertionValue === 'negated' ? 'flat' : 'outlined'"
+            :color="assertionValue === 'negated' ? 'error' : undefined"
+            :aria-pressed="assertionValue === 'negated' ? 'true' : 'false'"
+            @click="assertionValue = 'negated'"
+          >
+            <v-icon start size="small">mdi-block-helper</v-icon>
             {{ t('hpoTermPicker.assertionNegated') }}
           </v-btn>
-        </v-btn-toggle>
+        </div>
       </div>
 
       <v-card-text class="hpo-term-picker__results">
