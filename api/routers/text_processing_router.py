@@ -75,14 +75,66 @@ def _get_trusted_proxy_cidrs() -> list[str]:
     ]
 
 
-def _get_llm_quota_store() -> DailyQuotaStore:
+def _quota_enforced() -> bool:
+    """Whether LLM quota is enforced.
+
+    Tri-state ``PHENTRIEVE_LLM_QUOTA_ENFORCE``: explicit ``true``/``false``
+    override, otherwise the legacy behaviour (enforce only in production).
+    """
+    override = api_config.PHENTRIEVE_LLM_QUOTA_ENFORCE
+    if override == "true":
+        return True
+    if override == "false":
+        return False
+    return _is_production_environment()
+
+
+def _get_llm_quota_store(daily_limit: int) -> DailyQuotaStore:
     return DailyQuotaStore(
         db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
-        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+        daily_limit=daily_limit,
     )
 
 
-def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
+def _resolve_authenticated_subject(http_request: Request) -> tuple[str, bool] | None:
+    """Return (subject_key, is_verified) for a logged-in user, else None.
+
+    Only consulted when auth is enabled. A verified user is keyed on their id;
+    an unverified user falls through to the anonymous (IP) tier so they get the
+    lower limit until they verify their email.
+    """
+    if not api_config.PHENTRIEVE_AUTH_ENABLED:
+        return None
+    try:
+        from api.auth.deps import get_optional_user
+    except ImportError:
+        return None
+    user = get_optional_user(http_request)
+    if user is None:
+        return None
+    return hash_subject_key(f"user:{user.id}"), user.is_verified
+
+
+def _resolve_quota_subject(http_request: Request) -> tuple[str, int, bool, bool]:
+    """Return (subject_key, daily_limit, authenticated, verified).
+
+    Verified users get the authenticated tier; everyone else is keyed on a
+    trusted client IP with the anonymous limit.
+    """
+    resolved = _resolve_authenticated_subject(http_request)
+    if resolved is not None:
+        subject_key, verified = resolved
+        if verified:
+            return (
+                subject_key,
+                api_config.PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT,
+                True,
+                True,
+            )
+        authenticated = True
+    else:
+        authenticated = False
+
     client_host = http_request.client.host if http_request.client else None
     subject_ip = resolve_subject_ip(
         client_host=client_host,
@@ -98,11 +150,21 @@ def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
                 "PHENTRIEVE_TRUSTED_PROXY_CIDRS."
             ),
         )
+    return (
+        hash_subject_key(subject_ip),
+        api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+        authenticated,
+        False,
+    )
 
+
+def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
+    subject_key, daily_limit, _authenticated, _verified = _resolve_quota_subject(
+        http_request
+    )
     usage_date_utc = datetime.now(UTC).date().isoformat()
-    subject_key = hash_subject_key(subject_ip)
     try:
-        quota_status = _get_llm_quota_store().get_status(
+        quota_status = _get_llm_quota_store(daily_limit).get_status(
             subject_key=subject_key,
             usage_date_utc=usage_date_utc,
         )
@@ -127,10 +189,44 @@ def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
 
 
 def _record_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
-    return _get_llm_quota_store().record_success(
+    return _get_llm_quota_store(quota_status.quota_limit).record_success(
         subject_key=quota_status.subject_key,
         usage_date_utc=quota_status.usage_date_utc,
     )
+
+
+@router.get("/quota", summary="Get current LLM daily quota status")
+def get_llm_quota_status(http_request: Request) -> dict[str, Any]:
+    """Return the caller's current LLM quota for today without consuming it.
+
+    Reflects the authenticated tier (10/day for verified users) or the
+    anonymous IP tier. ``enforced`` indicates whether the quota is currently
+    applied at all (see ``PHENTRIEVE_LLM_QUOTA_ENFORCE``).
+    """
+    subject_key, daily_limit, authenticated, verified = _resolve_quota_subject(
+        http_request
+    )
+    usage_date_utc = datetime.now(UTC).date().isoformat()
+    try:
+        quota_status = _get_llm_quota_store(daily_limit).get_status(
+            subject_key=subject_key,
+            usage_date_utc=usage_date_utc,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Unable to evaluate LLM quota state. Verify "
+                "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
+            ),
+        ) from exc
+
+    detail = quota_status.to_detail()
+    detail["quota_reset_at"] = quota_reset_at_iso(usage_date_utc)
+    detail["authenticated"] = authenticated
+    detail["verified"] = verified
+    detail["enforced"] = _quota_enforced()
+    return detail
 
 
 @router.post(
@@ -210,7 +306,7 @@ async def process_text_extract_hpo(
         http_request.headers.get("x-phentrieve-allow-standard-fallback", "").lower()
         == "true"
     )
-    if request.extraction_backend == "llm" and _is_production_environment():
+    if request.extraction_backend == "llm" and _quota_enforced():
         try:
             quota_status = check_llm_quota_or_raise(http_request)
         except QuotaExceededError as exc:

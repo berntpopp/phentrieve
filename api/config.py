@@ -32,6 +32,27 @@ __all__ = [
     "PHENTRIEVE_LLM_QUOTA_DB_PATH",
     "PHENTRIEVE_PUBLIC_HOSTED_MODE",
     "PHENTRIEVE_REQUIRE_RESEARCH_ACK",
+    "PHENTRIEVE_AUTH_ENABLED",
+    "PHENTRIEVE_AUTH_JWT_SECRET",
+    "PHENTRIEVE_AUTH_DB_PATH",
+    "PHENTRIEVE_AUTH_ACCESS_TTL_SECONDS",
+    "PHENTRIEVE_AUTH_REFRESH_TTL_SECONDS",
+    "PHENTRIEVE_AUTH_COOKIE_SECURE",
+    "PHENTRIEVE_AUTH_COOKIE_SAMESITE",
+    "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS",
+    "PHENTRIEVE_AUTH_LOCKOUT_SECONDS",
+    "PHENTRIEVE_AUTH_SEED_EMAIL",
+    "PHENTRIEVE_AUTH_SEED_PASSWORD",
+    "PHENTRIEVE_EMAIL_BACKEND",
+    "PHENTRIEVE_EMAIL_FROM",
+    "PHENTRIEVE_SMTP_HOST",
+    "PHENTRIEVE_SMTP_PORT",
+    "PHENTRIEVE_SMTP_USERNAME",
+    "PHENTRIEVE_SMTP_PASSWORD",
+    "PHENTRIEVE_SMTP_TLS",
+    "PHENTRIEVE_PUBLIC_BASE_URL",
+    "PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT",
+    "PHENTRIEVE_LLM_QUOTA_ENFORCE",
     "get_api_config_value",
 ]
 
@@ -59,6 +80,18 @@ def _env_bool(name: str, default: bool = False) -> bool:
     if raw_value is None:
         return default
     return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    """Parse an integer environment variable, falling back to a default."""
+    raw_value = os.getenv(name)
+    if raw_value is None or not raw_value.strip():
+        return default
+    try:
+        return int(raw_value)
+    except ValueError:
+        logger.warning("Invalid integer for %s; using default %d", name, default)
+        return default
 
 
 @functools.lru_cache(maxsize=1)
@@ -249,3 +282,59 @@ PHENTRIEVE_PUBLIC_HOSTED_MODE: bool = _env_bool("PHENTRIEVE_PUBLIC_HOSTED_MODE",
 PHENTRIEVE_REQUIRE_RESEARCH_ACK: bool = _env_bool(
     "PHENTRIEVE_REQUIRE_RESEARCH_ACK", False
 )
+
+# =============================================================================
+# Authentication and accounts
+# =============================================================================
+# Auth is opt-in. When disabled, the API behaves exactly as before (anonymous,
+# IP-keyed quota only). Enable locally for testing; configure secrets/SMTP for
+# production.
+PHENTRIEVE_AUTH_ENABLED: bool = _env_bool("PHENTRIEVE_AUTH_ENABLED", False)
+PHENTRIEVE_AUTH_JWT_SECRET: str = os.getenv("PHENTRIEVE_AUTH_JWT_SECRET", "")
+PHENTRIEVE_AUTH_DB_PATH: str = os.getenv(
+    "PHENTRIEVE_AUTH_DB_PATH", "../data/app/users.db"
+)
+PHENTRIEVE_AUTH_ACCESS_TTL_SECONDS: int = _env_int(
+    "PHENTRIEVE_AUTH_ACCESS_TTL_SECONDS", 1800
+)
+PHENTRIEVE_AUTH_REFRESH_TTL_SECONDS: int = _env_int(
+    "PHENTRIEVE_AUTH_REFRESH_TTL_SECONDS", 1_209_600
+)
+PHENTRIEVE_AUTH_COOKIE_SECURE: bool = _env_bool("PHENTRIEVE_AUTH_COOKIE_SECURE", True)
+PHENTRIEVE_AUTH_COOKIE_SAMESITE: str = os.getenv(
+    "PHENTRIEVE_AUTH_COOKIE_SAMESITE", "lax"
+).lower()
+PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS: int = _env_int(
+    "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS", 5
+)
+PHENTRIEVE_AUTH_LOCKOUT_SECONDS: int = _env_int("PHENTRIEVE_AUTH_LOCKOUT_SECONDS", 900)
+
+# Optional dev convenience: seed a pre-verified account at startup so it can be
+# used immediately for testing. Leave empty in production. Both must be set.
+PHENTRIEVE_AUTH_SEED_EMAIL: str = os.getenv("PHENTRIEVE_AUTH_SEED_EMAIL", "")
+PHENTRIEVE_AUTH_SEED_PASSWORD: str = os.getenv("PHENTRIEVE_AUTH_SEED_PASSWORD", "")
+
+# Email delivery (console backend for local/dev/tests, smtp for production)
+PHENTRIEVE_EMAIL_BACKEND: str = os.getenv("PHENTRIEVE_EMAIL_BACKEND", "console").lower()
+PHENTRIEVE_EMAIL_FROM: str = os.getenv(
+    "PHENTRIEVE_EMAIL_FROM", "noreply@phentrieve.org"
+)
+PHENTRIEVE_SMTP_HOST: str = os.getenv("PHENTRIEVE_SMTP_HOST", "")
+PHENTRIEVE_SMTP_PORT: int = _env_int("PHENTRIEVE_SMTP_PORT", 587)
+PHENTRIEVE_SMTP_USERNAME: str = os.getenv("PHENTRIEVE_SMTP_USERNAME", "")
+PHENTRIEVE_SMTP_PASSWORD: str = os.getenv("PHENTRIEVE_SMTP_PASSWORD", "")
+PHENTRIEVE_SMTP_TLS: str = os.getenv("PHENTRIEVE_SMTP_TLS", "starttls").lower()
+PHENTRIEVE_PUBLIC_BASE_URL: str = os.getenv(
+    "PHENTRIEVE_PUBLIC_BASE_URL", "http://localhost:5734"
+)
+
+# Quota: authenticated (verified) users get a higher daily LLM limit.
+PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT: int = _env_int(
+    "PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT", 20
+)
+# Tri-state enforcement override:
+#   "" (unset) -> enforce only when PHENTRIEVE_ENV == "production" (legacy)
+#   "true"/"false" -> explicit on/off (useful for local testing)
+PHENTRIEVE_LLM_QUOTA_ENFORCE: str = os.getenv(
+    "PHENTRIEVE_LLM_QUOTA_ENFORCE", ""
+).lower()

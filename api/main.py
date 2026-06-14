@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import api.config as api_config
 from api.config import (
     ALLOWED_ORIGINS,
     CORS_ALLOW_CREDENTIALS,
@@ -122,6 +123,12 @@ async def lifespan(app: FastAPI):
     logger.info(
         "API startup: Default model pre-loading initiation complete (actual loading may be in background)."
     )
+
+    # Optionally seed a pre-verified dev account (no-op unless configured).
+    if api_config.PHENTRIEVE_AUTH_ENABLED:
+        from api.auth.seed import seed_user_from_config
+
+        seed_user_from_config()
 
     # Mount MCP if enabled (moved from module-level to lifespan)
     _try_mount_mcp(app)
@@ -247,6 +254,22 @@ def create_app() -> FastAPI:
     application.include_router(
         text_processing_router.router, tags=["Text Processing and HPO Extraction"]
     )
+
+    if api_config.PHENTRIEVE_AUTH_ENABLED:
+        if not api_config.PHENTRIEVE_AUTH_JWT_SECRET:
+            message = (
+                "PHENTRIEVE_AUTH_ENABLED is set but PHENTRIEVE_AUTH_JWT_SECRET is "
+                "empty. Set a strong secret to enable authentication."
+            )
+            if api_config.PHENTRIEVE_ENV.strip().lower() == "production":
+                raise RuntimeError(message)
+            logger.error(
+                "%s Auth routes will be mounted but tokens will fail.", message
+            )
+        from api.auth import router as auth_router
+
+        application.include_router(auth_router.router)
+        logger.info("Authentication enabled: mounted /api/v1/auth routes.")
 
     @application.get(
         "/",

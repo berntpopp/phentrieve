@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logService } from './logService';
+import { getAccessToken } from './authToken';
 
 /**
  * Determine the API URL based on environment variables and deployment context
@@ -13,6 +14,21 @@ const API_URL = import.meta.env.VITE_API_URL || '/api/v1'; // Default to relativ
 const RESEARCH_USE_ACK_CONFIG = Object.freeze({
   headers: { 'X-Phentrieve-Research-Use-Acknowledged': 'true' },
 });
+
+/**
+ * Build the request config: research-use ack header plus, when signed in, the
+ * bearer access token so the server applies the authenticated quota tier.
+ * With no token the result deep-equals RESEARCH_USE_ACK_CONFIG.
+ * @returns {{headers: Record<string, string>}}
+ */
+const buildRequestConfig = () => {
+  const token = getAccessToken();
+  const headers = { ...RESEARCH_USE_ACK_CONFIG.headers };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return { headers };
+};
 const getSerializedSize = (value) => JSON.stringify(value)?.length || 0;
 const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
@@ -26,7 +42,7 @@ class PhentrieveService {
         numResults: queryPayload.num_results ?? queryPayload.numResults,
         model: queryPayload.model_name ?? queryPayload.modelName,
       });
-      const response = await axios.post(`${API_URL}/query/`, queryPayload, RESEARCH_USE_ACK_CONFIG);
+      const response = await axios.post(`${API_URL}/query/`, queryPayload, buildRequestConfig());
       logService.debug('HPO API response received', {
         status: response.status,
         dataSize: getSerializedSize(response.data),
@@ -78,7 +94,7 @@ class PhentrieveService {
       const response = await axios.post(
         `${API_URL}/text/process`,
         normalizedPayload,
-        RESEARCH_USE_ACK_CONFIG
+        buildRequestConfig()
       );
 
       logService.debug('Text Processing API response received', {
@@ -125,7 +141,7 @@ class PhentrieveService {
       const response = await axios.post(
         `${API_URL}/phenopackets/export`,
         exportData,
-        RESEARCH_USE_ACK_CONFIG
+        buildRequestConfig()
       );
       return response.data;
     } catch (error) {

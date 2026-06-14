@@ -127,6 +127,17 @@
         <template v-else>
           {{ error.detail || $t('resultsDisplay.defaultError') }}
         </template>
+        <div v-if="showLoginNudge" class="mt-2">
+          <v-btn
+            variant="text"
+            size="small"
+            color="primary"
+            prepend-icon="mdi-login"
+            @click="openAuthDialog"
+          >
+            {{ $t('auth.nudge.loginForMore') }}
+          </v-btn>
+        </div>
       </v-alert>
     </div>
   </div>
@@ -136,6 +147,7 @@
 import { logService } from '../services/logService';
 import ResultItem from './ResultItem.vue';
 import { HPO_TERM_URL } from '../constants/urls';
+import { useAuthStore } from '../stores/auth';
 
 export default {
   name: 'ResultsDisplay',
@@ -200,8 +212,18 @@ export default {
     hasValidTurnId() {
       return typeof this.turnId === 'string' && this.turnId.length > 0;
     },
+    showLoginNudge() {
+      // Encourage anonymous users to sign in when they hit the LLM quota.
+      return (
+        this.error?.userMessageKey === 'errors.api.llmQuotaExceeded' &&
+        !useAuthStore().isAuthenticated
+      );
+    },
   },
   methods: {
+    openAuthDialog() {
+      window.dispatchEvent(new CustomEvent('phentrieve:open-auth', { detail: { mode: 'login' } }));
+    },
     toggleQueryResultDetails(index) {
       if (this.expandedQueryResults.has(index)) {
         this.expandedQueryResults.delete(index);

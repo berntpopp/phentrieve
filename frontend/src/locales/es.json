@@ -465,5 +465,75 @@
     "sexFemale": "Femenino",
     "sexMale": "Masculino",
     "sexOther": "Otro"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión"
+    },
+    "register": {
+      "title": "Crear cuenta"
+    },
+    "forgot": {
+      "title": "Restablecer contraseña"
+    },
+    "fields": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña"
+    },
+    "actions": {
+      "login": "Iniciar sesión",
+      "register": "Crear cuenta",
+      "sendReset": "Enviar enlace de restablecimiento"
+    },
+    "links": {
+      "forgotPassword": "¿Olvidó su contraseña?",
+      "needAccount": "¿No tiene cuenta? Regístrese",
+      "backToLogin": "Volver al inicio de sesión"
+    },
+    "validation": {
+      "emailRequired": "El correo electrónico es obligatorio",
+      "emailInvalid": "Introduzca una dirección de correo válida",
+      "passwordRequired": "La contraseña es obligatoria",
+      "passwordMin": "La contraseña debe tener al menos 10 caracteres",
+      "passwordMatch": "Las contraseñas no coinciden"
+    },
+    "messages": {
+      "registerSuccess": "Cuenta creada. Revise su correo para verificarla y desbloquear el cupo diario superior.",
+      "resetSent": "Si la dirección es válida, se ha enviado un enlace de restablecimiento."
+    },
+    "errors": {
+      "loginFailed": "Correo o contraseña no válidos.",
+      "locked": "Demasiados intentos. Inténtelo de nuevo más tarde.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    },
+    "account": {
+      "loginRegister": "Iniciar sesión o registrarse",
+      "account": "Cuenta",
+      "signedInAs": "Sesión iniciada como",
+      "verified": "Verificado",
+      "unverified": "No verificado",
+      "resendVerification": "Reenviar correo de verificación",
+      "logout": "Cerrar sesión",
+      "quotaToday": "Cupo de texto completo hoy: {remaining} de {limit} restantes"
+    },
+    "nudge": {
+      "loginForMore": "Inicie sesión para un cupo diario de texto completo superior"
+    },
+    "verifyView": {
+      "title": "Verificación de correo",
+      "goHome": "Ir a la aplicación",
+      "missingToken": "A este enlace de verificación le falta el token.",
+      "success": "Su correo está verificado. Ahora tiene el cupo diario superior.",
+      "failed": "Este enlace de verificación no es válido o ha caducado."
+    },
+    "resetView": {
+      "title": "Elegir una nueva contraseña",
+      "submit": "Actualizar contraseña",
+      "success": "Su contraseña se ha actualizado. Ahora puede iniciar sesión.",
+      "missingToken": "A este enlace de restablecimiento le falta el token.",
+      "failed": "Este enlace de restablecimiento no es válido o ha caducado."
+    }
   }
 }

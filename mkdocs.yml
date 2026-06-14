@@ -61,6 +61,7 @@ nav:
     - 'Docker & NPM': 'deployment/docker-npm.md'
     - 'Local Docker': 'deployment/local-docker.md'
     - 'Data Management': 'deployment/data-management.md'
+    - 'Authentication & Quota': 'deployment/authentication.md'
     - 'Security': 'deployment/security.md'
   - 'Compliance':
     - 'Research Use Only': 'compliance/research-use.md'

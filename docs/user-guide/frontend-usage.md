@@ -38,3 +38,14 @@ export PHENTRIEVE_LLM_QUOTA_DB_PATH="../data/app/llm_quota.db"
 Use those settings when you want the frontend to exercise the same proxy and
 quota behavior as the production API. The benchmark CLI does not use this quota
 path.
+
+## Signing in for a higher quota
+
+Anonymous full-text runs are capped per day (per client IP). If accounts are
+enabled, use the account button in the top-right corner to register and sign in:
+a **verified** account raises your daily full-text quota from the anonymous
+limit to the authenticated one (defaults: 5 → 20). The account menu shows your
+remaining runs for the day, and the result panel offers a sign-in shortcut when
+an anonymous run hits the limit. See
+[Authentication & Quota](../deployment/authentication.md) for setup and the full
+tier table.

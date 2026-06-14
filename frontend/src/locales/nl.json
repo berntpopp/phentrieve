@@ -465,5 +465,75 @@
     "sexFemale": "Vrouwelijk",
     "sexMale": "Mannelijk",
     "sexOther": "Anders"
+  },
+  "auth": {
+    "login": {
+      "title": "Inloggen"
+    },
+    "register": {
+      "title": "Account aanmaken"
+    },
+    "forgot": {
+      "title": "Wachtwoord opnieuw instellen"
+    },
+    "fields": {
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "newPassword": "Nieuw wachtwoord",
+      "confirmPassword": "Wachtwoord bevestigen"
+    },
+    "actions": {
+      "login": "Inloggen",
+      "register": "Account aanmaken",
+      "sendReset": "Reset-link verzenden"
+    },
+    "links": {
+      "forgotPassword": "Wachtwoord vergeten?",
+      "needAccount": "Nog geen account? Registreren",
+      "backToLogin": "Terug naar inloggen"
+    },
+    "validation": {
+      "emailRequired": "E-mail is vereist",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "passwordRequired": "Wachtwoord is vereist",
+      "passwordMin": "Het wachtwoord moet minstens 10 tekens lang zijn",
+      "passwordMatch": "De wachtwoorden komen niet overeen"
+    },
+    "messages": {
+      "registerSuccess": "Account aangemaakt. Controleer uw e-mail om te verifiëren en het hogere dagquotum te ontgrendelen.",
+      "resetSent": "Als het adres geldig is, is er een reset-link verzonden."
+    },
+    "errors": {
+      "loginFailed": "Ongeldig e-mailadres of wachtwoord.",
+      "locked": "Te veel pogingen. Probeer het later opnieuw.",
+      "generic": "Er is iets misgegaan. Probeer het opnieuw."
+    },
+    "account": {
+      "loginRegister": "Inloggen of registreren",
+      "account": "Account",
+      "signedInAs": "Ingelogd als",
+      "verified": "Geverifieerd",
+      "unverified": "Niet geverifieerd",
+      "resendVerification": "Verificatie-e-mail opnieuw verzenden",
+      "logout": "Uitloggen",
+      "quotaToday": "Volledige-tekstquotum vandaag: {remaining} van {limit} over"
+    },
+    "nudge": {
+      "loginForMore": "Log in voor een hoger dagelijks volledige-tekstquotum"
+    },
+    "verifyView": {
+      "title": "E-mailverificatie",
+      "goHome": "Naar de app",
+      "missingToken": "Aan deze verificatielink ontbreekt het token.",
+      "success": "Uw e-mail is geverifieerd. U heeft nu het hogere dagquotum.",
+      "failed": "Deze verificatielink is ongeldig of verlopen."
+    },
+    "resetView": {
+      "title": "Kies een nieuw wachtwoord",
+      "submit": "Wachtwoord bijwerken",
+      "success": "Uw wachtwoord is bijgewerkt. U kunt nu inloggen.",
+      "missingToken": "Aan deze reset-link ontbreekt het token.",
+      "failed": "Deze reset-link is ongeldig of verlopen."
+    }
   }
 }

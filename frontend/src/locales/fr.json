@@ -465,5 +465,75 @@
     "sexFemale": "Féminin",
     "sexMale": "Masculin",
     "sexOther": "Autre"
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter"
+    },
+    "register": {
+      "title": "Créer un compte"
+    },
+    "forgot": {
+      "title": "Réinitialiser le mot de passe"
+    },
+    "fields": {
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le mot de passe"
+    },
+    "actions": {
+      "login": "Se connecter",
+      "register": "Créer un compte",
+      "sendReset": "Envoyer le lien de réinitialisation"
+    },
+    "links": {
+      "forgotPassword": "Mot de passe oublié ?",
+      "needAccount": "Pas de compte ? S'inscrire",
+      "backToLogin": "Retour à la connexion"
+    },
+    "validation": {
+      "emailRequired": "L'e-mail est requis",
+      "emailInvalid": "Saisissez une adresse e-mail valide",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordMin": "Le mot de passe doit comporter au moins 10 caractères",
+      "passwordMatch": "Les mots de passe ne correspondent pas"
+    },
+    "messages": {
+      "registerSuccess": "Compte créé. Vérifiez votre e-mail pour le valider et débloquer le quota quotidien supérieur.",
+      "resetSent": "Si l'adresse est valide, un lien de réinitialisation a été envoyé."
+    },
+    "errors": {
+      "loginFailed": "E-mail ou mot de passe invalide.",
+      "locked": "Trop de tentatives. Veuillez réessayer plus tard.",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "account": {
+      "loginRegister": "Se connecter ou s'inscrire",
+      "account": "Compte",
+      "signedInAs": "Connecté en tant que",
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
+      "resendVerification": "Renvoyer l'e-mail de vérification",
+      "logout": "Se déconnecter",
+      "quotaToday": "Quota plein texte aujourd'hui : {remaining} sur {limit} restant(s)"
+    },
+    "nudge": {
+      "loginForMore": "Connectez-vous pour un quota plein texte quotidien supérieur"
+    },
+    "verifyView": {
+      "title": "Vérification de l'e-mail",
+      "goHome": "Aller à l'application",
+      "missingToken": "Il manque le jeton à ce lien de vérification.",
+      "success": "Votre e-mail est vérifié. Vous bénéficiez désormais du quota quotidien supérieur.",
+      "failed": "Ce lien de vérification est invalide ou a expiré."
+    },
+    "resetView": {
+      "title": "Choisir un nouveau mot de passe",
+      "submit": "Mettre à jour le mot de passe",
+      "success": "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter.",
+      "missingToken": "Il manque le jeton à ce lien de réinitialisation.",
+      "failed": "Ce lien de réinitialisation est invalide ou a expiré."
+    }
   }
 }
