@@ -5,17 +5,24 @@ higher daily full-text (LLM) quota than anonymous visitors. The feature is
 **off by default**: with `PHENTRIEVE_AUTH_ENABLED=false` the API behaves exactly
 as before (anonymous, IP-keyed quota only).
 
-## How it works
+## Full-text quota: anonymous vs signed in
 
-- Anonymous requests are rate-limited per client IP at
-  `PHENTRIEVE_LLM_DAILY_LIMIT` (default 5).
-- A **verified, signed-in** user is rate-limited per account at
-  `PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT` (default 10).
-- Unverified accounts stay on the anonymous limit until they verify their email
-  (**verify-to-upgrade**), which discourages fake-account quota farming.
+Full-text (LLM) analyses are capped per UTC day. Who you are decides the cap and
+how it is counted:
 
-Accounts live in a small SQLite database (`PHENTRIEVE_AUTH_DB_PATH`), alongside
-the existing quota DB. No PostgreSQL is required.
+| Caller | Counted by | Daily limit | Setting |
+| --- | --- | --- | --- |
+| Anonymous | Client IP | 5 | `PHENTRIEVE_LLM_DAILY_LIMIT` |
+| Signed in, **unverified** | Client IP | 5 | (same as anonymous) |
+| Signed in, **verified** | Account | 10 | `PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT` |
+
+The higher cap is **verify-to-upgrade**: an account only earns it after
+confirming its email, which keeps throwaway accounts on the anonymous limit.
+Limits reset at 00:00 UTC. Standard (non-LLM) extraction is never quota-limited.
+
+`GET /api/v1/text/quota` reports your current tier and remaining count without
+spending any. Accounts live in a small SQLite database
+(`PHENTRIEVE_AUTH_DB_PATH`), alongside the existing quota DB — no PostgreSQL.
 
 ### Token model
 
@@ -46,13 +53,26 @@ frontend:
 PHENTRIEVE_AUTH_ENABLED=true
 PHENTRIEVE_AUTH_JWT_SECRET=$(openssl rand -hex 32)
 PHENTRIEVE_AUTH_COOKIE_SECURE=false      # local HTTP
-PHENTRIEVE_EMAIL_BACKEND=console         # links printed to the API log
+PHENTRIEVE_EMAIL_BACKEND=console         # links printed to the API log/stdout
 PHENTRIEVE_LLM_QUOTA_ENFORCE=true        # exercise the quota locally
 ```
 
 Register in the UI (top-right account button), copy the verification link from
 the API log, open it to verify, then sign in. The account menu shows your
 remaining full-text quota for the day.
+
+### Pre-seeded dev account
+
+To skip the register/verify step, seed a ready-to-use, already-verified account
+at startup:
+
+```bash
+PHENTRIEVE_AUTH_SEED_EMAIL=dev@phentrieve.org
+PHENTRIEVE_AUTH_SEED_PASSWORD=DevPassw0rd!
+```
+
+The account is created (or refreshed to match these credentials) on each boot,
+so you can sign in immediately. Leave both empty in production.
 
 ## Production
 
