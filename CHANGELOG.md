@@ -16,7 +16,7 @@ together:
 
 ---
 
-## [Unreleased] (CLI 0.23.1 / API 0.15.0 / Frontend 0.14.0)
+## [Unreleased] (CLI 0.23.1 / API 0.15.2 / Frontend 0.14.0)
 
 ### Added
 
