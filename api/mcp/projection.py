@@ -18,8 +18,9 @@ when present, and ``hpo_matches`` always present (each match normalized to
 unless ``include_unmatched`` is set.
 
 Addresses evaluation defects M4 (redundant schema / dual indexing), T1 (empty
-chunks), L5 (omitted hpo_matches key), and L7 (id collision -- terms remain keyed
-by the (hpo_id, assertion) pair so present + negated do not silently merge).
+chunks), L5 (omitted hpo_matches key), and L7 (id collision -- upstream keeps
+terms distinct by (term_id, experiencer, assertion) so present + negated, and
+proband + family, do not silently merge).
 """
 
 from __future__ import annotations
