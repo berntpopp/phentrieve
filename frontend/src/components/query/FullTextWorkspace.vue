@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { computeSelectionOffsets } from '../../composables/useUserNoteAnnotations';
+import { computeSelectionOffsets, trimSelection } from '../../composables/useUserNoteAnnotations';
 
 export default {
   name: 'FullTextWorkspace',
@@ -119,8 +119,8 @@ export default {
       if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
         return;
       }
-      const text = selection.toString().trim();
-      if (!text) {
+      const rawText = selection.toString();
+      if (!rawText.trim()) {
         return;
       }
       const container = this.$refs.expandedContainer;
@@ -148,8 +148,19 @@ export default {
       if (!offsets) {
         return;
       }
+      // Trim whitespace from the selection AND keep the offsets aligned, so the
+      // stored span text matches noteText.slice(start, end) and renders.
+      const trimmed = trimSelection(rawText, offsets.start, offsets.end);
+      if (!trimmed || trimmed.end <= trimmed.start) {
+        return;
+      }
       const rect = range.getBoundingClientRect?.() || null;
-      this.$emit('text-select', { text, start: offsets.start, end: offsets.end, rect });
+      this.$emit('text-select', {
+        text: trimmed.text,
+        start: trimmed.start,
+        end: trimmed.end,
+        rect,
+      });
     },
   },
 };

@@ -9,6 +9,7 @@ import {
   resolveMatchedTextRange,
   seedAnnotationsFromResponse,
   summarizeDocumentQuery,
+  trimSelection,
 } from '../../composables/useUserNoteAnnotations';
 
 describe('useUserNoteAnnotations', () => {
@@ -174,6 +175,31 @@ describe('seedAnnotationsFromResponse', () => {
       },
     });
     expect(r[0].status).toBe('negated');
+  });
+
+  it('locates a span by the term label when text attributions do not resolve', () => {
+    const labelNote =
+      'Her developmental course showed severe intellectual disability without regression.';
+    const r = seedAnnotationsFromResponse({
+      note: labelNote,
+      response: {
+        processed_chunks: [],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0010864',
+            name: 'Severe intellectual disability',
+            status: 'present',
+            confidence: 1,
+            text_attributions: [],
+          },
+        ],
+      },
+    });
+    expect(r).toHaveLength(1);
+    expect(r[0].spans).toHaveLength(1);
+    expect(labelNote.slice(r[0].spans[0].start, r[0].spans[0].end).toLowerCase()).toBe(
+      'severe intellectual disability'
+    );
   });
 
   it('keeps a term with no resolvable span (empty spans) so it still appears in findings', () => {
@@ -357,5 +383,32 @@ describe('computeSelectionOffsets', () => {
     range.setStart(container.firstChild, 3);
     range.setEnd(container.firstChild, 3);
     expect(computeSelectionOffsets(container, range)).toBeNull();
+  });
+});
+
+describe('trimSelection', () => {
+  it('trims trailing whitespace and shrinks the end offset', () => {
+    // A mouse drag commonly grabs a trailing space; offsets must follow the trim.
+    expect(trimSelection('uneventful pregnancy ', 172, 193)).toEqual({
+      text: 'uneventful pregnancy',
+      start: 172,
+      end: 192,
+    });
+  });
+
+  it('trims leading whitespace and grows the start offset', () => {
+    expect(trimSelection('  walk', 10, 16)).toEqual({ text: 'walk', start: 12, end: 16 });
+  });
+
+  it('leaves a clean selection unchanged', () => {
+    expect(trimSelection('does not walk', 647, 660)).toEqual({
+      text: 'does not walk',
+      start: 647,
+      end: 660,
+    });
+  });
+
+  it('returns null for a whitespace-only selection', () => {
+    expect(trimSelection('   ', 5, 8)).toBeNull();
   });
 });

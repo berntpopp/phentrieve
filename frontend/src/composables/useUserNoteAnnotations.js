@@ -250,6 +250,20 @@ export function seedAnnotationsFromResponse({ note, response }) {
         .filter(Boolean)
         .sort((a, b) => a.start - b.start);
 
+      // Fallback: some backends (notably the grounded LLM extractor) return
+      // terms with no usable text attributions. If the term's own label appears
+      // verbatim in the note, locate it so the term is still highlighted.
+      if (spans.length === 0) {
+        const byLabel = resolveMatchedTextRange(noteText, term.name);
+        if (byLabel) {
+          spans.push({
+            start: byLabel.start,
+            end: byLabel.end,
+            text: noteText.slice(byLabel.start, byLabel.end),
+          });
+        }
+      }
+
       // Keep terms even when no note span resolves: they still belong in the
       // findings list (e.g. inferred terms without offsets). Such annotations
       // simply produce no highlight in the note.
@@ -364,6 +378,22 @@ export function deriveFindingsFromAnnotations(annotations) {
   });
 
   return [...byTerm.values()];
+}
+
+/**
+ * Trim leading/trailing whitespace from a raw selection while keeping the
+ * character offsets consistent with the trimmed text. A mouse drag commonly
+ * grabs surrounding whitespace; without this the stored span text (trimmed) no
+ * longer matches noteText.slice(start, end) and the highlight is dropped.
+ * Returns null for a whitespace-only selection.
+ */
+export function trimSelection(rawText, start, end) {
+  const raw = typeof rawText === 'string' ? rawText : '';
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const leading = raw.length - raw.replace(/^\s+/, '').length;
+  const trailing = raw.length - raw.replace(/\s+$/, '').length;
+  return { text: trimmed, start: start + leading, end: end - trailing };
 }
 
 /**
