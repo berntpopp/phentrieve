@@ -278,6 +278,38 @@ def compare_hpo_terms_service(
 # --------------------------------------------------------------------------- #
 # Phenopacket export (reuses the REST router's mapping + bundle logic)
 # --------------------------------------------------------------------------- #
+def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> Any:
+    """Map a phenotype dict onto ExportPhenotypeRequest, accepting both the
+    canonical {hpo_id, label, assertion} shape and the extractor's
+    {id, name, assertion_status} shape, and carrying score -> confidence.
+
+    Raises a typed validation_failed error (not a raw KeyError) when the id is
+    missing, with a did-you-mean mapping hint (defects M2, H3, M3).
+    """
+    hpo_id = p.get("hpo_id") or p.get("id")
+    if not hpo_id:
+        raise McpToolError(
+            "validation_failed",
+            f"phenotypes[{idx}] missing 'hpo_id' (got keys: {sorted(p)}); map "
+            "id->hpo_id, name->label, assertion_status->assertion. Hand the "
+            "aggregated_hpo_terms from an extract call directly.",
+            details={"field": f"phenotypes[{idx}].hpo_id"},
+        )
+    assertion = p.get("assertion") or p.get("status") or p.get("assertion_status")
+    confidence = p.get("score")
+    if confidence is None:
+        confidence = p.get("confidence", p.get("max_score_from_evidence"))
+    chunk_ids = p.get("source_chunk_ids") or p.get("chunk_ids") or []
+    return request_cls(
+        hpo_id=hpo_id,
+        label=p.get("label") or p.get("name") or hpo_id,
+        assertion_status="negated" if assertion == "negated" else "affirmed",
+        confidence=confidence,
+        source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
+    )
+
+
+# --------------------------------------------------------------------------- #
 def export_phenopacket_service(
     *,
     case_id: str,
@@ -300,14 +332,8 @@ def export_phenopacket_service(
     )
 
     export_phenotypes = [
-        ExportPhenotypeRequest(
-            hpo_id=p["hpo_id"],
-            label=p.get("label") or p["hpo_id"],
-            assertion_status="negated"
-            if p.get("assertion") == "negated"
-            else "affirmed",
-        )
-        for p in phenotypes
+        _coerce_export_phenotype(ExportPhenotypeRequest, p, idx)
+        for idx, p in enumerate(phenotypes)
     ]
     export_request = PhenopacketExportRequest(
         case_id=case_id,
@@ -335,6 +361,21 @@ def export_phenopacket_service(
 def chunk_text_service(
     *, text: str, language: str | None, strategy: str | None
 ) -> McpResult:
+    from phentrieve.text_processing.config_resolver import KNOWN_CHUNK_STRATEGIES
+
+    # Reject unknown strategies explicitly (config_resolver silently falls back to
+    # the default for unknown names, so without this an invalid value would be
+    # accepted on a model-loaded server -- defect L4).
+    if strategy is not None and strategy.lower() not in KNOWN_CHUNK_STRATEGIES:
+        raise McpToolError(
+            "validation_failed",
+            f"Unknown chunking strategy '{strategy}'. Valid strategies: "
+            f"{', '.join(KNOWN_CHUNK_STRATEGIES)}.",
+            details={
+                "field": "strategy",
+                "allowed_values": list(KNOWN_CHUNK_STRATEGIES),
+            },
+        )
     try:
         config = resolve_chunking_config(strategy or "simple")
     except Exception as exc:  # invalid strategy name (when it raises)

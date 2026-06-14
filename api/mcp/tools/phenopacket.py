@@ -9,6 +9,7 @@ from pydantic import Field
 
 from api.mcp.annotations import READ_ONLY_OPEN_WORLD
 from api.mcp.envelope import McpErrorContext, run_mcp_tool
+from api.mcp.resources import recommended_citation
 from api.mcp.schemas import PHENOPACKET_SCHEMA
 from api.mcp.service_adapters import export_phenopacket_service
 from api.mcp.shaping import apply_response_mode, resolve_mode
@@ -23,7 +24,9 @@ _Phenotypes = Annotated[
         min_length=1,
         description="Annotations to serialize: a list of "
         "{hpo_id, label, assertion} objects (assertion: affirmed|negated). "
-        "Hand it the aggregated_hpo_terms from an extract call.",
+        "The raw extractor shape {id, name, assertion_status} is also accepted, "
+        "and a per-item score is preserved as the evidence confidence, so you "
+        "can hand it the aggregated_hpo_terms from an extract call unchanged.",
     ),
 ]
 
@@ -75,7 +78,10 @@ def register_phenopacket_tools(mcp: FastMCP) -> None:
                 )
             )
             shaped = apply_response_mode(raw, mode)
-            shaped["_meta"] = {"next_commands": []}
+            shaped["_meta"] = {
+                "next_commands": [],
+                "recommended_citation": recommended_citation(),
+            }
             return shaped
 
         return await run_mcp_tool(

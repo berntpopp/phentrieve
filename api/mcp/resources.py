@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import functools
 import json
+import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from phentrieve.llm.security_policy import get_public_llm_capabilities
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -27,7 +31,8 @@ SERVER_INSTRUCTIONS = (
     "for full abstracts, publication-style annotation, and syndrome/eponym-heavy "
     "text; use the standard tool for quick deterministic screening. Use "
     "response_mode (minimal | compact | standard | full) to control token cost; "
-    "start compact and widen only if needed. Call phentrieve_get_capabilities for "
+    "start compact and widen only if needed. If tools are deferred or load on "
+    "demand, start with phentrieve_get_capabilities. Call phentrieve_get_capabilities for "
     "the tool inventory, limits, response modes, error codes, and the citation "
     "contract; a warm client compares capabilities_version (echoed in every "
     "_meta) and skips re-fetching when unchanged. Citation contract: paste "
@@ -39,10 +44,33 @@ SERVER_INSTRUCTIONS = (
 _MD_DIR = Path(__file__).parent / "resources_md"
 
 
+@functools.lru_cache(maxsize=1)
+def hpo_release_version() -> str:
+    """Best-effort HPO release version from the data bundle manifest.
+
+    Cached for the process; returns 'unknown' if the manifest is unavailable.
+    """
+    try:
+        from phentrieve.utils import get_default_data_dir
+
+        manifest = get_default_data_dir() / "manifest.json"
+        if manifest.exists():
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+            return str(data.get("hpo_version") or "unknown")
+    except Exception:
+        logger.debug("Could not read HPO version from manifest", exc_info=True)
+    return "unknown"
+
+
 def recommended_citation() -> str:
-    """Verbatim citation string for HPO content surfaced via Phentrieve."""
+    """Verbatim citation string for HPO content surfaced via Phentrieve.
+
+    Includes the HPO release version so a pasted citation is reproducible.
+    """
+    version = hpo_release_version()
+    release = f" {version}" if version and version != "unknown" else ""
     return (
-        "Human Phenotype Ontology, https://hpo.jax.org/ "
+        f"Human Phenotype Ontology (HPO{release}), https://hpo.jax.org/ "
         "(consulted via Phentrieve; research use only)."
     )
 

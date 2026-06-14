@@ -9,6 +9,7 @@ import anyio
 from api.mcp.annotations import READ_ONLY_OPEN_WORLD
 from api.mcp.envelope import McpErrorContext, run_mcp_tool
 from api.mcp.next_commands import after_chunk, after_extract, after_search
+from api.mcp.projection import project_extract_payload
 from api.mcp.resources import recommended_citation
 from api.mcp.schemas import CHUNK_SCHEMA, EXTRACT_SCHEMA, SEARCH_SCHEMA
 from api.mcp.service_adapters import (
@@ -19,9 +20,12 @@ from api.mcp.service_adapters import (
 )
 from api.mcp.shaping import apply_response_mode, enforce_budget, resolve_mode
 from api.mcp.tools._common import (
+    DEFAULT_EXTRACT_NUM_RESULTS,
     ChunkRetrievalThreshold,
+    ChunkStrategy,
     IncludeChunkPositions,
     IncludeDetails,
+    IncludeUnmatchedChunks,
     LanguageArg,
     NumResults,
     NumResultsPerChunk,
@@ -41,9 +45,18 @@ if TYPE_CHECKING:
     from fastmcp import FastMCP
 
 
+# Detail fields that include_details=True keeps even at compact verbosity (M5).
+_DETAIL_KEEP = ("definition", "synonyms")
+
+
+def _detail_keep(include_details: bool) -> tuple[str, ...]:
+    return _DETAIL_KEEP if include_details else ()
+
+
 def _maybe_citation(meta: dict[str, Any], mode: str) -> None:
-    if mode in ("standard", "full"):
-        meta["recommended_citation"] = recommended_citation()
+    # Emit in every response mode (incl. minimal/compact). It is one line and the
+    # attribution/safety contract must hold regardless of verbosity (safety fix).
+    meta["recommended_citation"] = recommended_citation()
 
 
 def register_retrieval_tools(mcp: FastMCP) -> None:
@@ -68,7 +81,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
         language: LanguageArg = None,
         num_results: NumResults = DEFAULT_NUM_RESULTS,
         similarity_threshold: SimilarityThreshold = MIN_SIMILARITY_THRESHOLD,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         response_mode: ResponseMode = "compact",
     ) -> dict[str, Any]:
         mode = resolve_mode(response_mode)
@@ -81,7 +94,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 similarity_threshold=similarity_threshold,
                 include_details=include_details,
             )
-            shaped = apply_response_mode(raw, mode)
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(shaped, mode, list_field="results")
             meta: dict[str, Any] = {
                 "next_commands": after_search(shaped.get("results", []))
@@ -117,9 +132,10 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
     async def extract_hpo_terms(
         text: TextArg,
         language: LanguageArg = None,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         include_chunk_positions: IncludeChunkPositions = True,
-        num_results_per_chunk: NumResultsPerChunk = DEFAULT_NUM_RESULTS,
+        include_unmatched_chunks: IncludeUnmatchedChunks = False,
+        num_results_per_chunk: NumResultsPerChunk = DEFAULT_EXTRACT_NUM_RESULTS,
         chunk_retrieval_threshold: ChunkRetrievalThreshold = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         research_use_acknowledged: ResearchAck = False,
         response_mode: ResponseMode = "compact",
@@ -138,7 +154,12 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                     chunk_retrieval_threshold=chunk_retrieval_threshold,
                 )
             )
-            shaped = apply_response_mode(raw, mode)
+            raw = project_extract_payload(
+                raw, include_unmatched_chunks=include_unmatched_chunks
+            )
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
@@ -183,8 +204,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             "whole_document_grounded", "whole_document_legacy"
         ] = "whole_document_grounded",
         allow_standard_fallback: bool = False,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         include_chunk_positions: IncludeChunkPositions = True,
+        include_unmatched_chunks: IncludeUnmatchedChunks = False,
         num_results_per_chunk: NumResultsPerChunk = DEFAULT_NUM_RESULTS,
         chunk_retrieval_threshold: ChunkRetrievalThreshold = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         research_use_acknowledged: ResearchAck = False,
@@ -207,7 +229,12 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                     allow_standard_fallback=allow_standard_fallback,
                 )
             )
-            shaped = apply_response_mode(raw, mode)
+            raw = project_extract_payload(
+                raw, include_unmatched_chunks=include_unmatched_chunks
+            )
+            shaped = apply_response_mode(
+                raw, mode, keep_detail_fields=_detail_keep(include_details)
+            )
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
@@ -242,7 +269,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
     async def chunk_text(
         text: TextArg,
         language: LanguageArg = None,
-        strategy: str | None = None,
+        strategy: ChunkStrategy | None = None,
         response_mode: ResponseMode = "compact",
     ) -> dict[str, Any]:
         mode = resolve_mode(response_mode)

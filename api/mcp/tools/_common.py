@@ -4,20 +4,55 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import AfterValidator, Field
+
+
+def _reject_blank_text(value: str) -> str:
+    """Reject empty / whitespace-only text (defect L1: garbage-in was accepted)."""
+    if not value or not value.strip():
+        raise ValueError("text must not be empty or whitespace-only.")
+    return value
+
+
+# Deterministic extraction defaults to the single best match per phrase. The
+# whole top-N candidate list (mutually exclusive HPO siblings) is not co-occurring
+# evidence; raise num_results_per_chunk to surface sibling candidates (defect H1).
+DEFAULT_EXTRACT_NUM_RESULTS = 1
 
 ResponseMode = Annotated[
     Literal["minimal", "compact", "standard", "full"],
     Field(description="Verbosity / token budget: minimal | compact | standard | full."),
 ]
 
+# Enumerated chunking strategies. Kept in sync with
+# phentrieve.text_processing.config_resolver.KNOWN_CHUNK_STRATEGIES by
+# test_mcp_chunk_strategy_enum (a drift guard), since a Literal needs literal
+# members at definition time.
+ChunkStrategy = Annotated[
+    Literal[
+        "simple",
+        "detailed",
+        "semantic",
+        "sliding_window",
+        "sliding_window_cleaned",
+        "sliding_window_punct_cleaned",
+        "sliding_window_punct_conj_cleaned",
+    ],
+    Field(
+        description="Predefined chunking strategy. Null = 'simple' (paragraph + "
+        "sentence). Semantic/sliding_window strategies need the embedding model."
+    ),
+]
+
 TextArg = Annotated[
     str,
     Field(
+        min_length=1,
         description="Clinical or biomedical research text. Do not submit "
         "identifiable patient data to public demo instances.",
         examples=["progressive muscle weakness and seizures"],
     ),
+    AfterValidator(_reject_blank_text),
 ]
 
 LanguageArg = Annotated[
@@ -47,6 +82,14 @@ IncludeDetails = Annotated[
 IncludeChunkPositions = Annotated[
     bool,
     Field(description="Include source character offsets for evidence chunks."),
+]
+
+IncludeUnmatchedChunks = Annotated[
+    bool,
+    Field(
+        description="Include processed chunks that produced no HPO matches. Off by "
+        "default to save tokens; turn on to inspect coverage."
+    ),
 ]
 
 NumResultsPerChunk = Annotated[

@@ -247,14 +247,30 @@ class TextProcessingPipeline:
         search_start = 0  # Track position for sequential search (handles duplicates)
 
         for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
-            # Calculate position BEFORE cleaning (using pre-cleaned chunk text)
-            # This ensures we find the chunk in original_text even if whitespace differs
+            # Locate the chunk in the original text. We always attempt this (not
+            # only when include_positions is set) because the assertion detector
+            # needs the chunk's surrounding sentence context: the final-chunk
+            # cleaner strips leading negation cues ("no", "does not have") from the
+            # chunk text, so detecting on the cleaned chunk alone loses polarity
+            # (the C1 false-positive class). The span lets us recover the cue from
+            # original_text without changing the retrieval/display chunk text.
             start_char, end_char = -1, -1
-            if include_positions:
-                span = find_span_in_text(final_text_chunk, original_text, search_start)
-                if span:
-                    start_char, end_char = span.start_char, span.end_char
-                    search_start = span.end_char  # Continue from end of found chunk
+            assertion_context_start = search_start
+            span = find_span_in_text(final_text_chunk, original_text, search_start)
+            if span:
+                start_char, end_char = span.start_char, span.end_char
+                # Restore the within-sentence context that precedes this chunk
+                # (where a stripped leading cue lives), bounded by the previous
+                # chunk (search_start) and the current sentence so a following
+                # concept's cue is not pulled into this chunk's scope.
+                gap = original_text[search_start:start_char]
+                last_terminator = max(
+                    (gap.rfind(t) for t in (".", "!", "?", ";", "\n")),
+                    default=-1,
+                )
+                if last_terminator >= 0:
+                    assertion_context_start = search_start + last_terminator + 1
+                search_start = span.end_char  # Continue from end of found chunk
 
             cleaned_final_chunk = clean_internal_newlines_and_extra_spaces(
                 final_text_chunk
@@ -262,8 +278,17 @@ class TextProcessingPipeline:
             if not cleaned_final_chunk:
                 continue
 
+            # Detect assertion over the chunk plus its restored leading context so
+            # prepositional negation ("no X", "does not have X") is honored. Fall
+            # back to the cleaned chunk when the span could not be located.
+            assertion_input = cleaned_final_chunk
+            if span and end_char > assertion_context_start:
+                context_text = original_text[assertion_context_start:end_char].strip()
+                if context_text:
+                    assertion_input = context_text
+
             assertion_status, assertion_details = self.assertion_detector.detect(
-                cleaned_final_chunk
+                assertion_input
             )
 
             source_info_for_chunk = (

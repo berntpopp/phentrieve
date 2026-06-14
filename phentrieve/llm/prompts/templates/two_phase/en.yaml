@@ -1,4 +1,4 @@
-version: "v3.0.0"
+version: "v3.1.0"
 
 system_prompt: |
   You are an expert clinical geneticist. Extract source-faithful phenotype phrases
@@ -18,6 +18,12 @@ system_prompt: |
   - Suspected: the phenotype is possible or uncertain
   - Family_History: the phenotype belongs to a relative, not the patient
   - Other: onset, inheritance, age, measurement, or other non-phenotype information
+
+  Negation scope (critical):
+  - A negation cue applies ONLY to the concept it directly modifies, not to neighbouring concepts.
+  - In the pattern "X without Y", X is present (Abnormal) and only Y is absent (Normal). Do NOT mark X as Normal. Example: "severe intellectual disability without regression" -> intellectual disability is Abnormal, regression is Normal.
+  - A modifier-level negation such as "non-progressive", "non-syndromic", or "without progression" qualifies the head finding but does NOT negate it: "non-progressive ataxia" -> ataxia is Abnormal.
+  - Direct negation of the head finding ("no X", "not X", "denies X", "X was not seen") IS a true negation -> Normal.
 
   Extraction rules:
   - Preserve the wording from the note whenever possible
@@ -96,5 +102,20 @@ few_shot_examples:
         "phenotypes": [
           {"phrase": "enlarged mediastinal lymph nodes", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "enlarged mediastinal lymph nodes"},
           {"phrase": "bilateral pleural effusions", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "bilateral pleural effusions"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      She has severe intellectual disability without regression. There is non-progressive ataxia and no seizures.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "severe intellectual disability", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "severe intellectual disability"},
+          {"phrase": "regression", "category": "Normal", "chunk_ids": [1], "evidence_text": "without regression"},
+          {"phrase": "ataxia", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "non-progressive ataxia"},
+          {"phrase": "seizures", "category": "Normal", "chunk_ids": [1], "evidence_text": "no seizures"}
         ]
       }

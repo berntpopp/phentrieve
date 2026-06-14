@@ -29,6 +29,13 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-06-14-phentrieve-mcp-hardening-verification.md` - before/after
+  verification of the MCP hardening pass (C1 negation, H1 best-match, lossless
+  pipeable export, schema/token dedup, capabilities cache contract, error
+  envelopes; LLM negation fix benchmark-gated). Overall 7 -> 9.4 across the
+  evaluation dimensions. Spec in `specs/2026-06-14-phentrieve-mcp-hardening-
+  design.md`, plan in `completed/2026-06-14-phentrieve-mcp-hardening-plan.md`,
+  source evaluation in `analysis/2026-06-14-phentrieve-mcp-evaluation.md`.
 - `analysis/2026-06-13-fulltext-annotation-curation-verification.md` - E2E
   verification of full-text annotation curation (change/remove/annotate/undo +
   persisted provenance) on the rebuilt Docker stack; orphan cluster removed;

@@ -16,7 +16,7 @@ together:
 
 ---
 
-## [Unreleased] (CLI 0.23.1 / API 0.15.0 / Frontend 0.14.0)
+## [Unreleased] (CLI 0.23.1 / API 0.15.2 / Frontend 0.14.0)
 
 ### Added
 
@@ -39,6 +39,48 @@ together:
     `PHENTRIEVE_AUTH_SEED_EMAIL` / `PHENTRIEVE_AUTH_SEED_PASSWORD`.
   - Docs: `deployment/authentication.md` (setup, tier table, SMTP for
     production) plus quota notes in the API and frontend usage guides.
+
+### Fixed
+
+- **MCP deterministic extractor no longer asserts negated phenotypes.** Assertion
+  detection now runs over the chunk's restored within-sentence context, so
+  prepositional negation (`no X`, `not X`, `does not have X`) is honoured instead
+  of being lost when the chunk cleaner strips the leading cue — eliminating
+  false-positive affirmed phenotypes (the highest-severity defect). Negated
+  findings are emitted with `assertion_status: negated` so `excluded: true`
+  phenopacket features can be built.
+- **MCP `export_phenopacket` consumes extractor output directly.** It accepts both
+  `{hpo_id, label, assertion}` and the raw `{id, name, assertion_status}` shapes,
+  preserves a per-item `score` as the evidence confidence (no more
+  `confidence: 0.0000`), and returns a typed `validation_failed` with a
+  did-you-mean mapping hint instead of leaking a raw `KeyError`.
+- **MCP `capabilities_version` is stable across `details` expansion**, so it always
+  matches the value echoed in `_meta` and the warm-cache contract holds; the
+  per-descriptor content hash is exposed separately as `descriptor_hash`.
+- **MCP input validation**: empty/whitespace queries are rejected with
+  `validation_failed`; `chunk_text` `strategy` is an enumerated value validated
+  against the known strategy set (listed in capabilities); `next_commands` no
+  longer emit non-executable `<placeholder>` free-text steps.
+- **Phenopacket provenance** records `phentrieve-core <version>` to disambiguate
+  the extraction-library version from the MCP server version.
+
+### Changed
+
+- **MCP extraction output is normalized for the agent consumer (MCP boundary
+  only; REST API and frontend contracts unchanged).** Deterministic extraction
+  defaults to the single best match per phrase (was up to 10 mutually exclusive
+  siblings); aggregated terms carry one `score` and one chunk-index scheme
+  (`chunk_ids` + `top_evidence_chunk_id`) instead of four duplicate score fields
+  and dual 0-/1-based schemes; empty-match chunks are dropped unless
+  `include_unmatched_chunks=true`; `hpo_matches: []` is always serialized.
+- **`recommended_citation` is emitted in every response mode** (including
+  compact/minimal) and embeds the HPO release version; `include_details` defaults
+  to `false` and is honoured at compact verbosity when explicitly set.
+- **MCP observability** now surfaces per-phase LLM timing
+  (`_meta.observability.phase_timings`) and a `latency_profile` in capabilities.
+- **LLM extraction prompt (two-phase, v3.1.0)** adds a negation-scope rule and a
+  contrastive `X without Y` few-shot to curb over-negation of the head finding
+  (gated on the mapping benchmark before release).
 
 ## [0.23.1] — 2026-06-14 (CLI 0.23.1 / API 0.14.0 / Frontend 0.13.1)
 

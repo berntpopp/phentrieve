@@ -24,10 +24,13 @@ def test_chunk_text_service_simple_strategy():
     assert "text" in out["chunks"][0]
 
 
-def test_chunk_text_service_unknown_strategy_raises_invalid_input():
+def test_chunk_text_service_unknown_strategy_raises_validation_failed():
     with pytest.raises(McpToolError) as ei:
         chunk_text_service(text="x", language="en", strategy="does-not-exist")
-    assert ei.value.error_code == "invalid_input"
+    # Unknown strategies are now rejected explicitly with the valid list (L4)
+    # instead of silently falling back to the default config.
+    assert ei.value.error_code == "validation_failed"
+    assert "simple" in str(ei.value)
 
 
 def test_export_phenopacket_service_round_trips_case_id():

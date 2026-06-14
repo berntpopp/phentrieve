@@ -176,6 +176,21 @@ def _load_config_from_file(config_file: Path) -> list[dict[str, Any]]:
         )
 
 
+# Public tuple of the predefined strategy names, in declaration order. Source of
+# truth for validation/enums (see api.mcp.tools._common.ChunkStrategy, guarded by
+# a drift test). The name -> builder map is rebuilt per call inside
+# _get_strategy_config so the builder functions remain patchable in tests.
+KNOWN_CHUNK_STRATEGIES: tuple[str, ...] = (
+    "simple",
+    "detailed",
+    "semantic",
+    "sliding_window",
+    "sliding_window_cleaned",
+    "sliding_window_punct_cleaned",
+    "sliding_window_punct_conj_cleaned",
+)
+
+
 def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
     """
     Get predefined chunking strategy configuration by name.
@@ -191,7 +206,7 @@ def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
     """
     strategy_name = strategy_name.lower()
 
-    # Map strategy names to config functions
+    # Built per call (not hoisted) so tests can monkeypatch the builder functions.
     strategy_map: dict[str, Callable[[], list[dict[str, Any]]]] = {
         "simple": get_simple_chunking_config,
         "detailed": get_detailed_chunking_config,
