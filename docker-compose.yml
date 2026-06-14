@@ -131,11 +131,11 @@ services:
       - PYTHONPATH=/app
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      # uvicorn already runs with --proxy-headers; this tells it WHICH upstreams
-      # to trust for X-Forwarded-Proto/For. Default 127.0.0.1 ignores the
-      # frontend nginx (a different container IP), so redirects come out as
-      # http://. Behind the reverse proxy set FORWARDED_ALLOW_IPS=* in .env.docker
-      # (the API is only reachable on the internal/NPM networks).
+      # Keep 127.0.0.1. The API resolves the client IP itself for LLM quota
+      # (PHENTRIEVE_TRUSTED_PROXY_CIDRS) and expects request.client.host to be
+      # the immediate proxy peer; letting uvicorn rewrite it from X-Forwarded-For
+      # (e.g. FORWARDED_ALLOW_IPS=*) breaks that resolver. The https redirect
+      # scheme is fixed in the frontend nginx via `proxy_redirect http:// https://`.
       - FORWARDED_ALLOW_IPS=${FORWARDED_ALLOW_IPS:-127.0.0.1}
       - HF_HOME=/app/.cache/huggingface
       - TRANSFORMERS_CACHE=/app/.cache/huggingface/hub
