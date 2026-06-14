@@ -41,6 +41,8 @@ __all__ = [
     "PHENTRIEVE_AUTH_COOKIE_SAMESITE",
     "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS",
     "PHENTRIEVE_AUTH_LOCKOUT_SECONDS",
+    "PHENTRIEVE_AUTH_SEED_EMAIL",
+    "PHENTRIEVE_AUTH_SEED_PASSWORD",
     "PHENTRIEVE_EMAIL_BACKEND",
     "PHENTRIEVE_EMAIL_FROM",
     "PHENTRIEVE_SMTP_HOST",
@@ -306,6 +308,11 @@ PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS: int = _env_int(
     "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS", 5
 )
 PHENTRIEVE_AUTH_LOCKOUT_SECONDS: int = _env_int("PHENTRIEVE_AUTH_LOCKOUT_SECONDS", 900)
+
+# Optional dev convenience: seed a pre-verified account at startup so it can be
+# used immediately for testing. Leave empty in production. Both must be set.
+PHENTRIEVE_AUTH_SEED_EMAIL: str = os.getenv("PHENTRIEVE_AUTH_SEED_EMAIL", "")
+PHENTRIEVE_AUTH_SEED_PASSWORD: str = os.getenv("PHENTRIEVE_AUTH_SEED_PASSWORD", "")
 
 # Email delivery (console backend for local/dev/tests, smtp for production)
 PHENTRIEVE_EMAIL_BACKEND: str = os.getenv("PHENTRIEVE_EMAIL_BACKEND", "console").lower()

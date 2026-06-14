@@ -124,6 +124,12 @@ async def lifespan(app: FastAPI):
         "API startup: Default model pre-loading initiation complete (actual loading may be in background)."
     )
 
+    # Optionally seed a pre-verified dev account (no-op unless configured).
+    if api_config.PHENTRIEVE_AUTH_ENABLED:
+        from api.auth.seed import seed_user_from_config
+
+        seed_user_from_config()
+
     # Mount MCP if enabled (moved from module-level to lifespan)
     _try_mount_mcp(app)
     mcp_http_app = getattr(app.state, "phentrieve_mcp_http_app", None)
