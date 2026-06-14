@@ -78,9 +78,6 @@ together:
   to `false` and is honoured at compact verbosity when explicitly set.
 - **MCP observability** now surfaces per-phase LLM timing
   (`_meta.observability.phase_timings`) and a `latency_profile` in capabilities.
-- **LLM extraction prompt (two-phase, v3.1.0)** adds a negation-scope rule and a
-  contrastive `X without Y` few-shot to curb over-negation of the head finding
-  (gated on the mapping benchmark before release).
 
 ## [0.23.1] — 2026-06-14 (CLI 0.23.1 / API 0.14.0 / Frontend 0.13.1)
 
