@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+import api.config as api_config
 from api.config import (
     ALLOWED_ORIGINS,
     CORS_ALLOW_CREDENTIALS,
@@ -247,6 +248,22 @@ def create_app() -> FastAPI:
     application.include_router(
         text_processing_router.router, tags=["Text Processing and HPO Extraction"]
     )
+
+    if api_config.PHENTRIEVE_AUTH_ENABLED:
+        if not api_config.PHENTRIEVE_AUTH_JWT_SECRET:
+            message = (
+                "PHENTRIEVE_AUTH_ENABLED is set but PHENTRIEVE_AUTH_JWT_SECRET is "
+                "empty. Set a strong secret to enable authentication."
+            )
+            if api_config.PHENTRIEVE_ENV.strip().lower() == "production":
+                raise RuntimeError(message)
+            logger.error(
+                "%s Auth routes will be mounted but tokens will fail.", message
+            )
+        from api.auth import router as auth_router
+
+        application.include_router(auth_router.router)
+        logger.info("Authentication enabled: mounted /api/v1/auth routes.")
 
     @application.get(
         "/",
