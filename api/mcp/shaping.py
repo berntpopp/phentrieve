@@ -40,6 +40,8 @@ _MINIMAL_KEEP = (
     "name",
     "similarity",
     "confidence",
+    "score",
+    "assertion",
     "status",
     "term1_id",
     "term2_id",
@@ -47,6 +49,10 @@ _MINIMAL_KEEP = (
     "similarity_score",
     "chunk_id",
 )
+
+# Keys whose empty value must still be serialized (schema-stability contract).
+# hpo_matches: [] must never collapse to a missing key (defect L5).
+_ALWAYS_KEEP_EMPTY = ("hpo_matches",)
 
 
 def resolve_mode(requested: str | None) -> ResponseMode:
@@ -65,6 +71,9 @@ def _shape_item(item: dict[str, Any], mode: ResponseMode) -> dict[str, Any]:
         return {k: v for k, v in item.items() if k in _MINIMAL_KEEP and v is not None}
     out: dict[str, Any] = {}
     for key, value in item.items():
+        if key in _ALWAYS_KEEP_EMPTY and (value == [] or value is None):
+            out[key] = []
+            continue
         if value is None or value == [] or value == {}:
             continue
         if mode == "compact" and key in _DETAIL_FIELDS:

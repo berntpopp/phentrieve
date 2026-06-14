@@ -6,6 +6,11 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
+# Deterministic extraction defaults to the single best match per phrase. The
+# whole top-N candidate list (mutually exclusive HPO siblings) is not co-occurring
+# evidence; raise num_results_per_chunk to surface sibling candidates (defect H1).
+DEFAULT_EXTRACT_NUM_RESULTS = 1
+
 ResponseMode = Annotated[
     Literal["minimal", "compact", "standard", "full"],
     Field(description="Verbosity / token budget: minimal | compact | standard | full."),
@@ -47,6 +52,14 @@ IncludeDetails = Annotated[
 IncludeChunkPositions = Annotated[
     bool,
     Field(description="Include source character offsets for evidence chunks."),
+]
+
+IncludeUnmatchedChunks = Annotated[
+    bool,
+    Field(
+        description="Include processed chunks that produced no HPO matches. Off by "
+        "default to save tokens; turn on to inspect coverage."
+    ),
 ]
 
 NumResultsPerChunk = Annotated[

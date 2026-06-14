@@ -26,13 +26,19 @@ def after_search(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def after_extract(aggregated: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """After extract: hand the aggregated terms to the phenopacket exporter."""
+    """After extract: hand the aggregated terms to the phenopacket exporter.
+
+    Carries ``score`` so the exporter records the real retrieval confidence
+    instead of 0.0000 (defect H3), and reads the projected ``assertion`` key
+    (falling back to legacy ``status``) so negated findings stay negated.
+    """
     phenotypes = [
         {
-            # aggregated_hpo_terms use "id"; search results use "hpo_id"
+            # projected terms use hpo_id/label/assertion; raw use id/name/status
             "hpo_id": t.get("hpo_id") or t.get("id"),
             "label": t.get("label") or t.get("name"),
-            "assertion": t.get("status", "affirmed"),
+            "assertion": t.get("assertion") or t.get("status") or "affirmed",
+            "score": t.get("score") or t.get("confidence"),
         }
         for t in aggregated[:25]
         if t.get("hpo_id") or t.get("id")

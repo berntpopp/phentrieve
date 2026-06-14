@@ -9,6 +9,7 @@ import anyio
 from api.mcp.annotations import READ_ONLY_OPEN_WORLD
 from api.mcp.envelope import McpErrorContext, run_mcp_tool
 from api.mcp.next_commands import after_chunk, after_extract, after_search
+from api.mcp.projection import project_extract_payload
 from api.mcp.resources import recommended_citation
 from api.mcp.schemas import CHUNK_SCHEMA, EXTRACT_SCHEMA, SEARCH_SCHEMA
 from api.mcp.service_adapters import (
@@ -19,9 +20,11 @@ from api.mcp.service_adapters import (
 )
 from api.mcp.shaping import apply_response_mode, enforce_budget, resolve_mode
 from api.mcp.tools._common import (
+    DEFAULT_EXTRACT_NUM_RESULTS,
     ChunkRetrievalThreshold,
     IncludeChunkPositions,
     IncludeDetails,
+    IncludeUnmatchedChunks,
     LanguageArg,
     NumResults,
     NumResultsPerChunk,
@@ -117,9 +120,10 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
     async def extract_hpo_terms(
         text: TextArg,
         language: LanguageArg = None,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         include_chunk_positions: IncludeChunkPositions = True,
-        num_results_per_chunk: NumResultsPerChunk = DEFAULT_NUM_RESULTS,
+        include_unmatched_chunks: IncludeUnmatchedChunks = False,
+        num_results_per_chunk: NumResultsPerChunk = DEFAULT_EXTRACT_NUM_RESULTS,
         chunk_retrieval_threshold: ChunkRetrievalThreshold = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         research_use_acknowledged: ResearchAck = False,
         response_mode: ResponseMode = "compact",
@@ -137,6 +141,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                     num_results_per_chunk=num_results_per_chunk,
                     chunk_retrieval_threshold=chunk_retrieval_threshold,
                 )
+            )
+            raw = project_extract_payload(
+                raw, include_unmatched_chunks=include_unmatched_chunks
             )
             shaped = apply_response_mode(raw, mode)
             shaped, trunc = enforce_budget(
@@ -183,8 +190,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             "whole_document_grounded", "whole_document_legacy"
         ] = "whole_document_grounded",
         allow_standard_fallback: bool = False,
-        include_details: IncludeDetails = True,
+        include_details: IncludeDetails = False,
         include_chunk_positions: IncludeChunkPositions = True,
+        include_unmatched_chunks: IncludeUnmatchedChunks = False,
         num_results_per_chunk: NumResultsPerChunk = DEFAULT_NUM_RESULTS,
         chunk_retrieval_threshold: ChunkRetrievalThreshold = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
         research_use_acknowledged: ResearchAck = False,
@@ -206,6 +214,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                     llm_internal_mode=llm_internal_mode,
                     allow_standard_fallback=allow_standard_fallback,
                 )
+            )
+            raw = project_extract_payload(
+                raw, include_unmatched_chunks=include_unmatched_chunks
             )
             shaped = apply_response_mode(raw, mode)
             shaped, trunc = enforce_budget(
