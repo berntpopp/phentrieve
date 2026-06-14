@@ -60,7 +60,9 @@ class TestRouterMounting:
         assert response.status_code == 200
 
     def test_docs_endpoint_exists(self, client):
-        response = client.get("/docs")
+        # Docs are served under the API prefix (behind the reverse proxy), not at
+        # the app root — assert against the app's configured docs_url, not a path.
+        response = client.get(client.app.docs_url)
         assert response.status_code == 200
 
 
