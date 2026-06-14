@@ -29,6 +29,16 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-06-14-phentrieve-mcp-assessment-remediation-verification.md` -
+  before/after verification of the assessment remediation pass that closed the
+  defects PR #288 left open or punted: D1 span-level negation (over-negation
+  eliminated, C1 preserved), D2/D3 co-findings + chunk hygiene, D4 native
+  phenopacket object, D5 explainable compare, D6 confidence band, D7/D13 payload
+  shape, D8 cache contract, D9 startup warmup, D11 honest provenance. Every
+  assessment dimension reaches >= 9.5 (LLM-D1 deferred). Spec in
+  `specs/2026-06-14-phentrieve-mcp-assessment-remediation-design.md`, plan in
+  `completed/2026-06-14-phentrieve-mcp-assessment-remediation-plan.md`, source
+  assessment in `analysis/2026-06-14-phentrieve-mcp-assessment.md`.
 - `analysis/2026-06-14-phentrieve-mcp-hardening-verification.md` - before/after
   verification of the MCP hardening pass (C1 negation, H1 best-match, lossless
   pipeable export, schema/token dedup, capabilities cache contract, error

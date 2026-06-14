@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import anyio
 
 from api.mcp.annotations import READ_ONLY_OPEN_WORLD
+from api.mcp.confidence import annotate_search_confidence
 from api.mcp.envelope import McpErrorContext, run_mcp_tool
 from api.mcp.next_commands import after_chunk, after_extract, after_search
 from api.mcp.projection import project_extract_payload
@@ -69,10 +70,13 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
         output_schema=SEARCH_SCHEMA,
         description=(
             "Map a short research phenotype phrase to ranked HPO candidates by "
-            "dense retrieval. Use for single phrases, not documents. Research use "
-            "only; not for diagnosis, treatment, triage, patient management, or "
-            "clinical decision support. Signature: "
-            "phentrieve_search_hpo_terms(text, language=, num_results=, "
+            "dense retrieval. Use for single phrases, not documents. Each hit "
+            "carries a confidence_band (high>=0.7, moderate>=0.4, else low) and "
+            "the response sets no_high_confidence_match=true when the top hit is "
+            "below 0.7, so a nearest-neighbour match for out-of-domain text is not "
+            "mistaken for a real one. Research use only; not for diagnosis, "
+            "treatment, triage, patient management, or clinical decision support. "
+            "Signature: phentrieve_search_hpo_terms(text, language=, num_results=, "
             "similarity_threshold=, include_details=, response_mode=)."
         ),
     )
@@ -94,6 +98,10 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 similarity_threshold=similarity_threshold,
                 include_details=include_details,
             )
+            # Signal low confidence so a caller does not treat a nearest-neighbour
+            # hit for gibberish as a real match (defect D6). Computed over the full
+            # result set before token-budget truncation.
+            raw = annotate_search_confidence(raw, score_key="similarity")
             shaped = apply_response_mode(
                 raw, mode, keep_detail_fields=_detail_keep(include_details)
             )

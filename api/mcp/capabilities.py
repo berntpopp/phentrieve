@@ -187,6 +187,14 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
             "phentrieve://capabilities": "This capability descriptor (JSON).",
             "phentrieve://compliance/research-use": "Research-use statement.",
         },
+        "cache_contract": (
+            "capabilities_version is the canonical warm-cache key: it is echoed in "
+            "every response _meta and is stable across the details expansion, so a "
+            "warm client compares it and skips re-fetching when unchanged. "
+            "descriptor_hash is the content hash of THIS (possibly detailed) "
+            "descriptor and changes with details; do not cache on it. The MCP-spec "
+            "change signal is tools/list_changed."
+        ),
         "read_only": True,
     }
     for section in details:

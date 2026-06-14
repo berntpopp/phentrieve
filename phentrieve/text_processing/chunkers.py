@@ -645,14 +645,27 @@ class ConjunctionChunker(TextChunker):
         self.conjunctions = coordinating_conjunctions.get(
             self.language.lower(), coordinating_conjunctions.get("en", [])
         )
+        # Multi-word progression/transition markers introduce a second concept
+        # ("hypotonia progressing to hypertonia"). Splitting before them lets each
+        # distinct phenotype surface as its own best-match chunk without raising
+        # num_results_per_chunk (assessment defect D2). The split mechanism is the
+        # same as for conjunctions (split before the marker; marker joins the
+        # following chunk).
+        transition_markers = TRANSITION_MARKERS.get(
+            self.language.lower(), TRANSITION_MARKERS.get("en", [])
+        )
+        self.split_terms = list(self.conjunctions) + list(transition_markers)
         # Create a regex pattern for splitting.
         # We want to split *before* the conjunction.
         # The pattern should match space(s) + conjunction + space(s)
         # We'll use a lookahead to include the conjunction in the next split.
         self.split_pattern: re.Pattern[str] | None
-        if self.conjunctions:
-            # Escape conjunctions in case they contain regex special characters (unlikely for these)
-            escaped_conjunctions = [re.escape(c) for c in self.conjunctions]
+        if self.split_terms:
+            # Escape terms in case they contain regex special characters (unlikely).
+            # Longer terms first so "progressing to" wins over a bare conjunction.
+            escaped_conjunctions = [
+                re.escape(c) for c in sorted(self.split_terms, key=len, reverse=True)
+            ]
             # Pattern to split *before* " conjunction " (case-insensitive)
             # Using word boundaries (\b) is important
             self.split_pattern = re.compile(
@@ -736,6 +749,25 @@ COORDINATING_CONJUNCTIONS = {
     "fr": ["et", "ou", "mais"],
     "es": ["y", "e", "o", "u", "pero"],  # 'e' before 'i'/'hi', 'u' before 'o'/'ho'
     "nl": ["en", "of", "maar"],
+}
+
+# Multi-word progression/transition markers that introduce a second clinical
+# concept. ConjunctionChunker splits before them (defect D2) so co-occurring
+# phenotypes (e.g. "hypotonia progressing to hypertonia") each become a chunk.
+# All markers must be lowercase.
+TRANSITION_MARKERS = {
+    "en": [
+        "progressing to",
+        "progressing into",
+        "evolving to",
+        "evolving into",
+        "transitioning to",
+        "followed by",
+    ],
+    "de": ["übergehend in", "gefolgt von"],
+    "fr": ["évoluant vers", "suivi de", "suivie de"],
+    "es": ["progresando a", "seguido de", "seguida de"],
+    "nl": ["overgaand in", "gevolgd door"],
 }
 
 # A small list of words that, if they are the `next_segment`, might prevent merging a negation prefix.

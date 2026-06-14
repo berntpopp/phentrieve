@@ -30,6 +30,7 @@ def orchestrate_hpo_extraction(
     assertion_statuses: list[str | None] | None = None,
     include_details: bool = False,
     precomputed_query_results: list[dict] | None = None,
+    chunk_negated_scope_texts: list[list[str]] | None = None,
 ) -> OrchestrationResult:
     """Orchestrate HPO term extraction from text.
 
@@ -90,6 +91,7 @@ def orchestrate_hpo_extraction(
         chunk_retrieval_threshold=chunk_retrieval_threshold,
         top_term_per_chunk=top_term_per_chunk,
         assertion_statuses=assertion_statuses,
+        chunk_negated_scope_texts=chunk_negated_scope_texts,
     )
     all_hpo_ids = {
         match["id"]

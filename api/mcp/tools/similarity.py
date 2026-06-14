@@ -29,8 +29,11 @@ def register_similarity_tools(mcp: FastMCP) -> None:
         output_schema=COMPARE_SCHEMA,
         description=(
             "Compute ontology semantic similarity between two HPO ids for research "
-            "similarity analysis. A missing id returns a not_found error envelope. "
-            "Research use only; not for clinical use. Signature: "
+            "similarity analysis. response_mode=standard|full adds lca_details "
+            "(MICA id+label, per-term depth + information-content proxy, and the "
+            "subsumer path length) so the score is explainable; minimal/compact "
+            "return the lean score only. A missing id returns a not_found error "
+            "envelope. Research use only; not for clinical use. Signature: "
             "phentrieve_compare_hpo_terms(term1_id, term2_id, formula=, response_mode=)."
         ),
     )
@@ -45,7 +48,10 @@ def register_similarity_tools(mcp: FastMCP) -> None:
         async def call() -> dict[str, Any]:
             raw = await anyio.to_thread.run_sync(
                 lambda: compare_hpo_terms_service(
-                    term1_id=term1_id, term2_id=term2_id, formula=formula
+                    term1_id=term1_id,
+                    term2_id=term2_id,
+                    formula=formula,
+                    include_lca_details=mode in ("standard", "full"),
                 )
             )
             shaped = apply_response_mode(raw, mode)

@@ -354,13 +354,17 @@ class KeywordAssertionDetector(AssertionDetector):
         Returns:
             Tuple of (AssertionStatus, Dict with details)
         """
-        is_negated, is_normal, negated_scopes, normal_scopes = (
+        is_negated, is_normal, negated_scopes, normal_scopes, negated_scope_texts = (
             self._detect_negation_normality_keyword(text_chunk, self.language)
         )
 
         assertion_details = {
             "keyword_negated_scopes": negated_scopes,
             "keyword_normal_scopes": normal_scopes,
+            # Just the negated concept text per cue (no "cue: " prefix), used by
+            # the extractor to negate only matches whose phrase overlaps a scope
+            # (assessment defect D1).
+            "negated_scope_texts": negated_scope_texts,
         }
 
         if is_negated:
@@ -442,7 +446,7 @@ class KeywordAssertionDetector(AssertionDetector):
 
     def _detect_negation_normality_keyword(
         self, chunk: str, lang: str = "en"
-    ) -> tuple[bool, bool, list[str], list[str]]:
+    ) -> tuple[bool, bool, list[str], list[str], list[str]]:
         """
         Detect negation and normality using ConText-aware keyword rules.
 
@@ -454,10 +458,12 @@ class KeywordAssertionDetector(AssertionDetector):
             lang: Language code (e.g., 'de', 'en', 'es', 'fr', 'nl')
 
         Returns:
-            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
+            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes,
+            negated_scope_texts). ``negated_scope_texts`` holds the scoped
+            concept text per negation cue (no "cue: " prefix).
         """
         if not chunk:
-            return False, False, [], []
+            return False, False, [], [], []
 
         text_lower = chunk.lower()
 
@@ -473,7 +479,7 @@ class KeywordAssertionDetector(AssertionDetector):
                 "No ConText rules found for language '%s', keyword detection disabled",
                 _sanitize(lang),
             )
-            return False, False, [], []
+            return False, False, [], [], []
 
         # Use ConText rules with direction awareness
         return self._detect_with_context_rules(text_lower, context_rules, chunk, lang)
@@ -484,7 +490,7 @@ class KeywordAssertionDetector(AssertionDetector):
         rules: list[ConTextRule],
         original_text: str,
         lang: str = "en",
-    ) -> tuple[bool, bool, list[str], list[str]]:
+    ) -> tuple[bool, bool, list[str], list[str], list[str]]:
         """
         Detect negation/normality using ConText rules with direction awareness.
 
@@ -498,9 +504,11 @@ class KeywordAssertionDetector(AssertionDetector):
             lang: Language code for normality detection fallback
 
         Returns:
-            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes)
+            Tuple of (is_negated, is_normal, negated_scopes, normal_scopes,
+            negated_scope_texts).
         """
         negated_scopes: list[str] = []
+        negated_scope_texts: list[str] = []
         normal_scopes: list[str] = []
         is_negated = False
         is_normal = False
@@ -589,6 +597,7 @@ class KeywordAssertionDetector(AssertionDetector):
                 # Categorize by TriggerCategory
                 if rule.category == TriggerCategory.NEGATED_EXISTENCE:
                     negated_scopes.append(f"{rule.literal}: {scope_text}")
+                    negated_scope_texts.append(scope_text)
                     is_negated = True
                 # Note: Normality detection not part of ConText standard
                 # Add support for other categories (POSSIBLE_EXISTENCE, etc.) in future
@@ -596,7 +605,7 @@ class KeywordAssertionDetector(AssertionDetector):
         # ConText doesn't define "normality" - use legacy normality detection
         is_normal, normal_scopes = self._detect_normality_legacy(text_lower, lang)
 
-        return is_negated, is_normal, negated_scopes, normal_scopes
+        return is_negated, is_normal, negated_scopes, normal_scopes, negated_scope_texts
 
     def _extract_scope(
         self,

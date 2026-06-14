@@ -8,6 +8,8 @@ adapters hold only the domain logic (including the LLM quota / fallback policy).
 
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -31,6 +33,7 @@ from phentrieve.config import (
 from phentrieve.evaluation.metrics import (
     SimilarityFormula,
     calculate_semantic_similarity,
+    find_lowest_common_ancestor,
     load_hpo_graph_data,
 )
 from phentrieve.llm.security_policy import resolve_public_llm_target
@@ -251,8 +254,69 @@ def extract_hpo_terms_llm_service(
 # --------------------------------------------------------------------------- #
 # Similarity
 # --------------------------------------------------------------------------- #
+def _hpo_label_map(ids: list[str]) -> dict[str, str]:
+    """Best-effort id -> label lookup; empty dict if the HPO DB is unavailable."""
+    try:
+        from phentrieve.config import DEFAULT_HPO_DB_FILENAME
+        from phentrieve.data_processing.hpo_database import HPODatabase
+        from phentrieve.utils import get_default_data_dir, resolve_data_path
+
+        db_path = (
+            resolve_data_path(None, "data_dir", get_default_data_dir)
+            / DEFAULT_HPO_DB_FILENAME
+        )
+        if not db_path.exists():
+            return {}
+        db = HPODatabase(db_path)
+        terms = db.get_terms_by_ids([i for i in ids if i])
+        db.close()
+        return {hid: t.get("label", "") for hid, t in terms.items()}
+    except Exception:  # pragma: no cover - label is a non-essential enrichment
+        return {}
+
+
+def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[str, Any]:
+    """Explain a similarity score: MICA, per-term depth + IC proxy, subsumer path."""
+    lca, lca_depth = find_lowest_common_ancestor(t1, t2)
+    max_depth = max(depths.values()) if depths else 0
+    d1 = depths.get(t1)
+    d2 = depths.get(t2)
+    labels = _hpo_label_map([t1, t2, lca] if lca else [t1, t2])
+
+    def _ic(depth: float | None) -> float | None:
+        if depth is None or not max_depth:
+            return None
+        return round(depth / max_depth, 4)
+
+    path_length: int | None = None
+    if d1 is not None and d2 is not None and lca_depth is not None and lca_depth >= 0:
+        path_length = int((d1 - lca_depth) + (d2 - lca_depth))
+
+    return {
+        "mica": {
+            "hpo_id": lca,
+            "label": labels.get(lca) if lca else None,
+            "depth": lca_depth if lca else None,
+        },
+        "lca_depth": lca_depth if lca else None,
+        "term1": {
+            "hpo_id": t1,
+            "label": labels.get(t1),
+            "depth": d1,
+            "ic_proxy": _ic(d1),
+        },
+        "term2": {
+            "hpo_id": t2,
+            "label": labels.get(t2),
+            "depth": d2,
+            "ic_proxy": _ic(d2),
+        },
+        "path_length": path_length,
+    }
+
+
 def compare_hpo_terms_service(
-    *, term1_id: str, term2_id: str, formula: str
+    *, term1_id: str, term2_id: str, formula: str, include_lca_details: bool = False
 ) -> McpResult:
     t1 = normalize_id(term1_id)
     t2 = normalize_id(term2_id)
@@ -265,7 +329,7 @@ def compare_hpo_terms_service(
             f"HPO term(s) not found in ontology data: {', '.join(missing)}.",
             details={"term1_id": t1, "term2_id": t2},
         )
-    return {
+    result: McpResult = {
         "term1_id": t1,
         "term2_id": t2,
         "formula_used": similarity_formula.value,
@@ -273,6 +337,11 @@ def compare_hpo_terms_service(
             t1, t2, formula=similarity_formula
         ),
     }
+    # At standard/full, explain the score with the MICA, per-term IC and the
+    # subsumer path so the number is not a bare scalar (defect D5).
+    if include_lca_details:
+        result["lca_details"] = _build_lca_details(t1, t2, depths)
+    return result
 
 
 # --------------------------------------------------------------------------- #
@@ -300,12 +369,19 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     if confidence is None:
         confidence = p.get("confidence", p.get("max_score_from_evidence"))
     chunk_ids = p.get("source_chunk_ids") or p.get("chunk_ids") or []
+    # Honest provenance: a phenotype handed to export without extractor
+    # provenance is client-supplied, not a dictionary match. Preserve any
+    # provenance the caller did pass through (defect D11).
+    match_method = p.get("match_method") or "client_supplied"
+    source_mode = p.get("source_mode") or "unknown"
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
         assertion_status="negated" if assertion == "negated" else "affirmed",
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
+        match_method=match_method,
+        source_mode=source_mode,
     )
 
 
@@ -350,9 +426,20 @@ def export_phenopacket_service(
         include_annotation_sidecar=export_request.include_annotation_sidecar,
     )
     bundle = _apply_request_metadata_to_bundle(bundle, export_request)
-    return PhenopacketExportResponse.model_validate(bundle).model_dump(
+    result = PhenopacketExportResponse.model_validate(bundle).model_dump(
         exclude_none=True
     )
+    # Return the phenopacket as a native JSON object (MCP/Anthropic guidance:
+    # structured content should be real JSON, not a stringified blob). The
+    # serialized ``phenopacket_json`` string is kept for backwards
+    # compatibility (defect D4).
+    raw_json = result.get("phenopacket_json")
+    if isinstance(raw_json, str):
+        try:
+            result["phenopacket"] = json.loads(raw_json)
+        except (TypeError, ValueError):
+            pass
+    return result
 
 
 # --------------------------------------------------------------------------- #
