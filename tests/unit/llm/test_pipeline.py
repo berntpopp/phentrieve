@@ -410,9 +410,12 @@ def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
         "phenotypes": [
             {
                 "phrase": "recurrent seizures",
+                "evidence_text": "recurrent seizures",
+                "experiencer": "proband",
+                "assertion": "present",
+                "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1],
-                "evidence_text": "recurrent seizures",
                 "start_char": None,
                 "end_char": None,
             }
@@ -720,9 +723,12 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
         "phenotypes": [
             {
                 "phrase": "recurrent seizures",
+                "evidence_text": "recurrent seizures",
+                "experiencer": "proband",
+                "assertion": "present",
+                "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1, 2],
-                "evidence_text": "recurrent seizures",
                 "start_char": None,
                 "end_char": None,
             }
@@ -732,6 +738,7 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
         {
             "phrase": "recurrent seizures",
             "category": "abnormal",
+            "negated_qualifier": None,
             "chunk_ids": [1, 2],
             "evidence_text": "recurrent seizures",
             "start_char": None,
@@ -3175,7 +3182,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
     ]
 
 
-def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
+def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
     provider = FakeProvider(
         responses=[
             {
@@ -3275,13 +3282,14 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
+    # LLM-1: family-history mentions ("hearing loss" belongs to the mother) are
+    # no longer actionable, so they are never retrieved as proband candidates.
     assert tool_executor.queries == [
         {
             "phrases": [
                 "recurrent seizures",
                 "nystagmus",
                 "skeletal anomalies",
-                "hearing loss",
             ],
             "language": "en",
             "n_results": 50,
@@ -3339,26 +3347,9 @@ def test_two_phase_pipeline_retrieves_all_categories_and_preserves_assertions():
                 )
             ],
         ),
-        LLMPhenotype(
-            term_id="HP:0000365",
-            label="hearing loss",
-            evidence="hearing loss",
-            assertion="family_history",
-            category="family_history",
-            confidence=0.95,
-            score=0.95,
-            evidence_records=[
-                LLMPhenotypeEvidence(
-                    phrase="hearing loss",
-                    evidence_text="hearing loss",
-                    chunk_ids=[1],
-                    match_method="local",
-                )
-            ],
-        ),
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5
-    assert result.meta.phase_counts["actionable_phrases"] == 4
+    assert result.meta.phase_counts["actionable_phrases"] == 3
 
 
 def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
@@ -3911,6 +3902,88 @@ def test_deduplicate_terms_keeps_assertion_variants():
     deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
 
     assert len(deduped) == 2
+
+
+def test_deduplicate_terms_separates_by_experiencer():
+    """LLM-1: the same HPO id with the same assertion but a different experiencer
+    (proband vs family) must not collapse into one term -- the dedup key is
+    (term_id, experiencer, assertion)."""
+    terms = [
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="present",
+            category="abnormal",
+            experiencer="proband",
+        ),
+        LLMPhenotype(
+            term_id="HP:0001250",
+            label="Seizure",
+            assertion="present",
+            category="family_history",
+            experiencer="family_history",
+        ),
+    ]
+
+    deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
+
+    assert len(deduped) == 2
+
+
+def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
+    """LLM-2: an 'X without Y' phrase stays present and the negated qualifier Y
+    is threaded from the grounded extraction to the resolved term."""
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "severe intellectual disability",
+                            "category": "Abnormal",
+                            "assertion": "present",
+                            "negated_qualifier": "regression",
+                            "chunk_ids": [1],
+                            "evidence_text": "severe intellectual disability",
+                        }
+                    ]
+                },
+            }
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "severe intellectual disability",
+                "original_sentence": "severe intellectual disability without regression",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0010864",
+                        "term_name": "Severe intellectual disability",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="severe intellectual disability without regression",
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "severe intellectual disability without regression",
+            }
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert len(result.terms) == 1
+    term = result.terms[0]
+    assert term.term_id == "HP:0010864"
+    assert term.assertion == "present"
+    assert term.negated_qualifier == "regression"
 
 
 def test_phase1_failure_is_recorded_in_trace_not_silenced(caplog):

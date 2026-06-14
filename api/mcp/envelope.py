@@ -49,8 +49,10 @@ _RETRYABLE = {
 _RECOVERY = {
     "invalid_input": "reformulate_input",
     "validation_failed": "reformulate_input",
-    "not_found": "reformulate_input",
-    "ambiguous_query": "reformulate_input",
+    # D4: a bogus-but-well-formed id should be resolved (via search), not
+    # reformulated -- a compare/export call carries no free text to reformulate.
+    "not_found": "resolve_identifier",
+    "ambiguous_query": "resolve_identifier",
     "llm_quota_exhausted": "retry_backoff",
     "llm_unavailable": "switch_tool",
     "upstream_unavailable": "retry_backoff",
@@ -205,12 +207,23 @@ async def run_mcp_tool(
             "recovery_action": recovery_action_for(code),
             "_meta": {
                 **_base_meta(tool_name, request_id, elapsed, response_mode),
-                "next_commands": default_error_next_commands(tool_name),
+                "next_commands": default_error_next_commands(tool_name, code),
             },
         }
         if extra:
             envelope.update(extra)
         return envelope
+
+
+def _clean_value_message(msg: str | None) -> str | None:
+    """Strip pydantic's ``Value error, `` prefix from an AfterValidator message."""
+    if not msg:
+        return None
+    cleaned = msg.strip()
+    prefix = "value error, "
+    if cleaned.lower().startswith(prefix):
+        cleaned = cleaned[len(prefix) :]
+    return cleaned or None
 
 
 def build_arg_error_envelope(
@@ -222,6 +235,7 @@ def build_arg_error_envelope(
     signature: str,
     suggestion: str | None,
     constraints: tuple[list[str], str] | None = None,
+    value_message: str | None = None,
 ) -> dict[str, Any]:
     """Standard invalid-input envelope for an argument-binding failure."""
     from api.mcp.capabilities import capabilities_version
@@ -244,6 +258,24 @@ def build_arg_error_envelope(
             "recovery_action": "reformulate_input",
             "field": loc,
             "allowed_values": allowed,
+            "hint": signature,
+            "_meta": base_meta,
+        }
+    # B3: a value-level error on a *valid* argument name (e.g. blank text) is not
+    # an unknown-argument error -- surface the validator's actual reason with the
+    # signature hint, and do NOT emit allowed_values=parameter-names.
+    name_error_types = ("missing", "missing_argument", "unexpected_keyword_argument")
+    if error_type not in name_error_types and loc in valid_params:
+        reason = _clean_value_message(value_message)
+        message = f"Invalid value for argument `{loc}` of {tool_name}"
+        message = f"{message}: {reason}" if reason else f"{message}."
+        return {
+            "success": False,
+            "error_code": "validation_failed",
+            "message": message[:280],
+            "retryable": False,
+            "recovery_action": "reformulate_input",
+            "field": loc,
             "hint": signature,
             "_meta": base_meta,
         }

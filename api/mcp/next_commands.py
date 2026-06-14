@@ -48,24 +48,37 @@ def after_search(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
-def after_extract(aggregated: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def after_extract(
+    aggregated: list[dict[str, Any]], mode: str = "standard"
+) -> list[dict[str, Any]]:
     """After extract: hand the aggregated terms to the phenopacket exporter.
 
     Carries ``score`` so the exporter records the real retrieval confidence
     instead of 0.0000 (defect H3), and reads the projected ``assertion`` key
     (falling back to legacy ``status``) so negated findings stay negated.
+
+    R2: ``_meta`` is exempt from response-mode shaping, so this pre-fill would
+    otherwise duplicate the full 25-term list even at ``minimal``. Under the lean
+    modes cap it to 5 terms and drop ``label`` -- the entry is still directly
+    executable (``_coerce_export_phenotype`` falls back label->hpo_id), and
+    ``score`` is kept to avoid a 0.0-confidence export.
     """
-    phenotypes = [
-        {
-            # projected terms use hpo_id/label/assertion; raw use id/name/status
-            "hpo_id": t.get("hpo_id") or t.get("id"),
-            "label": t.get("label") or t.get("name"),
+    lean = mode in ("minimal", "compact")
+    cap = 5 if lean else 25
+    phenotypes: list[dict[str, Any]] = []
+    for t in aggregated[:cap]:
+        # projected terms use hpo_id/label/assertion; raw use id/name/status
+        hpo_id = t.get("hpo_id") or t.get("id")
+        if not hpo_id:
+            continue
+        entry: dict[str, Any] = {
+            "hpo_id": hpo_id,
             "assertion": t.get("assertion") or t.get("status") or "affirmed",
             "score": t.get("score") or t.get("confidence"),
         }
-        for t in aggregated[:25]
-        if t.get("hpo_id") or t.get("id")
-    ]
+        if not lean:
+            entry["label"] = t.get("label") or t.get("name")
+        phenotypes.append(entry)
     if not phenotypes:
         return [cmd("phentrieve_get_capabilities", details=["models"])]
     return [
@@ -98,8 +111,16 @@ def after_chunk(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [cmd("phentrieve_search_hpo_terms", text=chunks[0].get("text", ""))]
 
 
-def default_error_next_commands(tool_name: str) -> list[dict[str, Any]]:
-    """A sensible recovery step for any error lacking an explicit fallback."""
+def default_error_next_commands(
+    tool_name: str, error_code: str | None = None
+) -> list[dict[str, Any]]:
+    """A sensible recovery step for any error lacking an explicit fallback.
+
+    D4: for a missing/ambiguous identifier, point at search to resolve it rather
+    than the generic capabilities/diagnostics steps.
+    """
+    if error_code in ("not_found", "ambiguous_query"):
+        return [cmd("phentrieve_search_hpo_terms")]
     return [
         cmd("phentrieve_get_capabilities"),
         cmd("phentrieve_diagnostics"),

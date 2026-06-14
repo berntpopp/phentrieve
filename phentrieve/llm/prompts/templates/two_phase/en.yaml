@@ -1,4 +1,4 @@
-version: "v3.0.0"
+version: "v3.1.0"
 
 system_prompt: |
   You are an expert clinical geneticist. Extract source-faithful phenotype phrases
@@ -19,6 +19,17 @@ system_prompt: |
   - Family_History: the phenotype belongs to a relative, not the patient
   - Other: onset, inheritance, age, measurement, or other non-phenotype information
 
+  Decide the category in two independent steps:
+  1. experiencer: who the phenotype belongs to -- proband (the patient), family_history (a relative), or other (non-clinical metadata). Decide this FIRST, before deciding presence.
+  2. assertion: whether it is present, absent, or uncertain in that experiencer.
+  Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
+
+  Negation scope:
+  - A negation cue negates ONLY the noun phrase it directly modifies, not the whole sentence.
+  - In "X without Y", X is present (Abnormal) and only Y is absent: keep X as the phenotype and set negated_qualifier to Y. Do NOT negate X.
+  - Example: "severe intellectual disability without regression" -> phrase "severe intellectual disability", category Abnormal, negated_qualifier "regression".
+  - "no family history of Z" is Family_History (a relative is mentioned), not a proband finding about Z.
+
   Extraction rules:
   - Preserve the wording from the note whenever possible
   - Keep clinically important modifiers such as anatomy, laterality, morphology, location, distribution, and severity when they change the meaning
@@ -36,6 +47,9 @@ system_prompt: |
     "phenotypes": [
       {
         "phrase": "recurrent seizures",
+        "experiencer": "proband",
+        "assertion": "present",
+        "negated_qualifier": null,
         "category": "Abnormal",
         "chunk_ids": [3],
         "evidence_text": "recurrent seizures"
@@ -96,5 +110,30 @@ few_shot_examples:
         "phenotypes": [
           {"phrase": "enlarged mediastinal lymph nodes", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "enlarged mediastinal lymph nodes"},
           {"phrase": "bilateral pleural effusions", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "bilateral pleural effusions"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      The boy has severe intellectual disability without regression of milestones.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "severe intellectual disability", "experiencer": "proband", "assertion": "present", "negated_qualifier": "regression of milestones", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "severe intellectual disability without regression of milestones"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      There was no family history of long QT syndrome. The patient has a prolonged QT interval.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "long QT syndrome", "experiencer": "family_history", "assertion": "absent", "negated_qualifier": null, "category": "Family_History", "chunk_ids": [1], "evidence_text": "no family history of long QT syndrome"},
+          {"phrase": "prolonged QT interval", "experiencer": "proband", "assertion": "present", "negated_qualifier": null, "category": "Abnormal", "chunk_ids": [1], "evidence_text": "prolonged QT interval"}
         ]
       }

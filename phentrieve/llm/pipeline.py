@@ -15,6 +15,7 @@ from phentrieve.llm.config import (
     DEFAULT_MAX_UNIQUE_CANDIDATES,
     DEFAULT_MIN_UNIQUE_CANDIDATES,
     DEFAULT_PHASE1_FALLBACK_ENABLED,
+    DEFAULT_PHASE1_GROUP_MAX_WORKERS,
     DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS,
     DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
     DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
@@ -584,6 +585,7 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": phenotype.phrase.strip(),
                     "category": _normalize_category(phenotype.category),
+                    "negated_qualifier": getattr(phenotype, "negated_qualifier", None),
                     "chunk_ids": list(getattr(phenotype, "chunk_ids", [])),
                     "evidence_text": getattr(phenotype, "evidence_text", None),
                     "start_char": getattr(phenotype, "start_char", None),
@@ -643,7 +645,7 @@ class TwoPhaseLLMPipeline:
                 LLMPipelinePhaseError | None,
             ]
         ] = []
-        max_workers = min(len(indexed_groups), 2) or 1
+        max_workers = min(len(indexed_groups), DEFAULT_PHASE1_GROUP_MAX_WORKERS) or 1
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(
@@ -1229,6 +1231,7 @@ class TwoPhaseLLMPipeline:
             shared_result.setdefault("category", str(item["category"]))
             shared_result["chunk_ids"] = list(item.get("chunk_ids", []))
             shared_result["evidence_text"] = item.get("evidence_text")
+            shared_result["negated_qualifier"] = item.get("negated_qualifier")
             shared_result["start_char"] = item.get("start_char")
             shared_result["end_char"] = item.get("end_char")
             shared_result["grounded_context"] = self._build_grounded_context(

@@ -57,10 +57,39 @@ class LLMPhenotype(BaseModel):
     label: str
     evidence: str | None = None
     assertion: str = AssertionStatus.PRESENT.value
+    # Who the phenotype belongs to, orthogonal to the present/absent assertion
+    # (LLM-1). Kept distinct from ``assertion`` so a proband finding and a
+    # relative's mention of the same HPO id never collapse into one term.
+    experiencer: str = "proband"
+    # The negated portion of an "X without Y" phrase (LLM-2): X is present and
+    # only the qualifier Y is absent. None when the phrase is not partially
+    # negated.
+    negated_qualifier: str | None = None
     category: str | None = None
     confidence: float | None = None
     score: float | None = None
     evidence_records: list[LLMPhenotypeEvidence] = Field(default_factory=list)
+
+
+# Orthogonal classification axes added to the Phase-1 extraction schemas (LLM-2),
+# declared before the legacy ``category`` label so Gemini -- which emits keys in
+# schema order -- reasons about experiencer and assertion first. ``category`` stays
+# authoritative downstream; these axes scaffold the model's reasoning and
+# ``negated_qualifier`` captures the negated portion of an "X without Y" phrase.
+_EXPERIENCER_DESCRIPTION = (
+    "Decide FIRST, independently of presence: who the phenotype belongs to. "
+    "'family_history' for a relative, 'other' for non-clinical metadata, "
+    "otherwise 'proband'."
+)
+_ASSERTION_DESCRIPTION = (
+    "Whether the phenotype is present in the experiencer. A negation cue negates "
+    "only the noun phrase it directly modifies: in 'X without Y', X is present and "
+    "only Y is absent."
+)
+_NEGATED_QUALIFIER_DESCRIPTION = (
+    "For an 'X without Y' phrase where X is present and only the qualifier Y is "
+    "absent, the negated qualifier Y; otherwise null."
+)
 
 
 class LLMExtractedPhenotype(BaseModel):
@@ -69,6 +98,15 @@ class LLMExtractedPhenotype(BaseModel):
             "A concise phenotype phrase copied from the source text. "
             "Use short noun phrases rather than full sentences."
         ),
+    )
+    experiencer: Literal["proband", "family_history", "other"] = Field(
+        default="proband", description=_EXPERIENCER_DESCRIPTION
+    )
+    assertion: Literal["present", "absent", "uncertain"] = Field(
+        default="present", description=_ASSERTION_DESCRIPTION
+    )
+    negated_qualifier: str | None = Field(
+        default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
     )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"] = (
         Field(
@@ -89,9 +127,18 @@ class LLMExtractedPhenotypes(BaseModel):
 
 class LLMGroundedExtractedPhenotype(BaseModel):
     phrase: str = Field(...)
+    evidence_text: str | None = None
+    experiencer: Literal["proband", "family_history", "other"] = Field(
+        default="proband", description=_EXPERIENCER_DESCRIPTION
+    )
+    assertion: Literal["present", "absent", "uncertain"] = Field(
+        default="present", description=_ASSERTION_DESCRIPTION
+    )
+    negated_qualifier: str | None = Field(
+        default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
+    )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
     chunk_ids: list[int] = Field(min_length=1)
-    evidence_text: str | None = None
     start_char: int | None = None
     end_char: int | None = None
 
@@ -189,3 +236,14 @@ class ExtractionGroup:
     chunk_ids: list[int] = field(default_factory=list)
     text: str = ""
     estimated_prompt_tokens: int = 0
+
+
+# ``from __future__ import annotations`` makes every annotation a string, so
+# LLMPhenotype.evidence_records (list[LLMPhenotypeEvidence]) is an unresolved
+# forward reference at class-definition time -- LLMPhenotypeEvidence is declared
+# later in this module. Pydantic would otherwise resolve it lazily on the first
+# validation, and two threads validating concurrently (the grouped phase-1 path
+# runs provider calls in parallel) can race that rebuild, raising a spurious
+# "Input should be a valid instance of LLMPhenotypeEvidence". Resolve it eagerly
+# at import so model validation is thread-safe.
+LLMPhenotype.model_rebuild()

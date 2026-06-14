@@ -11,6 +11,7 @@ from phentrieve.llm.config import (
 from phentrieve.llm.pipeline_phase1 import (
     UNIT_TOKEN_PATTERN,
     clean_text,
+    experiencer_for_category,
     normalize_category,
     tokenize,
 )
@@ -273,6 +274,8 @@ def phenotype_from_candidate(
             normalize_category(str(item.get("category", ""))),
             PRESENT_ASSERTION,
         ),
+        experiencer=experiencer_for_category(str(item.get("category", ""))),
+        negated_qualifier=(item.get("negated_qualifier") or None),
         category=normalize_category(str(item.get("category", ""))),
         confidence=(
             optional_float(candidate.get("confidence"))
@@ -334,9 +337,9 @@ def select_candidate_ids(
 
 
 def deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
-    deduplicated: dict[tuple[str, str], LLMPhenotype] = {}
+    deduplicated: dict[tuple[str, str, str], LLMPhenotype] = {}
     for term in terms:
-        key = (term.term_id, term.assertion)
+        key = (term.term_id, term.experiencer, term.assertion)
         if key not in deduplicated:
             deduplicated[key] = term
             continue

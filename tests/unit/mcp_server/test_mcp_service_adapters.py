@@ -6,6 +6,7 @@ import json
 
 import pytest
 
+from api.mcp import service_adapters
 from api.mcp.envelope import McpToolError
 from api.mcp.service_adapters import (
     chunk_text_service,
@@ -13,6 +14,7 @@ from api.mcp.service_adapters import (
     extract_hpo_terms_llm_service,
     extract_hpo_terms_service,
 )
+from phentrieve.config import DEFAULT_MODEL
 
 
 def test_chunk_text_service_simple_strategy():
@@ -31,6 +33,127 @@ def test_chunk_text_service_unknown_strategy_raises_validation_failed():
     # instead of silently falling back to the default config.
     assert ei.value.error_code == "validation_failed"
     assert "simple" in str(ei.value)
+
+
+def _stub_pipeline(monkeypatch, captured):
+    """Replace TextProcessingPipeline with a recording fake that yields chunks."""
+
+    class _FakePipeline:
+        def __init__(self, **kwargs):
+            captured["sbert"] = kwargs.get("sbert_model_for_semantic_chunking")
+
+        def process(self, text, include_positions=False):
+            captured["processed"] = True
+            return [{"text": "chunk one", "start_char": 0, "end_char": 9}]
+
+    monkeypatch.setattr(service_adapters, "TextProcessingPipeline", _FakePipeline)
+
+
+def test_chunk_text_model_dependent_strategy_lazy_loads_model(monkeypatch):
+    """B2: a strategy whose resolved config contains a sliding_window stage must
+    lazy-load the cached embedding singleton and thread it into the pipeline
+    instead of hard-failing with invalid_input."""
+    calls: list[str] = []
+    captured: dict[str, object] = {}
+
+    def fake_load(model_name):
+        calls.append(model_name)
+        return "FAKE_MODEL"
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", fake_load)
+    _stub_pipeline(monkeypatch, captured)
+
+    out = chunk_text_service(
+        text="some clinical text", language="en", strategy="sliding_window"
+    )
+
+    assert calls == [DEFAULT_MODEL]
+    assert captured["sbert"] == "FAKE_MODEL"
+    assert out["chunk_count"] == 1
+    assert out["chunks"][0]["chunk_id"] == 1
+
+
+def test_chunk_text_simple_strategy_does_not_load_model(monkeypatch):
+    """B2: the model-free 'simple' strategy must not trigger a model load."""
+    calls: list[str] = []
+    captured: dict[str, object] = {}
+
+    def fake_load(model_name):
+        calls.append(model_name)
+        return "FAKE_MODEL"
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", fake_load)
+    _stub_pipeline(monkeypatch, captured)
+
+    chunk_text_service(text="some clinical text", language="en", strategy="simple")
+
+    assert calls == []
+    assert captured["sbert"] is None
+
+
+def test_chunk_text_model_load_failure_is_temporarily_unavailable(monkeypatch):
+    """B2: a genuine model-load failure must surface as temporarily_unavailable
+    (retryable), not invalid_input (which blames the caller's strategy)."""
+
+    def boom(model_name):
+        raise RuntimeError("model weights unavailable")
+
+    monkeypatch.setattr("phentrieve.embeddings.load_embedding_model", boom)
+
+    with pytest.raises(McpToolError) as ei:
+        chunk_text_service(text="x", language="en", strategy="sliding_window")
+    assert ei.value.error_code == "temporarily_unavailable"
+
+
+def test_diagnostics_reports_cold_then_loaded_subsystems(monkeypatch):
+    """D3: diagnostics probes the live caches -- embedding_model/vector_index
+    read 'cold' before any load and 'loaded' after a search has warmed them,
+    instead of a constant 'lazy'."""
+    from api import dependencies
+    from phentrieve.config import DEFAULT_MODEL
+
+    # Keep the ontology probe deterministic and fast.
+    monkeypatch.setattr(service_adapters, "_probe_ontology_data", lambda: "ok")
+
+    # Cold: empty caches.
+    monkeypatch.setattr(dependencies, "LOADED_SBERT_MODELS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "LOADED_RETRIEVERS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "MODEL_LOADING_STATUS", {}, raising=False)
+    monkeypatch.setattr("phentrieve.embeddings._MODEL_REGISTRY", {}, raising=False)
+
+    cold = service_adapters.diagnostics_service()
+    assert cold["subsystems"]["embedding_model"] == "cold"
+    assert cold["subsystems"]["vector_index"] == "cold"
+    assert cold["status"] == "ok"  # cold is not an error
+
+    # Warm: a search has populated the dependency caches.
+    monkeypatch.setattr(
+        dependencies, "LOADED_SBERT_MODELS", {DEFAULT_MODEL: object()}, raising=False
+    )
+    monkeypatch.setattr(
+        dependencies, "LOADED_RETRIEVERS", {("idx",): object()}, raising=False
+    )
+
+    warm = service_adapters.diagnostics_service()
+    assert warm["subsystems"]["embedding_model"] == "loaded"
+    assert warm["subsystems"]["vector_index"] == "loaded"
+
+
+def test_diagnostics_reports_loading_state(monkeypatch):
+    """D3: a model mid-load reports 'loading', not 'cold' or 'loaded'."""
+    from api import dependencies
+    from phentrieve.config import DEFAULT_MODEL
+
+    monkeypatch.setattr(service_adapters, "_probe_ontology_data", lambda: "ok")
+    monkeypatch.setattr(dependencies, "LOADED_SBERT_MODELS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "LOADED_RETRIEVERS", {}, raising=False)
+    monkeypatch.setattr(
+        dependencies, "MODEL_LOADING_STATUS", {DEFAULT_MODEL: "loading"}, raising=False
+    )
+    monkeypatch.setattr("phentrieve.embeddings._MODEL_REGISTRY", {}, raising=False)
+
+    out = service_adapters.diagnostics_service()
+    assert out["subsystems"]["embedding_model"] == "loading"
 
 
 def test_export_phenopacket_service_round_trips_case_id():
@@ -52,6 +175,30 @@ def test_export_phenopacket_service_round_trips_case_id():
     assert "phenopacket_json" in out
     packet = json.loads(out["phenopacket_json"])
     assert packet["id"] == "CASE-1"
+
+
+def test_export_excludes_family_history_phenotypes():
+    """LLM-1: a family-history mention is not a proband phenotypic feature and
+    must not be folded into an affirmed feature on the subject."""
+    out = export_phenopacket_service(
+        case_id="CASE-2",
+        case_label="demo",
+        input_text=None,
+        subject=None,
+        phenotypes=[
+            {"hpo_id": "HP:0001250", "label": "Seizure", "assertion": "affirmed"},
+            {
+                "hpo_id": "HP:0000365",
+                "label": "Hearing loss",
+                "assertion": "family_history",
+            },
+        ],
+        include_annotation_sidecar=False,
+    )
+    packet = json.loads(out["phenopacket_json"])
+    feature_ids = {feat["type"]["id"] for feat in packet.get("phenotypicFeatures", [])}
+    assert "HP:0001250" in feature_ids
+    assert "HP:0000365" not in feature_ids
 
 
 def test_extract_service_resolves_none_language():

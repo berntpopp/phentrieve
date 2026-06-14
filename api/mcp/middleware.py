@@ -103,6 +103,7 @@ class ArgValidationMiddleware(Middleware):
             signature=tool_signature(name, schema),
             suggestion=suggestion,
             constraints=constraints,
+            value_message=str(first.get("msg") or "") or None,
         )
         logger.warning("mcp_arg_error tool=%s loc=%s type=%s", name, loc, error_type)
         return ToolResult(

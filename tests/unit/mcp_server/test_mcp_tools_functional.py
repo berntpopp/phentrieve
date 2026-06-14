@@ -112,7 +112,10 @@ def test_compare_not_found_envelope():
     assert data["success"] is False
     assert data["error_code"] == "not_found"
     assert data["retryable"] is False
-    assert data["recovery_action"] == "reformulate_input"
+    # D4: resolve the bogus id via search, not reformulate (no free text here).
+    assert data["recovery_action"] == "resolve_identifier"
+    next_tools = {c["tool"] for c in data["_meta"]["next_commands"]}
+    assert "phentrieve_search_hpo_terms" in next_tools
 
 
 @requires_compare_ontology
@@ -127,6 +130,27 @@ def test_compare_standard_mode_includes_citation():
     )
     assert "recommended_citation" in data["_meta"]
     assert data["_meta"]["response_mode"] == "standard"
+
+
+def test_export_at_minimal_returns_whole_packet_without_json_blob():
+    """R1: export_phenopacket at minimal must still return the complete
+    phenopacket object (the tool's sole product) and only drop the redundant
+    phenopacket_json string -- not an empty packet."""
+    data = _call(
+        "phentrieve_export_phenopacket",
+        {
+            "case_id": "CASE-9",
+            "phenotypes": [
+                {"hpo_id": "HP:0001250", "label": "Seizure", "assertion": "affirmed"}
+            ],
+            "include_annotation_sidecar": False,
+            "response_mode": "minimal",
+        },
+    )
+    assert data["success"] is True
+    assert data["phenopacket"]["id"] == "CASE-9"
+    assert data["phenopacket"]["phenotypicFeatures"]  # non-empty, whole document
+    assert "phenopacket_json" not in data  # redundant blob gated out at minimal
 
 
 def test_invalid_response_mode_is_rejected():

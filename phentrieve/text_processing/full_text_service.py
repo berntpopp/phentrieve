@@ -352,24 +352,6 @@ def _adapt_llm_text_attributions(
     return text_attributions
 
 
-def _project_llm_term_status_from_chunks(
-    *,
-    llm_status: str,
-    source_chunk_ids: Sequence[int],
-    chunk_status_by_id: Mapping[int, str],
-) -> str:
-    source_statuses = [
-        chunk_status_by_id[chunk_id]
-        for chunk_id in source_chunk_ids
-        if chunk_id in chunk_status_by_id
-    ]
-    if source_statuses and all(
-        status in {"negated", "normal"} for status in source_statuses
-    ):
-        return "negated"
-    return llm_status
-
-
 def _adapt_llm_aggregated_terms(
     terms: Sequence[Any],
     *,
@@ -378,11 +360,6 @@ def _adapt_llm_aggregated_terms(
     adapted_terms: list[dict[str, Any]] = []
     chunk_text_by_id = {
         chunk_id: str(chunk.get("text", ""))
-        for chunk in grounded_chunks
-        if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
-    }
-    chunk_status_by_id = {
-        chunk_id: _normalize_status(chunk.get("status"))
         for chunk in grounded_chunks
         if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
     }
@@ -477,11 +454,13 @@ def _adapt_llm_aggregated_terms(
                 "score": term_score if term_score is not None else max_evidence_score,
             }
         )
-        adapted_terms[-1]["status"] = _project_llm_term_status_from_chunks(
-            llm_status=str(term.assertion),
-            source_chunk_ids=source_chunk_ids,
-            chunk_status_by_id=chunk_status_by_id,
-        )
+        # LLM-2: trust the LLM's per-phrase assertion (already set as ``status``).
+        # The coarse "all source chunks NegEx-negated -> negated" override is
+        # dropped -- it lacked the span-overlap check the standard path has and
+        # wrongly flipped a present finding in an "X without Y" chunk to negated.
+        negated_qualifier = getattr(term, "negated_qualifier", None)
+        if negated_qualifier:
+            adapted_terms[-1]["negated_qualifier"] = negated_qualifier
 
     return adapted_terms
 

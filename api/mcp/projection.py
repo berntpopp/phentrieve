@@ -18,13 +18,19 @@ when present, and ``hpo_matches`` always present (each match normalized to
 unless ``include_unmatched`` is set.
 
 Addresses evaluation defects M4 (redundant schema / dual indexing), T1 (empty
-chunks), L5 (omitted hpo_matches key), and L7 (id collision -- terms remain keyed
-by the (hpo_id, assertion) pair so present + negated do not silently merge).
+chunks), L5 (omitted hpo_matches key), and L7 (id collision -- upstream keeps
+terms distinct by (term_id, experiencer, assertion) so present + negated, and
+proband + family, do not silently merge).
 """
 
 from __future__ import annotations
 
 from typing import Any
+
+# R3: cap synonyms in the *response* (never the list used for attribution
+# matching, which lives in the retrieval/extraction layer) so include_details
+# does not dump an uncapped synonym list. Report how many were dropped.
+_SYNONYMS_RESPONSE_CAP = 10
 
 # Score copies collapsed into the single canonical ``score``.
 _DROP_SCORE_FIELDS = ("avg_score", "confidence", "max_score_from_evidence")
@@ -39,6 +45,19 @@ _DROP_AFTER_NORMALIZE = (
     "assertion_status",
     "count",
 )
+
+
+def cap_response_synonyms(record: dict[str, Any]) -> None:
+    """Cap ``record['synonyms']`` to the response limit in place (R3).
+
+    Adds ``synonyms_truncated`` with the dropped count when capping. No-op when
+    the field is absent or already within the limit. Only shapes the response
+    copy; the attribution-matching synonym list is untouched upstream.
+    """
+    synonyms = record.get("synonyms")
+    if isinstance(synonyms, list) and len(synonyms) > _SYNONYMS_RESPONSE_CAP:
+        record["synonyms_truncated"] = len(synonyms) - _SYNONYMS_RESPONSE_CAP
+        record["synonyms"] = synonyms[:_SYNONYMS_RESPONSE_CAP]
 
 
 def project_aggregated_terms_for_mcp(
@@ -71,10 +90,15 @@ def project_aggregated_terms_for_mcp(
             out.pop(field, None)
 
         # Uniform schema across records: every term carries text_attributions,
-        # even when empty (defect D13). Drop null padding (e.g. start_char/end_char
-        # left None when positions were not requested) so the MCP payload is not
-        # bloated with default-valued keys (defect D7).
+        # even when empty (defect D13/D1). One contract: text_attributions is
+        # always an array -- an empty [] means a semantically retrieved term with
+        # no literal source span (no verbatim label/synonym match), not a missing
+        # value. shaping._ALWAYS_KEEP_EMPTY keeps the empty [] present at compact.
+        # Drop null padding (e.g. start_char/end_char left None when positions were
+        # not requested) so the MCP payload is not bloated with default-valued
+        # keys (defect D7).
         out.setdefault("text_attributions", [])
+        cap_response_synonyms(out)
         out = {k: v for k, v in out.items() if v is not None}
         projected.append(out)
     return projected

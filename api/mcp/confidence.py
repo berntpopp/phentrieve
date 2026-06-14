@@ -35,9 +35,13 @@ def annotate_search_confidence(
     any token-budget truncation) so it reflects the query's true best match.
     """
     results = payload.get("results") or []
-    top = max((r.get(score_key, 0.0) for r in results), default=0.0)
     for result in results:
         result["confidence_band"] = confidence_band(result.get(score_key, 0.0))
     out = dict(payload)
-    out["no_high_confidence_match"] = bool(results) and top < HIGH_FLOOR
+    # Band-based, not top-score-based: an empty/threshold-emptied result set is
+    # the strongest no-high-confidence signal, and the flag stays correct even
+    # if the top hit is later trimmed by a token budget (B1).
+    out["no_high_confidence_match"] = not any(
+        r.get("confidence_band") == "high" for r in results
+    )
     return out

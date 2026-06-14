@@ -157,14 +157,16 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
         ],
         "argument_alias_policy": (
             "The canonical parameter names shown in each tool's description and "
-            "input schema are authoritative -- always prefer them. Common synonyms "
-            "(e.g. query/phrase -> text, limit -> num_results) are rewritten by a "
-            "server-side convenience layer and disclosed under "
-            "_meta.argument_aliases_applied. IMPORTANT: tool input schemas declare "
+            "input schema are authoritative and ALWAYS safe -- always prefer them. "
+            "Common synonyms (e.g. query/phrase -> text, limit -> num_results) are "
+            "rewritten by a server-side convenience layer and disclosed under "
+            "_meta.argument_aliases_applied. IMPORTANT: whether an alias reaches "
+            "the server is client-dependent. Tool input schemas declare "
             "additionalProperties:false, so a strict / schema-validating MCP client "
-            "will reject an alias before it reaches the server; aliases only help "
-            "non-validating callers. An unknown canonical argument returns "
-            "validation_failed with a did-you-mean."
+            "rejects an alias before it is sent, while a non-validating client (some "
+            "agent runtimes) forwards it and the server then rewrites it. Because "
+            "you cannot rely on your client's strictness, use canonical names. An "
+            "unknown canonical argument returns validation_failed with a did-you-mean."
         ),
         "safety": {
             "research_use_only": True,

@@ -23,6 +23,7 @@ from api.llm_quota import (
     quota_reset_at_iso,
 )
 from api.mcp.envelope import McpToolError
+from api.mcp.projection import cap_response_synonyms
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
@@ -111,7 +112,13 @@ async def search_hpo_terms_service(
         debug=False,
         multi_vector=DEFAULT_MULTI_VECTOR,
     )
-    return {"results": result.get("results", [])}
+    results = result.get("results", [])
+    # R3: cap each result's synonym list in the response (the attribution layer
+    # keeps the full list); include_details otherwise dumps it uncapped.
+    for record in results:
+        if isinstance(record, dict):
+            cap_response_synonyms(record)
+    return {"results": results}
 
 
 def extract_hpo_terms_service(
@@ -276,14 +283,20 @@ def _hpo_label_map(ids: list[str]) -> dict[str, str]:
 
 
 def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[str, Any]:
-    """Explain a similarity score: MICA, per-term depth + IC proxy, subsumer path."""
+    """Explain a similarity score: MICA, per-term depth + normalized depth, path.
+
+    D2: the per-term structural proxy is depth/max_depth -- normalized ontology
+    depth, NOT corpus information content. It is labelled ``normalized_depth`` so
+    consumers do not mistake it for a Resnik-style IC (the bundle ships no corpus
+    to compute true IC).
+    """
     lca, lca_depth = find_lowest_common_ancestor(t1, t2)
     max_depth = max(depths.values()) if depths else 0
     d1 = depths.get(t1)
     d2 = depths.get(t2)
     labels = _hpo_label_map([t1, t2, lca] if lca else [t1, t2])
 
-    def _ic(depth: float | None) -> float | None:
+    def _normalized_depth(depth: float | None) -> float | None:
         if depth is None or not max_depth:
             return None
         return round(depth / max_depth, 4)
@@ -303,13 +316,13 @@ def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[st
             "hpo_id": t1,
             "label": labels.get(t1),
             "depth": d1,
-            "ic_proxy": _ic(d1),
+            "normalized_depth": _normalized_depth(d1),
         },
         "term2": {
             "hpo_id": t2,
             "label": labels.get(t2),
             "depth": d2,
-            "ic_proxy": _ic(d2),
+            "normalized_depth": _normalized_depth(d2),
         },
         "path_length": path_length,
     }
@@ -365,6 +378,10 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
             details={"field": f"phenotypes[{idx}].hpo_id"},
         )
     assertion = p.get("assertion") or p.get("status") or p.get("assertion_status")
+    # A family-history mention is not a proband phenotypic feature; never fold it
+    # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
+    if str(assertion).strip().lower() == "family_history":
+        return None
     confidence = p.get("score")
     if confidence is None:
         confidence = p.get("confidence", p.get("max_score_from_evidence"))
@@ -408,8 +425,10 @@ def export_phenopacket_service(
     )
 
     export_phenotypes = [
-        _coerce_export_phenotype(ExportPhenotypeRequest, p, idx)
+        coerced
         for idx, p in enumerate(phenotypes)
+        if (coerced := _coerce_export_phenotype(ExportPhenotypeRequest, p, idx))
+        is not None
     ]
     export_request = PhenopacketExportRequest(
         case_id=case_id,
@@ -473,20 +492,42 @@ def chunk_text_service(
             details={"field": "strategy"},
         ) from exc
 
+    # B2: 6 of 7 strategies need a semantic model (any config with a
+    # sliding_window stage). Lazy-load the cached embedding singleton -- the same
+    # instance search/extract warm -- instead of hard-failing, restoring parity
+    # with the documented lazy-load latency contract.
+    needs_model = any(
+        isinstance(stage, dict) and stage.get("type") == "sliding_window"
+        for stage in config
+    )
+    sbert_model = None
+    if needs_model:
+        from phentrieve.embeddings import load_embedding_model
+
+        try:
+            sbert_model = load_embedding_model(DEFAULT_MODEL)
+        except Exception as exc:
+            # A genuine load failure is a transient server condition, not a bad
+            # argument: surface it as retryable rather than blaming the strategy.
+            raise McpToolError(
+                "temporarily_unavailable",
+                "The embedding model required for this chunking strategy could "
+                "not be loaded; retry shortly or use the 'simple' strategy.",
+                details={"field": "strategy"},
+            ) from exc
+
     try:
-        # Construction can raise if the (resolved) strategy needs a semantic model.
         pipeline = TextProcessingPipeline(
             language=language or DEFAULT_LANGUAGE,
             chunking_pipeline_config=config,
             assertion_config={"disable": True},
-            sbert_model_for_semantic_chunking=None,
+            sbert_model_for_semantic_chunking=sbert_model,
         )
         processed = pipeline.process(text, include_positions=True)
-    except Exception as exc:  # e.g. a semantic strategy that needs a model
+    except Exception as exc:  # genuine processing failure, not a bad argument
         raise McpToolError(
-            "invalid_input",
-            "This chunking strategy requires a semantic model; use 'simple' or a "
-            "non-semantic strategy, or use phentrieve_extract_hpo_terms instead.",
+            "internal_error",
+            "Failed to process text with the requested chunking strategy.",
             details={"field": "strategy"},
         ) from exc
 
@@ -513,15 +554,48 @@ def _probe_ontology_data() -> str:
         return "error"
 
 
+def _probe_embedding_model() -> str:
+    """Report loaded | loading | cold | error for the default embedding model.
+
+    D3: membership tests on the live caches (no load, no lock). The search path
+    warms api.dependencies.LOADED_SBERT_MODELS; extract/chunk warm the standalone
+    phentrieve.embeddings registry -- either counts as loaded.
+    """
+    try:
+        from api.dependencies import LOADED_SBERT_MODELS, MODEL_LOADING_STATUS
+        from phentrieve.embeddings import _MODEL_REGISTRY
+
+        if DEFAULT_MODEL in LOADED_SBERT_MODELS or DEFAULT_MODEL in _MODEL_REGISTRY:
+            return "loaded"
+        status = MODEL_LOADING_STATUS.get(DEFAULT_MODEL)
+        if status == "loading":
+            return "loading"
+        if status == "failed":
+            return "error"
+        return "cold"
+    except Exception:  # noqa: BLE001 - diagnostics must never raise
+        return "error"
+
+
+def _probe_vector_index() -> str:
+    """Report loaded | cold | error for the dense retriever cache (D3)."""
+    try:
+        from api.dependencies import LOADED_RETRIEVERS
+
+        return "loaded" if len(LOADED_RETRIEVERS) > 0 else "cold"
+    except Exception:  # noqa: BLE001 - diagnostics must never raise
+        return "error"
+
+
 def diagnostics_service() -> McpResult:
     from api.mcp.capabilities import capabilities_version
     from api.mcp.envelope import get_recent_errors
 
     subsystems = {
         "ontology_data": _probe_ontology_data(),
-        "embedding_model": "lazy",
+        "embedding_model": _probe_embedding_model(),
         "llm_backend": "configured",
-        "vector_index": "lazy",
+        "vector_index": _probe_vector_index(),
     }
     status = "ok" if all(v != "error" for v in subsystems.values()) else "degraded"
     return {

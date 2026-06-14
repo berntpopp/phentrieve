@@ -31,7 +31,10 @@ def test_error_codes_core_set():
 
 
 def test_recovery_action_and_retryable():
-    assert recovery_action_for("not_found") == "reformulate_input"
+    # D4: a missing/ambiguous identifier should be resolved (via search), not
+    # reformulated -- a compare/export call has no free text to reformulate.
+    assert recovery_action_for("not_found") == "resolve_identifier"
+    assert recovery_action_for("ambiguous_query") == "resolve_identifier"
     assert recovery_action_for("llm_quota_exhausted") == "retry_backoff"
     assert recovery_action_for("llm_unavailable") == "switch_tool"
     assert retryable_for("llm_quota_exhausted") is True
@@ -86,10 +89,12 @@ def test_run_mcp_tool_known_error_envelope():
     assert out["success"] is False
     assert out["error_code"] == "not_found"
     assert out["retryable"] is False
-    assert out["recovery_action"] == "reformulate_input"
+    assert out["recovery_action"] == "resolve_identifier"
     assert out["field"] == "term2_id"
     assert out["_meta"]["unsafe_for_clinical_use"] is True
-    assert out["_meta"]["next_commands"]
+    # D4: the recovery next-command resolves the identifier via search.
+    next_tools = {c["tool"] for c in out["_meta"]["next_commands"]}
+    assert "phentrieve_search_hpo_terms" in next_tools
 
 
 def test_run_mcp_tool_internal_error_sanitized_and_recorded():

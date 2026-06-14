@@ -43,6 +43,44 @@ def test_after_extract_empty():
     assert after_extract([])[0]["tool"] == "phentrieve_get_capabilities"
 
 
+def _aggregated_terms(n: int) -> list[dict[str, object]]:
+    return [
+        {
+            "hpo_id": f"HP:{i:07d}",
+            "label": f"term{i}",
+            "assertion": "affirmed",
+            "score": 0.9,
+        }
+        for i in range(n)
+    ]
+
+
+def test_after_extract_caps_and_compacts_prefill_under_lean_modes():
+    """R2: under minimal/compact the export prefill is capped to <=5 terms and
+    omits label (still executable -- _coerce_export_phenotype falls back to
+    hpo_id), so _meta does not carry the full 25-term copy."""
+    aggregated = _aggregated_terms(25)
+
+    compact = after_extract(aggregated, mode="compact")
+    phenos = compact[0]["arguments"]["phenotypes"]
+    assert len(phenos) == 5
+    assert "label" not in phenos[0]
+    assert phenos[0]["hpo_id"] == "HP:0000000"
+    assert phenos[0]["assertion"] == "affirmed"
+    assert phenos[0]["score"] == 0.9
+
+    minimal = after_extract(aggregated, mode="minimal")
+    assert len(minimal[0]["arguments"]["phenotypes"]) == 5
+
+
+def test_after_extract_standard_keeps_full_list_with_label():
+    aggregated = _aggregated_terms(25)
+    standard = after_extract(aggregated, mode="standard")
+    phenos = standard[0]["arguments"]["phenotypes"]
+    assert len(phenos) == 25
+    assert phenos[0]["label"] == "term0"
+
+
 def test_after_compare_and_chunk():
     # after_compare cross-checks the same pair with the alternate formula (L2:
     # executable, no free-text placeholder).
@@ -84,3 +122,12 @@ def test_default_error_next_commands():
     tools = {h["tool"] for h in hints}
     assert "phentrieve_get_capabilities" in tools
     assert "phentrieve_diagnostics" in tools
+
+
+def test_default_error_next_commands_resolves_identifier_for_not_found():
+    """D4: a not_found / ambiguous_query error should point at search to resolve
+    the identifier, not the generic capabilities/diagnostics."""
+    for code in ("not_found", "ambiguous_query"):
+        hints = default_error_next_commands("phentrieve_compare_hpo_terms", code)
+        tools = {h["tool"] for h in hints}
+        assert tools == {"phentrieve_search_hpo_terms"}

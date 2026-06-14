@@ -24,7 +24,7 @@ BUDGETS: dict[str, int] = {
 }
 
 # Verbose detail fields: dropped at minimal; dropped-if-present at compact;
-# kept at standard/full.
+# kept at standard/full. Applied both per-item and to top-level keys.
 _DETAIL_FIELDS = (
     "definition",
     "synonyms",
@@ -32,6 +32,9 @@ _DETAIL_FIELDS = (
     "comments",
     "text_attributions",
     "assertion_details",
+    # R1: the serialized phenopacket blob is redundant with the canonical
+    # ``phenopacket`` object at lean verbosity; surface it only at standard/full.
+    "phenopacket_json",
 )
 # Identity/score fields kept even at minimal verbosity.
 _MINIMAL_KEEP = (
@@ -52,7 +55,11 @@ _MINIMAL_KEEP = (
 
 # Keys whose empty value must still be serialized (schema-stability contract).
 # hpo_matches: [] must never collapse to a missing key (defect L5).
-_ALWAYS_KEEP_EMPTY = ("hpo_matches",)
+# text_attributions: always an array -- empty means a semantic match with no
+# literal span, which must read as [] at compact, not vanish like an empty detail
+# field (defect D1). A populated attribution list stays a detail field
+# (standard/full only).
+_ALWAYS_KEEP_EMPTY = ("hpo_matches", "text_attributions")
 
 
 def resolve_mode(requested: str | None) -> ResponseMode:
@@ -101,6 +108,7 @@ def apply_response_mode(
     mode: ResponseMode,
     *,
     keep_detail_fields: tuple[str, ...] = (),
+    opaque_keys: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """Return a shaped copy of ``payload`` for the given mode.
 
@@ -108,14 +116,25 @@ def apply_response_mode(
     scalar and ``_meta`` keys pass through. ``full`` returns the payload unchanged.
     ``keep_detail_fields`` names detail fields (e.g. definition/synonyms) that must
     survive compact/minimal because the caller explicitly requested them
-    (honors include_details=True at compact verbosity, defect M5).
+    (honors include_details=True at compact verbosity, defect M5). ``opaque_keys``
+    names top-level values that must pass through whole, never field-projected --
+    e.g. the GA4GH ``phenopacket`` object, which is a complete document, not a row
+    of optional detail fields (R1).
     """
     if mode == "full":
         return payload
     shaped: dict[str, Any] = {}
     for key, value in payload.items():
-        if key == "_meta":
+        if key == "_meta" or key in opaque_keys:
             shaped[key] = value
+        elif (
+            key in _DETAIL_FIELDS
+            and key not in keep_detail_fields
+            and mode in ("minimal", "compact")
+        ):
+            # Top-level detail field (e.g. R1 phenopacket_json): drop at the lean
+            # modes, keep at standard (full is handled by the early return above).
+            continue
         elif isinstance(value, list) and value and isinstance(value[0], dict):
             shaped[key] = [_shape_item(i, mode, keep_detail_fields) for i in value]
         elif isinstance(value, dict):
