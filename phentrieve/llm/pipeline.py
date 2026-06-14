@@ -15,6 +15,7 @@ from phentrieve.llm.config import (
     DEFAULT_MAX_UNIQUE_CANDIDATES,
     DEFAULT_MIN_UNIQUE_CANDIDATES,
     DEFAULT_PHASE1_FALLBACK_ENABLED,
+    DEFAULT_PHASE1_GROUP_MAX_WORKERS,
     DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS,
     DEFAULT_PHASE1_MAX_OUTPUT_TOKENS,
     DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
@@ -644,7 +645,7 @@ class TwoPhaseLLMPipeline:
                 LLMPipelinePhaseError | None,
             ]
         ] = []
-        max_workers = min(len(indexed_groups), 2) or 1
+        max_workers = min(len(indexed_groups), DEFAULT_PHASE1_GROUP_MAX_WORKERS) or 1
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(

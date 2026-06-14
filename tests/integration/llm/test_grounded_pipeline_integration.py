@@ -9,6 +9,16 @@ pytestmark = pytest.mark.integration
 TwoPhaseLLMPipeline = pipeline_module.TwoPhaseLLMPipeline
 
 
+@pytest.fixture(autouse=True)
+def _deterministic_grouped_phase1(monkeypatch):
+    """Pin grouped phase-1 to a single worker so the sequential FakeProvider is
+    consumed deterministically. Production runs up to 2 concurrent provider calls
+    (the real provider is stateless), but this FIFO test double would otherwise
+    race on response order under CPU contention -- a flaky-test footgun, not a
+    product defect."""
+    monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
+
+
 class FakeProvider(LLMProvider):
     def __init__(self, responses):
         super().__init__()
