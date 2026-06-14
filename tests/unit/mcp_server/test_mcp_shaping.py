@@ -77,6 +77,21 @@ def test_full_keeps_everything_unchanged():
     assert apply_response_mode(payload, "full") == payload
 
 
+def test_text_attributions_empty_array_kept_at_compact():
+    """D1: a semantic-only match has no literal span, so text_attributions is an
+    empty array. It must stay present as [] at compact (one contract: always an
+    array; empty == semantic match) rather than being dropped like an empty
+    detail field, which made the key inconsistently '[] / missing / populated'."""
+    payload = {
+        "aggregated_hpo_terms": [
+            {"hpo_id": "HP:0001250", "score": 0.83, "text_attributions": []}
+        ]
+    }
+    term = apply_response_mode(payload, "compact")["aggregated_hpo_terms"][0]
+    assert "text_attributions" in term
+    assert term["text_attributions"] == []
+
+
 def test_meta_passes_through_unshaped():
     payload = {"results": [], "_meta": {"definition": "keep-me"}}
     out = apply_response_mode(payload, "minimal")

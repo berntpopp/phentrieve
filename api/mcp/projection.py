@@ -72,9 +72,13 @@ def project_aggregated_terms_for_mcp(
             out.pop(field, None)
 
         # Uniform schema across records: every term carries text_attributions,
-        # even when empty (defect D13). Drop null padding (e.g. start_char/end_char
-        # left None when positions were not requested) so the MCP payload is not
-        # bloated with default-valued keys (defect D7).
+        # even when empty (defect D13/D1). One contract: text_attributions is
+        # always an array -- an empty [] means a semantically retrieved term with
+        # no literal source span (no verbatim label/synonym match), not a missing
+        # value. shaping._ALWAYS_KEEP_EMPTY keeps the empty [] present at compact.
+        # Drop null padding (e.g. start_char/end_char left None when positions were
+        # not requested) so the MCP payload is not bloated with default-valued
+        # keys (defect D7).
         out.setdefault("text_attributions", [])
         out = {k: v for k, v in out.items() if v is not None}
         projected.append(out)

@@ -55,7 +55,11 @@ _MINIMAL_KEEP = (
 
 # Keys whose empty value must still be serialized (schema-stability contract).
 # hpo_matches: [] must never collapse to a missing key (defect L5).
-_ALWAYS_KEEP_EMPTY = ("hpo_matches",)
+# text_attributions: always an array -- empty means a semantic match with no
+# literal span, which must read as [] at compact, not vanish like an empty detail
+# field (defect D1). A populated attribution list stays a detail field
+# (standard/full only).
+_ALWAYS_KEEP_EMPTY = ("hpo_matches", "text_attributions")
 
 
 def resolve_mode(requested: str | None) -> ResponseMode:
