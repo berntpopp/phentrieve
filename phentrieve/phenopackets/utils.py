@@ -484,7 +484,10 @@ def _create_phenopacket_json(
 
     meta_data = MetaData(
         created=created_timestamp,
-        created_by=f"phentrieve {phentrieve_version}",
+        # "phentrieve-core" disambiguates the extraction-library version from the
+        # MCP server version (a separate component), which previously looked like a
+        # contradictory provenance value (defect L6).
+        created_by=f"phentrieve-core {phentrieve_version}",
         external_references=external_references if external_references else None,
         resources=[
             Resource(

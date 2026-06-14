@@ -9,6 +9,7 @@ from pydantic import Field
 
 from api.mcp.annotations import READ_ONLY_OPEN_WORLD
 from api.mcp.envelope import McpErrorContext, run_mcp_tool
+from api.mcp.resources import recommended_citation
 from api.mcp.schemas import PHENOPACKET_SCHEMA
 from api.mcp.service_adapters import export_phenopacket_service
 from api.mcp.shaping import apply_response_mode, resolve_mode
@@ -77,7 +78,10 @@ def register_phenopacket_tools(mcp: FastMCP) -> None:
                 )
             )
             shaped = apply_response_mode(raw, mode)
-            shaped["_meta"] = {"next_commands": []}
+            shaped["_meta"] = {
+                "next_commands": [],
+                "recommended_citation": recommended_citation(),
+            }
             return shaped
 
         return await run_mcp_tool(

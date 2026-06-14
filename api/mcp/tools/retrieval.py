@@ -54,8 +54,9 @@ def _detail_keep(include_details: bool) -> tuple[str, ...]:
 
 
 def _maybe_citation(meta: dict[str, Any], mode: str) -> None:
-    if mode in ("standard", "full"):
-        meta["recommended_citation"] = recommended_citation()
+    # Emit in every response mode (incl. minimal/compact). It is one line and the
+    # attribution/safety contract must hold regardless of verbosity (safety fix).
+    meta["recommended_citation"] = recommended_citation()
 
 
 def register_retrieval_tools(mcp: FastMCP) -> None:

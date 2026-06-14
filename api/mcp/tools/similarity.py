@@ -50,10 +50,9 @@ def register_similarity_tools(mcp: FastMCP) -> None:
             )
             shaped = apply_response_mode(raw, mode)
             meta: dict[str, Any] = {
-                "next_commands": after_compare(term1_id, term2_id, formula)
+                "next_commands": after_compare(term1_id, term2_id, formula),
+                "recommended_citation": recommended_citation(),
             }
-            if mode in ("standard", "full"):
-                meta["recommended_citation"] = recommended_citation()
             shaped["_meta"] = meta
             return shaped
 

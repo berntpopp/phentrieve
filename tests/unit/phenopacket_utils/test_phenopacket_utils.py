@@ -213,8 +213,9 @@ class TestPhenopacketUtils:
         phenopacket = json.loads(phenopacket_json)
 
         meta = phenopacket["metaData"]
-        # Check createdBy includes version
-        assert meta["createdBy"] == "phentrieve 0.3.0"
+        # createdBy is the core-library version, labeled to disambiguate it from
+        # the MCP server version (L6).
+        assert meta["createdBy"] == "phentrieve-core 0.3.0"
 
         # Check HPO version
         assert meta["resources"][0]["version"] == "v2025-03-03"
