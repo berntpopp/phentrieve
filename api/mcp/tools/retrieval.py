@@ -172,7 +172,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
-                "next_commands": after_extract(shaped.get("aggregated_hpo_terms", []))
+                "next_commands": after_extract(
+                    shaped.get("aggregated_hpo_terms", []), mode
+                )
             }
             if trunc:
                 meta["truncated"] = trunc
@@ -247,7 +249,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
-                "next_commands": after_extract(shaped.get("aggregated_hpo_terms", []))
+                "next_commands": after_extract(
+                    shaped.get("aggregated_hpo_terms", []), mode
+                )
             }
             if trunc:
                 meta["truncated"] = trunc
