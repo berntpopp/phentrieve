@@ -14,7 +14,7 @@ how it is counted:
 | --- | --- | --- | --- |
 | Anonymous | Client IP | 5 | `PHENTRIEVE_LLM_DAILY_LIMIT` |
 | Signed in, **unverified** | Client IP | 5 | (same as anonymous) |
-| Signed in, **verified** | Account | 10 | `PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT` |
+| Signed in, **verified** | Account | 20 | `PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT` |
 
 The higher cap is **verify-to-upgrade**: an account only earns it after
 confirming its email, which keeps throwaway accounts on the anonymous limit.

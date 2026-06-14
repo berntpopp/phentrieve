@@ -75,7 +75,7 @@ export PHENTRIEVE_LLM_QUOTA_DB_PATH="../data/app/llm_quota.db"
   quota persistence.
 
 If accounts are enabled, a **verified signed-in user** gets a higher per-account
-limit (`PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT`, default 10) instead of the
+limit (`PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT`, default 20) instead of the
 anonymous IP limit — pass the access token as `Authorization: Bearer`. Check the
 active tier and remaining count with `GET /api/v1/text/quota`. See
 [Authentication & Quota](../deployment/authentication.md).

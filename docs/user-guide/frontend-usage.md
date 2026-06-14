@@ -44,7 +44,7 @@ path.
 Anonymous full-text runs are capped per day (per client IP). If accounts are
 enabled, use the account button in the top-right corner to register and sign in:
 a **verified** account raises your daily full-text quota from the anonymous
-limit to the authenticated one (defaults: 5 → 10). The account menu shows your
+limit to the authenticated one (defaults: 5 → 20). The account menu shows your
 remaining runs for the day, and the result panel offers a sign-in shortcut when
 an anonymous run hits the limit. See
 [Authentication & Quota](../deployment/authentication.md) for setup and the full

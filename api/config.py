@@ -330,7 +330,7 @@ PHENTRIEVE_PUBLIC_BASE_URL: str = os.getenv(
 
 # Quota: authenticated (verified) users get a higher daily LLM limit.
 PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT: int = _env_int(
-    "PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT", 10
+    "PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT", 20
 )
 # Tri-state enforcement override:
 #   "" (unset) -> enforce only when PHENTRIEVE_ENV == "production" (legacy)
