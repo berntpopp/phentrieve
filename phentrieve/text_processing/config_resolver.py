@@ -176,19 +176,19 @@ def _load_config_from_file(config_file: Path) -> list[dict[str, Any]]:
         )
 
 
-# Source of truth for predefined chunking strategy names -> config builders.
-_STRATEGY_MAP: dict[str, Callable[[], list[dict[str, Any]]]] = {
-    "simple": get_simple_chunking_config,
-    "detailed": get_detailed_chunking_config,
-    "semantic": get_semantic_chunking_config,
-    "sliding_window": get_sliding_window_config_with_params,
-    "sliding_window_cleaned": get_sliding_window_cleaned_config,
-    "sliding_window_punct_cleaned": get_sliding_window_punct_cleaned_config,
-    "sliding_window_punct_conj_cleaned": get_sliding_window_punct_conj_cleaned_config,
-}
-
-# Public tuple of the predefined strategy names, in declaration order.
-KNOWN_CHUNK_STRATEGIES: tuple[str, ...] = tuple(_STRATEGY_MAP)
+# Public tuple of the predefined strategy names, in declaration order. Source of
+# truth for validation/enums (see api.mcp.tools._common.ChunkStrategy, guarded by
+# a drift test). The name -> builder map is rebuilt per call inside
+# _get_strategy_config so the builder functions remain patchable in tests.
+KNOWN_CHUNK_STRATEGIES: tuple[str, ...] = (
+    "simple",
+    "detailed",
+    "semantic",
+    "sliding_window",
+    "sliding_window_cleaned",
+    "sliding_window_punct_cleaned",
+    "sliding_window_punct_conj_cleaned",
+)
 
 
 def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
@@ -206,8 +206,19 @@ def _get_strategy_config(strategy_name: str) -> list[dict[str, Any]]:
     """
     strategy_name = strategy_name.lower()
 
-    if strategy_name in _STRATEGY_MAP:
-        config_func = _STRATEGY_MAP[strategy_name]
+    # Built per call (not hoisted) so tests can monkeypatch the builder functions.
+    strategy_map: dict[str, Callable[[], list[dict[str, Any]]]] = {
+        "simple": get_simple_chunking_config,
+        "detailed": get_detailed_chunking_config,
+        "semantic": get_semantic_chunking_config,
+        "sliding_window": get_sliding_window_config_with_params,
+        "sliding_window_cleaned": get_sliding_window_cleaned_config,
+        "sliding_window_punct_cleaned": get_sliding_window_punct_cleaned_config,
+        "sliding_window_punct_conj_cleaned": get_sliding_window_punct_conj_cleaned_config,
+    }
+
+    if strategy_name in strategy_map:
+        config_func = strategy_map[strategy_name]
         return list(config_func())
     else:
         logger.warning(
