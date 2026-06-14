@@ -8,6 +8,7 @@ adapters hold only the domain logic (including the LLM quota / fallback policy).
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -300,12 +301,19 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     if confidence is None:
         confidence = p.get("confidence", p.get("max_score_from_evidence"))
     chunk_ids = p.get("source_chunk_ids") or p.get("chunk_ids") or []
+    # Honest provenance: a phenotype handed to export without extractor
+    # provenance is client-supplied, not a dictionary match. Preserve any
+    # provenance the caller did pass through (defect D11).
+    match_method = p.get("match_method") or "client_supplied"
+    source_mode = p.get("source_mode") or "unknown"
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
         assertion_status="negated" if assertion == "negated" else "affirmed",
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
+        match_method=match_method,
+        source_mode=source_mode,
     )
 
 
@@ -350,9 +358,20 @@ def export_phenopacket_service(
         include_annotation_sidecar=export_request.include_annotation_sidecar,
     )
     bundle = _apply_request_metadata_to_bundle(bundle, export_request)
-    return PhenopacketExportResponse.model_validate(bundle).model_dump(
+    result = PhenopacketExportResponse.model_validate(bundle).model_dump(
         exclude_none=True
     )
+    # Return the phenopacket as a native JSON object (MCP/Anthropic guidance:
+    # structured content should be real JSON, not a stringified blob). The
+    # serialized ``phenopacket_json`` string is kept for backwards
+    # compatibility (defect D4).
+    raw_json = result.get("phenopacket_json")
+    if isinstance(raw_json, str):
+        try:
+            result["phenopacket"] = json.loads(raw_json)
+        except (TypeError, ValueError):
+            pass
+    return result
 
 
 # --------------------------------------------------------------------------- #
