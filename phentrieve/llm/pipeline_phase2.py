@@ -275,6 +275,7 @@ def phenotype_from_candidate(
             PRESENT_ASSERTION,
         ),
         experiencer=experiencer_for_category(str(item.get("category", ""))),
+        negated_qualifier=(item.get("negated_qualifier") or None),
         category=normalize_category(str(item.get("category", ""))),
         confidence=(
             optional_float(candidate.get("confidence"))

@@ -113,6 +113,7 @@ def test_phase1_extraction_shape_preserves_grounding_fields() -> None:
         {
             "phrase": "recurrent seizures",
             "category": "abnormal",
+            "negated_qualifier": None,
             "chunk_ids": [2],
             "evidence_text": "recurrent seizures since infancy",
             "start_char": 8,

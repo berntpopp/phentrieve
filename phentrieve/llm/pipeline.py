@@ -584,6 +584,7 @@ class TwoPhaseLLMPipeline:
                 {
                     "phrase": phenotype.phrase.strip(),
                     "category": _normalize_category(phenotype.category),
+                    "negated_qualifier": getattr(phenotype, "negated_qualifier", None),
                     "chunk_ids": list(getattr(phenotype, "chunk_ids", [])),
                     "evidence_text": getattr(phenotype, "evidence_text", None),
                     "start_char": getattr(phenotype, "start_char", None),
@@ -1229,6 +1230,7 @@ class TwoPhaseLLMPipeline:
             shared_result.setdefault("category", str(item["category"]))
             shared_result["chunk_ids"] = list(item.get("chunk_ids", []))
             shared_result["evidence_text"] = item.get("evidence_text")
+            shared_result["negated_qualifier"] = item.get("negated_qualifier")
             shared_result["start_char"] = item.get("start_char")
             shared_result["end_char"] = item.get("end_char")
             shared_result["grounded_context"] = self._build_grounded_context(

@@ -410,9 +410,12 @@ def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
         "phenotypes": [
             {
                 "phrase": "recurrent seizures",
+                "evidence_text": "recurrent seizures",
+                "experiencer": "proband",
+                "assertion": "present",
+                "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1],
-                "evidence_text": "recurrent seizures",
                 "start_char": None,
                 "end_char": None,
             }
@@ -720,9 +723,12 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
         "phenotypes": [
             {
                 "phrase": "recurrent seizures",
+                "evidence_text": "recurrent seizures",
+                "experiencer": "proband",
+                "assertion": "present",
+                "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1, 2],
-                "evidence_text": "recurrent seizures",
                 "start_char": None,
                 "end_char": None,
             }
@@ -732,6 +738,7 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
         {
             "phrase": "recurrent seizures",
             "category": "abnormal",
+            "negated_qualifier": None,
             "chunk_ids": [1, 2],
             "evidence_text": "recurrent seizures",
             "start_char": None,
@@ -3921,6 +3928,62 @@ def test_deduplicate_terms_separates_by_experiencer():
     deduped = TwoPhaseLLMPipeline._deduplicate_terms(terms)
 
     assert len(deduped) == 2
+
+
+def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
+    """LLM-2: an 'X without Y' phrase stays present and the negated qualifier Y
+    is threaded from the grounded extraction to the resolved term."""
+    provider = FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        {
+                            "phrase": "severe intellectual disability",
+                            "category": "Abnormal",
+                            "assertion": "present",
+                            "negated_qualifier": "regression",
+                            "chunk_ids": [1],
+                            "evidence_text": "severe intellectual disability",
+                        }
+                    ]
+                },
+            }
+        ]
+    )
+    tool_executor = FakeToolExecutor(
+        batch_results=[
+            {
+                "phrase": "severe intellectual disability",
+                "original_sentence": "severe intellectual disability without regression",
+                "candidates": [
+                    {
+                        "hpo_id": "HP:0010864",
+                        "term_name": "Severe intellectual disability",
+                        "score": 0.95,
+                    }
+                ],
+            },
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="severe intellectual disability without regression",
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "severe intellectual disability without regression",
+            }
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert len(result.terms) == 1
+    term = result.terms[0]
+    assert term.term_id == "HP:0010864"
+    assert term.assertion == "present"
+    assert term.negated_qualifier == "regression"
 
 
 def test_phase1_failure_is_recorded_in_trace_not_silenced(caplog):

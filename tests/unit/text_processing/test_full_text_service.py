@@ -542,7 +542,11 @@ def test_llm_adaptation_drops_terms_without_valid_chunk_references() -> None:
     assert adapted == []
 
 
-def test_llm_adaptation_projects_negated_grounded_chunk_status() -> None:
+def test_llm_adaptation_trusts_llm_assertion_over_chunk_status() -> None:
+    """LLM-2: the LLM assigns assertion per phrase (more precise than chunk-level
+    NegEx). The coarse 'all source chunks negated -> negated' override is dropped
+    so a present finding in an 'X without Y' chunk (NegEx-negated at chunk level)
+    is no longer flipped to negated."""
     term = SimpleNamespace(
         term_id="HP:0000256",
         label="Macrocephaly",
@@ -562,7 +566,41 @@ def test_llm_adaptation_projects_negated_grounded_chunk_status() -> None:
         ],
     )
 
-    assert adapted[0]["status"] == "negated"
+    assert adapted[0]["status"] == "present"
+
+
+def test_llm_adaptation_exposes_negated_qualifier_when_present() -> None:
+    """LLM-2: an 'X without Y' phrase keeps X present and surfaces the negated
+    qualifier Y so the consumer sees the partial negation structurally."""
+    term = SimpleNamespace(
+        term_id="HP:0001249",
+        label="Intellectual disability",
+        evidence="intellectual disability",
+        assertion="present",
+        negated_qualifier="regression",
+        score=0.9,
+        confidence=0.9,
+        evidence_records=[
+            {
+                "chunk_ids": [1],
+                "evidence_text": "intellectual disability",
+                "score": 0.9,
+            }
+        ],
+    )
+
+    adapted = _adapt_llm_aggregated_terms(
+        [term],
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "severe intellectual disability without regression",
+            }
+        ],
+    )
+
+    assert adapted[0]["status"] == "present"
+    assert adapted[0]["negated_qualifier"] == "regression"
 
 
 def test_run_llm_backend_builds_grounded_chunks_for_pipeline(mocker):
