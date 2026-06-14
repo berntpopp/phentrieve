@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import api.config as api_config
@@ -154,6 +154,12 @@ def create_app() -> FastAPI:
         title="Phentrieve API",
         version=get_api_version(),
         lifespan=lifespan,
+        # Serve the interactive docs/OpenAPI under the /api/v1 prefix so they are
+        # reachable through the frontend reverse proxy (which only forwards /api
+        # and /mcp). At the app root they would be shadowed by the SPA.
+        docs_url="/api/v1/docs",
+        redoc_url="/api/v1/redoc",
+        openapi_url="/api/v1/openapi.json",
     )
 
     application.add_middleware(
@@ -254,6 +260,12 @@ def create_app() -> FastAPI:
     application.include_router(
         text_processing_router.router, tags=["Text Processing and HPO Extraction"]
     )
+
+    @application.get("/api/v1", include_in_schema=False)
+    @application.get("/api/v1/", include_in_schema=False)
+    async def api_v1_root() -> RedirectResponse:
+        """Redirect the API base path to the interactive Swagger docs."""
+        return RedirectResponse(url="/api/v1/docs")
 
     if api_config.PHENTRIEVE_AUTH_ENABLED:
         if not api_config.PHENTRIEVE_AUTH_JWT_SECRET:
