@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import smtplib
 import ssl
+import sys
 from email.message import EmailMessage
 from typing import Protocol
 
@@ -39,13 +40,27 @@ class EmailSender(Protocol):
 
 
 class ConsoleEmailSender:
-    """Logs emails instead of sending them (local dev / tests)."""
+    """Writes emails to stdout/logs instead of sending them (local dev / tests).
+
+    Mirrors Django's console email backend: the message (including any action
+    link) is written to stdout so it is visible regardless of the surrounding
+    log configuration (e.g. under uvicorn, which suppresses app INFO logs). A
+    matching ``logger.info`` is also emitted so test harnesses can capture it.
+    """
 
     async def send(self, *, to: str, subject: str, text: str) -> None:
+        sender = api_config.PHENTRIEVE_EMAIL_FROM
+        rendered = (
+            "\n----- [phentrieve console email] -----\n"
+            f"From: {sender}\nTo: {to}\nSubject: {subject}\n\n{text}\n"
+            "--------------------------------------\n"
+        )
+        sys.stdout.write(rendered)
+        sys.stdout.flush()
         logger.info(
             "[email:console] to=%s from=%s subject=%s\n%s",
             to,
-            api_config.PHENTRIEVE_EMAIL_FROM,
+            sender,
             subject,
             text,
         )
