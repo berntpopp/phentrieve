@@ -119,6 +119,21 @@ def _issue_session(response: Response, store: UserStore, user: User) -> str:
     )
 
 
+async def _safe_send(*, to: str, subject: str, text: str) -> None:
+    """Send an account email without letting delivery failures break the flow.
+
+    Register / password-reset return generic, non-enumerating responses, so a
+    delivery problem (refused recipient, SMTP/TLS/connection error) must not
+    surface to the client as a 500 — that both breaks the contract and strands
+    the user on a hard error. Log it at ERROR for operators and carry on; the
+    user can re-trigger delivery later via resend-verification / password-reset.
+    """
+    try:
+        await get_email_sender().send(to=to, subject=subject, text=text)
+    except Exception:  # noqa: BLE001 - delivery must never break account flows
+        logger.exception("Failed to send account email to %s", to)
+
+
 async def _send_verify(store: UserStore, user: User) -> None:
     raw = tokens.generate_refresh_token()
     store.put_token(
@@ -129,7 +144,7 @@ async def _send_verify(store: UserStore, user: User) -> None:
     )
     link = f"{api_config.PHENTRIEVE_PUBLIC_BASE_URL}/verify?token={raw}"
     subject, text = build_verify_email(link)
-    await get_email_sender().send(to=user.email, subject=subject, text=text)
+    await _safe_send(to=user.email, subject=subject, text=text)
 
 
 @router.post("/register", response_model=MessageResponse, status_code=201)
@@ -257,7 +272,7 @@ async def password_reset_request(body: EmailRequest) -> MessageResponse:
         )
         link = f"{api_config.PHENTRIEVE_PUBLIC_BASE_URL}/reset-password?token={raw}"
         subject, text = build_reset_email(link)
-        await get_email_sender().send(to=user.email, subject=subject, text=text)
+        await _safe_send(to=user.email, subject=subject, text=text)
     return MessageResponse(message=_RESET_MSG)
 
 
