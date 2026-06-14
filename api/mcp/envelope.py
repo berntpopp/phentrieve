@@ -213,6 +213,17 @@ async def run_mcp_tool(
         return envelope
 
 
+def _clean_value_message(msg: str | None) -> str | None:
+    """Strip pydantic's ``Value error, `` prefix from an AfterValidator message."""
+    if not msg:
+        return None
+    cleaned = msg.strip()
+    prefix = "value error, "
+    if cleaned.lower().startswith(prefix):
+        cleaned = cleaned[len(prefix) :]
+    return cleaned or None
+
+
 def build_arg_error_envelope(
     *,
     tool_name: str,
@@ -222,6 +233,7 @@ def build_arg_error_envelope(
     signature: str,
     suggestion: str | None,
     constraints: tuple[list[str], str] | None = None,
+    value_message: str | None = None,
 ) -> dict[str, Any]:
     """Standard invalid-input envelope for an argument-binding failure."""
     from api.mcp.capabilities import capabilities_version
@@ -244,6 +256,24 @@ def build_arg_error_envelope(
             "recovery_action": "reformulate_input",
             "field": loc,
             "allowed_values": allowed,
+            "hint": signature,
+            "_meta": base_meta,
+        }
+    # B3: a value-level error on a *valid* argument name (e.g. blank text) is not
+    # an unknown-argument error -- surface the validator's actual reason with the
+    # signature hint, and do NOT emit allowed_values=parameter-names.
+    name_error_types = ("missing", "missing_argument", "unexpected_keyword_argument")
+    if error_type not in name_error_types and loc in valid_params:
+        reason = _clean_value_message(value_message)
+        message = f"Invalid value for argument `{loc}` of {tool_name}"
+        message = f"{message}: {reason}" if reason else f"{message}."
+        return {
+            "success": False,
+            "error_code": "validation_failed",
+            "message": message[:280],
+            "retryable": False,
+            "recovery_action": "reformulate_input",
+            "field": loc,
             "hint": signature,
             "_meta": base_meta,
         }
