@@ -105,6 +105,57 @@ def test_chunk_text_model_load_failure_is_temporarily_unavailable(monkeypatch):
     assert ei.value.error_code == "temporarily_unavailable"
 
 
+def test_diagnostics_reports_cold_then_loaded_subsystems(monkeypatch):
+    """D3: diagnostics probes the live caches -- embedding_model/vector_index
+    read 'cold' before any load and 'loaded' after a search has warmed them,
+    instead of a constant 'lazy'."""
+    from api import dependencies
+    from phentrieve.config import DEFAULT_MODEL
+
+    # Keep the ontology probe deterministic and fast.
+    monkeypatch.setattr(service_adapters, "_probe_ontology_data", lambda: "ok")
+
+    # Cold: empty caches.
+    monkeypatch.setattr(dependencies, "LOADED_SBERT_MODELS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "LOADED_RETRIEVERS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "MODEL_LOADING_STATUS", {}, raising=False)
+    monkeypatch.setattr("phentrieve.embeddings._MODEL_REGISTRY", {}, raising=False)
+
+    cold = service_adapters.diagnostics_service()
+    assert cold["subsystems"]["embedding_model"] == "cold"
+    assert cold["subsystems"]["vector_index"] == "cold"
+    assert cold["status"] == "ok"  # cold is not an error
+
+    # Warm: a search has populated the dependency caches.
+    monkeypatch.setattr(
+        dependencies, "LOADED_SBERT_MODELS", {DEFAULT_MODEL: object()}, raising=False
+    )
+    monkeypatch.setattr(
+        dependencies, "LOADED_RETRIEVERS", {("idx",): object()}, raising=False
+    )
+
+    warm = service_adapters.diagnostics_service()
+    assert warm["subsystems"]["embedding_model"] == "loaded"
+    assert warm["subsystems"]["vector_index"] == "loaded"
+
+
+def test_diagnostics_reports_loading_state(monkeypatch):
+    """D3: a model mid-load reports 'loading', not 'cold' or 'loaded'."""
+    from api import dependencies
+    from phentrieve.config import DEFAULT_MODEL
+
+    monkeypatch.setattr(service_adapters, "_probe_ontology_data", lambda: "ok")
+    monkeypatch.setattr(dependencies, "LOADED_SBERT_MODELS", {}, raising=False)
+    monkeypatch.setattr(dependencies, "LOADED_RETRIEVERS", {}, raising=False)
+    monkeypatch.setattr(
+        dependencies, "MODEL_LOADING_STATUS", {DEFAULT_MODEL: "loading"}, raising=False
+    )
+    monkeypatch.setattr("phentrieve.embeddings._MODEL_REGISTRY", {}, raising=False)
+
+    out = service_adapters.diagnostics_service()
+    assert out["subsystems"]["embedding_model"] == "loading"
+
+
 def test_export_phenopacket_service_round_trips_case_id():
     out = export_phenopacket_service(
         case_id="CASE-1",

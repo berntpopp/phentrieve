@@ -541,15 +541,48 @@ def _probe_ontology_data() -> str:
         return "error"
 
 
+def _probe_embedding_model() -> str:
+    """Report loaded | loading | cold | error for the default embedding model.
+
+    D3: membership tests on the live caches (no load, no lock). The search path
+    warms api.dependencies.LOADED_SBERT_MODELS; extract/chunk warm the standalone
+    phentrieve.embeddings registry -- either counts as loaded.
+    """
+    try:
+        from api.dependencies import LOADED_SBERT_MODELS, MODEL_LOADING_STATUS
+        from phentrieve.embeddings import _MODEL_REGISTRY
+
+        if DEFAULT_MODEL in LOADED_SBERT_MODELS or DEFAULT_MODEL in _MODEL_REGISTRY:
+            return "loaded"
+        status = MODEL_LOADING_STATUS.get(DEFAULT_MODEL)
+        if status == "loading":
+            return "loading"
+        if status == "failed":
+            return "error"
+        return "cold"
+    except Exception:  # noqa: BLE001 - diagnostics must never raise
+        return "error"
+
+
+def _probe_vector_index() -> str:
+    """Report loaded | cold | error for the dense retriever cache (D3)."""
+    try:
+        from api.dependencies import LOADED_RETRIEVERS
+
+        return "loaded" if len(LOADED_RETRIEVERS) > 0 else "cold"
+    except Exception:  # noqa: BLE001 - diagnostics must never raise
+        return "error"
+
+
 def diagnostics_service() -> McpResult:
     from api.mcp.capabilities import capabilities_version
     from api.mcp.envelope import get_recent_errors
 
     subsystems = {
         "ontology_data": _probe_ontology_data(),
-        "embedding_model": "lazy",
+        "embedding_model": _probe_embedding_model(),
         "llm_backend": "configured",
-        "vector_index": "lazy",
+        "vector_index": _probe_vector_index(),
     }
     status = "ok" if all(v != "error" for v in subsystems.values()) else "degraded"
     return {
