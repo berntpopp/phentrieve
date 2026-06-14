@@ -185,8 +185,18 @@ def _cached_descriptor(details_key: tuple[str, ...]) -> dict[str, Any]:
     body = _descriptor_body(details_key)
     serialized = json.dumps(body, sort_keys=True, default=str)
     digest = hashlib.sha256(serialized.encode("utf-8")).hexdigest()[:16]
-    body["capabilities_version"] = f"sha256:{digest}"
+    # descriptor_hash is the content hash of THIS (possibly detailed) descriptor.
+    body["descriptor_hash"] = f"sha256:{digest}"
     body["descriptor_chars"] = len(serialized)
+    # capabilities_version is the warm-cache key and MUST be stable across the
+    # `details` expansion so it always equals the value echoed in _meta (a client
+    # that cached a detailed descriptor must still match and skip re-fetching).
+    # It is a custom convention layered on the MCP spec, whose own change signal
+    # is tools/list_changed. (defect M1)
+    if details_key == ():
+        body["capabilities_version"] = body["descriptor_hash"]
+    else:
+        body["capabilities_version"] = _cached_descriptor(())["capabilities_version"]
     return body
 
 

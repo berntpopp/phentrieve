@@ -38,7 +38,7 @@ def test_descriptor_chars_matches_serialized_body():
     body = {
         k: v
         for k, v in cap.items()
-        if k not in ("capabilities_version", "descriptor_chars")
+        if k not in ("capabilities_version", "descriptor_hash", "descriptor_chars")
     }
     assert cap["descriptor_chars"] == len(json.dumps(body, sort_keys=True, default=str))
 
@@ -47,5 +47,7 @@ def test_details_sections_expand():
     cap = build_capabilities(details=["sample_calls", "argument_aliases"])
     assert "sample_calls" in cap
     assert "argument_aliases" in cap
-    # expanding details changes the hash vs. base
-    assert cap["capabilities_version"] != capabilities_version()
+    # capabilities_version is the stable warm-cache key (M1): it stays equal to
+    # base/_meta across details; the per-descriptor content hash differs instead.
+    assert cap["capabilities_version"] == capabilities_version()
+    assert cap["descriptor_hash"] != capabilities_version()
