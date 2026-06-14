@@ -2,6 +2,7 @@
 
 import logging
 import re
+import smtplib
 
 import pytest
 from fastapi.testclient import TestClient
@@ -169,3 +170,48 @@ def test_weak_password_rejected(auth_client):
         "/api/v1/auth/register", json={"email": "b@ex.com", "password": "short"}
     )
     assert r.status_code == 422
+
+
+def test_register_survives_email_send_failure(auth_client, monkeypatch, caplog):
+    """A delivery failure must not turn registration into a 500.
+
+    Account endpoints are non-enumerating: a refused recipient / SMTP outage
+    must be logged for operators but still return the generic 201, otherwise the
+    SPA shows a hard error and the verification email is never (re)sendable.
+    """
+    import api.auth.router as auth_router
+
+    class _BoomSender:
+        async def send(self, *, to, subject, text):
+            raise smtplib.SMTPRecipientsRefused({to: (550, b"blocked (MBL-R)")})
+
+    monkeypatch.setattr(auth_router, "get_email_sender", lambda: _BoomSender())
+    caplog.set_level(logging.ERROR, logger="api.auth.router")
+
+    r = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "boom@ex.com", "password": _PASSWORD},
+    )
+    assert r.status_code == 201
+    # Operators still get a signal in the logs.
+    assert "boom@ex.com" in caplog.text
+
+
+def test_password_reset_survives_email_send_failure(auth_client, monkeypatch, caplog):
+    """Password-reset request must also tolerate a delivery failure."""
+    import api.auth.router as auth_router
+
+    _register(auth_client, caplog)
+
+    class _BoomSender:
+        async def send(self, *, to, subject, text):
+            raise smtplib.SMTPException("smtp down")
+
+    monkeypatch.setattr(auth_router, "get_email_sender", lambda: _BoomSender())
+    caplog.set_level(logging.ERROR, logger="api.auth.router")
+
+    r = auth_client.post(
+        "/api/v1/auth/password-reset/request", json={"email": "a@ex.com"}
+    )
+    assert r.status_code == 200
+    assert "a@ex.com" in caplog.text
