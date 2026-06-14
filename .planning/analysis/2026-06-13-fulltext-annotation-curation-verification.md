@@ -98,6 +98,35 @@ failure originates from app-wide Vuetify tooltips, not the annotation tooltip).
 The feature's own accessibility (button-role spans, `aria-haspopup`, keyboard
 activation, focus-returning menu/dialog) is sound and adds no new violations.
 
+## Post-merge debugging round (2026-06-14, real clinical note)
+
+Tested with a 1847-char patient vignette (with the PII guard active -> "Continue
+with local redaction"). Two further root-cause bugs found via Playwright +
+inspecting the live annotation model, fixed TDD:
+
+1. **Manual annotation of a whitespace-padded selection did not highlight.**
+   A mouse drag commonly grabs a trailing/leading space. `onNoteMouseUp` trimmed
+   the selection text but left the offsets covering the whitespace, so the stored
+   span text no longer equalled `noteText.slice(start,end)` and the render guard
+   dropped it. Evidence: selecting "uneventful pregnancy " stored
+   `{start:172,end:193,text:"uneventful pregnancy"}` with `slice="uneventful
+   pregnancy "` (mismatch) and no highlight; a clean "does not walk" selection
+   highlighted fine. Fix: `trimSelection(raw,start,end)` trims text AND offsets
+   together. Verified: same selection now stores `{172,192}`, matches, highlights.
+
+2. **LLM terms with empty `text_attributions` were listed but never highlighted.**
+   5 terms had `spans:[]` (Severe intellectual disability, Prolonged QT interval,
+   Hypotonia, Motor delay, Delayed cranial suture closure). Fix: when a term
+   resolves no span, `seedAnnotationsFromResponse` falls back to locating the
+   term's own label verbatim in the note. Verified: the 3 whose label appears in
+   the note (severe intellectual disability, prolonged QT interval, hypotonia)
+   are now auto-highlighted (note marks 22 -> 25); the 2 inferred ones (motor
+   delay, delayed cranial suture closure) remain list-only and are now reliably
+   addable via manual annotation.
+
+Gates after fixes: 303 Vitest tests pass; lint/format/i18n/build green; no
+console errors. Docker rebuilt and both fixes confirmed live.
+
 ## Follow-ups (out of scope)
 
 - App-wide Vuetify `v-tooltip` accessible-name fix (`aria-tooltip-name`).
