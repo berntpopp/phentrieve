@@ -14,10 +14,12 @@ def _reject_blank_text(value: str) -> str:
     return value
 
 
-# Deterministic extraction defaults to the single best match per phrase. The
-# whole top-N candidate list (mutually exclusive HPO siblings) is not co-occurring
-# evidence; raise num_results_per_chunk to surface sibling candidates (defect H1).
-DEFAULT_EXTRACT_NUM_RESULTS = 1
+# Q1: with k=1 a diluted/long chunk's top-1 can be a parent term, so the exact
+# child never enters the evidence map and a *wrong* top term is returned. Default
+# to 3 so sibling/child candidates are considered; aggregation still prunes by
+# chunk_retrieval_threshold and ranks/de-dups, so the payload grows only modestly
+# while precision improves (defect H1).
+DEFAULT_EXTRACT_NUM_RESULTS = 3
 
 ResponseMode = Annotated[
     Literal["minimal", "compact", "standard", "full"],

@@ -28,6 +28,15 @@ def test_real_text_accepted():
     assert _TA.validate_python("progressive ataxia") == "progressive ataxia"
 
 
+def test_extract_default_num_results_per_chunk_is_three():
+    """Q1: the deterministic extract default of 1 could drop the exact child term
+    when a diluted chunk's top-1 is a parent. Default to 3 so sibling/child
+    candidates enter the evidence map; aggregation still prunes by threshold."""
+    from api.mcp.tools._common import DEFAULT_EXTRACT_NUM_RESULTS
+
+    assert DEFAULT_EXTRACT_NUM_RESULTS == 3
+
+
 def test_value_error_envelope_uses_message_not_param_names():
     """B3: build_arg_error_envelope must emit the value-level message for a
     value error on a *valid* argument, without allowed_values=param-names."""
