@@ -276,14 +276,20 @@ def _hpo_label_map(ids: list[str]) -> dict[str, str]:
 
 
 def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[str, Any]:
-    """Explain a similarity score: MICA, per-term depth + IC proxy, subsumer path."""
+    """Explain a similarity score: MICA, per-term depth + normalized depth, path.
+
+    D2: the per-term structural proxy is depth/max_depth -- normalized ontology
+    depth, NOT corpus information content. It is labelled ``normalized_depth`` so
+    consumers do not mistake it for a Resnik-style IC (the bundle ships no corpus
+    to compute true IC).
+    """
     lca, lca_depth = find_lowest_common_ancestor(t1, t2)
     max_depth = max(depths.values()) if depths else 0
     d1 = depths.get(t1)
     d2 = depths.get(t2)
     labels = _hpo_label_map([t1, t2, lca] if lca else [t1, t2])
 
-    def _ic(depth: float | None) -> float | None:
+    def _normalized_depth(depth: float | None) -> float | None:
         if depth is None or not max_depth:
             return None
         return round(depth / max_depth, 4)
@@ -303,13 +309,13 @@ def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[st
             "hpo_id": t1,
             "label": labels.get(t1),
             "depth": d1,
-            "ic_proxy": _ic(d1),
+            "normalized_depth": _normalized_depth(d1),
         },
         "term2": {
             "hpo_id": t2,
             "label": labels.get(t2),
             "depth": d2,
-            "ic_proxy": _ic(d2),
+            "normalized_depth": _normalized_depth(d2),
         },
         "path_length": path_length,
     }

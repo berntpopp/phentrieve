@@ -30,7 +30,8 @@ def register_similarity_tools(mcp: FastMCP) -> None:
         description=(
             "Compute ontology semantic similarity between two HPO ids for research "
             "similarity analysis. response_mode=standard|full adds lca_details "
-            "(MICA id+label, per-term depth + information-content proxy, and the "
+            "(MICA id+label, per-term depth + normalized_depth -- a structural "
+            "proxy (depth/max_depth), not corpus information content -- and the "
             "subsumer path length) so the score is explainable; minimal/compact "
             "return the lean score only. A missing id returns a not_found error "
             "envelope. Research use only; not for clinical use. Signature: "

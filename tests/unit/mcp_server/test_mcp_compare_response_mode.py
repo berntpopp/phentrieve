@@ -47,5 +47,8 @@ def test_standard_payload_explains_the_score():
     assert "lca_depth" in details
     assert details["term1"]["depth"] is not None
     assert details["term2"]["depth"] is not None
-    assert details["term1"]["ic_proxy"] is not None
+    # D2: the structural proxy is honestly labelled normalized_depth, not ic_proxy
+    # (it is depth/max_depth, not corpus information content).
+    assert details["term1"]["normalized_depth"] is not None
+    assert "ic_proxy" not in details["term1"]
     assert "path_length" in details
