@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import AfterValidator, Field
+
+
+def _reject_blank_text(value: str) -> str:
+    """Reject empty / whitespace-only text (defect L1: garbage-in was accepted)."""
+    if not value or not value.strip():
+        raise ValueError("text must not be empty or whitespace-only.")
+    return value
+
 
 # Deterministic extraction defaults to the single best match per phrase. The
 # whole top-N candidate list (mutually exclusive HPO siblings) is not co-occurring
@@ -39,10 +47,12 @@ ChunkStrategy = Annotated[
 TextArg = Annotated[
     str,
     Field(
+        min_length=1,
         description="Clinical or biomedical research text. Do not submit "
         "identifiable patient data to public demo instances.",
         examples=["progressive muscle weakness and seizures"],
     ),
+    AfterValidator(_reject_blank_text),
 ]
 
 LanguageArg = Annotated[
