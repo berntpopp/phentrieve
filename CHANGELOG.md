@@ -16,7 +16,29 @@ together:
 
 ---
 
-## [Unreleased]
+## [Unreleased] (CLI 0.23.1 / API 0.15.0 / Frontend 0.14.0)
+
+### Added
+
+- **Optional user accounts with a higher full-text quota.** Visitors can
+  register and sign in via an unobtrusive top-right account control; a
+  **verified** account raises the daily full-text (LLM) quota from the anonymous
+  IP limit (`PHENTRIEVE_LLM_DAILY_LIMIT`) to a per-account limit
+  (`PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT`, default 20). The feature is off by
+  default (`PHENTRIEVE_AUTH_ENABLED=false`) and adds no new Python runtime
+  dependencies.
+  - Backend (`api/auth/`): SQLite user store, bcrypt hashing, JWT access token +
+    rotating HttpOnly refresh cookie with double-submit CSRF, console/SMTP email
+    backends, email verification (verify-to-upgrade), password reset, and login
+    lockout. New `GET /api/v1/text/quota` reports the caller's tier without
+    consuming quota.
+  - Frontend: Pinia auth store (token in memory, silent refresh on load), axios
+    refresh-retry interceptor, `AccountButton` + `AuthDialog`, email-link
+    verify/reset views, and `auth.*` i18n for all five locales.
+  - Optional pre-verified dev account seeded at startup via
+    `PHENTRIEVE_AUTH_SEED_EMAIL` / `PHENTRIEVE_AUTH_SEED_PASSWORD`.
+  - Docs: `deployment/authentication.md` (setup, tier table, SMTP for
+    production) plus quota notes in the API and frontend usage guides.
 
 ## [0.23.1] — 2026-06-14 (CLI 0.23.1 / API 0.14.0 / Frontend 0.13.1)
 
