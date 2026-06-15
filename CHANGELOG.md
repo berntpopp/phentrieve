@@ -16,6 +16,37 @@ together:
 
 ---
 
+## [Unreleased] (Frontend 0.16.0)
+
+Frontend-only changes; CLI/API unchanged at 0.24.0 / 0.16.0. These roll into the
+next unified release.
+
+### Added
+
+- **Footer shortcuts for the API and MCP.** The bottom bar gains two
+  developer-integration icons in the lower right, set off by a divider and
+  placed just before the live status indicator: `mdi-api` opens the live OpenAPI
+  (Swagger UI) docs in a new tab (URL derived from the configured API base), and
+  `mdi-robot-outline` links to the new MCP connection page. Tooltips are
+  localized via `app.footer.apiTooltip` / `app.footer.mcpTooltip` across all five
+  locales.
+- **"Connect an AI Agent (MCP)" page (`/connect`).** A new view
+  (`views/McpAccess.vue`) explaining how to attach Phentrieve's public,
+  read-only MCP server to Claude (web & desktop), ChatGPT developer mode, Claude
+  Code, and Codex CLI, with copy-to-clipboard recipes, the read-only tool
+  inventory, and the research-use disclaimer. The server address is derived from
+  `window.location.origin` (overridable via `VITE_MCP_URL`). The route is
+  `/connect`, not `/mcp`, because the MCP transport is proxied same-origin under
+  the `/mcp` prefix. Includes a "Back to home" affordance mirroring the FAQ view.
+
+### Fixed
+
+- **Anonymous `/auth/refresh` 403 console error.** Silent session restore on app
+  start now skips the refresh request entirely when the readable `csrf_token`
+  cookie is absent (no session to restore, and the request would 403 anyway),
+  eliminating a guaranteed console error on every anonymous visit. A stale
+  persisted user is cleared without a network call.
+
 ## [0.24.0] — 2026-06-14 (CLI 0.24.0 / API 0.16.0 / Frontend 0.15.0)
 
 MCP server stabilization: every quality dimension lifted toward >9/10, traced to
