@@ -47,6 +47,8 @@
       "githubTooltip": "Quellcode auf GitHub anzeigen",
       "docsTooltip": "Projektdokumentation ansehen",
       "licenseTooltip": "Projektlizenz ansehen",
+      "apiTooltip": "API-Dokumentation öffnen (OpenAPI)",
+      "mcpTooltip": "KI-Agent verbinden (MCP)",
       "homeTooltip": "Zur Startseite"
     }
   },

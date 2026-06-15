@@ -47,6 +47,8 @@
       "githubTooltip": "Bekijk broncode op GitHub",
       "docsTooltip": "Bekijk projectdocumentatie",
       "licenseTooltip": "Bekijk projectlicentie",
+      "apiTooltip": "API-documentatie openen (OpenAPI)",
+      "mcpTooltip": "Een AI-agent verbinden (MCP)",
       "homeTooltip": "Ga naar startpagina"
     }
   },

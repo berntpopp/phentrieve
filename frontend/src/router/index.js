@@ -16,6 +16,14 @@ const router = createRouter({
       component: () => import('../views/FAQView.vue'),
     },
     {
+      // Informational page on connecting AI agents over MCP. It lives at
+      // `/connect` (not `/mcp`) because the MCP transport itself is served
+      // same-origin under `/mcp` by the Nginx proxy.
+      path: '/connect',
+      name: 'connect',
+      component: () => import('../views/McpAccess.vue'),
+    },
+    {
       path: '/verify',
       name: 'verify-email',
       component: () => import('../views/VerifyEmailView.vue'),

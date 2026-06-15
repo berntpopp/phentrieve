@@ -185,6 +185,46 @@
             />
           </template>
         </v-tooltip>
+        <!-- Developer integrations: live OpenAPI docs + AI agent (MCP) guide -->
+        <v-divider vertical class="mx-1" />
+        <v-tooltip
+          location="top"
+          :text="$t('app.footer.apiTooltip')"
+          :content-props="{ 'aria-label': $t('app.footer.apiTooltip') }"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-api"
+              size="small"
+              :href="apiDocsUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="text"
+              color="primary"
+              aria-label="Open the API documentation (OpenAPI)"
+              class="mr-1"
+            />
+          </template>
+        </v-tooltip>
+        <v-tooltip
+          location="top"
+          :text="$t('app.footer.mcpTooltip')"
+          :content-props="{ 'aria-label': $t('app.footer.mcpTooltip') }"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon="mdi-robot-outline"
+              size="small"
+              :to="{ name: 'connect' }"
+              variant="text"
+              color="primary"
+              aria-label="Connect an AI agent via MCP"
+              class="mr-1"
+            />
+          </template>
+        </v-tooltip>
         <v-tooltip
           location="top"
           text="Version & API Status"
@@ -303,6 +343,7 @@ import { logService } from './services/logService';
 import { tutorialService } from './services/tutorialService';
 import { useApiHealth } from './services/api-health';
 import { GITHUB_REPO_URL } from './constants/urls';
+import { API_URL } from './services/apiClient';
 import { useVersionCheck } from './composables/useVersionCheck';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
@@ -369,6 +410,11 @@ export default {
     responseTime() {
       const { responseTime } = useApiHealth();
       return responseTime.value;
+    },
+    // Live OpenAPI (Swagger UI) docs URL, derived from the configured API base
+    // (relative '/api/v1' in deployed setups, absolute in local dev).
+    apiDocsUrl() {
+      return `${API_URL.replace(/\/+$/, '')}/docs`;
     },
   },
   created() {

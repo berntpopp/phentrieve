@@ -47,7 +47,9 @@
       "copyright": "© {year} Phentrieve",
       "githubTooltip": "View source code on GitHub",
       "docsTooltip": "View project documentation",
-      "licenseTooltip": "View project license"
+      "licenseTooltip": "View project license",
+      "apiTooltip": "Open the API documentation (OpenAPI)",
+      "mcpTooltip": "Connect an AI agent (MCP)"
     }
   },
   "disclaimerDialog": {

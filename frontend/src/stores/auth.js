@@ -14,7 +14,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 import AuthService from '../services/AuthService';
-import apiClient from '../services/apiClient';
+import apiClient, { readCookie } from '../services/apiClient';
 import { setAccessToken, clearAccessToken } from '../services/authToken';
 import { logService } from '../services/logService';
 
@@ -90,9 +90,21 @@ export const useAuthStore = defineStore(
     /**
      * Silent session restore on app start: try to refresh using the HttpOnly
      * cookie. On failure, clear any stale persisted user. Never throws.
+     *
+     * The refresh exchanges the HttpOnly refresh cookie for a fresh access
+     * token, but it also requires the readable `csrf_token` cookie (double-submit
+     * CSRF) that the server sets alongside it. When that cookie is absent there
+     * is no session to restore, so we skip the network call entirely — this
+     * avoids a guaranteed 403 (and its console noise) on every anonymous visit.
+     * Any stale persisted user is cleared in that case.
      */
     async function initialize() {
       if (initialized.value) return;
+      if (!readCookie('csrf_token')) {
+        if (user.value) clearSession();
+        initialized.value = true;
+        return;
+      }
       try {
         const data = await AuthService.refresh();
         setSession(data.access_token, data.user);
