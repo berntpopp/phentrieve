@@ -13,6 +13,37 @@ if TYPE_CHECKING:
     from phentrieve.evaluation.ontology_matching import DocumentOntologyMetrics
 
 
+PROBAND_PRESENT: frozenset[str] = frozenset({"PRESENT"})
+
+
+def normalize_for_scoring(
+    results: list[ExtractionResult], mode: str = "strict"
+) -> list[ExtractionResult]:
+    """Project scored results for a given scoring mode.
+
+    ``strict`` (default) is the identity -- byte-identical scored inputs, so committed
+    benchmark metrics are reproduced exactly. ``present-only`` filters both predicted and
+    gold to PRESENT terms and re-stamps, collapsing the assertion-strict tuple comparison
+    into an id-level proband-present comparison (fair against polarity-blind gold).
+    """
+    if mode == "strict":
+        return results
+    if mode != "present-only":
+        raise ValueError(
+            f"Unknown scoring mode: {mode!r} (expected strict|present-only)"
+        )
+    return [
+        ExtractionResult(
+            doc_id=r.doc_id,
+            predicted=[
+                (hid, "PRESENT") for hid, a in r.predicted if a in PROBAND_PRESENT
+            ],
+            gold=[(hid, "PRESENT") for hid, a in r.gold if a in PROBAND_PRESENT],
+        )
+        for r in results
+    ]
+
+
 @dataclass
 class CorpusMetrics:
     """Corpus-level evaluation metrics."""
