@@ -591,7 +591,20 @@ class TwoPhaseLLMPipeline:
                     "start_char": getattr(phenotype, "start_char", None),
                     "end_char": getattr(phenotype, "end_char", None),
                     "experiencer": getattr(phenotype, "experiencer", None),
-                    "assertion": getattr(phenotype, "assertion", None),
+                    # Thread the model's assertion ONLY when the model actually
+                    # emitted it. The wire schema declares assertion with a
+                    # default of "present", so a category-only finding (e.g.
+                    # Normal/Suspected) always has a non-None attribute; keying
+                    # on ``model_fields_set`` distinguishes a model-emitted
+                    # assertion from the schema default. When unset we thread
+                    # None so the downstream category fallback re-engages and a
+                    # ruled-out/uncertain finding does not silently flip to
+                    # present (B1).
+                    "assertion": (
+                        phenotype.assertion
+                        if "assertion" in phenotype.model_fields_set
+                        else None
+                    ),
                 }
             )
         debug_payload: dict[str, Any] | None = None

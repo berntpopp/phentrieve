@@ -751,7 +751,12 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "start_char": None,
             "end_char": None,
             "experiencer": "proband",
-            "assertion": "present",
+            # The model omitted assertion, so the parsed shape threads None
+            # (unset) not the schema default "present". Note the raw
+            # structured_response above still dumps the defaulted "present"
+            # because it is the full model dump; only the parsed item keys on
+            # model_fields_set (B1).
+            "assertion": None,
         }
     ]
 
@@ -3130,7 +3135,9 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "phrase": "motor issues",
             "category": "abnormal",
             "experiencer": "proband",
-            "assertion": "present",
+            # Model omitted assertion for this item -> unset (None); category
+            # fallback still resolves the final term to present (B1).
+            "assertion": None,
             "candidates": [
                 {
                     "id": "HP:0001251",
@@ -3786,7 +3793,9 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 "phrase": "frequent falls",
                 "category": "abnormal",
                 "experiencer": "proband",
-                "assertion": "present",
+                # Model omitted assertion -> unset (None); category fallback
+                # resolves the final term to present downstream (B1).
+                "assertion": None,
                 "candidates": [
                     {
                         "id": "HP:0002355",
@@ -3806,7 +3815,8 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
                 "experiencer": "proband",
-                "assertion": "present",
+                # Model omitted assertion -> unset (None) (B1).
+                "assertion": None,
                 "candidates": [
                     {
                         "id": "HP:0002360",
@@ -3829,7 +3839,8 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
         "phrase": "balance issues",
         "category": "abnormal",
         "experiencer": "proband",
-        "assertion": "present",
+        # Model omitted assertion -> unset (None) (B1).
+        "assertion": None,
         "candidates": [
             {
                 "id": "HP:0001251",

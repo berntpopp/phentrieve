@@ -119,7 +119,10 @@ def test_phase1_extraction_shape_preserves_grounding_fields() -> None:
             "start_char": 8,
             "end_char": 26,
             "experiencer": "proband",
-            "assertion": "present",
+            # The wire payload omitted assertion, so the parsed shape threads
+            # None (unset) rather than the schema default "present"; the category
+            # fallback re-engages downstream (B1).
+            "assertion": None,
         }
     ]
     assert usage == {"prompt_tokens": 20, "completion_tokens": 7, "total_tokens": 27}
