@@ -2,6 +2,7 @@
 
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -170,7 +171,9 @@ def _regressions(
     for key in _GATED_METRICS:
         base = float(baseline.get(key, 0.0))
         cand = float(candidate.get(key, 0.0))
-        if cand < base - tolerance:
+        # Fail closed: a NaN on either side makes the comparison meaningless, so
+        # treat it as a regression rather than let it slip through (NaN < x is False).
+        if math.isnan(base) or math.isnan(cand) or cand < base - tolerance:
             out.append(f"{key}: {cand:.4f} < baseline {base:.4f} (tol {tolerance})")
     return out
 
@@ -184,6 +187,16 @@ def assert_no_regression(
     """Exit non-zero if the candidate regresses any gated metric vs the baseline."""
     base = json.loads(baseline.read_text())
     cand = json.loads(candidate.read_text())
+    # Refuse to gate across scoring modes (e.g. present-only candidate vs strict
+    # baseline): the metrics are not comparable and the gate would be meaningless.
+    base_mode = base.get("scoring_mode")
+    cand_mode = cand.get("scoring_mode")
+    if base_mode is not None and cand_mode is not None and base_mode != cand_mode:
+        console.print(
+            f"[red]SCORING MODE MISMATCH[/red] baseline={base_mode!r} "
+            f"candidate={cand_mode!r} -- regenerate one in the other's mode."
+        )
+        raise typer.Exit(2)
     regressions = _regressions(base, cand, tolerance)
     if regressions:
         console.print("[red]REGRESSION[/red]")

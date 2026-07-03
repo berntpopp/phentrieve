@@ -691,6 +691,7 @@ class ExtractionBenchmark:
                             "ontology_aware_metrics": config.ontology_aware_metrics,
                             "ontology_semantic_floor": config.ontology_semantic_floor,
                             "ontology_similarity_formula": config.ontology_similarity_formula,
+                            "scoring_mode": config.scoring_mode,
                         },
                         "dataset": dataset_metadata,
                     },
@@ -718,6 +719,7 @@ class ExtractionBenchmark:
         # Save summary metrics
         summary = {
             "model": self.model_name,
+            "scoring_mode": config.scoring_mode,
             "micro_f1": metrics.micro.get("f1", 0),
             "micro_precision": metrics.micro.get("precision", 0),
             "micro_recall": metrics.micro.get("recall", 0),
