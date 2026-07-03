@@ -59,6 +59,7 @@ class ExtractionConfig:
     min_confidence_for_aggregated: float = DEFAULT_MIN_CONFIDENCE_AGGREGATED
     top_term_per_chunk: bool = False
     averaging: str = "micro"
+    scoring_mode: str = "strict"  # strict | present-only
     include_assertions: bool = True
     relaxed_matching: bool = False
     bootstrap_ci: bool = True
@@ -293,6 +294,10 @@ class ExtractionBenchmark:
                         extraction_details=extraction_details,
                     )
                 )
+
+        from phentrieve.evaluation.extraction_metrics import normalize_for_scoring
+
+        results = normalize_for_scoring(results, config.scoring_mode)
 
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=config.averaging)

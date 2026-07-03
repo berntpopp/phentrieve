@@ -39,6 +39,12 @@ def run(
     averaging: str = typer.Option(
         "micro", help="Averaging strategy: micro, macro, or weighted"
     ),
+    scoring_mode: str = typer.Option(
+        "strict",
+        "--scoring-mode",
+        help="Scoring mode: strict (assertion-aware, default) or present-only "
+        "(proband-present id-level; for legacy polarity-blind corpora).",
+    ),
     include_assertions: bool = typer.Option(
         True, help="Include assertion detection in evaluation"
     ),
@@ -117,6 +123,7 @@ def run(
         model_name=model,
         language=language,
         averaging=averaging,
+        scoring_mode=scoring_mode,
         include_assertions=include_assertions,
         relaxed_matching=relaxed_matching,
         bootstrap_ci=bootstrap_ci,
