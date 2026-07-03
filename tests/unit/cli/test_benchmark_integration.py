@@ -19,10 +19,11 @@ pytestmark = [pytest.mark.integration, pytest.mark.benchmark]
 def _retrieval_dataset_files(benchmark_data_dir: Path) -> list[Path]:
     """Return the retrieval-benchmark dataset files under ``benchmark_data_dir``.
 
-    Excludes index/readme files and extraction-benchmark golden fixtures. The
-    latter use the document-payload format (a top-level ``documents`` key) and
-    are loaded by the extraction ``data_loader``, not ``load_test_data``, so
-    they must not be scored against the retrieval-dataset contract here.
+    Retrieval datasets are a top-level JSON *list* of cases (what
+    ``load_test_data`` consumes). Other JSON living in the same tree -- the
+    extraction-benchmark document-payload fixtures (dict with ``documents``) and
+    the committed metric-summary baselines (dict with ``micro_f1`` ...) -- are
+    dicts consumed by different machinery, so they are skipped here.
     """
     files: list[Path] = []
     for f in sorted(benchmark_data_dir.rglob("*.json")):
@@ -32,9 +33,8 @@ def _retrieval_dataset_files(benchmark_data_dir: Path) -> list[Path]:
             payload = json.loads(f.read_text(encoding="utf-8"))
         except (ValueError, OSError):
             continue
-        if isinstance(payload, dict) and "documents" in payload:
-            continue  # extraction-benchmark document-payload fixture
-        files.append(f)
+        if isinstance(payload, list):
+            files.append(f)
     return files
 
 
