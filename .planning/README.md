@@ -29,6 +29,16 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-06-14-mcp-stabilization-verification.md` - 2026-07-03 deep
+  re-verification confirming all 14 findings from the MCP stabilization pass
+  (PR #291) shipped and are test-pinned in v0.24.0/0.24.1, correcting two
+  earlier docs that had mis-recorded LLM-1/LLM-2 as deferred. Records the
+  residual behaviors (advisory assertion axis, family-history silently
+  dropped, qualifier metadata-only) that seeded the active
+  `extraction-contract-v2` effort, and the `archived/pre-convention/`
+  quarantine. Spec in `specs/2026-06-14-mcp-stabilization-design.md`, plan in
+  `completed/2026-06-14-mcp-stabilization-plan.md`, source analysis in
+  `analysis/2026-06-14-mcp-stabilization-plan.md`.
 - `analysis/2026-06-14-phentrieve-mcp-assessment-remediation-verification.md` -
   before/after verification of the assessment remediation pass that closed the
   defects PR #288 left open or punted: D1 span-level negation (over-negation
@@ -66,10 +76,20 @@ execution context.
 
 ## Current Active Work
 
-- None.
+- `active/2026-07-03-extraction-contract-v2-phase-0-1-plan.md` - Phase 0
+  (planning-tree cleanup, this pass) + Phase 1 (extraction benchmark
+  safeguard: `normalize_for_scoring` present-only projection, seeded bootstrap
+  CIs, `--scoring-mode` CLI option, assertion-labelled golden fixture, and an
+  `assert-no-regression` gate) of the LLM extraction contract v2 effort. See
+  `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md`.
 
 ## Current Specs
 
+- `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md` -
+  design for making the LLM-emitted `assertion`/`experiencer` axes
+  load-bearing, surfacing family-history findings and "X without Y" excluded
+  terms across MCP/REST/Vue, and a present-only no-regression benchmark gate
+  so the behavior changes ship safely. Tracks issue #289.
 - `specs/2026-06-13-fulltext-annotation-curation-design.md` - design for
   interactive curation of full-text annotations (change term via re-query,
   remove, annotate a fresh selection, revert) with persisted auto/manual
@@ -82,6 +102,11 @@ execution context.
 
 ## Archived And Superseded
 
+- `archived/pre-convention/` - 64 pre-convention ALL-CAPS `.md` files quarantined
+  from the top level of `completed/` and `archived/` (basenames not matching the
+  `YYYY-MM-DD-*` convention), plus the stray `unified-output-format/` directory.
+  Moved by rule with `git mv` (history preserved, no deletions); see
+  `archived/pre-convention/MANIFEST.md` for the full generated list.
 - `archived/2026-05-22-hpo-data-release-runbook.md` - historical HPO data
   release runbook superseded by the published release and updated release docs.
 - `archived/2026-04-30-codebase-health-review.md` - stale current-state review
@@ -95,6 +120,11 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-06-14-mcp-stabilization-plan.md` - completed execution
+  record for the MCP stabilization pass (PR #291, shipped v0.24.0): all 14
+  findings (B1, B2, LLM-1, LLM-2, R1, R2, B3, D4, D3, D1, D2, R3, Q1, B4) as
+  one atomic, test-first commit each. See the design spec and verification
+  analysis.
 - `completed/2026-06-13-mcp-gen3-modernization-plan.md` - completed
   implementation plan for the FastMCP v3 MCP modernization (Family B envelope,
   response_mode, capabilities versioning, diagnostics + phenopacket + chunk_text
