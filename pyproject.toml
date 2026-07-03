@@ -61,7 +61,7 @@ phentrieve = "phentrieve.cli:app"
 [project.optional-dependencies]
 # API server dependencies (for running the FastAPI backend)
 api = [
-    "fastapi>=0.115.0",
+    "fastapi>=0.137.2",  # Security: first release CI-validated against starlette>=1.3.1
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
 ]
@@ -71,10 +71,10 @@ api = [
 mcp = [
     "mcp[cli]>=1.27.0,<2.0.0",
     "fastmcp>=3.2.0,<4.0.0",
-    "fastapi>=0.115.0",
+    "fastapi>=0.137.2",  # Security: first release CI-validated against starlette>=1.3.1
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
-    "pydantic-settings>=2.0.0",
+    "pydantic-settings>=2.14.2",  # Security: NestedSecretsSettingsSource symlink escape (GHSA)
 ]
 llm = [
     "google-genai>=1.22.0,<3.0.0",
@@ -102,6 +102,13 @@ constraint-dependencies = [
     # ChromaDB 1.5.9 works with PostHog <6 telemetry APIs; pin to avoid the
     # PostHog 6+ capture() signature break.
     "posthog>=2.4.0,<6.0.0",
+    # Security floors for transitive dependencies (Dependabot advisories).
+    # Pulled in via fastapi/starlette/mcp/uvicorn; pinned to the first patched
+    # release so a future `uv lock` cannot regress below the fix.
+    "starlette>=1.3.1",          # form() DoS + SSRF / auth-bypass fixes
+    "cryptography>=48.0.1",      # vulnerable OpenSSL bundled in wheels
+    "msgpack>=1.2.1",            # out-of-bounds read / crash on Unpacker reuse
+    "python-multipart>=0.0.31",  # querystring DoS + parameter smuggling fixes
 ]
 
 [tool.setuptools]
