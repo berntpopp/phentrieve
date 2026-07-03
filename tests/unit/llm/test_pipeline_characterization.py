@@ -118,6 +118,8 @@ def test_phase1_extraction_shape_preserves_grounding_fields() -> None:
             "evidence_text": "recurrent seizures since infancy",
             "start_char": 8,
             "end_char": 26,
+            "experiencer": "proband",
+            "assertion": "present",
         }
     ]
     assert usage == {"prompt_tokens": 20, "completion_tokens": 7, "total_tokens": 27}

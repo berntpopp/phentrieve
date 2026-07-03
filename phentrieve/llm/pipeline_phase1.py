@@ -214,6 +214,7 @@ def phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
         item.get("evidence_text"),
         item.get("start_char"),
         item.get("end_char"),
+        str(item.get("experiencer") or "").strip().lower(),
     )
 
 

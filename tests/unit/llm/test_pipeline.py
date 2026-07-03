@@ -743,6 +743,8 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "evidence_text": "recurrent seizures",
             "start_char": None,
             "end_char": None,
+            "experiencer": "proband",
+            "assertion": "present",
         }
     ]
 
@@ -2084,6 +2086,8 @@ def test_mapping_prompt_uses_compact_grounded_context() -> None:
         ],
         "phrase": "frequent falls",
         "category": "abnormal",
+        "experiencer": None,
+        "assertion": None,
         "candidates": [
             {
                 "id": "HP:0002355",
@@ -2165,6 +2169,8 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                 "neighbor_chunk_texts": ["The child walks independently."],
                 "phrase": "frequent falls",
                 "category": "abnormal",
+                "experiencer": None,
+                "assertion": None,
                 "candidates": [
                     {
                         "id": "HP:0002355",
@@ -2179,6 +2185,8 @@ def test_batch_mapping_prompt_compacts_items_into_payload_list() -> None:
                 "neighbor_chunk_texts": [],
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
+                "experiencer": None,
+                "assertion": None,
                 "candidates": [
                     {
                         "id": "HP:0002360",
@@ -2245,6 +2253,8 @@ def test_mapping_prompt_keeps_shared_english_template_for_german_language() -> N
         "neighbor_chunk_texts": [],
         "phrase": "deutliche skoliose",
         "category": "abnormal",
+        "experiencer": None,
+        "assertion": None,
         "candidates": [
             {"id": "HP:0002650", "term": "Skoliose", "retrieval_score": 0.89},
         ],
@@ -3107,6 +3117,8 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "neighbor_chunk_texts": ["Intermittent motor issues are also suspected."],
             "phrase": "motor issues",
             "category": "abnormal",
+            "experiencer": "proband",
+            "assertion": "present",
             "candidates": [
                 {
                     "id": "HP:0001251",
@@ -3128,6 +3140,8 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "neighbor_chunk_texts": ["The patient has motor issues."],
             "phrase": "motor issues",
             "category": "suspected",
+            "experiencer": "proband",
+            "assertion": "present",
             "candidates": [
                 {
                     "id": "HP:0033894",
@@ -3755,6 +3769,8 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 "neighbor_chunk_texts": ["Sleep disturbances were reported."],
                 "phrase": "frequent falls",
                 "category": "abnormal",
+                "experiencer": "proband",
+                "assertion": "present",
                 "candidates": [
                     {
                         "id": "HP:0002355",
@@ -3773,6 +3789,8 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
                 ],
                 "phrase": "sleep disturbances",
                 "category": "abnormal",
+                "experiencer": "proband",
+                "assertion": "present",
                 "candidates": [
                     {
                         "id": "HP:0002360",
@@ -3794,6 +3812,8 @@ def test_two_phase_pipeline_uses_single_mapping_prompt_for_final_one_item_slice(
         "neighbor_chunk_texts": ["Sleep disturbances were reported."],
         "phrase": "balance issues",
         "category": "abnormal",
+        "experiencer": "proband",
+        "assertion": "present",
         "candidates": [
             {
                 "id": "HP:0001251",

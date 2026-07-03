@@ -106,6 +106,8 @@ def compact_mapping_item(
         "neighbor_chunk_texts": neighbor_texts,
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],
+        "experiencer": item.get("experiencer"),
+        "assertion": item.get("assertion"),
         "candidates": [],
     }
     for candidate in item["candidates"]:

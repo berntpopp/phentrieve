@@ -590,6 +590,8 @@ class TwoPhaseLLMPipeline:
                     "evidence_text": getattr(phenotype, "evidence_text", None),
                     "start_char": getattr(phenotype, "start_char", None),
                     "end_char": getattr(phenotype, "end_char", None),
+                    "experiencer": getattr(phenotype, "experiencer", None),
+                    "assertion": getattr(phenotype, "assertion", None),
                 }
             )
         debug_payload: dict[str, Any] | None = None
@@ -1234,6 +1236,8 @@ class TwoPhaseLLMPipeline:
             shared_result["negated_qualifier"] = item.get("negated_qualifier")
             shared_result["start_char"] = item.get("start_char")
             shared_result["end_char"] = item.get("end_char")
+            shared_result["experiencer"] = item.get("experiencer")
+            shared_result["assertion"] = item.get("assertion")
             shared_result["grounded_context"] = self._build_grounded_context(
                 item=item,
                 grounded_chunks=grounded_chunks,
