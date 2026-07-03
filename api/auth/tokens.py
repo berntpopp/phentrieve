@@ -31,13 +31,14 @@ def create_access_token(*, user_id: int, secret: str, ttl_seconds: int) -> str:
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(seconds=ttl_seconds)).timestamp()),
     }
-    return jwt.encode(payload, secret, algorithm=_ALGO)
+    token: str = jwt.encode(payload, secret, algorithm=_ALGO)
+    return token
 
 
 def decode_access_token(token: str, *, secret: str) -> dict[str, Any]:
     """Decode and validate an access JWT, raising ``TokenError`` on failure."""
     try:
-        claims = jwt.decode(token, secret, algorithms=[_ALGO])
+        claims: dict[str, Any] = jwt.decode(token, secret, algorithms=[_ALGO])
     except jwt.PyJWTError as exc:
         raise TokenError(str(exc)) from exc
     if claims.get("typ") != "access":
