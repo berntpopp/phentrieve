@@ -19,10 +19,13 @@ The retriever and the phase-2 LLM mapping provider are stubbed, so no model /
 Gemini / network is required (mirrors the existing tests/unit/llm pipeline
 stubs).
 
-``resolved_family`` is exposed for Task 6 via the pipeline test hook
-``TwoPhaseLLMPipeline._last_resolved_family`` (a list[LLMPhenotype] set at the
-end of ``run()``). Task 7 will attach the same local list to the result object;
-until then this hook keeps Task 6 independently testable.
+``resolved_family`` is exposed on the result object as
+``LLMExtractionResult.family_history_findings`` (a list[LLMPhenotype] attached
+at the end of ``run()``). Task 6 originally exposed it via a temporary
+instance attribute (``TwoPhaseLLMPipeline._last_resolved_family``); Task 7
+attached it to the result and removed that instance-attribute test seam (a
+reviewer flagged it as a concurrency race if the pipeline instance were
+reused across concurrent ``run()`` calls).
 """
 
 from __future__ import annotations
@@ -153,9 +156,9 @@ def test_family_experiencer_phrase_resolved_off_the_proband_set() -> None:
     """A phrase the model tags ``experiencer="family_history"`` (even with a
     legacy ``Abnormal`` category that WOULD otherwise pass the actionable
     filter) is partitioned to the family path: it resolves into
-    ``_last_resolved_family`` and is ABSENT from the proband ``result.terms``.
-    The proband phrase still resolves into ``result.terms``. The family mapping
-    LLM pass is counted in the meta accounting.
+    ``result.family_history_findings`` and is ABSENT from the proband
+    ``result.terms``. The proband phrase still resolves into ``result.terms``.
+    The family mapping LLM pass is counted in the meta accounting.
     """
     provider = FakeProvider(
         responses=[
@@ -226,8 +229,8 @@ def test_family_experiencer_phrase_resolved_off_the_proband_set() -> None:
     assert "HP:0001250" in proband_ids
 
     # Family phrase resolved via the SAME retrieval + mapping path, into the
-    # separate resolved_family list (exposed via the Task-6 test hook).
-    resolved_family = pipeline._last_resolved_family
+    # separate ``family_history_findings`` list on the result.
+    resolved_family = result.family_history_findings
     family_ids = {term.term_id for term in resolved_family}
     assert family_ids == {"HP:0001657"}
     family_term = next(term for term in resolved_family if term.term_id == "HP:0001657")
@@ -295,10 +298,10 @@ def test_category_only_family_finding_is_partitioned_and_resolved() -> None:
     assert proband_ids == {"HP:0001250"}
     assert "HP:0000365" not in proband_ids
 
-    family_ids = {term.term_id for term in pipeline._last_resolved_family}
+    family_ids = {term.term_id for term in result.family_history_findings}
     assert family_ids == {"HP:0000365"}
     family_term = next(
-        term for term in pipeline._last_resolved_family if term.term_id == "HP:0000365"
+        term for term in result.family_history_findings if term.term_id == "HP:0000365"
     )
     assert family_term.experiencer == "family_history"
     assert family_term.category == "family_history"
@@ -358,8 +361,9 @@ def test_resolve_items_helper_resolves_family_items_directly() -> None:
 
 
 def test_proband_only_run_leaves_family_hook_empty() -> None:
-    """No-regression guard: a proband-only run produces an EMPTY resolved_family
-    hook and adds no family_* meta keys, so proband meta stays byte-identical."""
+    """No-regression guard: a proband-only run produces an EMPTY
+    ``family_history_findings`` list and adds no family_* meta keys, so proband
+    meta stays byte-identical."""
     provider = FakeProvider(
         responses=[
             {
@@ -392,7 +396,7 @@ def test_proband_only_run_leaves_family_hook_empty() -> None:
     )
 
     assert {term.term_id for term in result.terms} == {"HP:0001250"}
-    assert pipeline._last_resolved_family == []
+    assert result.family_history_findings == []
     assert not any(
         key.startswith("family_") for key in result.meta.phase_request_counts
     )

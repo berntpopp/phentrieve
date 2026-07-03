@@ -193,9 +193,6 @@ class TwoPhaseLLMPipeline:
         self.max_unique_candidates = max_unique_candidates
         self.local_match_threshold = local_match_threshold
         self.mapping_batch_size = max(int(mapping_batch_size), 1)
-        # Task-6 test hook for the B2 family-resolution set; Task 7 will attach
-        # ``resolved_family`` to the result object and this can be removed.
-        self._last_resolved_family: list[LLMPhenotype] = []
 
     def run(
         self,
@@ -560,12 +557,9 @@ class TwoPhaseLLMPipeline:
                 family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
             trace["family"] = family_trace
 
-        # Task-6 test hook: Task 7 attaches ``resolved_family`` to the result
-        # object; until then this exposes the family set for independent tests.
-        self._last_resolved_family = resolved_family
-
         return LLMExtractionResult(
             terms=self._deduplicate_terms(resolved_terms),
+            family_history_findings=self._deduplicate_terms(resolved_family),
             meta=LLMMeta(
                 llm_provider=config.provider,
                 llm_model=config.model,

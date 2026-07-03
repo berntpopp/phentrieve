@@ -3400,10 +3400,11 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5
     assert result.meta.phase_counts["actionable_phrases"] == 3
-    # B2: the family finding is resolved into resolved_family (NOT result.terms)
-    # with a family_history experiencer, and never leaks into the proband set.
+    # B2: the family finding is resolved into result.family_history_findings
+    # (NOT result.terms) with a family_history experiencer, and never leaks
+    # into the proband set.
     assert "HP:0000365" not in {term.term_id for term in result.terms}
-    resolved_family = pipeline._last_resolved_family
+    resolved_family = result.family_history_findings
     assert {term.term_id for term in resolved_family} == {"HP:0000365"}
     assert resolved_family[0].experiencer == "family_history"
     assert resolved_family[0].category == "family_history"

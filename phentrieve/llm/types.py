@@ -198,6 +198,7 @@ class LLMPipelineConfig(BaseModel):
 
 class LLMExtractionResult(BaseModel):
     terms: list[LLMPhenotype] = Field(default_factory=list)
+    family_history_findings: list[LLMPhenotype] = Field(default_factory=list)
     meta: LLMMeta
 
 
