@@ -63,6 +63,7 @@ class ExtractionConfig:
     relaxed_matching: bool = False
     bootstrap_ci: bool = True
     bootstrap_samples: int = 1000
+    bootstrap_seed: int | None = 12345
     dataset: str = "all"
     detailed_output: bool = False
     ontology_aware_metrics: bool = False
@@ -312,7 +313,9 @@ class ExtractionBenchmark:
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
             ci = evaluator.bootstrap_confidence_intervals(
-                results, n_bootstrap=config.bootstrap_samples
+                results,
+                n_bootstrap=config.bootstrap_samples,
+                seed=config.bootstrap_seed,
             )
             metrics = CorpusMetrics(
                 micro=metrics.micro,
