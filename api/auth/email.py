@@ -36,7 +36,8 @@ __all__ = [
 
 
 class EmailSender(Protocol):
-    async def send(self, *, to: str, subject: str, text: str) -> None: ...
+    async def send(self, *, to: str, subject: str, text: str) -> None:
+        """Deliver an email message to ``to`` (implemented by each backend)."""
 
 
 class ConsoleEmailSender:

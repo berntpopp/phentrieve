@@ -16,10 +16,13 @@ together:
 
 ---
 
-## [Unreleased] (Frontend 0.16.0)
+## [Unreleased]
 
-Frontend-only changes; CLI/API unchanged at 0.24.0 / 0.16.0. These roll into the
-next unified release.
+## [0.24.1] — 2026-07-03 (CLI 0.24.1 / API 0.16.1 / Frontend 0.16.1)
+
+Dependency, security, and code-scanning maintenance — consolidates the open
+Dependabot updates and clears the outstanding GitHub security surface. Also ships
+the previously-unreleased frontend footer / MCP-connect work under one unified tag.
 
 ### Added
 
@@ -39,13 +42,38 @@ next unified release.
   `/connect`, not `/mcp`, because the MCP transport is proxied same-origin under
   the `/mcp` prefix. Includes a "Back to home" affordance mirroring the FAQ view.
 
+### Changed
+
+- **Dependencies — security & maintenance (consolidates Dependabot #294, #296,
+  #297, #299, #300).** Python: `starlette` 1.0.1→1.3.1, `cryptography`
+  46.0.7→49.0.0, `msgpack` 1.1.2→1.2.1, `python-multipart` 0.0.29→0.0.32,
+  `pydantic-settings` 2.13.1→2.14.2, with the `fastapi` floor raised to 0.137.2
+  and enforced security floors added under `[tool.uv]`. Frontend: refreshed to
+  latest minor/patch (`vue` 3.5.39, `vite` 8.1.3, `form-data` 4.0.6, plus the
+  12-package group; `npm audit` clean). CI: `actions/checkout`→v7,
+  `actions/cache`→v6. `typer` is held at `<0.26.0` — 0.26 vendors Click and
+  breaks the lazy CLI groups, so Dependabot #298 was declined.
+
 ### Fixed
 
+- **CodeQL code-scanning findings.** Resolved `py/empty-except`
+  (`api/mcp/service_adapters.py`), `py/import-and-import-from` (`api/main.py`),
+  and `py/ineffectual-statement` (`api/auth/email.py`).
 - **Anonymous `/auth/refresh` 403 console error.** Silent session restore on app
   start now skips the refresh request entirely when the readable `csrf_token`
   cookie is absent (no session to restore, and the request would 403 anyway),
   eliminating a guaranteed console error on every anonymous visit. A stale
   persisted user is cleared without a network call.
+
+### Security
+
+- Cleared 12 Dependabot advisories: `starlette`, `cryptography`, `msgpack`,
+  `python-multipart`, `pydantic-settings` (pip) and `form-data` (npm). The
+  `chromadb` CRITICAL advisory (GHSA-f4j7-r4q5-qw2c) is documented as **not
+  applicable** — the pre-auth code injection is in Chroma's HTTP server mode
+  only, phentrieve uses an embedded `PersistentClient` exclusively, and no
+  patched release exists above 1.5.9 (which is also pinned for data-bundle
+  compatibility).
 
 ## [0.24.0] — 2026-06-14 (CLI 0.24.0 / API 0.16.0 / Frontend 0.15.0)
 

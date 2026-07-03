@@ -10,13 +10,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import api.config as api_config
-from api.config import (
-    ALLOWED_ORIGINS,
-    CORS_ALLOW_CREDENTIALS,
-    CORS_ALLOW_HEADERS,
-    CORS_ALLOW_METHODS,
-    LOG_LEVEL,
-)
 from api.dependencies import (
     cleanup_model_caches,
     get_dense_retriever_dependency,
@@ -41,7 +34,7 @@ from phentrieve.config import (
 
 logger = logging.getLogger(__name__)
 # Configure logging for the API using config value
-logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
+logging.basicConfig(level=getattr(logging, api_config.LOG_LEVEL, logging.INFO))
 
 # Single source of truth for the versioned API path prefix (used by the routers
 # and to place the interactive docs/OpenAPI behind the reverse proxy).
@@ -168,10 +161,10 @@ def create_app() -> FastAPI:
 
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=ALLOWED_ORIGINS,
-        allow_credentials=CORS_ALLOW_CREDENTIALS,
-        allow_methods=CORS_ALLOW_METHODS,
-        allow_headers=CORS_ALLOW_HEADERS,
+        allow_origins=api_config.ALLOWED_ORIGINS,
+        allow_credentials=api_config.CORS_ALLOW_CREDENTIALS,
+        allow_methods=api_config.CORS_ALLOW_METHODS,
+        allow_headers=api_config.CORS_ALLOW_HEADERS,
     )
 
     def _status_slug(status_code: int, fallback: str = "http_error") -> str:
