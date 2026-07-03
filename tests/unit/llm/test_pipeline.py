@@ -124,6 +124,36 @@ class FakeToolExecutor:
         return list(self.batch_results)
 
 
+class PhraseKeyedToolExecutor:
+    """Retriever stub that returns candidates keyed by the queried phrase.
+
+    Unlike ``FakeToolExecutor`` (which returns the same positional batch for
+    every call), this aligns candidates to the phrase, so a proband retrieval
+    batch and a separate B2 family retrieval batch each receive their OWN
+    candidate sets instead of a mis-aligned shared list.
+    """
+
+    def __init__(self, candidates_by_phrase):
+        self.candidates_by_phrase = candidates_by_phrase
+        self.queries = []
+
+    def query_batch_hpo_terms(self, *, phrases, language, n_results):
+        self.queries.append(
+            {
+                "phrases": list(phrases),
+                "language": language,
+                "n_results": n_results,
+            }
+        )
+        return [
+            {
+                "phrase": phrase,
+                "candidates": list(self.candidates_by_phrase.get(phrase, [])),
+            }
+            for phrase in phrases
+        ]
+
+
 class FailingStructuredProvider(LLMProvider):
     def complete(self, messages):
         raise RuntimeError("unused")
@@ -3235,64 +3265,39 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
             }
         ]
     )
-    tool_executor = FakeToolExecutor(
-        batch_results=[
-            {
-                "phrase": "recurrent seizures",
-                "original_sentence": "Patient had recurrent seizures since infancy.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0001250",
-                        "term_name": "Recurrent seizures",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "nystagmus",
-                "original_sentence": "Nystagmus was suspected clinically.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000639",
-                        "term_name": "Nystagmus",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "skeletal anomalies",
-                "original_sentence": "No skeletal anomalies were noted.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000924",
-                        "term_name": "skeletal anomalies",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "hearing loss",
-                "original_sentence": "The mother has hearing loss.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000365",
-                        "term_name": "hearing loss",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "onset in infancy",
-                "original_sentence": "Symptoms began in infancy.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0003593",
-                        "term_name": "onset in infancy",
-                        "score": 0.95,
-                    }
-                ],
-            },
-        ]
+    # Phrase-keyed retrieval so the proband batch and the separate B2 family
+    # batch ("hearing loss") each receive their OWN candidates. Every candidate
+    # is an exact term match so all phrases resolve locally (no mapping call).
+    tool_executor = PhraseKeyedToolExecutor(
+        {
+            "recurrent seizures": [
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Recurrent seizures",
+                    "score": 0.95,
+                }
+            ],
+            "nystagmus": [
+                {"hpo_id": "HP:0000639", "term_name": "Nystagmus", "score": 0.95}
+            ],
+            "skeletal anomalies": [
+                {
+                    "hpo_id": "HP:0000924",
+                    "term_name": "skeletal anomalies",
+                    "score": 0.95,
+                }
+            ],
+            "hearing loss": [
+                {"hpo_id": "HP:0000365", "term_name": "hearing loss", "score": 0.95}
+            ],
+            "onset in infancy": [
+                {
+                    "hpo_id": "HP:0003593",
+                    "term_name": "onset in infancy",
+                    "score": 0.95,
+                }
+            ],
+        }
     )
     pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
 
@@ -3319,8 +3324,11 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
-    # LLM-1: family-history mentions ("hearing loss" belongs to the mother) are
-    # no longer actionable, so they are never retrieved as proband candidates.
+    # LLM-1 + B2: family-history mentions ("hearing loss" belongs to the mother)
+    # are partitioned off the proband set, so they are NEVER retrieved as proband
+    # candidates -- the first (proband) retrieval batch excludes them. Under B2
+    # they ARE resolved, through a SEPARATE family retrieval batch, into the
+    # ``resolved_family`` set (never ``result.terms``).
     assert tool_executor.queries == [
         {
             "phrases": [
@@ -3330,7 +3338,12 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
             ],
             "language": "en",
             "n_results": 50,
-        }
+        },
+        {
+            "phrases": ["hearing loss"],
+            "language": "en",
+            "n_results": 50,
+        },
     ]
     assert result.terms == [
         LLMPhenotype(
@@ -3387,6 +3400,15 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5
     assert result.meta.phase_counts["actionable_phrases"] == 3
+    # B2: the family finding is resolved into resolved_family (NOT result.terms)
+    # with a family_history experiencer, and never leaks into the proband set.
+    assert "HP:0000365" not in {term.term_id for term in result.terms}
+    resolved_family = pipeline._last_resolved_family
+    assert {term.term_id for term in resolved_family} == {"HP:0000365"}
+    assert resolved_family[0].experiencer == "family_history"
+    assert resolved_family[0].category == "family_history"
+    assert result.meta.phase_counts["family_phrases"] == 1
+    assert result.meta.phase_counts["family_local_matches"] == 1
 
 
 def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):

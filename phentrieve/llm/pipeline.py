@@ -4,7 +4,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from phentrieve.llm.config import (
@@ -139,6 +139,39 @@ from phentrieve.llm.utils import token_sort_similarity
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class _ItemResolutionOutcome:
+    """Result of running one item set through the shared phase-2 resolution
+    path (retrieve -> route -> map).
+
+    The helper is PURE: it computes every accounting delta and returns it here
+    instead of mutating ``run()`` state, so ``run()`` can merge the proband
+    outcome into the canonical meta keys (byte-identical to the pre-B2 inline
+    block) and the family outcome into a distinct ``family_*`` / ``trace["family"]``
+    namespace without either overwriting the other (B2)."""
+
+    resolved: list[LLMPhenotype]
+    phase2a_seconds: float
+    phase2b_local_seconds: float
+    phase2b_llm_seconds: float
+    candidate_sets: int
+    routing_counts: dict[str, int]
+    unresolved_phrases: int
+    local_matches: int
+    local_fallbacks: int
+    llm_mapped_phrases: int
+    prompt_tokens: int
+    completion_tokens: int
+    token_usage: dict[str, int]
+    request_count: int
+    phase2b_llm_requests: int
+    mapping_prompt_version: str | None
+    phase2a_trace: dict[str, Any]
+    phase2b_local_trace: dict[str, Any]
+    phase2b_llm_trace: dict[str, Any] | None
+    mapping_ran: bool
+
+
 class TwoPhaseLLMPipeline:
     def __init__(
         self,
@@ -160,6 +193,9 @@ class TwoPhaseLLMPipeline:
         self.max_unique_candidates = max_unique_candidates
         self.local_match_threshold = local_match_threshold
         self.mapping_batch_size = max(int(mapping_batch_size), 1)
+        # Task-6 test hook for the B2 family-resolution set; Task 7 will attach
+        # ``resolved_family`` to the result object and this can be removed.
+        self._last_resolved_family: list[LLMPhenotype] = []
 
     def run(
         self,
@@ -337,9 +373,39 @@ class TwoPhaseLLMPipeline:
         extracted = self._deduplicate_phase1_extractions(
             _expand_combined_phase1_extractions(extracted)
         )
+        # B2 partition: split family-experiencer phrases out of the proband set
+        # BEFORE the actionable filter. A single-pass split by predicate avoids
+        # the value-equality pitfall of ``item not in family_items`` when two
+        # items share identical content. A finding is family when the model
+        # tagged its experiencer as family_history OR it carries the legacy
+        # Family_History category (the latter clause catches a category-only
+        # finding whose experiencer defaulted to proband, and the former catches
+        # a family finding wearing a legacy Abnormal category that would
+        # otherwise leak into the proband path).
+        family_items: list[dict[str, Any]] = []
+        proband_items: list[dict[str, Any]] = []
+        for item in extracted:
+            is_family = (
+                str(item.get("experiencer") or "").strip().lower() == "family_history"
+                or _normalize_category(str(item.get("category", "")))
+                == "family_history"
+            )
+            if is_family:
+                # A family finding may have been expressed only via the legacy
+                # Family_History category while its experiencer axis stayed at
+                # the B1 schema default ("proband", threaded unconditionally).
+                # Since the partition has classified it as family, normalize the
+                # experiencer on a copy so the resolved phenotype is internally
+                # consistent (experiencer=family_history) rather than a
+                # self-contradictory family term tagged proband.
+                family_item = dict(item)
+                family_item["experiencer"] = "family_history"
+                family_items.append(family_item)
+            else:
+                proband_items.append(item)
         actionable = [
             item
-            for item in extracted
+            for item in proband_items
             if _normalize_category(str(item["category"])) in ACTIONABLE_CATEGORIES
         ]
 
@@ -396,102 +462,107 @@ class TwoPhaseLLMPipeline:
                 phase_counts["phase1_failed_groups"] > 0
                 and phase_counts["phase1_completed_groups"] > 0
             )
+        resolved_family: list[LLMPhenotype] = []
         if actionable:
-            logger.debug(
-                "Phase 2A: retrieving candidates for actionable_phrases=%d",
-                len(actionable),
-            )
-            phase2a_start = time.perf_counter()
-            phrase_candidates = self._retrieve_candidates(
-                actionable=actionable,
+            # Proband path: merge the outcome into the CANONICAL meta keys so the
+            # result stays byte-identical to the pre-B2 inline block. The gated
+            # ``mapping_ran`` branch mirrors the old ``if unresolved:`` guard
+            # exactly (phase2b_llm_* keys otherwise keep their initialized zeros).
+            proband_outcome = self._resolve_items(
+                actionable,
                 grounded_chunks=grounded_chunks,
                 language=language,
             )
-            phase_timings["phase2a_seconds"] = round(
-                time.perf_counter() - phase2a_start, 6
+            resolved_terms.extend(proband_outcome.resolved)
+            phase_timings["phase2a_seconds"] = proband_outcome.phase2a_seconds
+            phase_timings["phase2b_local_seconds"] = (
+                proband_outcome.phase2b_local_seconds
             )
-            phase_counts["candidate_sets"] = len(phrase_candidates)
-            trace["phase2a"] = build_phase2a_trace(phrase_candidates)
-            logger.debug(
-                "Phase 2A complete: candidate_sets=%d",
-                len(phrase_candidates),
-            )
-            logger.debug(
-                "Phase 2B-local: resolving local matches for candidate_sets=%d",
-                len(phrase_candidates),
-            )
-            phase2b_local_start = time.perf_counter()
-            (
-                locally_resolved,
-                unresolved,
-                routing_counts,
-            ) = self._route_phase2_candidates(
-                phrase_candidates=phrase_candidates,
-                language=language,
-            )
-            phase_timings["phase2b_local_seconds"] = round(
-                time.perf_counter() - phase2b_local_start, 6
-            )
-            phase_counts["unresolved_phrases"] = len(unresolved)
-            phase_counts["local_matches"] = len(locally_resolved)
-            phase_counts.update(routing_counts)
-            resolved_terms.extend(locally_resolved)
-            trace["phase2b_local"] = build_phase2b_local_trace(
-                locally_resolved=locally_resolved,
-                unresolved=unresolved,
-            )
-            logger.debug(
-                "Phase 2B-local complete: matched=%d unresolved=%d",
-                len(locally_resolved),
-                len(unresolved),
-            )
-            if unresolved:
-                mapping_prompt = (
-                    get_batch_mapping_prompt(language)
-                    if len(unresolved) > 1 and self.mapping_batch_size > 1
-                    else get_mapping_prompt(language)
+            phase_counts["candidate_sets"] = proband_outcome.candidate_sets
+            phase_counts["unresolved_phrases"] = proband_outcome.unresolved_phrases
+            phase_counts["local_matches"] = proband_outcome.local_matches
+            phase_counts.update(proband_outcome.routing_counts)
+            trace["phase2a"] = proband_outcome.phase2a_trace
+            trace["phase2b_local"] = proband_outcome.phase2b_local_trace
+            if proband_outcome.mapping_ran:
+                phase_timings["phase2b_llm_seconds"] = (
+                    proband_outcome.phase2b_llm_seconds
                 )
-                prompt_version = f"{prompt_version}+{mapping_prompt.version}"
-                logger.debug(
-                    "Phase 2B-llm: mapping unresolved phrases=%d",
-                    len(unresolved),
+                prompt_version = (
+                    f"{prompt_version}+{proband_outcome.mapping_prompt_version}"
                 )
-                phase2b_llm_start = time.perf_counter()
-                (
-                    mapped_terms,
-                    mapping_prompt_tokens,
-                    mapping_completion_tokens,
-                    mapping_token_usage,
-                    mapping_request_count,
-                    local_fallback_count,
-                    mapping_trace,
-                ) = self._resolve_with_mapping_prompt(
-                    unresolved=unresolved,
-                    mapping_prompt=mapping_prompt,
-                )
-                phase_timings["phase2b_llm_seconds"] = round(
-                    time.perf_counter() - phase2b_llm_start, 6
-                )
-                prompt_tokens_total += mapping_prompt_tokens
-                completion_tokens_total += mapping_completion_tokens
+                prompt_tokens_total += proband_outcome.prompt_tokens
+                completion_tokens_total += proband_outcome.completion_tokens
                 token_usage_total = _sum_usage_dicts(
                     token_usage_total,
-                    mapping_token_usage,
+                    proband_outcome.token_usage,
                 )
-                request_count_total += mapping_request_count
-                phase_request_counts["phase2b_llm_requests"] = mapping_request_count
-                resolved_terms.extend(mapped_terms)
-                phase_counts["local_fallbacks"] = local_fallback_count
-                phase_counts["llm_mapped_phrases"] = (
-                    len(mapped_terms) - local_fallback_count
+                request_count_total += proband_outcome.request_count
+                phase_request_counts["phase2b_llm_requests"] = (
+                    proband_outcome.phase2b_llm_requests
                 )
-                trace["phase2b_llm"] = {"resolved": mapping_trace}
-                logger.debug(
-                    "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
-                    phase_counts["llm_mapped_phrases"],
-                    mapping_prompt_tokens,
-                    mapping_completion_tokens,
+                phase_counts["local_fallbacks"] = proband_outcome.local_fallbacks
+                phase_counts["llm_mapped_phrases"] = proband_outcome.llm_mapped_phrases
+                trace["phase2b_llm"] = proband_outcome.phase2b_llm_trace
+
+        if family_items:
+            # Family path: resolve ALL family phrases through the SAME retrieve
+            # -> route -> map path (they are phenotype phrases regardless of the
+            # legacy category; they must NOT be re-dropped via
+            # ACTIONABLE_CATEGORIES). Family results land in the separate
+            # ``resolved_family`` list (Task 7 attaches it to the result); they
+            # are NEVER merged into ``resolved_terms``. Family cost ALWAYS folds
+            # into the shared token/request accumulators so a family LLM pass is
+            # not underreported; family-specific breakdowns use a ``family_*`` /
+            # ``trace["family"]`` namespace so proband metrics are never
+            # overwritten.
+            family_outcome = self._resolve_items(
+                family_items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            resolved_family.extend(family_outcome.resolved)
+            prompt_tokens_total += family_outcome.prompt_tokens
+            completion_tokens_total += family_outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(
+                token_usage_total,
+                family_outcome.token_usage,
+            )
+            request_count_total += family_outcome.request_count
+            phase_timings["family_phase2a_seconds"] = family_outcome.phase2a_seconds
+            phase_timings["family_phase2b_local_seconds"] = (
+                family_outcome.phase2b_local_seconds
+            )
+            phase_counts["family_phrases"] = len(family_items)
+            phase_counts["family_candidate_sets"] = family_outcome.candidate_sets
+            phase_counts["family_unresolved_phrases"] = (
+                family_outcome.unresolved_phrases
+            )
+            phase_counts["family_local_matches"] = family_outcome.local_matches
+            phase_counts["family_resolved_phrases"] = len(family_outcome.resolved)
+            for key, value in family_outcome.routing_counts.items():
+                phase_counts[f"family_{key}"] = value
+            family_trace: dict[str, Any] = {
+                "phase2a": family_outcome.phase2a_trace,
+                "phase2b_local": family_outcome.phase2b_local_trace,
+            }
+            if family_outcome.mapping_ran:
+                phase_timings["family_phase2b_llm_seconds"] = (
+                    family_outcome.phase2b_llm_seconds
                 )
+                phase_request_counts["family_phase2b_llm_requests"] = (
+                    family_outcome.phase2b_llm_requests
+                )
+                phase_counts["family_local_fallbacks"] = family_outcome.local_fallbacks
+                phase_counts["family_llm_mapped_phrases"] = (
+                    family_outcome.llm_mapped_phrases
+                )
+                family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
+            trace["family"] = family_trace
+
+        # Task-6 test hook: Task 7 attaches ``resolved_family`` to the result
+        # object; until then this exposes the family set for independent tests.
+        self._last_resolved_family = resolved_family
 
         return LLMExtractionResult(
             terms=self._deduplicate_terms(resolved_terms),
@@ -514,6 +585,141 @@ class TwoPhaseLLMPipeline:
                 phase_request_counts=phase_request_counts,
                 trace=trace,
             ),
+        )
+
+    def _resolve_items(
+        self,
+        items: list[dict[str, Any]],
+        *,
+        grounded_chunks: list[dict[str, Any]],
+        language: str,
+    ) -> _ItemResolutionOutcome:
+        """Run one item set through the shared phase-2 path (retrieve -> route
+        -> map) and return every accounting delta as a pure outcome.
+
+        Extracted verbatim from the pre-B2 inline ``run()`` resolution block so
+        both the proband set and the family set flow through IDENTICAL retrieval,
+        routing, and mapping logic. The method never mutates ``run()`` state;
+        ``run()`` merges the returned deltas into the appropriate meta
+        namespace."""
+        resolved: list[LLMPhenotype] = []
+        logger.debug(
+            "Phase 2A: retrieving candidates for actionable_phrases=%d",
+            len(items),
+        )
+        phase2a_start = time.perf_counter()
+        phrase_candidates = self._retrieve_candidates(
+            actionable=items,
+            grounded_chunks=grounded_chunks,
+            language=language,
+        )
+        phase2a_seconds = round(time.perf_counter() - phase2a_start, 6)
+        candidate_sets = len(phrase_candidates)
+        phase2a_trace = build_phase2a_trace(phrase_candidates)
+        logger.debug(
+            "Phase 2A complete: candidate_sets=%d",
+            len(phrase_candidates),
+        )
+        logger.debug(
+            "Phase 2B-local: resolving local matches for candidate_sets=%d",
+            len(phrase_candidates),
+        )
+        phase2b_local_start = time.perf_counter()
+        (
+            locally_resolved,
+            unresolved,
+            routing_counts,
+        ) = self._route_phase2_candidates(
+            phrase_candidates=phrase_candidates,
+            language=language,
+        )
+        phase2b_local_seconds = round(time.perf_counter() - phase2b_local_start, 6)
+        resolved.extend(locally_resolved)
+        phase2b_local_trace = build_phase2b_local_trace(
+            locally_resolved=locally_resolved,
+            unresolved=unresolved,
+        )
+        logger.debug(
+            "Phase 2B-local complete: matched=%d unresolved=%d",
+            len(locally_resolved),
+            len(unresolved),
+        )
+
+        phase2b_llm_seconds = 0.0
+        prompt_tokens = 0
+        completion_tokens = 0
+        token_usage: dict[str, int] = {}
+        request_count = 0
+        phase2b_llm_requests = 0
+        local_fallbacks = 0
+        llm_mapped_phrases = 0
+        mapping_prompt_version: str | None = None
+        phase2b_llm_trace: dict[str, Any] | None = None
+        mapping_ran = False
+
+        if unresolved:
+            mapping_ran = True
+            mapping_prompt = (
+                get_batch_mapping_prompt(language)
+                if len(unresolved) > 1 and self.mapping_batch_size > 1
+                else get_mapping_prompt(language)
+            )
+            mapping_prompt_version = mapping_prompt.version
+            logger.debug(
+                "Phase 2B-llm: mapping unresolved phrases=%d",
+                len(unresolved),
+            )
+            phase2b_llm_start = time.perf_counter()
+            (
+                mapped_terms,
+                mapping_prompt_tokens,
+                mapping_completion_tokens,
+                mapping_token_usage,
+                mapping_request_count,
+                local_fallback_count,
+                mapping_trace,
+            ) = self._resolve_with_mapping_prompt(
+                unresolved=unresolved,
+                mapping_prompt=mapping_prompt,
+            )
+            phase2b_llm_seconds = round(time.perf_counter() - phase2b_llm_start, 6)
+            prompt_tokens = mapping_prompt_tokens
+            completion_tokens = mapping_completion_tokens
+            token_usage = mapping_token_usage
+            request_count = mapping_request_count
+            phase2b_llm_requests = mapping_request_count
+            resolved.extend(mapped_terms)
+            local_fallbacks = local_fallback_count
+            llm_mapped_phrases = len(mapped_terms) - local_fallback_count
+            phase2b_llm_trace = {"resolved": mapping_trace}
+            logger.debug(
+                "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
+                llm_mapped_phrases,
+                mapping_prompt_tokens,
+                mapping_completion_tokens,
+            )
+
+        return _ItemResolutionOutcome(
+            resolved=resolved,
+            phase2a_seconds=phase2a_seconds,
+            phase2b_local_seconds=phase2b_local_seconds,
+            phase2b_llm_seconds=phase2b_llm_seconds,
+            candidate_sets=candidate_sets,
+            routing_counts=routing_counts,
+            unresolved_phrases=len(unresolved),
+            local_matches=len(locally_resolved),
+            local_fallbacks=local_fallbacks,
+            llm_mapped_phrases=llm_mapped_phrases,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            token_usage=token_usage,
+            request_count=request_count,
+            phase2b_llm_requests=phase2b_llm_requests,
+            mapping_prompt_version=mapping_prompt_version,
+            phase2a_trace=phase2a_trace,
+            phase2b_local_trace=phase2b_local_trace,
+            phase2b_llm_trace=phase2b_llm_trace,
+            mapping_ran=mapping_ran,
         )
 
     def warmup(self, *, language: str) -> None:
