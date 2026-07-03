@@ -203,6 +203,66 @@ def test_export_excludes_family_history_phenotypes():
     assert "HP:0000365" not in feature_ids
 
 
+def test_coerce_drops_family_history_experiencer_even_with_present_assertion():
+    """B2: experiencer, not assertion, now carries family-ness (B1 split them
+    into separate axes). A family-history mention must be dropped even when
+    its assertion is a normal, non-family value like 'present'."""
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest,
+        {
+            "hpo_id": "HP:0000365",
+            "label": "Hearing loss",
+            "assertion": "present",
+            "experiencer": "family_history",
+        },
+        0,
+    )
+    assert out is None
+
+
+def test_coerce_keeps_proband_experiencer():
+    """Regression: a proband term (explicit or absent experiencer) is not
+    dropped by the experiencer-based guard."""
+    for experiencer in ("proband", None):
+        p = {"hpo_id": "HP:0001250", "label": "Seizure", "assertion": "present"}
+        if experiencer is not None:
+            p["experiencer"] = experiencer
+        out = _coerce_export_phenotype(ExportPhenotypeRequest, p, 0)
+        assert out is not None
+        assert out.hpo_id == "HP:0001250"
+
+
+def test_export_excludes_family_history_via_experiencer_mixed_proband():
+    """Integration-style: export_phenopacket_service over a mixed
+    proband+family input must yield zero family terms in the subject's
+    PhenotypicFeatures, keyed off experiencer rather than assertion."""
+    out = export_phenopacket_service(
+        case_id="CASE-3",
+        case_label="demo",
+        input_text=None,
+        subject=None,
+        phenotypes=[
+            {
+                "hpo_id": "HP:0001250",
+                "label": "Seizure",
+                "assertion": "present",
+                "experiencer": "proband",
+            },
+            {
+                "hpo_id": "HP:0000365",
+                "label": "Hearing loss",
+                "assertion": "present",
+                "experiencer": "family_history",
+            },
+        ],
+        include_annotation_sidecar=False,
+    )
+    packet = json.loads(out["phenopacket_json"])
+    feature_ids = {feat["type"]["id"] for feat in packet.get("phenotypicFeatures", [])}
+    assert "HP:0001250" in feature_ids
+    assert "HP:0000365" not in feature_ids
+
+
 def test_absent_assertion_exports_as_negated_not_affirmed():
     out = _coerce_export_phenotype(
         ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "absent"}, 0

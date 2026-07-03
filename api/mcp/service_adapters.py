@@ -381,7 +381,14 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     assertion = p.get("assertion") or p.get("status") or p.get("assertion_status")
     # A family-history mention is not a proband phenotypic feature; never fold it
     # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
-    if str(assertion).strip().lower() == "family_history":
+    # Experiencer (not assertion) now carries family-ness (B1 split them into
+    # separate axes); key the guard on experiencer, keeping the legacy
+    # assertion check as a defensive OR fallback (B2).
+    experiencer = str(p.get("experiencer") or "").strip().lower()
+    if (
+        experiencer == "family_history"
+        or str(assertion).strip().lower() == "family_history"
+    ):
         return None
     confidence = p.get("score")
     if confidence is None:
