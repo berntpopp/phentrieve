@@ -13,6 +13,37 @@ if TYPE_CHECKING:
     from phentrieve.evaluation.ontology_matching import DocumentOntologyMetrics
 
 
+PROBAND_PRESENT: frozenset[str] = frozenset({"PRESENT"})
+
+
+def normalize_for_scoring(
+    results: list[ExtractionResult], mode: str = "strict"
+) -> list[ExtractionResult]:
+    """Project scored results for a given scoring mode.
+
+    ``strict`` (default) is the identity -- byte-identical scored inputs, so committed
+    benchmark metrics are reproduced exactly. ``present-only`` filters both predicted and
+    gold to PRESENT terms and re-stamps, collapsing the assertion-strict tuple comparison
+    into an id-level proband-present comparison (fair against polarity-blind gold).
+    """
+    if mode == "strict":
+        return results
+    if mode != "present-only":
+        raise ValueError(
+            f"Unknown scoring mode: {mode!r} (expected strict|present-only)"
+        )
+    return [
+        ExtractionResult(
+            doc_id=r.doc_id,
+            predicted=[
+                (hid, "PRESENT") for hid, a in r.predicted if a in PROBAND_PRESENT
+            ],
+            gold=[(hid, "PRESENT") for hid, a in r.gold if a in PROBAND_PRESENT],
+        )
+        for r in results
+    ]
+
+
 @dataclass
 class CorpusMetrics:
     """Corpus-level evaluation metrics."""
@@ -421,6 +452,7 @@ class CorpusExtractionMetrics:
         results: list[ExtractionResult],
         n_bootstrap: int = 1000,
         confidence_level: float = 0.95,
+        seed: int | None = None,
     ) -> dict[str, tuple[float, float]]:
         """Calculate bootstrap confidence intervals for metrics."""
         if not results:
@@ -437,9 +469,10 @@ class CorpusExtractionMetrics:
             "f1": [],
         }
 
+        rng = random.Random(seed)  # noqa: S311
         for _ in range(n_bootstrap):
             # Sample with replacement (S311: crypto not needed for statistical sampling)
-            sample = random.choices(results, k=len(results))  # noqa: S311
+            sample = rng.choices(results, k=len(results))  # noqa: S311
             metrics = self._compute_micro(sample)
 
             bootstrap_metrics["precision"].append(metrics["precision"])

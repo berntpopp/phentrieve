@@ -59,10 +59,12 @@ class ExtractionConfig:
     min_confidence_for_aggregated: float = DEFAULT_MIN_CONFIDENCE_AGGREGATED
     top_term_per_chunk: bool = False
     averaging: str = "micro"
+    scoring_mode: str = "strict"  # strict | present-only
     include_assertions: bool = True
     relaxed_matching: bool = False
     bootstrap_ci: bool = True
     bootstrap_samples: int = 1000
+    bootstrap_seed: int | None = 12345
     dataset: str = "all"
     detailed_output: bool = False
     ontology_aware_metrics: bool = False
@@ -293,6 +295,10 @@ class ExtractionBenchmark:
                     )
                 )
 
+        from phentrieve.evaluation.extraction_metrics import normalize_for_scoring
+
+        results = normalize_for_scoring(results, config.scoring_mode)
+
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=config.averaging)
         metrics = evaluator.calculate_all_metrics(results)
@@ -312,7 +318,9 @@ class ExtractionBenchmark:
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
             ci = evaluator.bootstrap_confidence_intervals(
-                results, n_bootstrap=config.bootstrap_samples
+                results,
+                n_bootstrap=config.bootstrap_samples,
+                seed=config.bootstrap_seed,
             )
             metrics = CorpusMetrics(
                 micro=metrics.micro,

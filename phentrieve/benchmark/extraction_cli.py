@@ -39,6 +39,12 @@ def run(
     averaging: str = typer.Option(
         "micro", help="Averaging strategy: micro, macro, or weighted"
     ),
+    scoring_mode: str = typer.Option(
+        "strict",
+        "--scoring-mode",
+        help="Scoring mode: strict (assertion-aware, default) or present-only "
+        "(proband-present id-level; for legacy polarity-blind corpora).",
+    ),
     include_assertions: bool = typer.Option(
         True, help="Include assertion detection in evaluation"
     ),
@@ -117,6 +123,7 @@ def run(
         model_name=model,
         language=language,
         averaging=averaging,
+        scoring_mode=scoring_mode,
         include_assertions=include_assertions,
         relaxed_matching=relaxed_matching,
         bootstrap_ci=bootstrap_ci,
@@ -150,6 +157,40 @@ def run(
     # Display results
     _display_results(metrics)
     console.print(f"\n[green]Results saved to {output_dir}[/green]")
+
+
+_GATED_METRICS = ("micro_f1", "micro_precision", "micro_recall")
+
+
+def _regressions(
+    baseline: dict[str, Any], candidate: dict[str, Any], tolerance: float
+) -> list[str]:
+    """Return a human-readable line per metric that dropped beyond tolerance."""
+    out: list[str] = []
+    for key in _GATED_METRICS:
+        base = float(baseline.get(key, 0.0))
+        cand = float(candidate.get(key, 0.0))
+        if cand < base - tolerance:
+            out.append(f"{key}: {cand:.4f} < baseline {base:.4f} (tol {tolerance})")
+    return out
+
+
+@app.command(name="assert-no-regression")
+def assert_no_regression(
+    baseline: Path = typer.Option(..., help="Baseline extraction_summary.json"),
+    candidate: Path = typer.Option(..., help="Candidate extraction_summary.json"),
+    tolerance: float = typer.Option(0.0, help="Allowed absolute drop per metric"),
+):
+    """Exit non-zero if the candidate regresses any gated metric vs the baseline."""
+    base = json.loads(baseline.read_text())
+    cand = json.loads(candidate.read_text())
+    regressions = _regressions(base, cand, tolerance)
+    if regressions:
+        console.print("[red]REGRESSION[/red]")
+        for line in regressions:
+            console.print(f"  {line}")
+        raise typer.Exit(1)
+    console.print("[green]No regression[/green]")
 
 
 @app.command()
