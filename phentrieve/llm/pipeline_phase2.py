@@ -22,7 +22,7 @@ from phentrieve.llm.types import (
     LLMPhenotype,
     LLMPhenotypeEvidence,
 )
-from phentrieve.llm.utils import token_sort_similarity
+from phentrieve.llm.utils import parse_assertion, token_sort_similarity
 
 CATEGORY_TO_ASSERTION = {
     "abnormal": PRESENT_ASSERTION,
@@ -31,6 +31,36 @@ CATEGORY_TO_ASSERTION = {
     "family_history": "family_history",
     "other": "other",
 }
+
+# Project the PIPELINE assertion vocabulary (present | negated | uncertain) back
+# onto the legacy proband category enum, so the derived-compat category reflects
+# the (experiencer, assertion) axes rather than the raw legacy value (D3).
+ASSERTION_TO_CATEGORY = {
+    PRESENT_ASSERTION: "abnormal",
+    NEGATED_ASSERTION: "normal",
+    UNCERTAIN_ASSERTION: "suspected",
+}
+
+
+def derive_category_from_axes(
+    experiencer: str | None,
+    assertion: str | None,
+    fallback_category: str,
+) -> str:
+    """Derive the legacy-compat category from the orthogonal axes (D3).
+
+    The category enum conflates experiencer and assertion; this rebuilds it from
+    the resolved axes so the stored ``category`` stays consistent with the
+    model-driven ``assertion``. Non-proband experiencers dominate; otherwise the
+    pipeline assertion projects back onto the proband category enum. When the
+    axes are absent or the assertion is not a proband-polarity value, the
+    supplied ``fallback_category`` is preserved for backward compatibility.
+    """
+    if experiencer == "family_history":
+        return "family_history"
+    if experiencer == "other":
+        return "other"
+    return ASSERTION_TO_CATEGORY.get(assertion or "", fallback_category)
 
 
 def prepare_retrieval_queries(phrase: str) -> list[str]:
@@ -268,17 +298,32 @@ def phenotype_from_candidate(
         end_char=item.get("end_char"),
         match_method=match_method,
     )
+    normalized_category = normalize_category(str(item.get("category", "")))
+    # Model WINS: when the model supplied its own raw wire assertion, map it to
+    # the pipeline vocabulary (present | negated | uncertain); otherwise fall
+    # back to the legacy category derivation for backward compatibility (B1/D2).
+    resolved_assertion = (
+        parse_assertion(item["assertion"]).value
+        if item.get("assertion") is not None
+        else CATEGORY_TO_ASSERTION.get(normalized_category, PRESENT_ASSERTION)
+    )
+    resolved_experiencer = (
+        item["experiencer"]
+        if item.get("experiencer")
+        else experiencer_for_category(str(item.get("category", "")))
+    )
     return LLMPhenotype(
         term_id=candidate["hpo_id"],
         label=candidate["term_name"],
         evidence=item["phrase"],
-        assertion=CATEGORY_TO_ASSERTION.get(
-            normalize_category(str(item.get("category", ""))),
-            PRESENT_ASSERTION,
-        ),
-        experiencer=experiencer_for_category(str(item.get("category", ""))),
+        assertion=resolved_assertion,
+        experiencer=resolved_experiencer,
         negated_qualifier=(item.get("negated_qualifier") or None),
-        category=normalize_category(str(item.get("category", ""))),
+        # Derived-compat: store the category projected from the resolved axes,
+        # not the raw legacy value (D3).
+        category=derive_category_from_axes(
+            resolved_experiencer, resolved_assertion, normalized_category
+        ),
         confidence=(
             optional_float(candidate.get("confidence"))
             if candidate.get("confidence") is not None

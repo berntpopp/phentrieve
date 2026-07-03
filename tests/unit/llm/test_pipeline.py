@@ -165,13 +165,20 @@ def grounded_phenotype(
     *,
     chunk_ids: list[int] | None = None,
     evidence_text: str | None = None,
+    assertion: str | None = None,
 ) -> dict[str, object]:
-    return {
+    phenotype: dict[str, object] = {
         "phrase": phrase,
         "category": category,
         "chunk_ids": list(chunk_ids or [1]),
         "evidence_text": evidence_text or phrase,
     }
+    # Under the v2 extraction contract the model emits the assertion axis
+    # explicitly (present | absent | uncertain); when supplied it is the source
+    # of truth for polarity. Omitting it lets the schema default to "present".
+    if assertion is not None:
+        phenotype["assertion"] = assertion
+    return phenotype
 
 
 def test_grounded_extracted_phenotype_requires_chunk_ids() -> None:
@@ -3043,7 +3050,12 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                 "parsed": {
                     "phenotypes": [
                         grounded_phenotype("motor issues", "Abnormal", chunk_ids=[1]),
-                        grounded_phenotype("motor issues", "Suspected", chunk_ids=[2]),
+                        grounded_phenotype(
+                            "motor issues",
+                            "Suspected",
+                            chunk_ids=[2],
+                            assertion="uncertain",
+                        ),
                     ]
                 },
             },
@@ -3141,7 +3153,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
             "phrase": "motor issues",
             "category": "suspected",
             "experiencer": "proband",
-            "assertion": "present",
+            "assertion": "uncertain",
             "candidates": [
                 {
                     "id": "HP:0033894",
@@ -3203,8 +3215,12 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
                 "parsed": {
                     "phenotypes": [
                         grounded_phenotype("recurrent seizures", "Abnormal"),
-                        grounded_phenotype("nystagmus", "Suspected"),
-                        grounded_phenotype("skeletal anomalies", "Normal"),
+                        grounded_phenotype(
+                            "nystagmus", "Suspected", assertion="uncertain"
+                        ),
+                        grounded_phenotype(
+                            "skeletal anomalies", "Normal", assertion="absent"
+                        ),
                         grounded_phenotype("hearing loss", "Family_History"),
                         grounded_phenotype("onset in infancy", "Other"),
                     ]
