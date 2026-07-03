@@ -104,5 +104,57 @@ describe('usePhenotypeCollection', () => {
       const { exportAsPhenopacket } = usePhenotypeCollection();
       expect(() => exportAsPhenopacket()).toThrow(/disk full/);
     });
+
+    it('exports assertion_status "absent" as excluded: true (B0 mirror)', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0001250',
+        label: 'Seizure',
+        assertion_status: 'absent',
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures[0].excluded).toBe(true);
+    });
+
+    it('exports assertion_status "negative" as excluded: true (Python 6-value mirror)', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0001250',
+        label: 'Seizure',
+        assertion_status: 'negative',
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures[0].excluded).toBe(true);
+    });
+
+    it('exports assertion_status "negated" as excluded: true', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0001250',
+        label: 'Seizure',
+        assertion_status: 'negated',
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures[0].excluded).toBe(true);
+    });
+
+    it('exports assertion_status "present" as excluded: false', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0001250',
+        label: 'Seizure',
+        assertion_status: 'present',
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures[0].excluded).toBe(false);
+    });
   });
 });
