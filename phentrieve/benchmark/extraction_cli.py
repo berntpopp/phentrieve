@@ -15,6 +15,7 @@ from phentrieve.benchmark.extraction_benchmark import (
     ExtractionConfig,
 )
 from phentrieve.benchmark.extraction_reporter import ExtractionReporter
+from phentrieve.config import DEFAULT_MULTI_VECTOR
 
 app = typer.Typer(
     help="Document-level HPO extraction benchmarking against gold annotations."
@@ -45,6 +46,12 @@ def run(
         "--scoring-mode",
         help="Scoring mode: strict (assertion-aware, default) or present-only "
         "(proband-present id-level; for legacy polarity-blind corpora).",
+    ),
+    multi_vector: bool = typer.Option(
+        DEFAULT_MULTI_VECTOR,
+        "--multi-vector/--no-multi-vector",
+        help="Connect to the multi-vector index (default follows the project "
+        "config). Use --no-multi-vector for a single-vector index.",
     ),
     include_assertions: bool = typer.Option(
         True, help="Include assertion detection in evaluation"
@@ -125,6 +132,7 @@ def run(
         language=language,
         averaging=averaging,
         scoring_mode=scoring_mode,
+        multi_vector=multi_vector,
         include_assertions=include_assertions,
         relaxed_matching=relaxed_matching,
         bootstrap_ci=bootstrap_ci,

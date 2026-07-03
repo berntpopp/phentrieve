@@ -28,6 +28,7 @@ from phentrieve.benchmark.data_loader import (
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MULTI_VECTOR,
     get_sliding_window_punct_conj_cleaned_config,
 )
 from phentrieve.evaluation.extraction_metrics import (
@@ -57,6 +58,7 @@ class ExtractionConfig:
     num_results_per_chunk: int = 3
     chunk_retrieval_threshold: float = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
     min_confidence_for_aggregated: float = DEFAULT_MIN_CONFIDENCE_AGGREGATED
+    multi_vector: bool = DEFAULT_MULTI_VECTOR
     top_term_per_chunk: bool = False
     averaging: str = "micro"
     scoring_mode: str = "strict"  # strict | present-only
@@ -126,6 +128,7 @@ class HPOExtractor:
         self._retriever = DenseRetriever.from_model_name(
             model=self._sbert_model,
             model_name=self.config.model_name,
+            multi_vector=self.config.multi_vector,
         )
 
     def extract(self, text: str) -> list[tuple[str, str]]:
@@ -692,6 +695,7 @@ class ExtractionBenchmark:
                             "ontology_semantic_floor": config.ontology_semantic_floor,
                             "ontology_similarity_formula": config.ontology_similarity_formula,
                             "scoring_mode": config.scoring_mode,
+                            "multi_vector": config.multi_vector,
                         },
                         "dataset": dataset_metadata,
                     },
