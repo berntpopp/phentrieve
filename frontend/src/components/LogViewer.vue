@@ -141,8 +141,7 @@
                 class="mt-2 text-caption text-high-emphasis"
                 role="code"
                 aria-label="Log details"
-                >{{ JSON.stringify(log.data, null, 2) }}</pre
-              >
+                >{{ JSON.stringify(log.data, null, 2) }}</pre>
             </v-expand-transition>
           </v-card-text>
         </v-card>
