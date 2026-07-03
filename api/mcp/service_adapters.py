@@ -457,6 +457,9 @@ def export_phenopacket_service(
         try:
             result["phenopacket"] = json.loads(raw_json)
         except (TypeError, ValueError):
+            # Non-JSON/invalid payload: intentionally keep only the serialized
+            # ``phenopacket_json`` string (backward compat) and skip the parsed
+            # ``phenopacket`` field rather than failing the whole response.
             pass
     return result
 
