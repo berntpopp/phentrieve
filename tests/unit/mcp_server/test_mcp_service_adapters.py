@@ -9,11 +9,13 @@ import pytest
 from api.mcp import service_adapters
 from api.mcp.envelope import McpToolError
 from api.mcp.service_adapters import (
+    _coerce_export_phenotype,
     chunk_text_service,
     export_phenopacket_service,
     extract_hpo_terms_llm_service,
     extract_hpo_terms_service,
 )
+from api.schemas.phenopacket_schemas import ExportPhenotypeRequest
 from phentrieve.config import DEFAULT_MODEL
 
 
@@ -199,6 +201,30 @@ def test_export_excludes_family_history_phenotypes():
     feature_ids = {feat["type"]["id"] for feat in packet.get("phenotypicFeatures", [])}
     assert "HP:0001250" in feature_ids
     assert "HP:0000365" not in feature_ids
+
+
+def test_absent_assertion_exports_as_negated_not_affirmed():
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "absent"}, 0
+    )
+    assert out is not None and out.assertion_status == "negated"
+
+
+def test_normal_and_uncertain_do_not_crash_and_are_not_excluded():
+    for a in ("normal", "uncertain"):
+        out = _coerce_export_phenotype(
+            ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": a}, 0
+        )
+        assert (
+            out.assertion_status == "affirmed"
+        )  # not excluded, and no ValidationError
+
+
+def test_present_assertion_affirmed():
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "present"}, 0
+    )
+    assert out.assertion_status == "affirmed"
 
 
 def test_extract_service_resolves_none_language():

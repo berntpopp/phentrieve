@@ -24,6 +24,7 @@ from api.llm_quota import (
 )
 from api.mcp.envelope import McpToolError
 from api.mcp.projection import cap_response_synonyms
+from phentrieve.assertion_vocab import is_excluded
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
@@ -394,7 +395,7 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
-        assertion_status="negated" if assertion == "negated" else "affirmed",
+        assertion_status="negated" if is_excluded(assertion) else "affirmed",
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
         match_method=match_method,
