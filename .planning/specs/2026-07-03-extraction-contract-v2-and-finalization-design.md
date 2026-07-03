@@ -47,9 +47,9 @@ better standard**, and leave the `.planning/` tree clean and truthful.
    dedicated `family_history_findings` list (mapped HPO terms), kept **out** of the
    proband phenopacket.
 3. **"X without Y" -> excluded term.** Retrieve the `negated_qualifier` phrase, map Y to
-   an HPO id, and emit it as an **excluded** (`assertion=absent`) finding ->
-   `excluded: true` PhenotypicFeature in the phenopacket. Confidence-gated; falls back to
-   today's metadata string when Y does not map cleanly.
+   an HPO id, and emit it as an **excluded** finding (LLM `absent` -> canonical `negated`,
+   per B0) -> `excluded: true` PhenotypicFeature in the phenopacket. Confidence-gated;
+   falls back to today's metadata string when Y does not map cleanly.
 4. **Surface everywhere now.** The two new outputs (family-history list + excluded terms)
    are wired through the shared service, REST schemas, **and** the Vue UI in this effort.
 5. **Benchmarks: proper + no regression.** Current corpora are good but polarity-blind and
@@ -67,7 +67,7 @@ better standard**, and leave the `.planning/` tree clean and truthful.
 |---|---|---|:--:|
 | **0** | Close-out & planning cleanup | none (docs) | first, independent |
 | **1** | Benchmark safeguard + baselines + golden set | low (test infra) | before Phase 2 |
-| **2** | LLM contract v2 (B1 assertion, B2 family, B3 qualifier) | **high** | gated by Phase 1 |
+| **2** | LLM contract v2 (B0 vocabulary, B1 assertion, B2 family, B3 qualifier) | **high** | gated by Phase 1 |
 | **3** | Consumer surface (REST + Vue) + close-out | medium | last |
 
 Phase 1 **must precede** Phase 2: we cannot gate the behavior changes without the
@@ -80,7 +80,9 @@ safeguard and baselines in place first.
   - `completed/2026-06-14-mcp-stabilization-plan.md` (the 14-finding execution record)
   - `analysis/2026-06-14-mcp-stabilization-verification.md` (the 2026-07-03 deep re-verification)
 - **Refresh the index:** update `.planning/README.md` (add stabilization + #291; correct
-  "Current Active Work: None"); reconcile top-level `STATUS.md`.
+  "Current Active Work: None"); reconcile top-level `STATUS.md`. The README layout
+  documents `active/`, but `.planning/active/` **does not exist** -- create it
+  (`.gitkeep`) so the documented tree is real (this effort's plan lands there).
 - **Quarantine legacy files:** move the pre-convention ALL-CAPS files in `completed/` and
   `archived/`, plus the stray `archived/unified-output-format/`, into
   `.planning/archived/pre-convention/` with a one-line index README. Git history is
@@ -88,7 +90,8 @@ safeguard and baselines in place first.
 - **Issue #289** stays open as the tracking anchor; it is closed at the end of Phase 3
   (with a `Closes #289` on that PR).
 
-Gate: `make check`. This phase touches no application code.
+Gate: `make check`, `make typecheck-fast`, `make test` (the repo-required trio; trivially
+green for docs, but run for parity). This phase touches no application code.
 
 ## 6. Phase 1 -- Benchmark safeguard (the crux)
 
@@ -118,11 +121,16 @@ Consequence (both confirmed against the code path):
 - **"X without Y"** -> `(Y,ABSENT)` predicted vs `(Y,PRESENT)`-or-absent gold -> FP (and
   FN if gold listed Y as present). This **already** penalizes correct negation today.
 
-There is **no** present-only / assertion-filtered scoring mode; the only adjacent lever,
+There is **no** present-only / proband-filtered scoring mode; the only adjacent lever,
 `--include-assertions/--no-include-assertions` (`extraction_cli.py:42-44`), disables
-detection upstream and cripples the model. The LLM benchmark scores via
-`phentrieve/evaluation/assertion_metrics.py` (joint-F1 `:26-43`, stratified filters
-`:71-101`) -- same tuple/assertion basis, so it needs the same safeguard.
+detection upstream and cripples the model. The **LLM** benchmark scores with the same
+`CorpusExtractionMetrics` and **already computes two projections** side by side --
+`assertion_results` (strict tuple) and `id_only_results` (assertion stripped) at
+`phentrieve/benchmark/llm_benchmark.py:695-696`. Note `id_only` is **not** the same as
+present-only: it ignores polarity entirely, so a correctly-predicted `(Y,ABSENT)` exclusion
+still counts as a bare-id `Y` prediction. `present-only` (filter to PRESENT, then compare
+ids) is the fairer proband view, and it slots into the LLM benchmark's existing
+dual-projection pattern as a **third** projection rather than a new code path.
 
 ### 6.2 Safeguard: `--scoring-mode {strict, present-only}` (default `strict`)
 
@@ -133,7 +141,7 @@ PROBAND_PRESENT = {"PRESENT"}
 
 def normalize_for_scoring(results, mode="strict"):
     if mode == "strict":
-        return results  # identity -> byte-identical reproduction of current numbers
+        return results  # identity -> identical metric values (see note below)
     return [
         ExtractionResult(
             doc_id=r.doc_id,
@@ -144,33 +152,50 @@ def normalize_for_scoring(results, mode="strict"):
     ]
 ```
 
-- Applied at the single choke point `extraction_benchmark.py:257` (before both
-  `CorpusExtractionMetrics.calculate_*` and `calculate_ontology_aware_metrics`), so strict
-  and ontology-aware paths are both covered by one call.
+- Applied at the single choke point **after the `results` list is fully built and before
+  the metric calculators run** -- `extraction_benchmark.py:~296` (the loop populates
+  `results` through ~294; `calculate_all_metrics` / `calculate_ontology_aware_metrics` run
+  at ~297-298). It must **not** be applied at line 257, which is only the empty-list
+  declaration. One call covers both strict and ontology-aware paths.
 - `present-only` filters to `PRESENT` and re-stamps, collapsing the strict tuple
   comparison into an **id-level proband-present** comparison: absent/family predictions
   can no longer become false positives, and a polarity-blind (all-PRESENT) gold compares
   fairly against the improved model.
 - Threaded via `scoring_mode: str = "strict"` on `ExtractionConfig` +
-  `--scoring-mode` option in `extraction_cli.py`. Mirror the same normalization into the
-  LLM benchmark scoring path (`assertion_metrics.py`).
+  `--scoring-mode` option in `extraction_cli.py`. In the **LLM** benchmark, add
+  `present-only` as a third projection next to the existing `assertion_results` /
+  `id_only_results` at `llm_benchmark.py:695-696` (same `CorpusExtractionMetrics`, no new
+  scoring code).
 
 **Why legacy numbers are provably reproduced:** with the default `strict`,
 `normalize_for_scoring` returns the input list unchanged, so identical `ExtractionResult`s
-flow into identical, untouched metric code. A no-regression unit test asserts
-`normalize_for_scoring(results, "strict") is results` and that strict output equals a
-stored baseline.
+flow into identical, untouched metric code -- the computed **metric values** are identical
+(not the whole results file, which carries a fresh `datetime.now()` timestamp at
+`extraction_benchmark.py:674`). A no-regression unit test asserts
+`normalize_for_scoring(results, "strict") is results` and that the strict **metrics** equal
+a stored baseline.
 
 ### 6.3 New golden mini-corpus (assertion + experiencer labelled)
 
-`tests/data/benchmarks/en/assertion_edge_cases.json` (gold items carry proper
-`assertion_status` incl. `negated`/`family_history`):
+**Format:** the corpus is a **document-payload** JSON (`{"documents": [{"id", "text",
+"gold_hpo_terms": [...]}]}`), because `parse_gold_terms` reads `gold_hpo_terms[].assertion`
+(`data_loader.py:194`) -- **not** `assertion_status` (that field is only read by the
+phenobert directory path, `:214`). Each gold item is `{"id", "assertion"}` where
+`assertion in {PRESENT, ABSENT}` (the internal enum, `ASSERTION_STATUS_MAP`).
 
-- "severe intellectual disability without regression" -> ID **present**, regression **excluded**
-- "seizures without fever" -> seizures **present**, fever **excluded**
-- "no family history of long QT syndrome" -> long QT in `family_history_findings`, **not** proband
-- "no family history of deafness" -> deafness in family list, not proband
-- C1 preserve: "There is no nystagmus" -> nystagmus **negated** (must stay correct)
+**Proband present/absent cases** (fit the `(id, assertion)` tuple scorer, run in `strict`):
+- "severe intellectual disability without regression" -> ID **PRESENT**, regression **ABSENT** (excluded)
+- "seizures without fever" -> seizures **PRESENT**, fever **ABSENT** (excluded)
+- C1 preserve: "There is no nystagmus" -> nystagmus **ABSENT** (must stay correct)
+
+**Family-history cases are NOT encoded as an assertion.** Experiencer is a separate axis and
+the `(id, assertion)` benchmark cannot express it cleanly (jamming `FAMILY_HISTORY` into the
+assertion slot is exactly the smell the review flagged). Extending the scorer to a
+`(id, experiencer, assertion)` triple is out of scope for a mini round. Instead, family-history
+routing is verified by **dedicated unit / integration tests**, not the corpus benchmark:
+- "no family history of long QT syndrome" -> long QT appears in `family_history_findings`,
+  **absent** from proband findings **and** from the phenopacket.
+- "no family history of deafness" -> deafness in the family list, not proband.
 
 ### 6.4 The no-regression gate (precise)
 
@@ -194,38 +219,76 @@ total, so it is negligible; the real cure is richer gold, which the new golden s
 
 ## 7. Phase 2 -- LLM extraction contract v2
 
-Three atomic, individually benchmark-gated changes.
+Four atomic, individually benchmark-gated changes (B0 lands first as the foundation).
 
-### B1 -- assertion load-bearing
-- Now: `phentrieve/llm/pipeline_phase2.py:273-279` sets
-  `assertion = CATEGORY_TO_ASSERTION[category]`, ignoring the model's `assertion`.
-- Target: consume the model's `assertion` field directly as polarity;
-  `category` becomes a derived compat field. Dedup key stays
-  `(term_id, experiencer, assertion)` (`pipeline_phase2.py:339-349`).
+### B0 -- canonical boundary vocabulary (do this first)
 
-### B2 -- family history -> separate list
-- Now: `family_history` excluded from `ACTIONABLE_CATEGORIES`
-  (`pipeline_phase1.py:17`), filtered out at `pipeline.py:340-343`, and dropped from
-  export at `service_adapters.py:381-384` -- silently lost.
-- Target: carry `experiencer` through aggregation into a dedicated
-  `family_history_findings: [{hpo_id, label, assertion, evidence...}]`. Proband findings
-  and the phenopacket remain proband-only. `_coerce_export_phenotype`
-  (`service_adapters.py:363-402`) continues to exclude family terms from proband
-  `PhenotypicFeature`s.
+There are **two** vocabularies today and they must not be conflated (this is a real bug
+risk): the LLM schema axis is `present / absent / uncertain` (`llm/types.py`), while the
+pipeline/export/benchmark boundary uses `affirmed / negated / normal` (and the benchmark's
+`PRESENT / ABSENT / FAMILY_HISTORY`). Critically, the MCP export coerces **only** the literal
+`"negated"` to an excluded feature -- `api/mcp/service_adapters.py:397`
+(`assertion_status="negated" if assertion == "negated" else "affirmed"`) -- and the Vue
+phenopacket export does the same (`frontend/src/composables/usePhenotypeCollection.js:148`).
+So an LLM `assertion="absent"` reaching either boundary unchanged would **silently export as
+present**.
 
-### B3 -- "X without Y" -> excluded term
-- Now: `negated_qualifier` surfaces as a string only
-  (`full_text_service.py:457-463`; consumed at `pipeline.py:1234`).
+Decision: define the **canonical internal status vocabulary** = `affirmed / negated / normal /
+uncertain`. Map the LLM axis at the LLM->pipeline boundary once
+(`present->affirmed`, `absent->negated`, `uncertain->uncertain`), so everything downstream
+sees the canonical status. Harden both export boundaries to treat `negated` **and** `absent`
+as excluded (defensive), and add tests proving `absent`/`negated` -> `excluded: true` in MCP
+export (`service_adapters.py`) and Vue (`usePhenotypeCollection.js`).
+
+### B1 -- assertion load-bearing (carry BOTH axes end-to-end)
+- Now: Phase-1 parsing keeps only `phrase` / `category` / `negated_qualifier` and
+  **discards `experiencer` and `assertion`** (`phentrieve/llm/pipeline.py:582-588`); Phase 2
+  then re-derives `assertion = CATEGORY_TO_ASSERTION[category]`
+  (`pipeline_phase2.py:273-279`), so the model's own axes are never used.
+- Target: carry `experiencer` and `assertion` (canonicalized per B0) **through the entire
+  chain** -- Phase-1 parse (`pipeline.py:582`), the Phase-1 dedup/expand, the actionable
+  filter, retrieval keys, fallback traces, the mapping payloads, and the final `LLMPhenotype`
+  -- and consume the model's `assertion` as polarity. `category` becomes a derived compat
+  field. Dedup key stays `(term_id, experiencer, assertion)` (`pipeline_phase2.py:339-349`).
+
+### B2 -- family history -> separate list (needs a real parallel mapping path)
+- Now: `family_history` is not in `ACTIONABLE_CATEGORIES` (`pipeline_phase1.py:17`) and the
+  actionable filter runs **before** retrieval (`pipeline.py:340-343`), so family phrases are
+  dropped **before** they are ever mapped to an HPO id; they are also dropped from export
+  (`service_adapters.py:381-384`). And no result schema carries a family list --
+  `LLMExtractionResult` exposes only `terms` (`llm/types.py:199`) and the REST
+  `TextProcessingResponse` only `aggregated_hpo_terms` (`api/schemas/text_processing_schemas.py`).
+- Target (explicit path): **collect** family-experiencer phrases before the actionable
+  filter -> **retrieve/map** them through the same retrieval used for proband terms (a
+  parallel resolution pass, not a reuse of the dropped set) -> **emit** a dedicated
+  `family_history_findings: [{hpo_id, label, assertion, evidence...}]` on the result
+  contract (new field on `LLMExtractionResult` and the REST/MCP response schemas) ->
+  **exclude** from the proband phenopacket. `_coerce_export_phenotype`
+  (`service_adapters.py:363-402`) keeps dropping family terms from proband
+  `PhenotypicFeature`s (guarded by test).
+
+### B3 -- "X without Y" -> excluded term (with a defined output shape)
+- Now: `negated_qualifier` surfaces as a string only (`full_text_service.py:457-463`;
+  consumed at `pipeline.py:1234`), and the REST adaptation drops evidence/qualifier context
+  entirely when it builds `AggregatedHPOTermAPI` (`api/services/text_processing_execution.py:135-149`).
 - Target: when a finding carries `negated_qualifier="Y"`, run one retrieval call on the
-  qualifier phrase, map Y to an HPO id, and emit it as an **excluded**
-  (`assertion=absent`) finding -> `excluded: true` PhenotypicFeature. Guardrails: a
-  retrieval-confidence floor (no garbage exclusions); fall back to the metadata string
-  when Y does not map above the floor.
+  qualifier phrase and, if it maps above a confidence floor, emit a **generated excluded
+  finding** with this explicit shape (which REST/MCP must stop dropping):
+  - `hpo_id`, `label`
+  - `assertion` = canonical `negated` (per B0) -> `excluded: true` in the phenopacket
+  - `qualifier_surface_text` (the literal "Y" span from the source)
+  - `evidence` context + `attribution_span` (so the exclusion is auditable, not bare)
+  - `provenance` flag, e.g. `match_method="negated_qualifier_derived"` (distinguishes it
+    from a directly-extracted negation)
+  - `confidence` (>= floor)
+- Guardrails: the retrieval-confidence floor prevents garbage exclusions; when Y does not
+  map above the floor, **fall back** to today's `negated_qualifier` metadata string (no
+  generated term). Golden/unit tests assert both the mapped and the fallback path.
 
 ### Shared output shape (all consumers)
-`{ proband_findings[], family_history_findings[], ... }`, each finding carrying
-`assertion in {present, absent, uncertain}`. MCP `capabilities_version` rolls (its own
-cache-key contract).
+`{ proband_findings[], family_history_findings[], ... }`, each finding carrying the
+**canonical** status (`affirmed / negated / normal / uncertain` per B0; `negated` renders as
+`excluded: true`). MCP `capabilities_version` rolls (its own cache-key contract).
 
 ### i18n guard
 The negation-scope rules live only in `phentrieve/llm/prompts/templates/two_phase/en.yaml`
@@ -259,8 +322,8 @@ the plan will make this an explicit, owned step (not a silent assumption).
   one commit), matching PR #291 discipline.
 
 ### 9.3 Ordering
-Phase 0 (independent, anytime) -> Phase 1 (safeguard + baselines) -> Phase 2 (B1 -> B2 ->
-B3, each gated) -> Phase 3 (surface + close-out).
+Phase 0 (independent, anytime) -> Phase 1 (safeguard + baselines) -> Phase 2 (B0 -> B1 ->
+B2 -> B3, each gated) -> Phase 3 (surface + close-out).
 
 ## 10. Risks & mitigations
 
@@ -271,6 +334,7 @@ B3, each gated) -> Phase 3 (surface + close-out).
 | Qualifier retrieval emits a wrong excluded term | Confidence floor + string fallback; golden case asserts the mapping |
 | Output-contract change ripples to REST/Vue unexpectedly | Shared shape defined once (section 7); frontend CI as blast-radius check; capabilities_version roll signals warm clients |
 | Family list leaks into proband phenopacket | `_coerce_export_phenotype` guard retained + golden/export test |
+| Vocabulary conflation: LLM `absent` exports as present (only `"negated"` is excluded at `service_adapters.py:397` / Vue) | B0 canonicalizes at the boundary; both export paths harden to treat `absent`+`negated` as excluded; test asserts `excluded: true` |
 
 ## 11. Out of scope (this round)
 - Full re-annotation of the deterministic corpora with assertion/experiencer labels
@@ -287,12 +351,13 @@ B3, each gated) -> Phase 3 (surface + close-out).
 | Scorer core | `evaluation/extraction_metrics.py:66-79,317-332`; `evaluation/_extraction_types.py:7-12` |
 | Ontology scorer | `evaluation/ontology_matching.py:55,142-162,213-217,226-246` |
 | Gold loading / projection | `benchmark/data_loader.py:12-18,41-54,188-201,204-242` |
-| Benchmark runner / choke point | `benchmark/extraction_benchmark.py:62,116-117,179,194-200,257,277-280,344-346` |
+| Benchmark runner / choke point | `benchmark/extraction_benchmark.py:62,116-117,179,194-200`; normalize after build loop (~261-294) before metrics (~296-298), **not** at decl `:257` |
 | Benchmark CLI | `benchmark/extraction_cli.py:39-44,116-133` |
-| LLM benchmark scoring | `evaluation/assertion_metrics.py:26-43,71-101` |
-| Assertion (B1) | `llm/pipeline_phase2.py:273-279,339-349` |
-| Family history (B2) | `llm/pipeline_phase1.py:17`; `llm/pipeline.py:340-343`; `api/mcp/service_adapters.py:363-402,381-384` |
-| Qualifier (B3) | `text_processing/full_text_service.py:457-463`; `llm/pipeline.py:1234` |
+| LLM benchmark scoring (dual projection) | `benchmark/llm_benchmark.py:695-696` (`assertion_results` + `id_only_results`) |
+| Vocabulary boundary (B0) | `api/mcp/service_adapters.py:397`; `frontend/src/composables/usePhenotypeCollection.js:148` |
+| Assertion (B1) | `llm/pipeline.py:582-588` (Phase-1 discards axes); `llm/pipeline_phase2.py:273-279,339-349` |
+| Family history (B2) | `llm/pipeline_phase1.py:17`; `llm/pipeline.py:340-343`; `llm/types.py:199` (no family field); `api/mcp/service_adapters.py:363-402,381-384` |
+| Qualifier (B3) | `text_processing/full_text_service.py:457-463`; `llm/pipeline.py:1234`; `api/services/text_processing_execution.py:135-149` (drops fields) |
 | Schema axes | `llm/types.py:95-118`; prompt `llm/prompts/templates/two_phase/en.yaml` (v3.1.0) |
 | REST surface | `api/schemas/text_processing_schemas.py`; `api/services/text_processing_execution.py` |
 | Vue surface | `frontend/src/components/{AggregatedTermsView,PhenotypeCollectionPanel,ResultsDisplay}.vue` |
