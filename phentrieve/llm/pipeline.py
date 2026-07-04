@@ -1616,6 +1616,19 @@ class TwoPhaseLLMPipeline:
         existing: dict[str, Any],
         incoming: dict[str, Any],
     ) -> bool:
+        # ``experiencer`` and ``assertion`` are orthogonal axes (B1). The fuzzy
+        # merge exists only to consolidate fragments/duplicates of the SAME
+        # finding; a differing experiencer (proband vs family_history) or
+        # assertion (present vs absent) marks a genuinely DIFFERENT finding, so
+        # refuse the merge before any span/evidence heuristics run. This runs
+        # BEFORE the B2 family partition, so collapsing here would silently drop
+        # a co-located family or opposite-polarity mention.
+        for axis in ("experiencer", "assertion"):
+            if (
+                str(existing.get(axis) or "").strip().lower()
+                != str(incoming.get(axis) or "").strip().lower()
+            ):
+                return False
         if (
             str(existing.get("phrase", "")).strip().lower()
             != str(incoming.get("phrase", "")).strip().lower()

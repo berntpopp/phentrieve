@@ -215,6 +215,11 @@ def phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
         item.get("start_char"),
         item.get("end_char"),
         str(item.get("experiencer") or "").strip().lower(),
+        # ``assertion`` is an orthogonal axis (B1): two mentions identical except
+        # for polarity (present vs absent) are DIFFERENT findings and must not
+        # collapse. A model-silent item contributes a uniform "" so pre-existing
+        # tuples' relative equality is unchanged (backward-compatible).
+        str(item.get("assertion") or "").strip().lower(),
     )
 
 
