@@ -7,6 +7,10 @@ its own present/negated/uncertain vocabulary -- do not use this inside the pipel
 
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 AFFIRMED = "affirmed"
 NEGATED = "negated"
 NORMAL = "normal"
@@ -15,6 +19,10 @@ UNCERTAIN = "uncertain"
 _NEGATED = {"negated", "negative", "absent", "excluded", "no", "denied"}
 _UNCERTAIN = {"uncertain", "possible", "suspected", "probable"}
 _NORMAL = {"normal"}
+# Recognized affirmed-polarity synonyms. Anything outside every known set falls
+# through to AFFIRMED (fail open) -- log those so a new/typo assertion value that
+# silently exports as present is observable rather than invisible.
+_AFFIRMED = {"affirmed", "present", "yes", "positive", "confirmed"}
 
 
 def canonicalize_assertion(raw: str | None) -> str:
@@ -25,6 +33,11 @@ def canonicalize_assertion(raw: str | None) -> str:
         return UNCERTAIN
     if normalized in _NORMAL:
         return NORMAL
+    if normalized and normalized not in _AFFIRMED:
+        logger.debug(
+            "canonicalize_assertion: unknown assertion %r -> affirmed (fail open)",
+            normalized,
+        )
     return AFFIRMED
 
 
