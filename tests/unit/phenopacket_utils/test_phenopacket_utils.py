@@ -266,6 +266,65 @@ class TestPhenopacketUtils:
 
         assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
 
+    def test_status_keyed_negated_maps_to_excluded_true(self):
+        """B0 gap fix: the shared full-text service emits aggregated terms keyed
+        on ``status`` (+ a derived ``excluded`` bool) and carries NEITHER
+        ``assertion`` nor ``assertion_status``. Such a ruled-out term must still
+        export as excluded, not silently default to affirmed (present)."""
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {
+                    "hpo_id": "HP:0001945",
+                    "term_name": "Fever",
+                    "status": "negated",
+                    "excluded": True,
+                    "score": 0.8,
+                }
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_excluded_flag_only_maps_to_excluded_true(self):
+        """A term carrying only the derived ``excluded`` bool (no assertion/status)
+        must still export as excluded."""
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {
+                    "hpo_id": "HP:0001945",
+                    "term_name": "Fever",
+                    "excluded": True,
+                    "score": 0.8,
+                }
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_from_legacy_dict_reads_status_and_excluded(self):
+        """Unit-level guard on the normalizer precedence for the B0 gap."""
+        assert (
+            NormalizedPhenotypeExportRecord.from_legacy_dict(
+                {"hpo_id": "HP:1", "label": "x", "status": "negated"}
+            ).assertion
+            == "negated"
+        )
+        assert (
+            NormalizedPhenotypeExportRecord.from_legacy_dict(
+                {"hpo_id": "HP:1", "label": "x", "excluded": True}
+            ).assertion
+            == "negated"
+        )
+        # Canonical fields still win when present.
+        assert (
+            NormalizedPhenotypeExportRecord.from_legacy_dict(
+                {"hpo_id": "HP:1", "label": "x", "assertion": "present"}
+            ).assertion
+            == "affirmed"
+        )
+
     def test_export_phenopacket_bundle_returns_strict_packet_and_optional_sidecar(
         self,
     ) -> None:

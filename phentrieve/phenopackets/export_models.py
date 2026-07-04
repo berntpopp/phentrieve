@@ -32,6 +32,28 @@ def _normalize_assertion(value: str | None) -> AssertionValue:
     return _ASSERTION_ALIASES.get(normalized, "unknown")
 
 
+def _resolve_legacy_assertion(legacy: Mapping[str, Any]) -> str:
+    """Pick the assertion source from a legacy dict (B0 export contract).
+
+    The canonical export fields (``assertion`` / ``assertion_status``) win when
+    present, but the shared full-text service emits aggregated terms keyed on the
+    raw pipeline ``status`` (present | negated | normal | ...) plus a derived
+    ``excluded`` bool, and carries NEITHER canonical field. Reading ``status``
+    and then the ``excluded`` flag here ensures a ruled-out finding routed
+    through the aggregated phenopacket/sidecar path exports as ``negated`` rather
+    than silently defaulting to ``affirmed`` (present)."""
+    explicit = (
+        legacy.get("assertion")
+        or legacy.get("assertion_status")
+        or legacy.get("status")
+    )
+    if explicit:
+        return str(explicit)
+    if legacy.get("excluded"):
+        return "negated"
+    return "affirmed"
+
+
 def _normalize_chunk_ids(value: Any) -> list[int]:
     if value is None:
         return []
@@ -240,13 +262,7 @@ class NormalizedPhenotypeExportRecord:
         return cls(
             hpo_id=str(hpo_id),
             label=str(label),
-            assertion=_normalize_assertion(
-                str(
-                    legacy.get("assertion")
-                    or legacy.get("assertion_status")
-                    or "affirmed"
-                )
-            ),
+            assertion=_normalize_assertion(_resolve_legacy_assertion(legacy)),
             certainty=str(certainty) if certainty is not None else None,
             confidence=float(confidence) if confidence is not None else None,
             evidence_text=str(evidence_text) if evidence_text is not None else None,
