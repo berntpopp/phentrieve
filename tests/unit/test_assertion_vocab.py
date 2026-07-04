@@ -32,11 +32,12 @@ def test_canonicalize(raw, expected):
     assert canonicalize_assertion(raw) == expected
 
 
-@pytest.mark.parametrize("raw", ["absent", "negated", "excluded", "NO"])
+@pytest.mark.parametrize("raw", ["absent", "negated", "excluded", "NO", "normal"])
 def test_is_excluded_true(raw):
+    # ``normal`` is a normalcy verdict (ruled-out abnormality) -> excluded.
     assert is_excluded(raw) is True
 
 
-@pytest.mark.parametrize("raw", ["present", "affirmed", "normal", "uncertain", None])
+@pytest.mark.parametrize("raw", ["present", "affirmed", "uncertain", None])
 def test_is_excluded_false(raw):
     assert is_excluded(raw) is False

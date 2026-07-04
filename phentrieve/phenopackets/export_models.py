@@ -19,6 +19,8 @@ _ASSERTION_ALIASES: dict[str, AssertionValue] = {
     "affirmed": "affirmed",
     "negated": "negated",
     "absent": "negated",
+    # A normalcy verdict is a ruled-out abnormality -> excluded in the packet.
+    "normal": "negated",
     "uncertain": "uncertain",
     "suspected": "uncertain",
     "family_history": "family_history",

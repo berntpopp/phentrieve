@@ -270,14 +270,20 @@ def test_absent_assertion_exports_as_negated_not_affirmed():
     assert out is not None and out.assertion_status == "negated"
 
 
-def test_normal_and_uncertain_do_not_crash_and_are_not_excluded():
-    for a in ("normal", "uncertain"):
-        out = _coerce_export_phenotype(
-            ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": a}, 0
-        )
-        assert (
-            out.assertion_status == "affirmed"
-        )  # not excluded, and no ValidationError
+def test_normal_assertion_exports_as_negated_excluded():
+    # A normalcy verdict is a ruled-out abnormality -> excluded (negated).
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "normal"}, 0
+    )
+    assert out is not None and out.assertion_status == "negated"
+
+
+def test_uncertain_does_not_crash_and_is_not_excluded():
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "uncertain"}, 0
+    )
+    # not excluded, and no ValidationError
+    assert out.assertion_status == "affirmed"
 
 
 def test_present_assertion_affirmed():

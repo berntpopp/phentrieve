@@ -144,6 +144,19 @@ describe('usePhenotypeCollection', () => {
       expect(phenopacket.phenotypicFeatures[0].excluded).toBe(true);
     });
 
+    it('exports assertion_status "normal" as excluded: true (normalcy verdict)', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0100543',
+        label: 'Cognitive impairment',
+        assertion_status: 'normal',
+      });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures[0].excluded).toBe(true);
+    });
+
     it('exports assertion_status "present" as excluded: false', () => {
       const store = useConversationStore();
       store.addPhenotype({

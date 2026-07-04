@@ -286,6 +286,23 @@ class TestPhenopacketUtils:
 
         assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
 
+    def test_status_normal_maps_to_excluded_true(self):
+        """A normalcy verdict (status='normal', e.g. 'structure normal') is a
+        ruled-out abnormality and must export as excluded, not a present feature."""
+        phenopacket_json = format_as_phenopacket_v2(
+            aggregated_results=[
+                {
+                    "hpo_id": "HP:0100543",
+                    "term_name": "Cognitive impairment",
+                    "status": "normal",
+                    "score": 0.8,
+                }
+            ]
+        )
+        phenopacket = json.loads(phenopacket_json)
+
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
     def test_excluded_flag_only_maps_to_excluded_true(self):
         """A term carrying only the derived ``excluded`` bool (no assertion/status)
         must still export as excluded."""
