@@ -66,6 +66,7 @@ class _PhraseKeyedToolExecutor(ToolExecutor):
     """Retriever stub returning candidates keyed by the queried phrase."""
 
     def __init__(self, candidates_by_phrase: dict[str, list[dict[str, Any]]]) -> None:
+        super().__init__()
         self.candidates_by_phrase = candidates_by_phrase
         self.queries: list[dict[str, Any]] = []
 
