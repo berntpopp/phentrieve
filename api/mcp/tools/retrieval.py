@@ -171,8 +171,10 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
-            # Budget the family list independently so it is never silently
-            # trimmed nor exempted from the mode's char budget (B2).
+            # Budget the family list after the aggregated list and toward the
+            # SAME total-payload char budget (enforce_budget measures the whole
+            # payload each call), so it is never silently trimmed nor exempted
+            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )
@@ -255,8 +257,10 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped, trunc = enforce_budget(
                 shaped, mode, list_field="aggregated_hpo_terms"
             )
-            # Budget the family list independently so it is never silently
-            # trimmed nor exempted from the mode's char budget (B2).
+            # Budget the family list after the aggregated list and toward the
+            # SAME total-payload char budget (enforce_budget measures the whole
+            # payload each call), so it is never silently trimmed nor exempted
+            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )

@@ -212,6 +212,11 @@ def adapt_shared_service_response_to_api(
         validate_response_chunk_references(
             response.processed_chunks, response.aggregated_hpo_terms
         )
+        # Family terms share the aggregated-term shape and the same chunk index
+        # space, so give them the same dangling-chunk-ref sanity check (B2fix).
+        validate_response_chunk_references(
+            response.processed_chunks, response.family_history_findings
+        )
 
     return response
 

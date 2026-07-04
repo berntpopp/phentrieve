@@ -53,6 +53,60 @@ def test_projection_preserves_experiencer_and_excluded():
     assert out["assertion"] == "negated"
 
 
+def test_projection_derives_excluded_for_standard_backend():
+    """Standard backend has no precomputed excluded; projection derives it (B2fix)."""
+    negated = {
+        "id": "HP:0001250",
+        "name": "Seizure",
+        "score": 0.7,
+        "status": "negated",
+        "evidence_count": 1,
+        "source_chunk_ids": [1],
+    }
+    present = {
+        "id": "HP:0001945",
+        "name": "Fever",
+        "score": 0.6,
+        "status": "present",
+        "evidence_count": 1,
+        "source_chunk_ids": [1],
+    }
+    out_neg = project_aggregated_terms_for_mcp([negated])[0]
+    out_pres = project_aggregated_terms_for_mcp([present])[0]
+
+    assert out_neg["excluded"] is True
+    assert out_pres["excluded"] is False
+
+
+def test_projection_excluded_derivation_is_idempotent():
+    """A precomputed excluded bool is never overwritten by the fallback (B2fix)."""
+    # status="present" would derive False, but a precomputed True must survive.
+    preset_true = {
+        "id": "HP:0002076",
+        "name": "Migraine",
+        "score": 0.8,
+        "status": "present",
+        "excluded": True,
+        "evidence_count": 1,
+        "source_chunk_ids": [1],
+    }
+    # status="negated" would derive True, but a precomputed False (LLM path) survives.
+    preset_false = {
+        "id": "HP:0001250",
+        "name": "Seizure",
+        "score": 0.7,
+        "status": "negated",
+        "excluded": False,
+        "evidence_count": 1,
+        "source_chunk_ids": [1],
+    }
+    out_true = project_aggregated_terms_for_mcp([preset_true])[0]
+    out_false = project_aggregated_terms_for_mcp([preset_false])[0]
+
+    assert out_true["excluded"] is True
+    assert out_false["excluded"] is False
+
+
 def test_project_extract_payload_projects_family_list():
     payload = {
         "aggregated_hpo_terms": [PROBAND_NEGATED],
