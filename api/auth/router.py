@@ -222,7 +222,10 @@ async def refresh(request: Request, response: Response) -> LoginResponse:
     store = get_user_store()
     raw = request.cookies.get(REFRESH_COOKIE)
     user_id = store.get_active_refresh_user(tokens.hash_token(raw)) if raw else None
-    if user_id is None:
+    # ``raw is None`` is already implied by ``user_id is None`` (see the ternary
+    # above); it is spelled out so the type checker narrows ``raw`` to ``str`` for
+    # the revoke call below.
+    if user_id is None or raw is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired session.",
@@ -233,7 +236,7 @@ async def refresh(request: Request, response: Response) -> LoginResponse:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown user."
         )
     # Rotate: revoke the presented token, issue a fresh session.
-    store.revoke_refresh_session(tokens.hash_token(raw))  # type: ignore[arg-type]
+    store.revoke_refresh_session(tokens.hash_token(raw))
     access_token = _issue_session(response, store, user)
     return LoginResponse(
         access_token=access_token,

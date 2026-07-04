@@ -956,6 +956,11 @@ def _build_benchmark_payload(
         "estimated_energy_cost": estimated_energy_cost,
         "prediction_records": list(prediction_records),
         "results": list(results),
+        # Corpus-level visibility into how much of the contract-v2 deliverable
+        # (negated/absent/family findings) the present-only scoring drops.
+        "assertion_distribution": _aggregate_assertion_distribution(
+            list(prediction_records)
+        ),
     }
     if metrics is not None:
         payload["metrics"] = metrics
@@ -1091,6 +1096,12 @@ def _build_prediction_record(
             }
             for term in pipeline_result.terms
         ],
+        # Additive visibility into the contract-v2 deliverable: how many findings
+        # were produced per RAW assertion and how many the dataset's present-only
+        # projection drops from scoring. Does not change any metric.
+        "assertion_distribution": _assertion_distribution(
+            pipeline_result, dataset=dataset
+        ),
         "metadata": {
             "llm_provider": pipeline_result.meta.llm_provider,
             "model": config.model,
@@ -1150,6 +1161,75 @@ def _serialize_predicted_terms(
             }
         )
     return predicted_terms
+
+
+def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, Any]:
+    """Count predicted findings by RAW assertion (pre-projection).
+
+    The LLM benchmark scores a dataset-specific present-only projection (see
+    ``DATASET_ASSERTION_PROJECTION``), which drops ``negated``/``absent``/
+    ``family_history``. That silently hides the negation/family/qualifier axes
+    the extraction contract exists to produce. This report surfaces them without
+    changing any score: ``proband_dropped_by_projection`` is exactly the count of
+    contract findings the present-only metric cannot see.
+    """
+    by_assertion: dict[str, int] = {}
+    scored = 0
+    dropped = 0
+    for term in pipeline_result.terms:
+        raw = str(getattr(term, "assertion", "") or "").lower()
+        by_assertion[raw] = by_assertion.get(raw, 0) + 1
+        if (
+            _project_assertion_for_dataset(
+                dataset=dataset, assertion=getattr(term, "assertion", None)
+            )
+            is None
+        ):
+            dropped += 1
+        else:
+            scored += 1
+    family = list(getattr(pipeline_result, "family_history_findings", []) or [])
+    return {
+        "proband_by_assertion": by_assertion,
+        "proband_scored": scored,
+        "proband_dropped_by_projection": dropped,
+        "family_history_findings": len(family),
+    }
+
+
+def _aggregate_assertion_distribution(
+    prediction_records: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Sum per-document ``assertion_distribution`` blocks into a corpus total.
+
+    ``documents_counted`` vs ``documents_total`` makes an undercount VISIBLE:
+    records restored from a checkpoint written before this field existed carry no
+    block and contribute nothing, so a resumed cross-version run would otherwise
+    silently report a distribution for only the post-upgrade documents.
+    """
+    by_assertion: dict[str, int] = {}
+    scored = 0
+    dropped = 0
+    family = 0
+    counted = 0
+    for record in prediction_records:
+        dist = record.get("assertion_distribution")
+        if not dist:
+            continue
+        counted += 1
+        for key, value in (dist.get("proband_by_assertion") or {}).items():
+            by_assertion[key] = by_assertion.get(key, 0) + int(value)
+        scored += int(dist.get("proband_scored", 0) or 0)
+        dropped += int(dist.get("proband_dropped_by_projection", 0) or 0)
+        family += int(dist.get("family_history_findings", 0) or 0)
+    return {
+        "proband_by_assertion": by_assertion,
+        "proband_scored": scored,
+        "proband_dropped_by_projection": dropped,
+        "family_history_findings": family,
+        "documents_counted": counted,
+        "documents_total": len(prediction_records),
+    }
 
 
 def _build_observability_counts(

@@ -124,6 +124,36 @@ class FakeToolExecutor:
         return list(self.batch_results)
 
 
+class PhraseKeyedToolExecutor:
+    """Retriever stub that returns candidates keyed by the queried phrase.
+
+    Unlike ``FakeToolExecutor`` (which returns the same positional batch for
+    every call), this aligns candidates to the phrase, so a proband retrieval
+    batch and a separate B2 family retrieval batch each receive their OWN
+    candidate sets instead of a mis-aligned shared list.
+    """
+
+    def __init__(self, candidates_by_phrase):
+        self.candidates_by_phrase = candidates_by_phrase
+        self.queries = []
+
+    def query_batch_hpo_terms(self, *, phrases, language, n_results):
+        self.queries.append(
+            {
+                "phrases": list(phrases),
+                "language": language,
+                "n_results": n_results,
+            }
+        )
+        return [
+            {
+                "phrase": phrase,
+                "candidates": list(self.candidates_by_phrase.get(phrase, [])),
+            }
+            for phrase in phrases
+        ]
+
+
 class FailingStructuredProvider(LLMProvider):
     def complete(self, messages):
         raise RuntimeError("unused")
@@ -165,13 +195,20 @@ def grounded_phenotype(
     *,
     chunk_ids: list[int] | None = None,
     evidence_text: str | None = None,
+    assertion: str | None = None,
 ) -> dict[str, object]:
-    return {
+    phenotype: dict[str, object] = {
         "phrase": phrase,
         "category": category,
         "chunk_ids": list(chunk_ids or [1]),
         "evidence_text": evidence_text or phrase,
     }
+    # Under the v2 extraction contract the model emits the assertion axis
+    # explicitly (present | absent | uncertain); when supplied it is the source
+    # of truth for polarity. Omitting it lets the schema default to "present".
+    if assertion is not None:
+        phenotype["assertion"] = assertion
+    return phenotype
 
 
 def test_grounded_extracted_phenotype_requires_chunk_ids() -> None:
@@ -743,6 +780,13 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "evidence_text": "recurrent seizures",
             "start_char": None,
             "end_char": None,
+            "experiencer": "proband",
+            # The model omitted assertion, so the parsed shape threads None
+            # (unset) not the schema default "present". Note the raw
+            # structured_response above still dumps the defaulted "present"
+            # because it is the full model dump; only the parsed item keys on
+            # model_fields_set (B1).
+            "assertion": None,
         }
     ]
 
@@ -3033,7 +3077,12 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                 "parsed": {
                     "phenotypes": [
                         grounded_phenotype("motor issues", "Abnormal", chunk_ids=[1]),
-                        grounded_phenotype("motor issues", "Suspected", chunk_ids=[2]),
+                        grounded_phenotype(
+                            "motor issues",
+                            "Suspected",
+                            chunk_ids=[2],
+                            assertion="uncertain",
+                        ),
                     ]
                 },
             },
@@ -3189,8 +3238,12 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
                 "parsed": {
                     "phenotypes": [
                         grounded_phenotype("recurrent seizures", "Abnormal"),
-                        grounded_phenotype("nystagmus", "Suspected"),
-                        grounded_phenotype("skeletal anomalies", "Normal"),
+                        grounded_phenotype(
+                            "nystagmus", "Suspected", assertion="uncertain"
+                        ),
+                        grounded_phenotype(
+                            "skeletal anomalies", "Normal", assertion="absent"
+                        ),
                         grounded_phenotype("hearing loss", "Family_History"),
                         grounded_phenotype("onset in infancy", "Other"),
                     ]
@@ -3198,64 +3251,39 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
             }
         ]
     )
-    tool_executor = FakeToolExecutor(
-        batch_results=[
-            {
-                "phrase": "recurrent seizures",
-                "original_sentence": "Patient had recurrent seizures since infancy.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0001250",
-                        "term_name": "Recurrent seizures",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "nystagmus",
-                "original_sentence": "Nystagmus was suspected clinically.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000639",
-                        "term_name": "Nystagmus",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "skeletal anomalies",
-                "original_sentence": "No skeletal anomalies were noted.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000924",
-                        "term_name": "skeletal anomalies",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "hearing loss",
-                "original_sentence": "The mother has hearing loss.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0000365",
-                        "term_name": "hearing loss",
-                        "score": 0.95,
-                    }
-                ],
-            },
-            {
-                "phrase": "onset in infancy",
-                "original_sentence": "Symptoms began in infancy.",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0003593",
-                        "term_name": "onset in infancy",
-                        "score": 0.95,
-                    }
-                ],
-            },
-        ]
+    # Phrase-keyed retrieval so the proband batch and the separate B2 family
+    # batch ("hearing loss") each receive their OWN candidates. Every candidate
+    # is an exact term match so all phrases resolve locally (no mapping call).
+    tool_executor = PhraseKeyedToolExecutor(
+        {
+            "recurrent seizures": [
+                {
+                    "hpo_id": "HP:0001250",
+                    "term_name": "Recurrent seizures",
+                    "score": 0.95,
+                }
+            ],
+            "nystagmus": [
+                {"hpo_id": "HP:0000639", "term_name": "Nystagmus", "score": 0.95}
+            ],
+            "skeletal anomalies": [
+                {
+                    "hpo_id": "HP:0000924",
+                    "term_name": "skeletal anomalies",
+                    "score": 0.95,
+                }
+            ],
+            "hearing loss": [
+                {"hpo_id": "HP:0000365", "term_name": "hearing loss", "score": 0.95}
+            ],
+            "onset in infancy": [
+                {
+                    "hpo_id": "HP:0003593",
+                    "term_name": "onset in infancy",
+                    "score": 0.95,
+                }
+            ],
+        }
     )
     pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
 
@@ -3282,8 +3310,11 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
-    # LLM-1: family-history mentions ("hearing loss" belongs to the mother) are
-    # no longer actionable, so they are never retrieved as proband candidates.
+    # LLM-1 + B2: family-history mentions ("hearing loss" belongs to the mother)
+    # are partitioned off the proband set, so they are NEVER retrieved as proband
+    # candidates -- the first (proband) retrieval batch excludes them. Under B2
+    # they ARE resolved, through a SEPARATE family retrieval batch, into the
+    # ``resolved_family`` set (never ``result.terms``).
     assert tool_executor.queries == [
         {
             "phrases": [
@@ -3293,7 +3324,12 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
             ],
             "language": "en",
             "n_results": 50,
-        }
+        },
+        {
+            "phrases": ["hearing loss"],
+            "language": "en",
+            "n_results": 50,
+        },
     ]
     assert result.terms == [
         LLMPhenotype(
@@ -3350,6 +3386,16 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
     ]
     assert result.meta.phase_counts["extracted_phrases"] == 5
     assert result.meta.phase_counts["actionable_phrases"] == 3
+    # B2: the family finding is resolved into result.family_history_findings
+    # (NOT result.terms) with a family_history experiencer, and never leaks
+    # into the proband set.
+    assert "HP:0000365" not in {term.term_id for term in result.terms}
+    resolved_family = result.family_history_findings
+    assert {term.term_id for term in resolved_family} == {"HP:0000365"}
+    assert resolved_family[0].experiencer == "family_history"
+    assert resolved_family[0].category == "family_history"
+    assert result.meta.phase_counts["family_phrases"] == 1
+    assert result.meta.phase_counts["family_local_matches"] == 1
 
 
 def test_two_phase_pipeline_accumulates_usage_and_logs_phases(caplog):
@@ -3979,11 +4025,27 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
-    assert len(result.terms) == 1
-    term = result.terms[0]
+    # The source finding stays present and still carries the negated qualifier
+    # metadata string threaded from the grounded extraction.
+    present_terms = [t for t in result.terms if t.assertion == "present"]
+    assert len(present_terms) == 1
+    term = present_terms[0]
     assert term.term_id == "HP:0010864"
     assert term.assertion == "present"
     assert term.negated_qualifier == "regression"
+
+    # B3 (Task 10): the qualifier Y ("regression") is now retrieved and, when it
+    # maps at or above the similarity floor, a GENERATED excluded finding is
+    # emitted. This stub's retriever returns the same fixed candidate for every
+    # query, so the generated term resolves to the same HPO id under the negated
+    # assertion (a distinct dedup key from the present source term).
+    generated = [
+        t for t in result.terms if t.match_method == "negated_qualifier_derived"
+    ]
+    assert len(generated) == 1
+    assert generated[0].assertion == "negated"
+    assert generated[0].experiencer == "proband"
+    assert generated[0].qualifier_surface_text == "regression"
 
 
 def test_phase1_failure_is_recorded_in_trace_not_silenced(caplog):

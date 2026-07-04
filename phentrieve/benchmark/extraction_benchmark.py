@@ -28,6 +28,7 @@ from phentrieve.benchmark.data_loader import (
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
+    DEFAULT_MULTI_VECTOR,
     get_sliding_window_punct_conj_cleaned_config,
 )
 from phentrieve.evaluation.extraction_metrics import (
@@ -57,12 +58,15 @@ class ExtractionConfig:
     num_results_per_chunk: int = 3
     chunk_retrieval_threshold: float = DEFAULT_CHUNK_RETRIEVAL_THRESHOLD
     min_confidence_for_aggregated: float = DEFAULT_MIN_CONFIDENCE_AGGREGATED
+    multi_vector: bool = DEFAULT_MULTI_VECTOR
     top_term_per_chunk: bool = False
     averaging: str = "micro"
+    scoring_mode: str = "strict"  # strict | present-only
     include_assertions: bool = True
     relaxed_matching: bool = False
     bootstrap_ci: bool = True
     bootstrap_samples: int = 1000
+    bootstrap_seed: int | None = 12345
     dataset: str = "all"
     detailed_output: bool = False
     ontology_aware_metrics: bool = False
@@ -124,6 +128,7 @@ class HPOExtractor:
         self._retriever = DenseRetriever.from_model_name(
             model=self._sbert_model,
             model_name=self.config.model_name,
+            multi_vector=self.config.multi_vector,
         )
 
     def extract(self, text: str) -> list[tuple[str, str]]:
@@ -293,6 +298,10 @@ class ExtractionBenchmark:
                     )
                 )
 
+        from phentrieve.evaluation.extraction_metrics import normalize_for_scoring
+
+        results = normalize_for_scoring(results, config.scoring_mode)
+
         # Calculate metrics
         evaluator = CorpusExtractionMetrics(averaging=config.averaging)
         metrics = evaluator.calculate_all_metrics(results)
@@ -312,7 +321,9 @@ class ExtractionBenchmark:
         # Calculate bootstrap CI if requested
         if config.bootstrap_ci:
             ci = evaluator.bootstrap_confidence_intervals(
-                results, n_bootstrap=config.bootstrap_samples
+                results,
+                n_bootstrap=config.bootstrap_samples,
+                seed=config.bootstrap_seed,
             )
             metrics = CorpusMetrics(
                 micro=metrics.micro,
@@ -683,6 +694,8 @@ class ExtractionBenchmark:
                             "ontology_aware_metrics": config.ontology_aware_metrics,
                             "ontology_semantic_floor": config.ontology_semantic_floor,
                             "ontology_similarity_formula": config.ontology_similarity_formula,
+                            "scoring_mode": config.scoring_mode,
+                            "multi_vector": config.multi_vector,
                         },
                         "dataset": dataset_metadata,
                     },
@@ -710,6 +723,7 @@ class ExtractionBenchmark:
         # Save summary metrics
         summary = {
             "model": self.model_name,
+            "scoring_mode": config.scoring_mode,
             "micro_f1": metrics.micro.get("f1", 0),
             "micro_precision": metrics.micro.get("precision", 0),
             "micro_recall": metrics.micro.get("recall", 0),

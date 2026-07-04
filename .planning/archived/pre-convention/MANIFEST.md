@@ -1,0 +1,70 @@
+# Pre-convention planning files (quarantined 2026-07-03)
+
+Moved here by rule: top-level *.md in completed/ + archived/ not matching YYYY-MM-DD-*.
+Git history is preserved (`git log --follow`). No deletions.
+
+- .planning/archived/BENCHMARK-PLAN-COMPARISON.md
+- .planning/archived/BENCHMARK-PLAN-REVIEW.md
+- .planning/archived/CHUNKING-OPTIMIZATION-PLAN.md
+- .planning/archived/CHUNK-POSITION-TRACKING-PLAN.md
+- .planning/archived/CODEBASE-MAINTAINABILITY-REVIEW-2026-04-15.md
+- .planning/archived/CODE-QUALITY-REVIEW-2026-04-09.md
+- .planning/archived/CONFIGURATION-MANAGEMENT-PLAN.md
+- .planning/archived/DOCKER-REFACTORING-PLAN.md
+- .planning/archived/EMBEDDING-MODEL-EXPANSION-PLAN.md
+- .planning/archived/EXTRACTION-BENCHMARK-ACTION-PLAN.md
+- .planning/archived/EXTRACTION-BENCHMARK-DEEP-ANALYSIS.md
+- .planning/archived/FINETUNING_PLAN.md
+- .planning/archived/HPO-EXTRACTION-BENCHMARKING-FRAMEWORK.md
+- .planning/archived/HPO-PARSER-RESILIENCE-REFACTOR-V1-OVERENGINEERED.md
+- .planning/archived/HPO-SQLITE-MIGRATION-PLAN-SUPERSEDED.md
+- .planning/archived/HPO-TERM-DETAILS-CRITICAL-REVIEW.md
+- .planning/archived/MULTI-VECTOR-DUPLICATE-RESULTS-INVESTIGATION.md
+- .planning/archived/NEGATION-DETECTION-ANALYSIS.md
+- .planning/archived/PERFORMANCE-REVIEW-ANTIPATTERNS.md
+- .planning/archived/PIPELINE-FACTORY-PATTERN-REVIEW.md
+- .planning/archived/POST-REFACTORING-CLEANUP-ASSESSMENT.md
+- .planning/archived/PR-113-ISSUE-87-VERIFICATION-REPORT.md
+- .planning/archived/PREBUILT-DATA-DISTRIBUTION.md
+- .planning/archived/RERANKING-DIAGNOSIS-AND-FIX.md
+- .planning/archived/SINGLE-TERM-RETRIEVAL-BENCHMARK.md
+- .planning/archived/UNIFIED-OUTPUT-FORMAT-PHENOPACKETS-REVIEW.md
+- .planning/completed/ANNOTATION-CHUNKING-IMPLEMENTATION.md
+- .planning/completed/API-CODE-QUALITY-IMPROVEMENTS.md
+- .planning/completed/BENCHMARK-DATA-REORGANIZATION-PLAN.md
+- .planning/completed/CI-SPEEDUP-PLAN-2026-04-10.md
+- .planning/completed/CLI_PERFORMANCE_OPTIMIZATION_PHASE2.md
+- .planning/completed/CONFIG-RESOLVER-REFACTORING-PLAN.md
+- .planning/completed/DEFAULT-SETTINGS-OPTIMIZATION.md
+- .planning/completed/DOCKER-BUILD-OPTIMIZATION.md
+- .planning/completed/DOCKER-BUILD-TIMEOUT-FIX.md
+- .planning/completed/FRONTEND-CONVERSATION-PERSISTENCE-PLAN.md
+- .planning/completed/FRONTEND-PERFORMANCE-OPTIMIZATION.md
+- .planning/completed/HPO-EXTRACTION-IMPLEMENTATION-PLAN.md
+- .planning/completed/HPO-GRAPH-CACHING-REFACTORING.md
+- .planning/completed/HPO-PARSER-RESILIENCE-REFACTOR-V2-SIMPLIFIED.md
+- .planning/completed/HPO-SQLITE-REFACTORING-PLAN.md
+- .planning/completed/HPO-TERM-DETAILS-API-ENHANCEMENT.md
+- .planning/completed/HPO-TERM-DETAILS-API-ENHANCEMENT-V2-REVISED.md
+- .planning/completed/I18N-VALIDATION-PLAN.md
+- .planning/completed/IMPLEMENTATION-SUMMARY.md
+- .planning/completed/LOCAL-DEV-ENVIRONMENT.md
+- .planning/completed/LOGGING-OPTIMIZATION-PLAN.md
+- .planning/completed/MASTER-PLAN.md
+- .planning/completed/MODEL-CACHING-OPTIMIZATION-PLAN.md
+- .planning/completed/NEGEX-MULTILINGUAL-INTEGRATION.md
+- .planning/completed/PERFORMANCE-MASTER-PLAN.md
+- .planning/completed/PERFORMANCE-OPTIMIZATION-RESULTS.md
+- .planning/completed/PHASE-0-DAY-1-COMPLETION-REPORT.md
+- .planning/completed/PHASE-0-DAY-2-COMPLETION-REPORT.md
+- .planning/completed/PHENOBERT-CORPUS-CONVERSION-PLAN.md
+- .planning/completed/PHENOPACKET-INPUT-METADATA.md
+- .planning/completed/PREBUILT-DATA-DISTRIBUTION-PLAN.md
+- .planning/completed/REFACTORING-SUMMARY.md
+- .planning/completed/SECURITY-SCANNING-PLAN.md
+- .planning/completed/SEMANTIC-VERSIONING-AND-CONNECTION-INDICATOR.md
+- .planning/completed/SIMILARITY-SCORE-DISPLAY-REFACTOR.md
+- .planning/completed/TESTING-COVERAGE-EXPANSION-PLAN.md
+- .planning/completed/TESTING-IMPLEMENTATION-GUIDE.md
+- .planning/completed/TESTING-MODERNIZATION-PLAN.md
+- .planning/archived/unified-output-format/ (stray directory)

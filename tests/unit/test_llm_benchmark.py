@@ -2531,3 +2531,60 @@ def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
         json.loads(output_path.read_text(encoding="utf-8"))["llm_model"]
         == "gemini-2.5-flash"
     )
+
+
+def test_assertion_distribution_surfaces_dropped_deliverable():
+    """The present-only projection drops negated/family findings from scoring;
+    the distribution report must count them so the deliverable stays visible."""
+    import types
+
+    def term(assertion: str):
+        return types.SimpleNamespace(
+            term_id="HP:0000001", label="x", assertion=assertion, evidence="e"
+        )
+
+    pipeline_result = types.SimpleNamespace(
+        terms=[term("present"), term("present"), term("negated"), term("uncertain")],
+        family_history_findings=[term("present")],
+    )
+
+    dist = llm_benchmark._assertion_distribution(pipeline_result, dataset="GeneReviews")
+
+    assert dist["proband_by_assertion"] == {"present": 2, "negated": 1, "uncertain": 1}
+    # GeneReviews keeps present+uncertain, drops negated.
+    assert dist["proband_scored"] == 3
+    assert dist["proband_dropped_by_projection"] == 1
+    assert dist["family_history_findings"] == 1
+
+
+def test_aggregate_assertion_distribution_sums_records():
+    records = [
+        {
+            "assertion_distribution": {
+                "proband_by_assertion": {"present": 2, "negated": 1},
+                "proband_scored": 2,
+                "proband_dropped_by_projection": 1,
+                "family_history_findings": 1,
+            }
+        },
+        {
+            "assertion_distribution": {
+                "proband_by_assertion": {"present": 3},
+                "proband_scored": 3,
+                "proband_dropped_by_projection": 0,
+                "family_history_findings": 0,
+            }
+        },
+        # A checkpoint-restored record from before the field existed: no block.
+        {"doc_id": "legacy-doc"},
+    ]
+
+    agg = llm_benchmark._aggregate_assertion_distribution(records)
+
+    assert agg["proband_by_assertion"] == {"present": 5, "negated": 1}
+    assert agg["proband_scored"] == 5
+    assert agg["proband_dropped_by_projection"] == 1
+    assert agg["family_history_findings"] == 1
+    # Undercount is visible: 2 of 3 records contributed.
+    assert agg["documents_counted"] == 2
+    assert agg["documents_total"] == 3

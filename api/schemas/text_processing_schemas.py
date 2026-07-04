@@ -197,6 +197,22 @@ class AggregatedHPOTermAPI(BaseModel):
     status: str = Field(
         description="Aggregated assertion status (e.g., 'affirmed', 'negated')."
     )
+    experiencer: str | None = Field(
+        default=None,
+        description=(
+            "Who the finding belongs to (e.g., 'proband', 'family_history', "
+            "'other'), orthogonal to the present/negated assertion. None when "
+            "the backend does not attribute an experiencer."
+        ),
+    )
+    excluded: bool = Field(
+        default=False,
+        description=(
+            "Derived ruled-out flag: True when the aggregated status denotes a "
+            "negated/absent finding. Non-breaking companion to 'status' -- the "
+            "raw status value is left unchanged."
+        ),
+    )
     evidence_count: int
     source_chunk_ids: list[int] = Field(
         description="List of 1-based chunk_ids that provide evidence."
@@ -212,6 +228,28 @@ class AggregatedHPOTermAPI(BaseModel):
     text_attributions: list[TextAttributionSpanAPI] = Field(
         default_factory=list,
         description="Text spans in source chunks attributed to this HPO term.",
+    )
+    negated_qualifier: str | None = Field(
+        default=None,
+        description=(
+            "The negated portion Y of an 'X without Y' phrase carried on the "
+            "source finding (X). None on ordinary findings."
+        ),
+    )
+    qualifier_surface_text: str | None = Field(
+        default=None,
+        description=(
+            "For a negated_qualifier-derived excluded finding (B3): the surface "
+            "text Y that was retrieved and mapped. None on ordinary findings."
+        ),
+    )
+    match_method: str | None = Field(
+        default=None,
+        description=(
+            "Provenance of how the term was resolved. "
+            "'negated_qualifier_derived' marks a generated excluded finding. "
+            "None when the backend does not report a match method."
+        ),
     )
     # HPO term details (populated when include_details=True)
     definition: str | None = Field(
@@ -260,4 +298,12 @@ class TextProcessingResponseAPI(BaseModel):
     aggregated_hpo_terms: list[AggregatedHPOTermAPI] = Field(
         ...,
         description="Final list of aggregated HPO terms extracted from the document.",
+    )
+    family_history_findings: list[AggregatedHPOTermAPI] = Field(
+        default_factory=list,
+        description=(
+            "HPO terms attributed to a family member (experiencer != proband), "
+            "kept separate from aggregated_hpo_terms so a relative's finding is "
+            "never conflated with the proband's."
+        ),
     )

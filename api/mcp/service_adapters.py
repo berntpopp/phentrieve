@@ -24,6 +24,7 @@ from api.llm_quota import (
 )
 from api.mcp.envelope import McpToolError
 from api.mcp.projection import cap_response_synonyms
+from phentrieve.assertion_vocab import is_excluded
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_LANGUAGE,
@@ -380,7 +381,14 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     assertion = p.get("assertion") or p.get("status") or p.get("assertion_status")
     # A family-history mention is not a proband phenotypic feature; never fold it
     # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
-    if str(assertion).strip().lower() == "family_history":
+    # Experiencer (not assertion) now carries family-ness (B1 split them into
+    # separate axes); key the guard on experiencer, keeping the legacy
+    # assertion check as a defensive OR fallback (B2).
+    experiencer = str(p.get("experiencer") or "").strip().lower()
+    if (
+        experiencer == "family_history"
+        or str(assertion).strip().lower() == "family_history"
+    ):
         return None
     confidence = p.get("score")
     if confidence is None:
@@ -394,7 +402,7 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
-        assertion_status="negated" if assertion == "negated" else "affirmed",
+        assertion_status="negated" if is_excluded(assertion) else "affirmed",
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
         match_method=match_method,

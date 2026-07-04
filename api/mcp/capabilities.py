@@ -141,6 +141,16 @@ def _descriptor_body(details: tuple[str, ...]) -> dict[str, Any]:
             "phase_timings for a per-phase breakdown.",
         },
         "extraction_backends": ["standard", "llm"],
+        "extract_output_contract": (
+            "Extract responses carry aggregated_hpo_terms (proband findings) plus "
+            "family_history_findings (terms attributed to a relative, kept "
+            "separate so a family member's finding is never conflated with the "
+            "proband's). Each aggregated/family term includes experiencer "
+            "(proband / family_history / other) and a derived excluded:bool "
+            "(true when the finding is negated/absent/ruled-out); the raw "
+            "assertion/status value is left unchanged. The family list is "
+            "budgeted independently under response_mode."
+        ),
         "llm_modes": ["two_phase"],
         "llm_internal_modes": ["whole_document_grounded", "whole_document_legacy"],
         "citation_contract": (

@@ -27,6 +27,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from phentrieve.assertion_vocab import is_excluded
+
 # R3: cap synonyms in the *response* (never the list used for attribution
 # matching, which lives in the retrieval/extraction layer) so include_details
 # does not dump an uncapped synonym list. Report how many were dropped.
@@ -75,6 +77,19 @@ def project_aggregated_terms_for_mcp(
         out["score"] = term.get("score", term.get("max_score_from_evidence", 0.0))
         if "evidence_count" not in out and "count" in term:
             out["evidence_count"] = term["count"]
+
+        # Derive excluded as a FALLBACK so MCP matches REST for ALL backends
+        # (B2fix). The LLM backend and family list already carry a precomputed
+        # bool -- leave those untouched (idempotent). Only the deterministic
+        # backend, which sets no excluded, needs the status-derived flag. Use
+        # status (dropped below) or the just-normalized assertion. False (not
+        # None) survives the trailing None-filter, so a present term keeps its
+        # excluded=false. experiencer is left as-is: when absent it stays absent
+        # (no misleading "proband" default).
+        if not isinstance(out.get("excluded"), bool):
+            out["excluded"] = is_excluded(
+                out.get("status") or out.get("assertion") or ""
+            )
 
         # Single 1-based chunk-index scheme.
         if term.get("source_chunk_ids") is not None:
@@ -139,6 +154,12 @@ def project_extract_payload(
     if isinstance(payload.get("aggregated_hpo_terms"), list):
         out["aggregated_hpo_terms"] = project_aggregated_terms_for_mcp(
             payload["aggregated_hpo_terms"]
+        )
+    # Family-history findings share the aggregated-term shape; project them the
+    # same way so experiencer / excluded survive and the identity keys normalize.
+    if isinstance(payload.get("family_history_findings"), list):
+        out["family_history_findings"] = project_aggregated_terms_for_mcp(
+            payload["family_history_findings"]
         )
     if isinstance(payload.get("processed_chunks"), list):
         out["processed_chunks"] = project_processed_chunks_for_mcp(

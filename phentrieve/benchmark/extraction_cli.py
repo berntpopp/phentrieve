@@ -2,6 +2,7 @@
 
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from phentrieve.benchmark.extraction_benchmark import (
     ExtractionConfig,
 )
 from phentrieve.benchmark.extraction_reporter import ExtractionReporter
+from phentrieve.config import DEFAULT_MULTI_VECTOR
 
 app = typer.Typer(
     help="Document-level HPO extraction benchmarking against gold annotations."
@@ -38,6 +40,18 @@ def run(
     ),
     averaging: str = typer.Option(
         "micro", help="Averaging strategy: micro, macro, or weighted"
+    ),
+    scoring_mode: str = typer.Option(
+        "strict",
+        "--scoring-mode",
+        help="Scoring mode: strict (assertion-aware, default) or present-only "
+        "(proband-present id-level; for legacy polarity-blind corpora).",
+    ),
+    multi_vector: bool = typer.Option(
+        DEFAULT_MULTI_VECTOR,
+        "--multi-vector/--no-multi-vector",
+        help="Connect to the multi-vector index (default follows the project "
+        "config). Use --no-multi-vector for a single-vector index.",
     ),
     include_assertions: bool = typer.Option(
         True, help="Include assertion detection in evaluation"
@@ -117,6 +131,8 @@ def run(
         model_name=model,
         language=language,
         averaging=averaging,
+        scoring_mode=scoring_mode,
+        multi_vector=multi_vector,
         include_assertions=include_assertions,
         relaxed_matching=relaxed_matching,
         bootstrap_ci=bootstrap_ci,
@@ -150,6 +166,76 @@ def run(
     # Display results
     _display_results(metrics)
     console.print(f"\n[green]Results saved to {output_dir}[/green]")
+
+
+_GATED_METRICS = ("micro_f1", "micro_precision", "micro_recall")
+
+
+def _regressions(
+    baseline: dict[str, Any], candidate: dict[str, Any], tolerance: float
+) -> list[str]:
+    """Return a human-readable line per metric that dropped beyond tolerance."""
+    out: list[str] = []
+    for key in _GATED_METRICS:
+        # Fail closed on a MISSING gated key on either side. Defaulting a missing
+        # baseline metric to 0.0 would wave any non-negative candidate through
+        # (0.0 - tol is never exceeded), silently passing a total regression when
+        # the gate is pointed at a wrong-shape/legacy summary (e.g. the nested
+        # extraction_results.json instead of the flat extraction_summary.json).
+        if key not in baseline or key not in candidate:
+            out.append(
+                f"{key}: MISSING "
+                f"(baseline={'present' if key in baseline else 'absent'}, "
+                f"candidate={'present' if key in candidate else 'absent'})"
+            )
+            continue
+        base = float(baseline[key])
+        cand = float(candidate[key])
+        # Fail closed: a NaN on either side makes the comparison meaningless, so
+        # treat it as a regression rather than let it slip through (NaN < x is False).
+        if math.isnan(base) or math.isnan(cand) or cand < base - tolerance:
+            out.append(f"{key}: {cand:.4f} < baseline {base:.4f} (tol {tolerance})")
+    return out
+
+
+@app.command(name="assert-no-regression")
+def assert_no_regression(
+    baseline: Path = typer.Option(..., help="Baseline extraction_summary.json"),
+    candidate: Path = typer.Option(..., help="Candidate extraction_summary.json"),
+    tolerance: float = typer.Option(0.0, help="Allowed absolute drop per metric"),
+):
+    """Exit non-zero if the candidate regresses any gated metric vs the baseline."""
+    base = json.loads(baseline.read_text())
+    cand = json.loads(candidate.read_text())
+    # Refuse to gate across scoring modes (e.g. present-only candidate vs strict
+    # baseline): the metrics are not comparable and the gate would be meaningless.
+    # Fail closed when EITHER file omits ``scoring_mode`` -- a missing mode makes
+    # comparability unverifiable, and present-only metrics are systematically
+    # higher than strict, so a mode-stripped present-only candidate would
+    # otherwise pass a strict baseline. The golden path writes scoring_mode
+    # unconditionally, so requiring it only rejects legacy/hand-edited summaries.
+    base_mode = base.get("scoring_mode")
+    cand_mode = cand.get("scoring_mode")
+    if base_mode is None or cand_mode is None:
+        console.print(
+            f"[red]SCORING MODE MISSING[/red] baseline={base_mode!r} "
+            f"candidate={cand_mode!r} -- both summaries must declare scoring_mode; "
+            "regenerate them."
+        )
+        raise typer.Exit(2)
+    if base_mode != cand_mode:
+        console.print(
+            f"[red]SCORING MODE MISMATCH[/red] baseline={base_mode!r} "
+            f"candidate={cand_mode!r} -- regenerate one in the other's mode."
+        )
+        raise typer.Exit(2)
+    regressions = _regressions(base, cand, tolerance)
+    if regressions:
+        console.print("[red]REGRESSION[/red]")
+        for line in regressions:
+            console.print(f"  {line}")
+        raise typer.Exit(1)
+    console.print("[green]No regression[/green]")
 
 
 @app.command()

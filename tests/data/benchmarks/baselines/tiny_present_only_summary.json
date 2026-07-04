@@ -1,0 +1,13 @@
+{
+  "model": "FremyCompany/BioLORD-2023-M",
+  "scoring_mode": "present-only",
+  "micro_f1": 0.45161290322580644,
+  "micro_precision": 0.2916666666666667,
+  "micro_recall": 1.0,
+  "macro_f1": 0.45454545454545453,
+  "macro_precision": 0.2962962962962963,
+  "macro_recall": 1.0,
+  "weighted_f1": 0.461038961038961,
+  "weighted_precision": 0.3015873015873015,
+  "weighted_recall": 1.0
+}
