@@ -81,6 +81,29 @@ def test_conflicting_axes_store_derived_compat_category() -> None:
     assert phenotype.category == "normal"
 
 
+def test_normal_category_blocks_contradictory_present_assertion() -> None:
+    """B1 hardening: a ``normal`` category is a normalcy verdict, so a
+    contradictory model ``assertion="present"`` must NOT promote the finding to
+    present (e.g. "normal intellectual abilities" is not Cognitive impairment).
+    The contradiction resolves to the normalcy category's ``negated``."""
+    item = _item(category="normal", assertion="present")
+
+    phenotype = phenotype_from_candidate(item=item, candidate=_candidate())
+
+    assert phenotype.assertion == "negated"
+    assert phenotype.category == "normal"
+
+
+def test_normal_category_still_honors_model_uncertain() -> None:
+    """The block is narrow: only present is refused on a normal category. A model
+    ``uncertain`` is consistent and still honored."""
+    item = _item(category="normal", assertion="uncertain")
+
+    phenotype = phenotype_from_candidate(item=item, candidate=_candidate())
+
+    assert phenotype.assertion == "uncertain"
+
+
 def test_uncertain_model_assertion_maps_to_suspected_category() -> None:
     """A model ``assertion="uncertain"`` for a proband phrase resolves to the
     pipeline ``uncertain`` and a stored compat category of ``"suspected"``."""

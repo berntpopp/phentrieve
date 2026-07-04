@@ -95,9 +95,17 @@ def test_retrieve_candidates_preserves_experiencer_and_assertion():
     assert rebuilt["assertion"] == "absent"
 
 
-def test_compact_mapping_item_includes_experiencer_and_assertion():
-    """Mapping payload must carry the axes so the phase-2 LLM (and Task 5's
-    ``phenotype_from_candidate``) can read the model's assertion + experiencer."""
+def test_compact_mapping_item_omits_experiencer_and_assertion():
+    """The mapping payload must NOT carry the axes.
+
+    Regression guard: serializing ``experiencer``/``assertion`` into the mapping
+    LLM payload perturbed its near-deterministic candidate pick (flipping bare
+    fragments toward top-scored *modifier* nodes) and measurably dropped
+    precision, while the mapping templates never reference the keys. The axes are
+    orthogonal to phrase->HPO-id selection and reach the resolver via the
+    ORIGINAL item in ``phenotype_from_candidate`` (see the companion assert
+    below), so they must stay out of the payload.
+    """
     item = {
         "phrase": "seizures",
         "category": "abnormal",
@@ -109,8 +117,28 @@ def test_compact_mapping_item_includes_experiencer_and_assertion():
 
     compact = compact_mapping_item(item)
 
-    assert compact["experiencer"] == "family_history"
-    assert compact["assertion"] == "absent"
+    assert "experiencer" not in compact
+    assert "assertion" not in compact
+
+
+def test_axes_still_reach_resolver_via_original_item():
+    """Dropping the axes from the mapping payload must NOT weaken B1: the model's
+    raw assertion/experiencer still win at ``phenotype_from_candidate``, which
+    reads the ORIGINAL item, not the compacted mapping payload."""
+    item = {
+        "phrase": "seizures",
+        "category": "abnormal",
+        "chunk_ids": [1],
+        "evidence_text": "no seizures in the mother",
+        "experiencer": "family_history",
+        "assertion": "absent",
+    }
+    candidate = {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.9}
+
+    phenotype = phenotype_from_candidate(item=item, candidate=candidate)
+
+    assert phenotype.assertion == "negated"  # absent -> negated (model wins)
+    assert phenotype.experiencer == "family_history"
 
 
 def test_phase1_dedup_key_separates_experiencer():

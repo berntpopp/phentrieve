@@ -129,6 +129,16 @@ def compact_mapping_item(
         for text in grounded_context.get("neighbor_chunk_texts", [])
         if normalize_grounded_text(text)
     ]
+    # NOTE: ``experiencer`` and ``assertion`` are deliberately NOT serialized into
+    # the mapping payload. The mapping task is phrase->HPO-id selection; the axes
+    # are orthogonal to *which* term a phrase maps to and the mapping templates
+    # (en_mapping*.yaml) never reference them. Including them only perturbed the
+    # LLM's near-deterministic candidate pick (flipping bare fragments toward
+    # top-scored *modifier* nodes, e.g. "visuospatial"->HP:0012836), causing a
+    # measured precision regression. The axes still reach the resolver via the
+    # ORIGINAL item in ``phenotype_from_candidate`` (model-assertion-wins, B1),
+    # so dropping them here is behavior-preserving for the contract and only
+    # restores the baseline mapping input.
     compact_item: dict[str, Any] = {
         "primary_chunk_text": normalize_grounded_text(
             grounded_context.get("primary_chunk_text")
@@ -136,8 +146,6 @@ def compact_mapping_item(
         "neighbor_chunk_texts": neighbor_texts,
         "phrase": str(item["phrase"]).lower().replace("-", " ").strip(),
         "category": item["category"],
-        "experiencer": item.get("experiencer"),
-        "assertion": item.get("assertion"),
         "candidates": [],
     }
     for candidate in item["candidates"]:
@@ -299,14 +307,29 @@ def phenotype_from_candidate(
         match_method=match_method,
     )
     normalized_category = normalize_category(str(item.get("category", "")))
-    # Model WINS: when the model supplied its own raw wire assertion, map it to
-    # the pipeline vocabulary (present | negated | uncertain); otherwise fall
-    # back to the legacy category derivation for backward compatibility (B1/D2).
-    resolved_assertion = (
+    model_assertion = (
         parse_assertion(item["assertion"]).value
         if item.get("assertion") is not None
-        else CATEGORY_TO_ASSERTION.get(normalized_category, PRESENT_ASSERTION)
+        else None
     )
+    # Model WINS on polarity (present | negated | uncertain), EXCEPT it may not
+    # promote an explicit ``normal`` category to ``present``. A "normal" category
+    # is a normalcy verdict (e.g. "normal intellectual abilities" is NOT
+    # Cognitive impairment); the phase-1 model sometimes co-emits a contradictory
+    # ``assertion="present"`` (or leaks the schema default), which B1's plain
+    # model-wins rule would flip a ruled-out finding to present. That specific
+    # contradiction resolves to the normalcy category's ``negated`` instead. A
+    # model ``negated``/``uncertain`` on a normal category is consistent and is
+    # still honored; every other category keeps model-wins / category-fallback
+    # (B1/D2).
+    if normalized_category == "normal" and model_assertion == PRESENT_ASSERTION:
+        resolved_assertion = CATEGORY_TO_ASSERTION["normal"]
+    elif model_assertion is not None:
+        resolved_assertion = model_assertion
+    else:
+        resolved_assertion = CATEGORY_TO_ASSERTION.get(
+            normalized_category, PRESENT_ASSERTION
+        )
     resolved_experiencer = (
         item["experiencer"]
         if item.get("experiencer")
