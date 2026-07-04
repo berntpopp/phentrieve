@@ -21,6 +21,7 @@ from phentrieve.llm.config import (
     DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
     DEFAULT_QUERY_RESULTS_PER_PHRASE,
     DEFAULT_SIMILARITY_THRESHOLD,
+    NEGATED_ASSERTION,
     PRESENT_ASSERTION,
 )
 from phentrieve.llm.pipeline_phase1 import (
@@ -557,8 +558,23 @@ class TwoPhaseLLMPipeline:
                 family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
             trace["family"] = family_trace
 
+        # B3: map each resolved proband finding's negated qualifier Y (the
+        # absent portion of an "X without Y" phrase) to a GENERATED excluded
+        # finding. Y is retrieved through the SAME retrieval path as any phrase;
+        # when its top candidate scores at or above the confidence floor
+        # (``self.similarity_threshold``) an excluded ``LLMPhenotype`` is emitted
+        # for Y. Below the floor (or when nothing is retrieved) no term is
+        # generated and the source finding's ``negated_qualifier`` metadata
+        # string is retained. This runs AFTER proband resolution and BEFORE the
+        # final dedup so the generated terms flow through the same dedup key.
+        qualifier_exclusions = self._build_qualifier_exclusions(
+            resolved_terms=resolved_terms,
+            grounded_chunks=grounded_chunks,
+            language=language,
+        )
+
         return LLMExtractionResult(
-            terms=self._deduplicate_terms(resolved_terms),
+            terms=self._deduplicate_terms(resolved_terms + qualifier_exclusions),
             family_history_findings=self._deduplicate_terms(resolved_family),
             meta=LLMMeta(
                 llm_provider=config.provider,
@@ -580,6 +596,86 @@ class TwoPhaseLLMPipeline:
                 trace=trace,
             ),
         )
+
+    def _build_qualifier_exclusions(
+        self,
+        *,
+        resolved_terms: list[LLMPhenotype],
+        grounded_chunks: list[dict[str, Any]],
+        language: str,
+    ) -> list[LLMPhenotype]:
+        """Generate an excluded finding for each proband finding's negated
+        qualifier Y that maps at or above the confidence floor (B3).
+
+        For every resolved proband finding carrying a truthy
+        ``negated_qualifier``, retrieve Y through the shared retrieval path and,
+        when the top candidate scores ``>= self.similarity_threshold``, emit a
+        generated excluded ``LLMPhenotype`` for Y. Below the floor (or when
+        nothing is retrieved) no term is generated and the source finding's
+        ``negated_qualifier`` metadata string is left untouched.
+
+        F5: the generated term INHERITS the source finding's evidence records so
+        it carries valid ``chunk_ids`` (the "X without Y" span lives in the same
+        chunk as X). A generated term with empty/invalid chunk refs is silently
+        dropped at the aggregation service boundary
+        (``full_text_service.py``)."""
+        exclusions: list[LLMPhenotype] = []
+        for finding in resolved_terms:
+            qualifier = (finding.negated_qualifier or "").strip()
+            if not qualifier:
+                continue
+
+            # Inherit the source finding's chunk ids so the retrieval item and
+            # the generated term stay anchored to the source span (F5).
+            source_chunk_ids: list[int] = []
+            for record in finding.evidence_records:
+                source_chunk_ids.extend(record.chunk_ids)
+
+            synthetic_item: dict[str, Any] = {
+                "phrase": qualifier,
+                "category": "Abnormal",
+                "chunk_ids": list(source_chunk_ids),
+                "evidence_text": qualifier,
+                "negated_qualifier": None,
+                "start_char": None,
+                "end_char": None,
+                "experiencer": "proband",
+                "assertion": None,
+            }
+            retrieved = self._retrieve_candidates(
+                actionable=[synthetic_item],
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            candidates = retrieved[0].get("candidates", []) if retrieved else []
+            if not candidates:
+                continue
+            top = candidates[0]
+            top_score = float(top.get("score", 0.0) or 0.0)
+            if top_score < self.similarity_threshold:
+                continue
+
+            # F5: copy the source finding's evidence records so the generated
+            # term carries at least one valid chunk reference.
+            inherited_records = [
+                record.model_copy(deep=True) for record in finding.evidence_records
+            ]
+            exclusions.append(
+                LLMPhenotype(
+                    term_id=str(top["hpo_id"]),
+                    label=str(top.get("term_name", "") or ""),
+                    evidence=qualifier,
+                    assertion=NEGATED_ASSERTION,
+                    experiencer="proband",
+                    negated_qualifier=None,
+                    qualifier_surface_text=qualifier,
+                    match_method="negated_qualifier_derived",
+                    confidence=top_score,
+                    score=top_score,
+                    evidence_records=inherited_records,
+                )
+            )
+        return exclusions
 
     def _resolve_items(
         self,

@@ -65,6 +65,14 @@ class LLMPhenotype(BaseModel):
     # only the qualifier Y is absent. None when the phrase is not partially
     # negated.
     negated_qualifier: str | None = None
+    # For a GENERATED excluded finding derived from a source finding's
+    # ``negated_qualifier`` (B3): the surface text Y that was retrieved and
+    # mapped. None on ordinary (non-derived) findings.
+    qualifier_surface_text: str | None = None
+    # Provenance of how the term was resolved. Set to
+    # ``"negated_qualifier_derived"`` on a B3-generated excluded finding so
+    # downstream consumers can distinguish it from a directly-extracted term.
+    match_method: str | None = None
     category: str | None = None
     confidence: float | None = None
     score: float | None = None

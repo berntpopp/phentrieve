@@ -4049,11 +4049,27 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
         config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
     )
 
-    assert len(result.terms) == 1
-    term = result.terms[0]
+    # The source finding stays present and still carries the negated qualifier
+    # metadata string threaded from the grounded extraction.
+    present_terms = [t for t in result.terms if t.assertion == "present"]
+    assert len(present_terms) == 1
+    term = present_terms[0]
     assert term.term_id == "HP:0010864"
     assert term.assertion == "present"
     assert term.negated_qualifier == "regression"
+
+    # B3 (Task 10): the qualifier Y ("regression") is now retrieved and, when it
+    # maps at or above the similarity floor, a GENERATED excluded finding is
+    # emitted. This stub's retriever returns the same fixed candidate for every
+    # query, so the generated term resolves to the same HPO id under the negated
+    # assertion (a distinct dedup key from the present source term).
+    generated = [
+        t for t in result.terms if t.match_method == "negated_qualifier_derived"
+    ]
+    assert len(generated) == 1
+    assert generated[0].assertion == "negated"
+    assert generated[0].experiencer == "proband"
+    assert generated[0].qualifier_surface_text == "regression"
 
 
 def test_phase1_failure_is_recorded_in_trace_not_silenced(caplog):
