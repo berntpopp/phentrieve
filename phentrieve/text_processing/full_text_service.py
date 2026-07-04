@@ -483,6 +483,16 @@ def _adapt_llm_aggregated_terms(
         match_method = getattr(term, "match_method", None)
         if match_method:
             adapted_terms[-1]["match_method"] = match_method
+            if match_method == "negated_qualifier_derived":
+                # B3 coherence fix: the generated term INHERITS the source
+                # finding's evidence records verbatim (F5) purely to carry
+                # valid ``source_chunk_ids`` past the drop guard above. Those
+                # evidence records' text belongs to the SOURCE finding X (the
+                # "rash" in "rash without fever"), not to this generated
+                # excluded term Y ("fever") -- so the ``text_attributions``
+                # computed from them would highlight the wrong span. Suppress
+                # the highlight while leaving chunk provenance untouched.
+                adapted_terms[-1]["text_attributions"] = []
         qualifier_surface_text = getattr(term, "qualifier_surface_text", None)
         if qualifier_surface_text:
             adapted_terms[-1]["qualifier_surface_text"] = qualifier_surface_text
