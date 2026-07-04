@@ -229,6 +229,28 @@ class AggregatedHPOTermAPI(BaseModel):
         default_factory=list,
         description="Text spans in source chunks attributed to this HPO term.",
     )
+    negated_qualifier: str | None = Field(
+        default=None,
+        description=(
+            "The negated portion Y of an 'X without Y' phrase carried on the "
+            "source finding (X). None on ordinary findings."
+        ),
+    )
+    qualifier_surface_text: str | None = Field(
+        default=None,
+        description=(
+            "For a negated_qualifier-derived excluded finding (B3): the surface "
+            "text Y that was retrieved and mapped. None on ordinary findings."
+        ),
+    )
+    match_method: str | None = Field(
+        default=None,
+        description=(
+            "Provenance of how the term was resolved. "
+            "'negated_qualifier_derived' marks a generated excluded finding. "
+            "None when the backend does not report a match method."
+        ),
+    )
     # HPO term details (populated when include_details=True)
     definition: str | None = Field(
         None, description="Definition of the HPO term (when include_details=True)."

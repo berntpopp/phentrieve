@@ -82,6 +82,9 @@ def _build_aggregated_hpo_term(term: dict[str, Any]) -> AggregatedHPOTermAPI:
             for attr in _coerce_response_items(term.get("text_attributions"))
             if isinstance(attr, dict)
         ],
+        negated_qualifier=term.get("negated_qualifier"),
+        qualifier_surface_text=term.get("qualifier_surface_text"),
+        match_method=term.get("match_method"),
         definition=term.get("definition"),
         synonyms=term.get("synonyms"),
         score=term.get("score"),

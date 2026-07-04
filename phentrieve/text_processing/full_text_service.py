@@ -476,6 +476,16 @@ def _adapt_llm_aggregated_terms(
         negated_qualifier = getattr(term, "negated_qualifier", None)
         if negated_qualifier:
             adapted_terms[-1]["negated_qualifier"] = negated_qualifier
+        # B3/F5: carry the negated_qualifier-derived excluded finding's shape.
+        # ``match_method="negated_qualifier_derived"`` marks a generated term;
+        # ``qualifier_surface_text`` is the retrieved-and-mapped surface Y. Both
+        # are truthy-gated so ordinary (non-derived) terms surface unchanged.
+        match_method = getattr(term, "match_method", None)
+        if match_method:
+            adapted_terms[-1]["match_method"] = match_method
+        qualifier_surface_text = getattr(term, "qualifier_surface_text", None)
+        if qualifier_surface_text:
+            adapted_terms[-1]["qualifier_surface_text"] = qualifier_surface_text
 
     return adapted_terms
 
