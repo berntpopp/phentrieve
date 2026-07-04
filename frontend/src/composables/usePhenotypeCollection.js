@@ -6,15 +6,13 @@ import { logService } from '../services/logService';
 // Mirrors the Python 6-value `_NEGATED` / `is_excluded` set (B0 contract,
 // phentrieve/assertion_vocab.py) so an assertion_status of 'absent' (not only
 // literal 'negated') exports as excluded: true in the Phenopacket.
-const EXCLUDED_ASSERTIONS = new Set([
-  'negated',
-  'negative',
-  'absent',
-  'excluded',
-  'no',
-  'denied',
-]);
-const isExcluded = (a) => EXCLUDED_ASSERTIONS.has(String(a ?? '').trim().toLowerCase());
+const EXCLUDED_ASSERTIONS = new Set(['negated', 'negative', 'absent', 'excluded', 'no', 'denied']);
+const isExcluded = (a) =>
+  EXCLUDED_ASSERTIONS.has(
+    String(a ?? '')
+      .trim()
+      .toLowerCase()
+  );
 
 /**
  * Composable for managing phenotype collection state and actions.
