@@ -42,6 +42,30 @@ def test_fails_open_on_unknown_or_root(monkeypatch):
     assert ontology_guard.is_non_phenotypic_abnormality("") is False
 
 
+def test_empty_load_is_not_cached_and_recovers(monkeypatch, tmp_path):
+    """Regression guard (Codex High): a fail-open empty/failed load must NOT be
+    memoized -- otherwise the first call before hpo_data.db is present latches the
+    guard OFF for the whole process. It must recover once the DB appears."""
+    og = ontology_guard
+    og._ANCESTORS_CACHE.clear()
+    monkeypatch.setattr(og, "resolve_data_path", lambda *a, **k: tmp_path)
+
+    db_file = tmp_path / "hpo_data.db"
+    # 1) DB absent -> fail open, and DO NOT cache.
+    assert og._ancestors_map() == {}
+    assert og._ANCESTORS_CACHE == {}
+
+    # 2) DB now present -> loads and caches by path.
+    db_file.write_text("")
+    monkeypatch.setattr(
+        og,
+        "_load_ancestors_map",
+        lambda path: {"HP:0012825": frozenset({"HP:0012823"})},
+    )
+    assert og._ancestors_map() == {"HP:0012825": frozenset({"HP:0012823"})}
+    assert str(db_file) in og._ANCESTORS_CACHE
+
+
 def test_pipeline_drops_non_phenotypic_terms(monkeypatch):
     _guard_with_map(
         monkeypatch,

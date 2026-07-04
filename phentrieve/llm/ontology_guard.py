@@ -15,41 +15,72 @@ loaded) is kept, so incomplete data never silently drops a real finding.
 from __future__ import annotations
 
 import logging
-from functools import lru_cache
 
 from phentrieve.config import DEFAULT_HPO_DB_FILENAME, PHENOTYPE_ROOT
 from phentrieve.utils import get_default_data_dir, resolve_data_path
 
 logger = logging.getLogger(__name__)
 
+# Path-keyed cache of SUCCESSFUL, non-empty ancestry loads only. A failed or
+# empty load is deliberately NOT memoized so the guard recovers on a later call
+# once ``hpo_data.db`` becomes available (e.g. an API process that starts before
+# the data bundle is present) instead of latching the fail-open ``{}`` for the
+# whole process lifetime. Keying by resolved DB path also re-loads when the data
+# root changes in-process rather than serving a stale map.
+_ANCESTORS_CACHE: dict[str, dict[str, frozenset[str]]] = {}
 
-@lru_cache(maxsize=1)
+
+def _load_ancestors_map(db_path) -> dict[str, frozenset[str]]:
+    from phentrieve.data_processing.hpo_database import HPODatabase
+
+    with HPODatabase(db_path) as db:
+        ancestors, _ = db.load_graph_data()
+    return {term: frozenset(anc) for term, anc in ancestors.items()}
+
+
 def _ancestors_map() -> dict[str, frozenset[str]]:
-    """Load and cache ``{term_id: frozenset(ancestor_ids)}`` from the HPO graph.
+    """Return ``{term_id: frozenset(ancestor_ids)}`` from the HPO graph.
 
     Returns an empty map (guard disabled, fail open) when the database is
-    unavailable so the pipeline never hard-depends on graph data at runtime.
+    unavailable so the pipeline never hard-depends on graph data at runtime; the
+    empty result is not cached, so a later call retries.
     """
     try:
         data_dir = resolve_data_path(None, "data_dir", get_default_data_dir)
         db_path = data_dir / DEFAULT_HPO_DB_FILENAME
-        if not db_path.exists():
-            logger.warning(
-                "HPO database not found: %s; ontology guard disabled (fail open).",
-                db_path,
-            )
-            return {}
-        from phentrieve.data_processing.hpo_database import HPODatabase
-
-        with HPODatabase(db_path) as db:
-            ancestors, _ = db.load_graph_data()
-        return {term: frozenset(anc) for term, anc in ancestors.items()}
+        cache_key = str(db_path)
     except Exception as exc:  # pragma: no cover - defensive
         logger.warning(
-            "Ontology guard could not load HPO graph (%s); disabled (fail open).",
+            "Ontology guard could not resolve HPO db path (%s); disabled (fail open).",
             exc,
         )
         return {}
+
+    cached = _ANCESTORS_CACHE.get(cache_key)
+    if cached:
+        return cached
+
+    try:
+        if not db_path.exists():
+            logger.warning(
+                "HPO database not found: %s; ontology guard disabled "
+                "(fail open, will retry).",
+                db_path,
+            )
+            return {}
+        loaded = _load_ancestors_map(db_path)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning(
+            "Ontology guard could not load HPO graph (%s); disabled "
+            "(fail open, will retry).",
+            exc,
+        )
+        return {}
+
+    # Only memoize a successful, non-empty load.
+    if loaded:
+        _ANCESTORS_CACHE[cache_key] = loaded
+    return loaded
 
 
 def is_non_phenotypic_abnormality(term_id: str) -> bool:
