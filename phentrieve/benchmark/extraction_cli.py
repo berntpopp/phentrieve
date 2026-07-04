@@ -177,8 +177,20 @@ def _regressions(
     """Return a human-readable line per metric that dropped beyond tolerance."""
     out: list[str] = []
     for key in _GATED_METRICS:
-        base = float(baseline.get(key, 0.0))
-        cand = float(candidate.get(key, 0.0))
+        # Fail closed on a MISSING gated key on either side. Defaulting a missing
+        # baseline metric to 0.0 would wave any non-negative candidate through
+        # (0.0 - tol is never exceeded), silently passing a total regression when
+        # the gate is pointed at a wrong-shape/legacy summary (e.g. the nested
+        # extraction_results.json instead of the flat extraction_summary.json).
+        if key not in baseline or key not in candidate:
+            out.append(
+                f"{key}: MISSING "
+                f"(baseline={'present' if key in baseline else 'absent'}, "
+                f"candidate={'present' if key in candidate else 'absent'})"
+            )
+            continue
+        base = float(baseline[key])
+        cand = float(candidate[key])
         # Fail closed: a NaN on either side makes the comparison meaningless, so
         # treat it as a regression rather than let it slip through (NaN < x is False).
         if math.isnan(base) or math.isnan(cand) or cand < base - tolerance:
@@ -197,9 +209,21 @@ def assert_no_regression(
     cand = json.loads(candidate.read_text())
     # Refuse to gate across scoring modes (e.g. present-only candidate vs strict
     # baseline): the metrics are not comparable and the gate would be meaningless.
+    # Fail closed when EITHER file omits ``scoring_mode`` -- a missing mode makes
+    # comparability unverifiable, and present-only metrics are systematically
+    # higher than strict, so a mode-stripped present-only candidate would
+    # otherwise pass a strict baseline. The golden path writes scoring_mode
+    # unconditionally, so requiring it only rejects legacy/hand-edited summaries.
     base_mode = base.get("scoring_mode")
     cand_mode = cand.get("scoring_mode")
-    if base_mode is not None and cand_mode is not None and base_mode != cand_mode:
+    if base_mode is None or cand_mode is None:
+        console.print(
+            f"[red]SCORING MODE MISSING[/red] baseline={base_mode!r} "
+            f"candidate={cand_mode!r} -- both summaries must declare scoring_mode; "
+            "regenerate them."
+        )
+        raise typer.Exit(2)
+    if base_mode != cand_mode:
         console.print(
             f"[red]SCORING MODE MISMATCH[/red] baseline={base_mode!r} "
             f"candidate={cand_mode!r} -- regenerate one in the other's mode."

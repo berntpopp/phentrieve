@@ -72,3 +72,30 @@ def test_cli_scoring_mode_mismatch_exits_two(tmp_path):
     )
     assert result.exit_code == 2
     assert "MODE MISMATCH" in result.stdout
+
+
+def test_regressions_fail_closed_on_missing_baseline_key():
+    # A baseline missing a gated key must NOT default to 0.0 and pass anything.
+    base = {"micro_precision": 0.80, "micro_recall": 0.80}  # no micro_f1
+    cand = {"micro_f1": 0.01, "micro_precision": 0.80, "micro_recall": 0.80}
+    out = _regressions(base, cand, tolerance=0.0)
+    assert any("micro_f1" in r and "MISSING" in r for r in out)
+
+
+def test_regressions_fail_closed_on_missing_candidate_key():
+    base = {"micro_f1": 0.80, "micro_precision": 0.80, "micro_recall": 0.80}
+    cand = {"micro_precision": 0.80, "micro_recall": 0.80}  # no micro_f1
+    out = _regressions(base, cand, tolerance=0.0)
+    assert any("micro_f1" in r and "MISSING" in r for r in out)
+
+
+def test_cli_missing_scoring_mode_exits_two(tmp_path):
+    # A summary lacking scoring_mode is not gateable: comparability is unverifiable
+    # and a mode-stripped present-only candidate could otherwise pass a strict base.
+    b = _write_summary(tmp_path / "b.json")  # no scoring_mode
+    c = _write_summary(tmp_path / "c.json", scoring_mode="strict")
+    result = runner.invoke(
+        app, ["assert-no-regression", "--baseline", str(b), "--candidate", str(c)]
+    )
+    assert result.exit_code == 2
+    assert "MODE MISSING" in result.stdout

@@ -4,7 +4,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from phentrieve.llm.config import (
@@ -21,8 +21,10 @@ from phentrieve.llm.config import (
     DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS,
     DEFAULT_QUERY_RESULTS_PER_PHRASE,
     DEFAULT_SIMILARITY_THRESHOLD,
+    NEGATED_ASSERTION,
     PRESENT_ASSERTION,
 )
+from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
 )
@@ -137,6 +139,39 @@ from phentrieve.llm.types import (
 from phentrieve.llm.utils import token_sort_similarity
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class _ItemResolutionOutcome:
+    """Result of running one item set through the shared phase-2 resolution
+    path (retrieve -> route -> map).
+
+    The helper is PURE: it computes every accounting delta and returns it here
+    instead of mutating ``run()`` state, so ``run()`` can merge the proband
+    outcome into the canonical meta keys (byte-identical to the pre-B2 inline
+    block) and the family outcome into a distinct ``family_*`` / ``trace["family"]``
+    namespace without either overwriting the other (B2)."""
+
+    resolved: list[LLMPhenotype]
+    phase2a_seconds: float
+    phase2b_local_seconds: float
+    phase2b_llm_seconds: float
+    candidate_sets: int
+    routing_counts: dict[str, int]
+    unresolved_phrases: int
+    local_matches: int
+    local_fallbacks: int
+    llm_mapped_phrases: int
+    prompt_tokens: int
+    completion_tokens: int
+    token_usage: dict[str, int]
+    request_count: int
+    phase2b_llm_requests: int
+    mapping_prompt_version: str | None
+    phase2a_trace: dict[str, Any]
+    phase2b_local_trace: dict[str, Any]
+    phase2b_llm_trace: dict[str, Any] | None
+    mapping_ran: bool
 
 
 class TwoPhaseLLMPipeline:
@@ -337,9 +372,39 @@ class TwoPhaseLLMPipeline:
         extracted = self._deduplicate_phase1_extractions(
             _expand_combined_phase1_extractions(extracted)
         )
+        # B2 partition: split family-experiencer phrases out of the proband set
+        # BEFORE the actionable filter. A single-pass split by predicate avoids
+        # the value-equality pitfall of ``item not in family_items`` when two
+        # items share identical content. A finding is family when the model
+        # tagged its experiencer as family_history OR it carries the legacy
+        # Family_History category (the latter clause catches a category-only
+        # finding whose experiencer defaulted to proband, and the former catches
+        # a family finding wearing a legacy Abnormal category that would
+        # otherwise leak into the proband path).
+        family_items: list[dict[str, Any]] = []
+        proband_items: list[dict[str, Any]] = []
+        for item in extracted:
+            is_family = (
+                str(item.get("experiencer") or "").strip().lower() == "family_history"
+                or _normalize_category(str(item.get("category", "")))
+                == "family_history"
+            )
+            if is_family:
+                # A family finding may have been expressed only via the legacy
+                # Family_History category while its experiencer axis stayed at
+                # the B1 schema default ("proband", threaded unconditionally).
+                # Since the partition has classified it as family, normalize the
+                # experiencer on a copy so the resolved phenotype is internally
+                # consistent (experiencer=family_history) rather than a
+                # self-contradictory family term tagged proband.
+                family_item = dict(item)
+                family_item["experiencer"] = "family_history"
+                family_items.append(family_item)
+            else:
+                proband_items.append(item)
         actionable = [
             item
-            for item in extracted
+            for item in proband_items
             if _normalize_category(str(item["category"])) in ACTIONABLE_CATEGORIES
         ]
 
@@ -396,105 +461,126 @@ class TwoPhaseLLMPipeline:
                 phase_counts["phase1_failed_groups"] > 0
                 and phase_counts["phase1_completed_groups"] > 0
             )
+        resolved_family: list[LLMPhenotype] = []
         if actionable:
-            logger.debug(
-                "Phase 2A: retrieving candidates for actionable_phrases=%d",
-                len(actionable),
-            )
-            phase2a_start = time.perf_counter()
-            phrase_candidates = self._retrieve_candidates(
-                actionable=actionable,
+            # Proband path: merge the outcome into the CANONICAL meta keys so the
+            # result stays byte-identical to the pre-B2 inline block. The gated
+            # ``mapping_ran`` branch mirrors the old ``if unresolved:`` guard
+            # exactly (phase2b_llm_* keys otherwise keep their initialized zeros).
+            proband_outcome = self._resolve_items(
+                actionable,
                 grounded_chunks=grounded_chunks,
                 language=language,
             )
-            phase_timings["phase2a_seconds"] = round(
-                time.perf_counter() - phase2a_start, 6
+            resolved_terms.extend(proband_outcome.resolved)
+            phase_timings["phase2a_seconds"] = proband_outcome.phase2a_seconds
+            phase_timings["phase2b_local_seconds"] = (
+                proband_outcome.phase2b_local_seconds
             )
-            phase_counts["candidate_sets"] = len(phrase_candidates)
-            trace["phase2a"] = build_phase2a_trace(phrase_candidates)
-            logger.debug(
-                "Phase 2A complete: candidate_sets=%d",
-                len(phrase_candidates),
-            )
-            logger.debug(
-                "Phase 2B-local: resolving local matches for candidate_sets=%d",
-                len(phrase_candidates),
-            )
-            phase2b_local_start = time.perf_counter()
-            (
-                locally_resolved,
-                unresolved,
-                routing_counts,
-            ) = self._route_phase2_candidates(
-                phrase_candidates=phrase_candidates,
-                language=language,
-            )
-            phase_timings["phase2b_local_seconds"] = round(
-                time.perf_counter() - phase2b_local_start, 6
-            )
-            phase_counts["unresolved_phrases"] = len(unresolved)
-            phase_counts["local_matches"] = len(locally_resolved)
-            phase_counts.update(routing_counts)
-            resolved_terms.extend(locally_resolved)
-            trace["phase2b_local"] = build_phase2b_local_trace(
-                locally_resolved=locally_resolved,
-                unresolved=unresolved,
-            )
-            logger.debug(
-                "Phase 2B-local complete: matched=%d unresolved=%d",
-                len(locally_resolved),
-                len(unresolved),
-            )
-            if unresolved:
-                mapping_prompt = (
-                    get_batch_mapping_prompt(language)
-                    if len(unresolved) > 1 and self.mapping_batch_size > 1
-                    else get_mapping_prompt(language)
+            phase_counts["candidate_sets"] = proband_outcome.candidate_sets
+            phase_counts["unresolved_phrases"] = proband_outcome.unresolved_phrases
+            phase_counts["local_matches"] = proband_outcome.local_matches
+            phase_counts.update(proband_outcome.routing_counts)
+            trace["phase2a"] = proband_outcome.phase2a_trace
+            trace["phase2b_local"] = proband_outcome.phase2b_local_trace
+            if proband_outcome.mapping_ran:
+                phase_timings["phase2b_llm_seconds"] = (
+                    proband_outcome.phase2b_llm_seconds
                 )
-                prompt_version = f"{prompt_version}+{mapping_prompt.version}"
-                logger.debug(
-                    "Phase 2B-llm: mapping unresolved phrases=%d",
-                    len(unresolved),
+                prompt_version = (
+                    f"{prompt_version}+{proband_outcome.mapping_prompt_version}"
                 )
-                phase2b_llm_start = time.perf_counter()
-                (
-                    mapped_terms,
-                    mapping_prompt_tokens,
-                    mapping_completion_tokens,
-                    mapping_token_usage,
-                    mapping_request_count,
-                    local_fallback_count,
-                    mapping_trace,
-                ) = self._resolve_with_mapping_prompt(
-                    unresolved=unresolved,
-                    mapping_prompt=mapping_prompt,
-                )
-                phase_timings["phase2b_llm_seconds"] = round(
-                    time.perf_counter() - phase2b_llm_start, 6
-                )
-                prompt_tokens_total += mapping_prompt_tokens
-                completion_tokens_total += mapping_completion_tokens
+                prompt_tokens_total += proband_outcome.prompt_tokens
+                completion_tokens_total += proband_outcome.completion_tokens
                 token_usage_total = _sum_usage_dicts(
                     token_usage_total,
-                    mapping_token_usage,
+                    proband_outcome.token_usage,
                 )
-                request_count_total += mapping_request_count
-                phase_request_counts["phase2b_llm_requests"] = mapping_request_count
-                resolved_terms.extend(mapped_terms)
-                phase_counts["local_fallbacks"] = local_fallback_count
-                phase_counts["llm_mapped_phrases"] = (
-                    len(mapped_terms) - local_fallback_count
+                request_count_total += proband_outcome.request_count
+                phase_request_counts["phase2b_llm_requests"] = (
+                    proband_outcome.phase2b_llm_requests
                 )
-                trace["phase2b_llm"] = {"resolved": mapping_trace}
-                logger.debug(
-                    "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
-                    phase_counts["llm_mapped_phrases"],
-                    mapping_prompt_tokens,
-                    mapping_completion_tokens,
+                phase_counts["local_fallbacks"] = proband_outcome.local_fallbacks
+                phase_counts["llm_mapped_phrases"] = proband_outcome.llm_mapped_phrases
+                trace["phase2b_llm"] = proband_outcome.phase2b_llm_trace
+
+        if family_items:
+            # Family path: resolve ALL family phrases through the SAME retrieve
+            # -> route -> map path (they are phenotype phrases regardless of the
+            # legacy category; they must NOT be re-dropped via
+            # ACTIONABLE_CATEGORIES). Family results land in the separate
+            # ``resolved_family`` list (Task 7 attaches it to the result); they
+            # are NEVER merged into ``resolved_terms``. Family cost ALWAYS folds
+            # into the shared token/request accumulators so a family LLM pass is
+            # not underreported; family-specific breakdowns use a ``family_*`` /
+            # ``trace["family"]`` namespace so proband metrics are never
+            # overwritten.
+            family_outcome = self._resolve_items(
+                family_items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            resolved_family.extend(family_outcome.resolved)
+            prompt_tokens_total += family_outcome.prompt_tokens
+            completion_tokens_total += family_outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(
+                token_usage_total,
+                family_outcome.token_usage,
+            )
+            request_count_total += family_outcome.request_count
+            phase_timings["family_phase2a_seconds"] = family_outcome.phase2a_seconds
+            phase_timings["family_phase2b_local_seconds"] = (
+                family_outcome.phase2b_local_seconds
+            )
+            phase_counts["family_phrases"] = len(family_items)
+            phase_counts["family_candidate_sets"] = family_outcome.candidate_sets
+            phase_counts["family_unresolved_phrases"] = (
+                family_outcome.unresolved_phrases
+            )
+            phase_counts["family_local_matches"] = family_outcome.local_matches
+            phase_counts["family_resolved_phrases"] = len(family_outcome.resolved)
+            for key, value in family_outcome.routing_counts.items():
+                phase_counts[f"family_{key}"] = value
+            family_trace: dict[str, Any] = {
+                "phase2a": family_outcome.phase2a_trace,
+                "phase2b_local": family_outcome.phase2b_local_trace,
+            }
+            if family_outcome.mapping_ran:
+                phase_timings["family_phase2b_llm_seconds"] = (
+                    family_outcome.phase2b_llm_seconds
                 )
+                phase_request_counts["family_phase2b_llm_requests"] = (
+                    family_outcome.phase2b_llm_requests
+                )
+                phase_counts["family_local_fallbacks"] = family_outcome.local_fallbacks
+                phase_counts["family_llm_mapped_phrases"] = (
+                    family_outcome.llm_mapped_phrases
+                )
+                family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
+            trace["family"] = family_trace
+
+        # B3: map each resolved proband finding's negated qualifier Y (the
+        # absent portion of an "X without Y" phrase) to a GENERATED excluded
+        # finding. Y is retrieved through the SAME retrieval path as any phrase;
+        # when its top candidate scores at or above the confidence floor
+        # (``self.similarity_threshold``) an excluded ``LLMPhenotype`` is emitted
+        # for Y. Below the floor (or when nothing is retrieved) no term is
+        # generated and the source finding's ``negated_qualifier`` metadata
+        # string is retained. This runs AFTER proband resolution and BEFORE the
+        # final dedup so the generated terms flow through the same dedup key.
+        qualifier_exclusions = self._build_qualifier_exclusions(
+            resolved_terms=resolved_terms,
+            grounded_chunks=grounded_chunks,
+            language=language,
+        )
 
         return LLMExtractionResult(
-            terms=self._deduplicate_terms(resolved_terms),
+            terms=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_terms + qualifier_exclusions)
+            ),
+            family_history_findings=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_family)
+            ),
             meta=LLMMeta(
                 llm_provider=config.provider,
                 llm_model=config.model,
@@ -514,6 +600,221 @@ class TwoPhaseLLMPipeline:
                 phase_request_counts=phase_request_counts,
                 trace=trace,
             ),
+        )
+
+    def _build_qualifier_exclusions(
+        self,
+        *,
+        resolved_terms: list[LLMPhenotype],
+        grounded_chunks: list[dict[str, Any]],
+        language: str,
+    ) -> list[LLMPhenotype]:
+        """Generate an excluded finding for each proband finding's negated
+        qualifier Y that maps at or above the confidence floor (B3).
+
+        For every resolved proband finding carrying a truthy
+        ``negated_qualifier``, retrieve Y through the shared retrieval path and,
+        when the top candidate scores ``>= self.similarity_threshold``, emit a
+        generated excluded ``LLMPhenotype`` for Y. Below the floor (or when
+        nothing is retrieved) no term is generated and the source finding's
+        ``negated_qualifier`` metadata string is left untouched.
+
+        F5: the generated term INHERITS the source finding's evidence records so
+        it carries valid ``chunk_ids`` (the "X without Y" span lives in the same
+        chunk as X). A generated term with empty/invalid chunk refs is silently
+        dropped at the aggregation service boundary
+        (``full_text_service.py``)."""
+        exclusions: list[LLMPhenotype] = []
+        for finding in resolved_terms:
+            qualifier = (finding.negated_qualifier or "").strip()
+            if not qualifier:
+                continue
+
+            # Inherit the source finding's chunk ids so the retrieval item and
+            # the generated term stay anchored to the source span (F5).
+            source_chunk_ids: list[int] = []
+            for record in finding.evidence_records:
+                source_chunk_ids.extend(record.chunk_ids)
+
+            synthetic_item: dict[str, Any] = {
+                "phrase": qualifier,
+                "category": "Abnormal",
+                "chunk_ids": list(source_chunk_ids),
+                "evidence_text": qualifier,
+                "negated_qualifier": None,
+                "start_char": None,
+                "end_char": None,
+                "experiencer": "proband",
+                "assertion": None,
+            }
+            retrieved = self._retrieve_candidates(
+                actionable=[synthetic_item],
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            candidates = retrieved[0].get("candidates", []) if retrieved else []
+            if not candidates:
+                continue
+            top = candidates[0]
+            top_score = float(top.get("score", 0.0) or 0.0)
+            if top_score < self.similarity_threshold:
+                continue
+
+            # F5: copy the source finding's evidence records so the generated
+            # term carries at least one valid chunk reference.
+            inherited_records = [
+                record.model_copy(deep=True) for record in finding.evidence_records
+            ]
+            exclusions.append(
+                LLMPhenotype(
+                    term_id=str(top["hpo_id"]),
+                    label=str(top.get("term_name", "") or ""),
+                    evidence=qualifier,
+                    assertion=NEGATED_ASSERTION,
+                    experiencer="proband",
+                    negated_qualifier=None,
+                    qualifier_surface_text=qualifier,
+                    match_method="negated_qualifier_derived",
+                    confidence=top_score,
+                    score=top_score,
+                    evidence_records=inherited_records,
+                )
+            )
+        return exclusions
+
+    def _resolve_items(
+        self,
+        items: list[dict[str, Any]],
+        *,
+        grounded_chunks: list[dict[str, Any]],
+        language: str,
+    ) -> _ItemResolutionOutcome:
+        """Run one item set through the shared phase-2 path (retrieve -> route
+        -> map) and return every accounting delta as a pure outcome.
+
+        Extracted verbatim from the pre-B2 inline ``run()`` resolution block so
+        both the proband set and the family set flow through IDENTICAL retrieval,
+        routing, and mapping logic. The method never mutates ``run()`` state;
+        ``run()`` merges the returned deltas into the appropriate meta
+        namespace."""
+        resolved: list[LLMPhenotype] = []
+        logger.debug(
+            "Phase 2A: retrieving candidates for actionable_phrases=%d",
+            len(items),
+        )
+        phase2a_start = time.perf_counter()
+        phrase_candidates = self._retrieve_candidates(
+            actionable=items,
+            grounded_chunks=grounded_chunks,
+            language=language,
+        )
+        phase2a_seconds = round(time.perf_counter() - phase2a_start, 6)
+        candidate_sets = len(phrase_candidates)
+        phase2a_trace = build_phase2a_trace(phrase_candidates)
+        logger.debug(
+            "Phase 2A complete: candidate_sets=%d",
+            len(phrase_candidates),
+        )
+        logger.debug(
+            "Phase 2B-local: resolving local matches for candidate_sets=%d",
+            len(phrase_candidates),
+        )
+        phase2b_local_start = time.perf_counter()
+        (
+            locally_resolved,
+            unresolved,
+            routing_counts,
+        ) = self._route_phase2_candidates(
+            phrase_candidates=phrase_candidates,
+            language=language,
+        )
+        phase2b_local_seconds = round(time.perf_counter() - phase2b_local_start, 6)
+        resolved.extend(locally_resolved)
+        phase2b_local_trace = build_phase2b_local_trace(
+            locally_resolved=locally_resolved,
+            unresolved=unresolved,
+        )
+        logger.debug(
+            "Phase 2B-local complete: matched=%d unresolved=%d",
+            len(locally_resolved),
+            len(unresolved),
+        )
+
+        phase2b_llm_seconds = 0.0
+        prompt_tokens = 0
+        completion_tokens = 0
+        token_usage: dict[str, int] = {}
+        request_count = 0
+        phase2b_llm_requests = 0
+        local_fallbacks = 0
+        llm_mapped_phrases = 0
+        mapping_prompt_version: str | None = None
+        phase2b_llm_trace: dict[str, Any] | None = None
+        mapping_ran = False
+
+        if unresolved:
+            mapping_ran = True
+            mapping_prompt = (
+                get_batch_mapping_prompt(language)
+                if len(unresolved) > 1 and self.mapping_batch_size > 1
+                else get_mapping_prompt(language)
+            )
+            mapping_prompt_version = mapping_prompt.version
+            logger.debug(
+                "Phase 2B-llm: mapping unresolved phrases=%d",
+                len(unresolved),
+            )
+            phase2b_llm_start = time.perf_counter()
+            (
+                mapped_terms,
+                mapping_prompt_tokens,
+                mapping_completion_tokens,
+                mapping_token_usage,
+                mapping_request_count,
+                local_fallback_count,
+                mapping_trace,
+            ) = self._resolve_with_mapping_prompt(
+                unresolved=unresolved,
+                mapping_prompt=mapping_prompt,
+            )
+            phase2b_llm_seconds = round(time.perf_counter() - phase2b_llm_start, 6)
+            prompt_tokens = mapping_prompt_tokens
+            completion_tokens = mapping_completion_tokens
+            token_usage = mapping_token_usage
+            request_count = mapping_request_count
+            phase2b_llm_requests = mapping_request_count
+            resolved.extend(mapped_terms)
+            local_fallbacks = local_fallback_count
+            llm_mapped_phrases = len(mapped_terms) - local_fallback_count
+            phase2b_llm_trace = {"resolved": mapping_trace}
+            logger.debug(
+                "Phase 2B-llm complete: mapped=%d prompt_tokens=%d completion_tokens=%d",
+                llm_mapped_phrases,
+                mapping_prompt_tokens,
+                mapping_completion_tokens,
+            )
+
+        return _ItemResolutionOutcome(
+            resolved=resolved,
+            phase2a_seconds=phase2a_seconds,
+            phase2b_local_seconds=phase2b_local_seconds,
+            phase2b_llm_seconds=phase2b_llm_seconds,
+            candidate_sets=candidate_sets,
+            routing_counts=routing_counts,
+            unresolved_phrases=len(unresolved),
+            local_matches=len(locally_resolved),
+            local_fallbacks=local_fallbacks,
+            llm_mapped_phrases=llm_mapped_phrases,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            token_usage=token_usage,
+            request_count=request_count,
+            phase2b_llm_requests=phase2b_llm_requests,
+            mapping_prompt_version=mapping_prompt_version,
+            phase2a_trace=phase2a_trace,
+            phase2b_local_trace=phase2b_local_trace,
+            phase2b_llm_trace=phase2b_llm_trace,
+            mapping_ran=mapping_ran,
         )
 
     def warmup(self, *, language: str) -> None:
@@ -590,6 +891,21 @@ class TwoPhaseLLMPipeline:
                     "evidence_text": getattr(phenotype, "evidence_text", None),
                     "start_char": getattr(phenotype, "start_char", None),
                     "end_char": getattr(phenotype, "end_char", None),
+                    "experiencer": getattr(phenotype, "experiencer", None),
+                    # Thread the model's assertion ONLY when the model actually
+                    # emitted it. The wire schema declares assertion with a
+                    # default of "present", so a category-only finding (e.g.
+                    # Normal/Suspected) always has a non-None attribute; keying
+                    # on ``model_fields_set`` distinguishes a model-emitted
+                    # assertion from the schema default. When unset we thread
+                    # None so the downstream category fallback re-engages and a
+                    # ruled-out/uncertain finding does not silently flip to
+                    # present (B1).
+                    "assertion": (
+                        phenotype.assertion
+                        if "assertion" in phenotype.model_fields_set
+                        else None
+                    ),
                 }
             )
         debug_payload: dict[str, Any] | None = None
@@ -1234,6 +1550,8 @@ class TwoPhaseLLMPipeline:
             shared_result["negated_qualifier"] = item.get("negated_qualifier")
             shared_result["start_char"] = item.get("start_char")
             shared_result["end_char"] = item.get("end_char")
+            shared_result["experiencer"] = item.get("experiencer")
+            shared_result["assertion"] = item.get("assertion")
             shared_result["grounded_context"] = self._build_grounded_context(
                 item=item,
                 grounded_chunks=grounded_chunks,
@@ -1303,6 +1621,19 @@ class TwoPhaseLLMPipeline:
         existing: dict[str, Any],
         incoming: dict[str, Any],
     ) -> bool:
+        # ``experiencer`` and ``assertion`` are orthogonal axes (B1). The fuzzy
+        # merge exists only to consolidate fragments/duplicates of the SAME
+        # finding; a differing experiencer (proband vs family_history) or
+        # assertion (present vs absent) marks a genuinely DIFFERENT finding, so
+        # refuse the merge before any span/evidence heuristics run. This runs
+        # BEFORE the B2 family partition, so collapsing here would silently drop
+        # a co-located family or opposite-polarity mention.
+        for axis in ("experiencer", "assertion"):
+            if (
+                str(existing.get(axis) or "").strip().lower()
+                != str(incoming.get(axis) or "").strip().lower()
+            ):
+                return False
         if (
             str(existing.get("phrase", "")).strip().lower()
             != str(incoming.get("phrase", "")).strip().lower()
@@ -1762,3 +2093,24 @@ class TwoPhaseLLMPipeline:
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         return deduplicate_terms(terms)
+
+    @staticmethod
+    def _drop_non_phenotypic(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
+        """Drop resolved terms that are KNOWN to sit outside the Phenotypic
+        abnormality (HP:0000118) subtree -- clinical modifiers / course /
+        inheritance nodes (e.g. "Mild" HP:0012825, "Spatial pattern" HP:0012836,
+        "Slowly progressive" HP:0003677). These are qualifiers, never standalone
+        phenotypes, so they are not valid annotations. Fail open: terms with
+        unknown ancestry (or when the HPO graph is unavailable) are kept, so a
+        real finding is never silently dropped."""
+        kept: list[LLMPhenotype] = []
+        for term in terms:
+            if is_non_phenotypic_abnormality(term.term_id):
+                logger.debug(
+                    "ontology guard dropped non-phenotype term %s (%s)",
+                    term.term_id,
+                    term.label,
+                )
+                continue
+            kept.append(term)
+        return kept

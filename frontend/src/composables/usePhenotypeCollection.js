@@ -3,6 +3,26 @@ import { useConversationStore } from '../stores/conversation';
 import { useFileDownload } from './useFileDownload';
 import { logService } from '../services/logService';
 
+// Mirrors the Python `is_excluded` set (B0 contract, phentrieve/assertion_vocab.py)
+// so an assertion_status of 'absent' -- and 'normal', a normalcy verdict that is a
+// ruled-out abnormality -- exports as excluded: true in the Phenopacket, not only
+// literal 'negated'.
+const EXCLUDED_ASSERTIONS = new Set([
+  'negated',
+  'negative',
+  'absent',
+  'excluded',
+  'no',
+  'denied',
+  'normal',
+]);
+const isExcluded = (a) =>
+  EXCLUDED_ASSERTIONS.has(
+    String(a ?? '')
+      .trim()
+      .toLowerCase()
+  );
+
 /**
  * Composable for managing phenotype collection state and actions.
  * Extracted from QueryInterface.vue to reduce component size.
@@ -145,7 +165,7 @@ export function usePhenotypeCollection() {
       phenotypes.forEach((cp) => {
         phenopacket.phenotypicFeatures.push({
           type: { id: cp.hpo_id, label: cp.label },
-          excluded: cp.assertion_status === 'negated',
+          excluded: isExcluded(cp.assertion_status),
         });
       });
       const filename = `phentrieve_phenopacket_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;

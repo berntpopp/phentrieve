@@ -22,7 +22,7 @@ from phentrieve.llm.types import (
     LLMPhenotype,
     LLMPhenotypeEvidence,
 )
-from phentrieve.llm.utils import token_sort_similarity
+from phentrieve.llm.utils import parse_assertion, token_sort_similarity
 
 CATEGORY_TO_ASSERTION = {
     "abnormal": PRESENT_ASSERTION,
@@ -31,6 +31,36 @@ CATEGORY_TO_ASSERTION = {
     "family_history": "family_history",
     "other": "other",
 }
+
+# Project the PIPELINE assertion vocabulary (present | negated | uncertain) back
+# onto the legacy proband category enum, so the derived-compat category reflects
+# the (experiencer, assertion) axes rather than the raw legacy value (D3).
+ASSERTION_TO_CATEGORY = {
+    PRESENT_ASSERTION: "abnormal",
+    NEGATED_ASSERTION: "normal",
+    UNCERTAIN_ASSERTION: "suspected",
+}
+
+
+def derive_category_from_axes(
+    experiencer: str | None,
+    assertion: str | None,
+    fallback_category: str,
+) -> str:
+    """Derive the legacy-compat category from the orthogonal axes (D3).
+
+    The category enum conflates experiencer and assertion; this rebuilds it from
+    the resolved axes so the stored ``category`` stays consistent with the
+    model-driven ``assertion``. Non-proband experiencers dominate; otherwise the
+    pipeline assertion projects back onto the proband category enum. When the
+    axes are absent or the assertion is not a proband-polarity value, the
+    supplied ``fallback_category`` is preserved for backward compatibility.
+    """
+    if experiencer == "family_history":
+        return "family_history"
+    if experiencer == "other":
+        return "other"
+    return ASSERTION_TO_CATEGORY.get(assertion or "", fallback_category)
 
 
 def prepare_retrieval_queries(phrase: str) -> list[str]:
@@ -99,6 +129,16 @@ def compact_mapping_item(
         for text in grounded_context.get("neighbor_chunk_texts", [])
         if normalize_grounded_text(text)
     ]
+    # NOTE: ``experiencer`` and ``assertion`` are deliberately NOT serialized into
+    # the mapping payload. The mapping task is phrase->HPO-id selection; the axes
+    # are orthogonal to *which* term a phrase maps to and the mapping templates
+    # (en_mapping*.yaml) never reference them. Including them only perturbed the
+    # LLM's near-deterministic candidate pick (flipping bare fragments toward
+    # top-scored *modifier* nodes, e.g. "visuospatial"->HP:0012836), causing a
+    # measured precision regression. The axes still reach the resolver via the
+    # ORIGINAL item in ``phenotype_from_candidate`` (model-assertion-wins, B1),
+    # so dropping them here is behavior-preserving for the contract and only
+    # restores the baseline mapping input.
     compact_item: dict[str, Any] = {
         "primary_chunk_text": normalize_grounded_text(
             grounded_context.get("primary_chunk_text")
@@ -266,17 +306,47 @@ def phenotype_from_candidate(
         end_char=item.get("end_char"),
         match_method=match_method,
     )
+    normalized_category = normalize_category(str(item.get("category", "")))
+    model_assertion = (
+        parse_assertion(item["assertion"]).value
+        if item.get("assertion") is not None
+        else None
+    )
+    # Model WINS on polarity (present | negated | uncertain), EXCEPT it may not
+    # promote an explicit ``normal`` category to ``present``. A "normal" category
+    # is a normalcy verdict (e.g. "normal intellectual abilities" is NOT
+    # Cognitive impairment); the phase-1 model sometimes co-emits a contradictory
+    # ``assertion="present"`` (or leaks the schema default), which B1's plain
+    # model-wins rule would flip a ruled-out finding to present. That specific
+    # contradiction resolves to the normalcy category's ``negated`` instead. A
+    # model ``negated``/``uncertain`` on a normal category is consistent and is
+    # still honored; every other category keeps model-wins / category-fallback
+    # (B1/D2).
+    if normalized_category == "normal" and model_assertion == PRESENT_ASSERTION:
+        resolved_assertion = CATEGORY_TO_ASSERTION["normal"]
+    elif model_assertion is not None:
+        resolved_assertion = model_assertion
+    else:
+        resolved_assertion = CATEGORY_TO_ASSERTION.get(
+            normalized_category, PRESENT_ASSERTION
+        )
+    resolved_experiencer = (
+        item["experiencer"]
+        if item.get("experiencer")
+        else experiencer_for_category(str(item.get("category", "")))
+    )
     return LLMPhenotype(
         term_id=candidate["hpo_id"],
         label=candidate["term_name"],
         evidence=item["phrase"],
-        assertion=CATEGORY_TO_ASSERTION.get(
-            normalize_category(str(item.get("category", ""))),
-            PRESENT_ASSERTION,
-        ),
-        experiencer=experiencer_for_category(str(item.get("category", ""))),
+        assertion=resolved_assertion,
+        experiencer=resolved_experiencer,
         negated_qualifier=(item.get("negated_qualifier") or None),
-        category=normalize_category(str(item.get("category", ""))),
+        # Derived-compat: store the category projected from the resolved axes,
+        # not the raw legacy value (D3).
+        category=derive_category_from_axes(
+            resolved_experiencer, resolved_assertion, normalized_category
+        ),
         confidence=(
             optional_float(candidate.get("confidence"))
             if candidate.get("confidence") is not None

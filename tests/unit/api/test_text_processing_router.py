@@ -1128,7 +1128,8 @@ class TestTextProcessingModelValidation:
                 ) as mock_validate:
                     await _process_text_via_shared_service(request)
 
-        mock_validate.assert_called_once()
+        # Invariant check runs for BOTH the aggregated and the family lists (B2fix).
+        assert mock_validate.call_count == 2
 
 
 class TestValidateResponseChunkReferences:
