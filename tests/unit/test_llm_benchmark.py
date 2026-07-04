@@ -2575,6 +2575,8 @@ def test_aggregate_assertion_distribution_sums_records():
                 "family_history_findings": 0,
             }
         },
+        # A checkpoint-restored record from before the field existed: no block.
+        {"doc_id": "legacy-doc"},
     ]
 
     agg = llm_benchmark._aggregate_assertion_distribution(records)
@@ -2583,3 +2585,6 @@ def test_aggregate_assertion_distribution_sums_records():
     assert agg["proband_scored"] == 5
     assert agg["proband_dropped_by_projection"] == 1
     assert agg["family_history_findings"] == 1
+    # Undercount is visible: 2 of 3 records contributed.
+    assert agg["documents_counted"] == 2
+    assert agg["documents_total"] == 3

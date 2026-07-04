@@ -1200,13 +1200,23 @@ def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, 
 def _aggregate_assertion_distribution(
     prediction_records: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    """Sum per-document ``assertion_distribution`` blocks into a corpus total."""
+    """Sum per-document ``assertion_distribution`` blocks into a corpus total.
+
+    ``documents_counted`` vs ``documents_total`` makes an undercount VISIBLE:
+    records restored from a checkpoint written before this field existed carry no
+    block and contribute nothing, so a resumed cross-version run would otherwise
+    silently report a distribution for only the post-upgrade documents.
+    """
     by_assertion: dict[str, int] = {}
     scored = 0
     dropped = 0
     family = 0
+    counted = 0
     for record in prediction_records:
-        dist = record.get("assertion_distribution") or {}
+        dist = record.get("assertion_distribution")
+        if not dist:
+            continue
+        counted += 1
         for key, value in (dist.get("proband_by_assertion") or {}).items():
             by_assertion[key] = by_assertion.get(key, 0) + int(value)
         scored += int(dist.get("proband_scored", 0) or 0)
@@ -1217,6 +1227,8 @@ def _aggregate_assertion_distribution(
         "proband_scored": scored,
         "proband_dropped_by_projection": dropped,
         "family_history_findings": family,
+        "documents_counted": counted,
+        "documents_total": len(prediction_records),
     }
 
 
