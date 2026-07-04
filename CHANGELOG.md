@@ -18,6 +18,51 @@ together:
 
 ## [Unreleased]
 
+## [0.25.0] — 2026-07-04 (CLI 0.25.0 / API 0.17.0 / Frontend 0.17.0)
+
+LLM extraction contract v2 (Phase 2, blocks B0–B3): the model's assertion and
+experiencer axes become load-bearing, family-history findings are partitioned
+out of the proband set, ruled-out qualifiers surface as excluded findings, and a
+canonical `absent → excluded` export vocabulary closes the long-standing
+"absent silently exports as present" trap. Includes a deep review pass that
+root-caused and eliminated a precision regression and hardened the benchmark.
+
+### Added
+
+- **Family-history findings** are partitioned from proband terms and surfaced
+  separately through the service, REST, and MCP; the Phenopacket export is guarded
+  by experiencer so family mentions never leak into the proband packet.
+- **`negated_qualifier → excluded` findings.** An "X without Y" phrase emits a
+  generated excluded finding for Y (gated by the similarity floor), surfaced
+  through REST and MCP.
+- **Ontology guard.** Resolved terms known to sit outside Phenotypic abnormality
+  (HP:0000118) — clinical modifiers/course such as "Mild", "Spatial pattern",
+  "Slowly progressive" — are dropped from the output. Fails open on unknown
+  ancestry so a real finding is never removed.
+- **Benchmark `assertion_distribution` report** so the negation/family axes the
+  contract produces (which present-only scoring projects away) stay visible,
+  including a `documents_counted` / `documents_total` under-count guard.
+
+### Changed
+
+- **A `normal` finding now exports as excluded** across every surface (REST, MCP,
+  Phenopacket, Vue). A normalcy verdict is a ruled-out abnormality; this matches
+  the LLM backend and closes the normal-exports-as-present class.
+- **Extraction benchmark is multi-vector aware** with committed strict +
+  present-only baselines as a regression fence; `assert-no-regression` now fails
+  closed on a missing gated metric or a missing `scoring_mode`.
+
+### Fixed
+
+- **Phase-2 mapping precision regression** eliminated at its root: dropped the
+  unused `experiencer`/`assertion` keys that perturbed the mapping LLM toward
+  modifier nodes, and stopped a `normal` category being promoted to `present`.
+  Restores the benchmark to baseline exactly (recall unchanged).
+- **CLI Phenopacket export** of `status`/`excluded`-keyed aggregated terms now
+  exports ruled-out findings as excluded instead of defaulting to present.
+- **Ontology-guard cache** no longer latches the fail-open empty map for the
+  process lifetime when the HPO database is briefly unavailable.
+
 ## [0.24.1] — 2026-07-03 (CLI 0.24.1 / API 0.16.1 / Frontend 0.16.1)
 
 Dependency, security, and code-scanning maintenance — consolidates the open
