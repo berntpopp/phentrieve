@@ -24,6 +24,7 @@ from phentrieve.llm.config import (
     NEGATED_ASSERTION,
     PRESENT_ASSERTION,
 )
+from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
 )
@@ -574,8 +575,12 @@ class TwoPhaseLLMPipeline:
         )
 
         return LLMExtractionResult(
-            terms=self._deduplicate_terms(resolved_terms + qualifier_exclusions),
-            family_history_findings=self._deduplicate_terms(resolved_family),
+            terms=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_terms + qualifier_exclusions)
+            ),
+            family_history_findings=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_family)
+            ),
             meta=LLMMeta(
                 llm_provider=config.provider,
                 llm_model=config.model,
@@ -2088,3 +2093,24 @@ class TwoPhaseLLMPipeline:
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         return deduplicate_terms(terms)
+
+    @staticmethod
+    def _drop_non_phenotypic(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
+        """Drop resolved terms that are KNOWN to sit outside the Phenotypic
+        abnormality (HP:0000118) subtree -- clinical modifiers / course /
+        inheritance nodes (e.g. "Mild" HP:0012825, "Spatial pattern" HP:0012836,
+        "Slowly progressive" HP:0003677). These are qualifiers, never standalone
+        phenotypes, so they are not valid annotations. Fail open: terms with
+        unknown ancestry (or when the HPO graph is unavailable) are kept, so a
+        real finding is never silently dropped."""
+        kept: list[LLMPhenotype] = []
+        for term in terms:
+            if is_non_phenotypic_abnormality(term.term_id):
+                logger.debug(
+                    "ontology guard dropped non-phenotype term %s (%s)",
+                    term.term_id,
+                    term.label,
+                )
+                continue
+            kept.append(term)
+        return kept
