@@ -44,6 +44,7 @@ EXTRACT_SCHEMA = envelope_schema(
     meta=_OBJ,
     processed_chunks=_ARR,
     aggregated_hpo_terms=_ARR,
+    family_history_findings=_ARR,
 )
 COMPARE_SCHEMA = envelope_schema(
     term1_id=_STR,

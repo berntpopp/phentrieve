@@ -425,6 +425,8 @@ def test_run_llm_backend_uses_pipeline_and_provider(monkeypatch):
             "name": "Seizure",
             "evidence": "Patient had recurrent seizures.",
             "status": "present",
+            "experiencer": "proband",
+            "excluded": False,
             "evidence_records": [],
             "confidence": 0.0,
             "evidence_count": 0,

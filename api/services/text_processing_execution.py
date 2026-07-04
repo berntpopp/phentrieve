@@ -15,6 +15,7 @@ from api.services.text_processing_context import (
     prepare_standard_text_processing_context,
     validate_model_name,
 )
+from phentrieve.assertion_vocab import is_excluded
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -49,6 +50,42 @@ def _coerce_text_attribution_chunk_id(attr: dict[str, Any]) -> int:
         return chunk_idx + 1
 
     return 1
+
+
+def _build_aggregated_hpo_term(term: dict[str, Any]) -> AggregatedHPOTermAPI:
+    """Build an API term, carrying experiencer and deriving excluded (B2, F2).
+
+    ``excluded`` prefers a precomputed value from the shared service (the LLM
+    backend sets it) and otherwise derives it from the aggregated status via
+    ``is_excluded`` so the deterministic backend -- which has no precomputed
+    excluded -- still surfaces the actionable ruled-out flag.
+    """
+    return AggregatedHPOTermAPI(
+        hpo_id=str(term.get("hpo_id") or term.get("id") or ""),
+        name=term.get("name", ""),
+        confidence=term.get("confidence", 0.0),
+        status=term.get("status", "unknown"),
+        experiencer=term.get("experiencer"),
+        excluded=bool(term.get("excluded", is_excluded(term.get("status", "")))),
+        evidence_count=term.get("evidence_count", 0),
+        source_chunk_ids=term.get("source_chunk_ids")
+        or [chunk_idx + 1 for chunk_idx in term.get("chunks", [])],
+        max_score_from_evidence=term.get("max_score_from_evidence", term.get("score")),
+        top_evidence_chunk_id=term.get("top_evidence_chunk_id"),
+        text_attributions=[
+            TextAttributionSpanAPI(
+                chunk_id=_coerce_text_attribution_chunk_id(attr),
+                start_char=attr.get("start_char", 0),
+                end_char=attr.get("end_char", 0),
+                matched_text_in_chunk=attr.get("matched_text_in_chunk", ""),
+            )
+            for attr in _coerce_response_items(term.get("text_attributions"))
+            if isinstance(attr, dict)
+        ],
+        definition=term.get("definition"),
+        synonyms=term.get("synonyms"),
+        score=term.get("score"),
+    )
 
 
 def validate_response_chunk_references(
@@ -132,39 +169,18 @@ def adapt_shared_service_response_to_api(
             )
         )
 
-    aggregated_terms: list[AggregatedHPOTermAPI] = []
-    for term in _coerce_response_items(service_result.get("aggregated_hpo_terms")):
-        if not isinstance(term, dict):
-            continue
-
-        aggregated_terms.append(
-            AggregatedHPOTermAPI(
-                hpo_id=str(term.get("hpo_id") or term.get("id") or ""),
-                name=term.get("name", ""),
-                confidence=term.get("confidence", 0.0),
-                status=term.get("status", "unknown"),
-                evidence_count=term.get("evidence_count", 0),
-                source_chunk_ids=term.get("source_chunk_ids")
-                or [chunk_idx + 1 for chunk_idx in term.get("chunks", [])],
-                max_score_from_evidence=term.get(
-                    "max_score_from_evidence", term.get("score")
-                ),
-                top_evidence_chunk_id=term.get("top_evidence_chunk_id"),
-                text_attributions=[
-                    TextAttributionSpanAPI(
-                        chunk_id=_coerce_text_attribution_chunk_id(attr),
-                        start_char=attr.get("start_char", 0),
-                        end_char=attr.get("end_char", 0),
-                        matched_text_in_chunk=attr.get("matched_text_in_chunk", ""),
-                    )
-                    for attr in _coerce_response_items(term.get("text_attributions"))
-                    if isinstance(attr, dict)
-                ],
-                definition=term.get("definition"),
-                synonyms=term.get("synonyms"),
-                score=term.get("score"),
-            )
+    aggregated_terms = [
+        _build_aggregated_hpo_term(term)
+        for term in _coerce_response_items(service_result.get("aggregated_hpo_terms"))
+        if isinstance(term, dict)
+    ]
+    family_history_findings = [
+        _build_aggregated_hpo_term(term)
+        for term in _coerce_response_items(
+            service_result.get("family_history_findings")
         )
+        if isinstance(term, dict)
+    ]
 
     if standard_context is not None:
         meta.update(
@@ -188,6 +204,7 @@ def adapt_shared_service_response_to_api(
             "meta": meta,
             "processed_chunks": processed_chunks,
             "aggregated_hpo_terms": aggregated_terms,
+            "family_history_findings": family_history_findings,
         }
     )
 

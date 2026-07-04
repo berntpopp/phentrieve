@@ -140,6 +140,12 @@ def project_extract_payload(
         out["aggregated_hpo_terms"] = project_aggregated_terms_for_mcp(
             payload["aggregated_hpo_terms"]
         )
+    # Family-history findings share the aggregated-term shape; project them the
+    # same way so experiencer / excluded survive and the identity keys normalize.
+    if isinstance(payload.get("family_history_findings"), list):
+        out["family_history_findings"] = project_aggregated_terms_for_mcp(
+            payload["family_history_findings"]
+        )
     if isinstance(payload.get("processed_chunks"), list):
         out["processed_chunks"] = project_processed_chunks_for_mcp(
             payload["processed_chunks"], include_unmatched=include_unmatched_chunks

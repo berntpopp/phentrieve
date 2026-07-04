@@ -13,6 +13,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from phentrieve.assertion_vocab import is_excluded
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -152,6 +153,7 @@ def adapt_full_text_response(
     meta: dict[str, Any] = {}
     processed_chunks: list[Any] = []
     aggregated_hpo_terms: list[Any] = []
+    family_history_findings: list[Any] = []
 
     if response is not None:
         response_meta = response.get("meta")
@@ -164,12 +166,17 @@ def adapt_full_text_response(
         aggregated_hpo_terms = _coerce_list(
             response.get("aggregated_hpo_terms") or response.get("aggregated_results")
         )
+        # Family-history findings are a distinct list keyed by experiencer; carry
+        # them through normalization so both the direct LLM payload path and the
+        # generic path preserve them (B2, F4).
+        family_history_findings = _coerce_list(response.get("family_history_findings"))
 
     meta["extraction_backend"] = extraction_backend
     return {
         "meta": meta,
         "processed_chunks": processed_chunks,
         "aggregated_hpo_terms": aggregated_hpo_terms,
+        "family_history_findings": family_history_findings,
     }
 
 
@@ -437,6 +444,14 @@ def _adapt_llm_aggregated_terms(
                 "name": term.label,
                 "evidence": term.evidence,
                 "status": term.assertion,
+                # Who the finding belongs to (proband / family_history / other),
+                # orthogonal to the present/negated assertion. Shared by proband
+                # and family terms since both flow through this adapter.
+                "experiencer": getattr(term, "experiencer", None),
+                # Derived, non-breaking excluded signal (F2): the extract surface
+                # still reports the raw pipeline ``status`` (present/negated/...),
+                # but a consumer gets the actionable ruled-out flag here too.
+                "excluded": is_excluded(term.assertion),
                 "evidence_records": evidence_records,
                 "confidence": (
                     term_confidence
@@ -864,6 +879,10 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         result.terms,
         grounded_chunks=grounded_chunks,
     )
+    adapted_family = _adapt_llm_aggregated_terms(
+        getattr(result, "family_history_findings", []),
+        grounded_chunks=grounded_chunks,
+    )
     adapted_chunks = _adapt_llm_processed_chunks(grounded_chunks, adapted_terms)
 
     result_payload = {
@@ -919,6 +938,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         },
         "processed_chunks": adapted_chunks,
         "aggregated_hpo_terms": adapted_terms,
+        "family_history_findings": adapted_family,
     }
 
     logger.info(
