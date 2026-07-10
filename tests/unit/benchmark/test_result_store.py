@@ -126,6 +126,17 @@ def test_sha256_path_hashes_directory_names_and_contents_deterministically(
     assert sha256_path(dataset) != first
 
 
+def test_create_run_layout_accepts_llm_benchmark_type(tmp_path) -> None:
+    layout = create_run_layout(
+        tmp_path, "llm", "GeneReviews", "Org/Model", run_id="run"
+    )
+
+    assert layout.benchmark_type == "llm"
+    assert layout.run_dir == (
+        tmp_path / "llm" / "genereviews" / "org_model" / "run"
+    )
+
+
 def test_discover_artifacts_prefers_canonical_manifests_and_falls_back_to_legacy(
     tmp_path,
 ) -> None:

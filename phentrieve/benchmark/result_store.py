@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
 
-BenchmarkType = Literal["retrieval", "extraction"]
+BenchmarkType = Literal["retrieval", "extraction", "llm"]
 
 
 @dataclass(frozen=True, slots=True)
