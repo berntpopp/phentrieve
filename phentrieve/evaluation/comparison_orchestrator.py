@@ -54,9 +54,7 @@ def compare_benchmark_summaries(summaries: list[dict[str, Any]]) -> pd.DataFrame
             "Model": summary.get("model", "Unknown"),
             "Original Model Name": summary.get("original_model_name", "Unknown"),
             "Timestamp": summary.get("timestamp", "Unknown"),
-            "Dataset": summary.get(
-                "dataset_name", summary.get("test_file", "Unknown")
-            ),
+            "Dataset": summary.get("dataset_name", summary.get("test_file", "Unknown")),
             "Run ID": summary.get("run_id", "legacy"),
             "Test Cases": summary.get("num_test_cases", 0),
             "MRR (Dense)": summary.get("mrr_dense", 0),

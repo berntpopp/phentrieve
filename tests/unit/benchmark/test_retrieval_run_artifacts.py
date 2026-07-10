@@ -81,8 +81,7 @@ def test_run_evaluation_writes_ranked_canonical_and_legacy_artifacts(
     assert manifest["benchmark_type"] == "retrieval"
     assert manifest["dataset"]["sha256"]
     assert [
-        (term["hpo_id"], term["rank"], term["score"], term["is_gold"])
-        for term in terms
+        (term["hpo_id"], term["rank"], term["score"], term["is_gold"]) for term in terms
     ] == [
         ("HP:0001250", 1, 0.9, True),
         ("HP:0004322", 2, 0.7, False),

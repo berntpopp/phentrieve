@@ -238,9 +238,7 @@ def run_evaluation(
                     ]
 
                 similarities_entry = dense_results.get("similarities") or [[]]
-                similarities = (
-                    similarities_entry[0] if similarities_entry else []
-                )
+                similarities = similarities_entry[0] if similarities_entry else []
                 distances_entry = dense_results.get("distances") or [[]]
                 distances = distances_entry[0] if distances_entry else []
                 ids_entry = dense_results.get("ids") or [[]]
@@ -249,11 +247,7 @@ def run_evaluation(
                     hpo_id = str(
                         metadata.get("hpo_id")
                         or metadata.get("id")
-                        or (
-                            result_ids[rank - 1]
-                            if rank - 1 < len(result_ids)
-                            else ""
-                        )
+                        or (result_ids[rank - 1] if rank - 1 < len(result_ids) else "")
                     )
                     if rank - 1 < len(similarities):
                         score = float(similarities[rank - 1])
@@ -567,7 +561,8 @@ def run_evaluation(
             write_jsonl(run_layout.cases_path, case_records)
             run_status = (
                 "failed"
-                if case_records and all(case["status"] == "failed" for case in case_records)
+                if case_records
+                and all(case["status"] == "failed" for case in case_records)
                 else (
                     "partial"
                     if any(case["status"] == "failed" for case in case_records)

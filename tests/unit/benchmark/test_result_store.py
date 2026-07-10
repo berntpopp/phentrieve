@@ -19,9 +19,7 @@ from phentrieve.benchmark.result_store import (
 
 
 def test_safe_slug_and_utc_run_id_are_filesystem_safe() -> None:
-    assert safe_slug("FremyCompany/BioLORD-2023-M") == (
-        "fremycompany_biolord_2023_m"
-    )
+    assert safe_slug("FremyCompany/BioLORD-2023-M") == ("fremycompany_biolord_2023_m")
     assert utc_run_id(datetime(2026, 7, 10, 12, 34, 56, 123456, tzinfo=UTC)) == (
         "20260710T123456123456Z"
     )
@@ -51,7 +49,9 @@ def test_create_run_layout_uses_unique_collision_suffix(tmp_path) -> None:
     assert first.legacy_dir.is_dir()
 
 
-def test_create_run_layout_requires_overwrite_for_explicit_existing_run(tmp_path) -> None:
+def test_create_run_layout_requires_overwrite_for_explicit_existing_run(
+    tmp_path,
+) -> None:
     layout = create_run_layout(
         tmp_path, "extraction", "GSC", "model", run_id="named-run"
     )
@@ -104,9 +104,10 @@ def test_json_jsonl_checksum_and_manifest_round_trip(tmp_path) -> None:
     }
     assert manifest["artifacts"]["summary"]["path"] == "summary.json"
     assert manifest["artifacts"]["term_results"]["path"] == "terms.jsonl"
-    assert json.loads(layout.manifest_path.read_text(encoding="utf-8"))[
-        "status"
-    ] == "complete"
+    assert (
+        json.loads(layout.manifest_path.read_text(encoding="utf-8"))["status"]
+        == "complete"
+    )
 
 
 def test_sha256_path_hashes_directory_names_and_contents_deterministically(

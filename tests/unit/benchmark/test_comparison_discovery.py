@@ -48,9 +48,7 @@ def test_comparison_loaders_still_accept_legacy_flat_summaries(tmp_path) -> None
 
 
 def test_comparison_default_searches_the_results_root(tmp_path) -> None:
-    layout = create_run_layout(
-        tmp_path, "retrieval", "set", "model", run_id="run"
-    )
+    layout = create_run_layout(tmp_path, "retrieval", "set", "model", run_id="run")
     write_json(layout.summary_path, {"model": "model", "mrr_dense": 0.8})
     write_manifest(layout, {"status": "complete"})
     comparison = orchestrate_benchmark_comparison(results_dir_override=str(tmp_path))

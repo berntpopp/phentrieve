@@ -80,17 +80,10 @@ def create_run_layout(
 ) -> RunLayout:
     """Create a unique run directory below a result root."""
     requested_run_id = (
-        re.sub(r"[^A-Za-z0-9_-]+", "_", run_id).strip("_")
-        if run_id
-        else utc_run_id()
+        re.sub(r"[^A-Za-z0-9_-]+", "_", run_id).strip("_") if run_id else utc_run_id()
     )
     requested_run_id = requested_run_id or "run"
-    parent = (
-        results_root
-        / benchmark_type
-        / safe_slug(dataset)
-        / safe_slug(model)
-    )
+    parent = results_root / benchmark_type / safe_slug(dataset) / safe_slug(model)
     selected_run_id = requested_run_id
     run_dir = parent / selected_run_id
 
@@ -151,9 +144,7 @@ def _artifact_entry(layout: RunLayout, path: Path, media_type: str) -> dict[str,
     }
 
 
-def write_manifest(
-    layout: RunLayout, metadata: Mapping[str, Any]
-) -> dict[str, Any]:
+def write_manifest(layout: RunLayout, metadata: Mapping[str, Any]) -> dict[str, Any]:
     """Write a run manifest containing machine-readable artifact roles."""
     artifacts: dict[str, dict[str, str]] = {}
     candidates = (
@@ -166,7 +157,9 @@ def write_manifest(
         if path.exists():
             artifacts[role] = _artifact_entry(layout, path, media_type)
 
-    legacy_files = sorted(path for path in layout.legacy_dir.rglob("*") if path.is_file())
+    legacy_files = sorted(
+        path for path in layout.legacy_dir.rglob("*") if path.is_file()
+    )
     if legacy_files:
         artifacts["legacy_compatibility"] = {
             "path": layout.legacy_dir.relative_to(layout.run_dir).as_posix(),

@@ -897,9 +897,7 @@ class ExtractionBenchmark:
                 )
 
             labels = {
-                str(term.get("id") or term.get("hpo_id") or ""): term.get(
-                    "label", ""
-                )
+                str(term.get("id") or term.get("hpo_id") or ""): term.get("label", "")
                 for term in document.get("gold_hpo_terms", [])
             }
             aggregated = {
