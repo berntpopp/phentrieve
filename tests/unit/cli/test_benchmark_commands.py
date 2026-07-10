@@ -271,6 +271,10 @@ def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
     assert "--ontology-aware-metrics" in help_text
     assert "--ontology-semantic-floor" in help_text
     assert "--ontology-similarity-formula" in help_text
+    assert "GSC" in help_text
+    assert "CSC" in help_text
+    assert "--run-id" in help_text
+    assert "--overwrite" in help_text
 
 
 def test_benchmark_llm_command_shows_friendly_error_for_missing_file(tmp_path):
