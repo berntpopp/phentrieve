@@ -132,9 +132,7 @@ def test_create_run_layout_accepts_llm_benchmark_type(tmp_path) -> None:
     )
 
     assert layout.benchmark_type == "llm"
-    assert layout.run_dir == (
-        tmp_path / "llm" / "genereviews" / "org_model" / "run"
-    )
+    assert layout.run_dir == (tmp_path / "llm" / "genereviews" / "org_model" / "run")
 
 
 def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) -> None:
@@ -155,9 +153,7 @@ def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) ->
         },
     )
 
-    assert manifest["artifacts"]["llm_predictions"]["path"] == (
-        "predictions/two_phase"
-    )
+    assert manifest["artifacts"]["llm_predictions"]["path"] == ("predictions/two_phase")
     assert "llm_traces" not in manifest["artifacts"]
     assert "metrics" not in manifest["artifacts"]
 
