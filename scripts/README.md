@@ -9,6 +9,8 @@ Standalone scripts for data processing, conversion, and analysis.
 Run `phentrieve benchmark llm` for several provider/model targets without
 rewriting `.env` between runs. Store API keys in `.env`; pass provider, model,
 pricing, language, and other benchmark settings as command-line options.
+For OpenRouter runs, the benchmark can fetch current model pricing
+automatically unless pricing is supplied manually.
 
 ```bash
 uv run python scripts/run_llm_model_benchmarks.py \

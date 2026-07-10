@@ -8,9 +8,11 @@ import os
 import re
 import tempfile
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
 
+import httpx
 import typer
 from rich.console import Console
 
@@ -19,7 +21,7 @@ from phentrieve.benchmark.llm_benchmark import (
     DEFAULT_LLM_BENCHMARK_DATASET,
     DEFAULT_LLM_BENCHMARK_MODE,
 )
-from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE
+from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_URL
 from phentrieve.utils import setup_logging_cli
 
 app = typer.Typer(help="Benchmark LLM full-text extraction.")
@@ -121,6 +123,8 @@ def run_llm_benchmark_cli(
     resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
     accounting_config = _load_accounting_config(
         pricing_config_path=pricing_config,
+        llm_provider=llm_provider,
+        llm_model=llm_model,
         input_cost_per_1m_tokens=input_cost_per_1m_tokens,
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
         cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
@@ -216,6 +220,8 @@ def run_llm_benchmark_cli(
 def _load_accounting_config(
     *,
     pricing_config_path: str | None,
+    llm_provider: str | None,
+    llm_model: str,
     input_cost_per_1m_tokens: float | None,
     output_cost_per_1m_tokens: float | None,
     cached_input_cost_per_1m_tokens: float | None,
@@ -240,14 +246,29 @@ def _load_accounting_config(
             ) from exc
 
     config = llm_benchmark.BenchmarkAccountingConfig.model_validate(payload or {})
+    should_fetch_openrouter_pricing = (
+        pricing_config_path is None
+        and (llm_provider or "").strip().lower() == "openrouter"
+        and input_cost_per_1m_tokens is None
+        and output_cost_per_1m_tokens is None
+        and cached_input_cost_per_1m_tokens is None
+    )
+    if should_fetch_openrouter_pricing:
+        fetched_pricing = _fetch_openrouter_token_pricing(llm_model)
+        if fetched_pricing is not None:
+            config.token_pricing = fetched_pricing
+            config.pricing_source = "openrouter_models_api"
     if input_cost_per_1m_tokens is not None:
         config.token_pricing.input_cost_per_1m_tokens = input_cost_per_1m_tokens
+        config.pricing_source = "cli"
     if output_cost_per_1m_tokens is not None:
         config.token_pricing.output_cost_per_1m_tokens = output_cost_per_1m_tokens
+        config.pricing_source = "cli"
     if cached_input_cost_per_1m_tokens is not None:
         config.token_pricing.cached_input_cost_per_1m_tokens = (
             cached_input_cost_per_1m_tokens
         )
+        config.pricing_source = "cli"
     if measure_energy:
         config.energy_accounting.measure_energy = True
     if per_document_energy:
@@ -259,6 +280,59 @@ def _load_accounting_config(
     if currency is not None:
         config.energy_accounting.currency = currency
     return config
+
+
+def _per_token_usd_to_per_1m_tokens(value: object) -> float | None:
+    if value is None:
+        return None
+    try:
+        return float(Decimal(str(value)) * Decimal(1_000_000))
+    except (InvalidOperation, ValueError):
+        return None
+
+
+def _fetch_openrouter_token_pricing(
+    llm_model: str,
+) -> llm_benchmark.TokenPricingConfig | None:
+    model_id = llm_model.strip()
+    if not model_id:
+        return None
+    url = f"{DEFAULT_OPENROUTER_BASE_URL}/model/{model_id}"
+    try:
+        response = httpx.get(url, timeout=10.0)
+        response.raise_for_status()
+        payload = response.json()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "Unable to fetch OpenRouter pricing for model=%s: %s",
+            model_id,
+            exc,
+        )
+        return None
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    pricing = data.get("pricing") if isinstance(data, dict) else None
+    if not isinstance(pricing, dict):
+        logger.warning(
+            "OpenRouter pricing response for model=%s had no pricing", model_id
+        )
+        return None
+
+    input_cost = _per_token_usd_to_per_1m_tokens(pricing.get("prompt"))
+    output_cost = _per_token_usd_to_per_1m_tokens(pricing.get("completion"))
+    cached_input_cost = _per_token_usd_to_per_1m_tokens(pricing.get("input_cache_read"))
+    if input_cost is None or output_cost is None:
+        logger.warning(
+            "OpenRouter pricing response for model=%s lacked prompt/completion prices",
+            model_id,
+        )
+        return None
+
+    return llm_benchmark.TokenPricingConfig(
+        input_cost_per_1m_tokens=input_cost,
+        output_cost_per_1m_tokens=output_cost,
+        cached_input_cost_per_1m_tokens=cached_input_cost,
+    )
 
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:

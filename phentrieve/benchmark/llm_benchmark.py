@@ -135,6 +135,7 @@ class BenchmarkAccountingConfig(BaseModel):
     energy_accounting: EnergyAccountingConfig = Field(
         default_factory=EnergyAccountingConfig
     )
+    pricing_source: str | None = None
 
 
 def _build_accounting_config(
@@ -683,6 +684,7 @@ def run_llm_benchmark(
                             token_usage=_sum_token_usage(results),
                             pricing=resolved_accounting_config.token_pricing,
                         ),
+                        pricing_source=resolved_accounting_config.pricing_source,
                         requested_doc_ids=doc_ids,
                         results=results,
                         prediction_records=prediction_records,
@@ -746,6 +748,7 @@ def run_llm_benchmark(
             pricing=resolved_accounting_config.token_pricing,
         ),
         estimated_energy_cost=estimated_energy_cost,
+        pricing_source=resolved_accounting_config.pricing_source,
         requested_doc_ids=doc_ids,
         results=results,
         prediction_records=prediction_records,
@@ -914,6 +917,7 @@ def _build_benchmark_payload(
     wall_clock_seconds: float,
     estimated_cost: dict[str, float] | None,
     estimated_energy_cost: dict[str, Any] | None,
+    pricing_source: str | None,
     requested_doc_ids: list[str] | None,
     results: list[dict[str, Any]],
     prediction_records: list[dict[str, Any]],
@@ -953,6 +957,7 @@ def _build_benchmark_payload(
         },
         "estimated_token_cost": estimated_cost,
         "estimated_cost": estimated_cost,
+        "pricing_source": pricing_source,
         "estimated_energy_cost": estimated_energy_cost,
         "prediction_records": list(prediction_records),
         "results": list(results),

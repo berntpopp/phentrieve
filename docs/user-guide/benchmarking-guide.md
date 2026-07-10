@@ -101,8 +101,13 @@ uv run python scripts/run_llm_model_benchmarks.py \
   -- --language en
 ```
 
-Token cost estimates are already integrated into the LLM benchmark. Pass current
-provider prices per million tokens either directly:
+Token cost estimates are already integrated into the LLM benchmark. For
+`--llm-provider openrouter`, Phentrieve fetches current model pricing from
+OpenRouter's Models API when no manual pricing is supplied. The fetched
+per-token `prompt`, `completion`, and `input_cache_read` prices are converted to
+Phentrieve's per-1M-token accounting fields.
+
+You can override pricing directly:
 
 ```bash
 uv run --env-file .env phentrieve benchmark llm \
@@ -113,9 +118,9 @@ uv run --env-file .env phentrieve benchmark llm \
   --output-cost-per-1m-tokens "$OUTPUT_PRICE_PER_1M"
 ```
 
-or with `--pricing-config path/to/pricing.json`. OpenRouter pricing is
-model-specific, so keep those values next to the benchmark run rather than
-baking them into global defaults.
+or with `--pricing-config path/to/pricing.json`. Manual pricing and pricing
+config files take precedence over the OpenRouter fetch. If the fetch fails, the
+benchmark still runs and cost estimates remain `null`.
 
 ## Example CLI LLM Run
 
