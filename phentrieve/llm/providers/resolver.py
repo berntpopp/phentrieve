@@ -6,6 +6,7 @@ from phentrieve.llm.config import (
     DEFAULT_OLLAMA_BASE_URL,
     DEFAULT_OLLAMA_TIMEOUT_SECONDS,
     DEFAULT_OPENAI_TIMEOUT_SECONDS,
+    DEFAULT_OPENROUTER_BASE_URL,
     DEFAULT_PROVIDER_NAME,
     DEFAULT_PROVIDER_TIMEOUT_SECONDS,
     SUPPORTED_PROVIDER_NAMES,
@@ -15,6 +16,7 @@ from phentrieve.llm.providers.base import LLMProvider, ResolvedLLMProviderReques
 from phentrieve.llm.providers.gemini import GeminiStructuredOutputProvider
 from phentrieve.llm.providers.ollama import OllamaStructuredOutputProvider
 from phentrieve.llm.providers.openai import OpenAIStructuredOutputProvider
+from phentrieve.llm.providers.openrouter import OpenRouterStructuredOutputProvider
 
 
 # Public REST/API and MCP surfaces must not call this resolver directly with
@@ -84,6 +86,18 @@ def get_llm_provider(
                 else timeout_seconds
             ),
         )
+    if request.provider == "openrouter":
+        return OpenRouterStructuredOutputProvider(
+            model_name=request.model,
+            api_key=request.api_key,
+            base_url=request.base_url,
+            seed=request.seed,
+            timeout_seconds=(
+                DEFAULT_OPENAI_TIMEOUT_SECONDS
+                if timeout_seconds is None
+                else timeout_seconds
+            ),
+        )
 
     raise ValueError(f"Provider {request.provider!r} is not implemented in phase one.")
 
@@ -98,8 +112,9 @@ def resolve_llm_provider_request(
 ) -> ResolvedLLMProviderRequest:
     inferred_provider: str | None = None
     model_name = llm_model
+    explicit_provider = llm_provider.strip().lower() if llm_provider else None
 
-    if "/" in llm_model:
+    if "/" in llm_model and explicit_provider != "openrouter":
         prefix, remainder = llm_model.split("/", 1)
         normalized_prefix = prefix.strip().lower()
         if normalized_prefix not in SUPPORTED_PROVIDER_NAMES:
@@ -109,7 +124,6 @@ def resolve_llm_provider_request(
         inferred_provider = normalized_prefix
         model_name = remainder
 
-    explicit_provider = llm_provider.strip().lower() if llm_provider else None
     env_provider = os.getenv("PHENTRIEVE_LLM_PROVIDER")
     resolved_provider = (
         explicit_provider
@@ -136,6 +150,7 @@ def resolve_llm_provider_request(
         llm_base_url
         or os.getenv("PHENTRIEVE_LLM_BASE_URL")
         or (DEFAULT_OLLAMA_BASE_URL if resolved_provider == "ollama" else None)
+        or (DEFAULT_OPENROUTER_BASE_URL if resolved_provider == "openrouter" else None)
     )
 
     return ResolvedLLMProviderRequest(

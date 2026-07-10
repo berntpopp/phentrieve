@@ -715,6 +715,82 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
     assert accounting_config.token_pricing.output_cost_per_1m_tokens == 0.3
 
 
+def test_load_accounting_config_fetches_openrouter_pricing(monkeypatch) -> None:
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict[str, object]:
+            return {
+                "data": {
+                    "pricing": {
+                        "prompt": "0.0000008",
+                        "completion": "0.0000024",
+                        "input_cache_read": "0.0000002",
+                    }
+                }
+            }
+
+    captured: dict[str, object] = {}
+
+    def fake_get(url: str, *, timeout: float):
+        captured["url"] = url
+        captured["timeout"] = timeout
+        return FakeResponse()
+
+    monkeypatch.setattr(llm_cli.httpx, "get", fake_get)
+
+    config = llm_cli._load_accounting_config(
+        pricing_config_path=None,
+        llm_provider="openrouter",
+        llm_model="meta-llama/llama-3.1-70b-instruct",
+        input_cost_per_1m_tokens=None,
+        output_cost_per_1m_tokens=None,
+        cached_input_cost_per_1m_tokens=None,
+        measure_energy=False,
+        per_document_energy=False,
+        electricity_cost_per_kwh=None,
+        carbon_kg_per_kwh=None,
+        currency=None,
+    )
+
+    assert (
+        captured["url"]
+        == "https://openrouter.ai/api/v1/model/meta-llama/llama-3.1-70b-instruct"
+    )
+    assert config.pricing_source == "openrouter_models_api"
+    assert config.token_pricing.input_cost_per_1m_tokens == 0.8
+    assert config.token_pricing.output_cost_per_1m_tokens == 2.4
+    assert config.token_pricing.cached_input_cost_per_1m_tokens == 0.2
+
+
+def test_load_accounting_config_keeps_manual_pricing_over_openrouter_fetch(
+    monkeypatch,
+) -> None:
+    def fail_get(*args, **kwargs):
+        raise AssertionError("OpenRouter pricing should not be fetched")
+
+    monkeypatch.setattr(llm_cli.httpx, "get", fail_get)
+
+    config = llm_cli._load_accounting_config(
+        pricing_config_path=None,
+        llm_provider="openrouter",
+        llm_model="meta-llama/llama-3.1-70b-instruct",
+        input_cost_per_1m_tokens=1.25,
+        output_cost_per_1m_tokens=2.5,
+        cached_input_cost_per_1m_tokens=None,
+        measure_energy=False,
+        per_document_energy=False,
+        electricity_cost_per_kwh=None,
+        carbon_kg_per_kwh=None,
+        currency=None,
+    )
+
+    assert config.pricing_source == "cli"
+    assert config.token_pricing.input_cost_per_1m_tokens == 1.25
+    assert config.token_pricing.output_cost_per_1m_tokens == 2.5
+
+
 def test_run_llm_benchmark_marks_energy_unavailable_when_tracker_missing(
     monkeypatch,
 ) -> None:

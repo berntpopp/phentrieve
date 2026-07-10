@@ -74,6 +74,54 @@ phentrieve benchmark llm \
   --llm-model gemini-2.5-flash
 ```
 
+Provider and model selection are CLI parameters. Use `.env` for keys, not for
+per-run model switching:
+
+```bash
+uv run --env-file .env phentrieve benchmark llm \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --llm-provider openrouter \
+  --llm-model meta-llama/llama-3.1-70b-instruct
+```
+
+For multi-model smoke runs, keep one model id per line and let the helper call
+the same benchmark command for each model:
+
+```text
+# models.txt
+meta-llama/llama-3.1-70b-instruct
+google/gemini-3.1-flash-lite
+```
+
+```bash
+uv run python scripts/run_llm_model_benchmarks.py \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --models-file models.txt \
+  --output-dir data/results/openrouter-smoke \
+  -- --language en
+```
+
+Token cost estimates are already integrated into the LLM benchmark. For
+`--llm-provider openrouter`, Phentrieve fetches current model pricing from
+OpenRouter's Models API when no manual pricing is supplied. The fetched
+per-token `prompt`, `completion`, and `input_cache_read` prices are converted to
+Phentrieve's per-1M-token accounting fields.
+
+You can override pricing directly:
+
+```bash
+uv run --env-file .env phentrieve benchmark llm \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --llm-provider openrouter \
+  --llm-model meta-llama/llama-3.1-70b-instruct \
+  --input-cost-per-1m-tokens "$INPUT_PRICE_PER_1M" \
+  --output-cost-per-1m-tokens "$OUTPUT_PRICE_PER_1M"
+```
+
+or with `--pricing-config path/to/pricing.json`. Manual pricing and pricing
+config files take precedence over the OpenRouter fetch. If the fetch fails, the
+benchmark still runs and cost estimates remain `null`.
+
 ## Example CLI LLM Run
 
 ```bash

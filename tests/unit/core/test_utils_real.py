@@ -1,6 +1,7 @@
 """Real unit tests for utils module (actual code execution)."""
 
 import json
+import os
 from unittest.mock import mock_open, patch
 
 import pytest
@@ -306,5 +307,5 @@ class TestLoadTranslationText:
             load_translation_text("HP:0004241", "/fake/dir")
 
             # Verify the correct path was checked
-            expected_path = "/fake/dir/HP_0004241.json"
+            expected_path = os.path.join("/fake/dir", "HP_0004241.json")
             mock_exists.assert_called_with(expected_path)

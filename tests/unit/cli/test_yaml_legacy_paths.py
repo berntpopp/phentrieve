@@ -23,6 +23,7 @@ def test_get_config_paths_includes_legacy_home(tmp_path, monkeypatch):
     fake_home = tmp_path / "home"
     fake_home.mkdir()
     monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("USERPROFILE", str(fake_home))
     monkeypatch.chdir(tmp_path)
 
     from phentrieve.utils import get_config_paths
@@ -49,6 +50,7 @@ def test_home_phentrieve_yaml_picked_up_when_no_local(tmp_path, monkeypatch):
     cwd.mkdir()
     monkeypatch.chdir(cwd)
     monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("USERPROFILE", str(fake_home))
     _clear_yaml_cache()
 
     from phentrieve.profiles import merged_profiles
@@ -72,6 +74,7 @@ def test_local_yaml_shadows_legacy_path(tmp_path, monkeypatch):
     (cwd / "phentrieve.yaml").write_text("profiles:\n  shared:\n    language: fr\n")
     monkeypatch.chdir(cwd)
     monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("USERPROFILE", str(fake_home))
     _clear_yaml_cache()
 
     from phentrieve.profiles import merged_profiles

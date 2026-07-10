@@ -4,6 +4,36 @@ Standalone scripts for data processing, conversion, and analysis.
 
 ## Available Scripts
 
+### `run_llm_model_benchmarks.py`
+
+Run `phentrieve benchmark llm` for several provider/model targets without
+rewriting `.env` between runs. Store API keys in `.env`; pass provider, model,
+pricing, language, and other benchmark settings as command-line options.
+For OpenRouter runs, the benchmark can fetch current model pricing
+automatically unless pricing is supplied manually.
+
+```bash
+uv run python scripts/run_llm_model_benchmarks.py \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --provider openrouter \
+  --model meta-llama/llama-3.1-70b-instruct \
+  --model google/gemini-3.1-flash-lite \
+  --output-dir data/results/openrouter-smoke \
+  -- --language en
+```
+
+Use a model file for longer sweeps:
+
+```bash
+uv run python scripts/run_llm_model_benchmarks.py \
+  --test-file tests/data/benchmarks/german/tiny_v1.json \
+  --models-file models.txt \
+  -- --input-cost-per-1m-tokens "$INPUT_PRICE_PER_1M" \
+     --output-cost-per-1m-tokens "$OUTPUT_PRICE_PER_1M"
+```
+
+`--dry-run` prints the generated commands without executing them.
+
 ### `convert_phenobert_data.py`
 
 Convert PhenoBERT corpus datasets (GSC+, ID-68, GeneReviews) to Phentrieve JSON format.

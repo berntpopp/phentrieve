@@ -17,6 +17,7 @@ from phentrieve.llm.providers.base import (
 from phentrieve.llm.providers.gemini import GeminiStructuredOutputProvider
 from phentrieve.llm.providers.ollama import OllamaStructuredOutputProvider
 from phentrieve.llm.providers.openai import OpenAIStructuredOutputProvider
+from phentrieve.llm.providers.openrouter import OpenRouterStructuredOutputProvider
 from phentrieve.llm.providers.resolver import (
     get_llm_provider,
     resolve_llm_provider_request,
@@ -30,6 +31,7 @@ _COMPAT_MODULES = (
     "phentrieve.llm.providers.ollama",
     "phentrieve.llm.providers.anthropic",
     "phentrieve.llm.providers.openai",
+    "phentrieve.llm.providers.openrouter",
 )
 _COMPAT_NAMES = {"_retry_rng", "time", "httpx"}
 _COMPAT_VALUES = {
@@ -65,6 +67,7 @@ __all__ = [
     "LLMProvider",
     "OllamaStructuredOutputProvider",
     "OpenAIStructuredOutputProvider",
+    "OpenRouterStructuredOutputProvider",
     "ResolvedLLMProviderRequest",
     "ToolExecutor",
     "build_response_json_schema",
