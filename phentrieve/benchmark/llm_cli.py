@@ -445,9 +445,15 @@ def _manifest_metadata(
     status: str,
 ) -> dict[str, Any]:
     dataset_metadata = payload.get("dataset_metadata") or {}
-    term_records = payload.get("term_records") or []
-    case_records = payload.get("case_records") or []
     timing_breakdown = payload.get("timing_breakdown") or {}
+    counts: dict[str, int] = {"documents": payload.get("cases", 0)}
+    # term_records/case_records only exist on the final payload (written once at
+    # completion, per judgment call #2); omit rather than report a misleading 0
+    # while a checkpoint is still in progress.
+    if "term_records" in payload:
+        counts["terms"] = len(payload["term_records"] or [])
+    if "case_records" in payload:
+        counts["cases"] = len(payload["case_records"] or [])
     return {
         "status": status,
         "elapsed_seconds": timing_breakdown.get("wall_clock_seconds"),
@@ -464,11 +470,7 @@ def _manifest_metadata(
             "language": payload.get("language"),
             "ontology_aware_metrics": payload.get("ontology_aware_metrics"),
         },
-        "counts": {
-            "documents": payload.get("cases", 0),
-            "terms": len(term_records),
-            "cases": len(case_records),
-        },
+        "counts": counts,
     }
 
 

@@ -2461,12 +2461,16 @@ def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
     )
 
     assert captured_manifests[0]["status"] == "partial"
+    assert "terms" not in captured_manifests[0]["counts"]
+    assert "cases" not in captured_manifests[0]["counts"]
     run_dir = Path(result["run_dir"])
     checkpoint_path = run_dir / "checkpoint.json"
     assert checkpoint_path.exists()
     assert '"status": "completed"' in checkpoint_path.read_text(encoding="utf-8")
     final_manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert final_manifest["status"] == "complete"
+    assert final_manifest["counts"]["terms"] == 0
+    assert final_manifest["counts"]["cases"] == 1
 
 
 def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
