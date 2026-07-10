@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from phentrieve.benchmark import llm_benchmark, llm_cli
+from phentrieve.benchmark.result_store import create_run_layout
 
 pytestmark = pytest.mark.unit
 
@@ -229,30 +230,32 @@ def test_run_llm_benchmark_preserves_requested_doc_id_order(monkeypatch):
 def test_run_llm_benchmark_cli_sets_up_logging(tmp_path, mocker, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "result.json"
+    output_dir = tmp_path / "results"
 
     mock_setup_logging = mocker.patch("phentrieve.benchmark.llm_cli.setup_logging_cli")
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 0,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(output_path),
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     mock_setup_logging.assert_called_once_with(debug=False)
-    assert result["output_path"] == str(output_path)
-    assert output_path.exists()
+    run_dir = Path(result["run_dir"])
+    assert run_dir.is_relative_to(output_dir)
+    assert (run_dir / "summary.json").exists()
+    assert (run_dir / "manifest.json").exists()
 
 
 def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
@@ -674,7 +677,7 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
 ) -> None:
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "result.json"
+    output_dir = tmp_path / "results"
     pricing_path = tmp_path / "pricing.json"
     pricing_path.write_text(
         json.dumps(
@@ -693,9 +696,11 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
     def fake_run_llm_benchmark(**kwargs):
         captured.update(kwargs)
         return {
+            "status": "completed",
             "cases": 0,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
         }
 
     monkeypatch.setattr(
@@ -707,7 +712,7 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
         llm_model="gemini-2.5-flash",
         pricing_config=str(pricing_path),
         input_cost_per_1m_tokens=0.9,
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     accounting_config = captured["accounting_config"]
@@ -2222,13 +2227,13 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
 ):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2256,10 +2261,7 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
                     "trace": {
                         "phase1": {"extracted": [{"phrase": "seizures"}]},
                         "projected_predictions": [
-                            {
-                                "term_id": "HP:0001250",
-                                "assertion": "PRESENT",
-                            }
+                            {"term_id": "HP:0001250", "assertion": "PRESENT"}
                         ],
                     },
                     "metadata": {
@@ -2270,32 +2272,39 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
                 }
             ],
             "results": [{"doc_id": "doc-1"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
-    assert result["output_path"] == str(output_path)
-    assert (artifacts_dir / "predictions" / "two_phase" / "case_doc-1.json").exists()
-    assert (artifacts_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
-    assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").exists()
+    run_dir = Path(result["run_dir"])
+    assert (run_dir / "predictions" / "two_phase" / "case_doc-1.json").exists()
+    assert (run_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
+    assert (run_dir / "metrics" / "benchmark_two_phase.json").exists()
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["artifacts"]["llm_predictions"]["path"] == "predictions/two_phase"
+    assert manifest["artifacts"]["llm_traces"]["path"] == "traces/two_phase"
+    assert (
+        manifest["artifacts"]["metrics"]["path"] == "metrics/benchmark_two_phase.json"
+    )
 
 
 def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2313,14 +2322,15 @@ def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkey
             },
             "prediction_records": [],
             "results": [{"doc_id": "doc-1"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
     metrics_path = Path(result["metrics_path"])
@@ -2337,13 +2347,13 @@ def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkey
 def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2369,35 +2379,35 @@ def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatc
                 }
             ],
             "results": [{"doc_id": "folder/unsafe doc:id"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "folder/unsafe doc:id", "status": "complete"}],
         },
     )
 
-    llm_cli.run_llm_benchmark_cli(
+    result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
+    run_dir = Path(result["run_dir"])
     prediction_path = (
-        artifacts_dir / "predictions" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
+        run_dir / "predictions" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
     )
-    trace_path = (
-        artifacts_dir / "traces" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
-    )
+    trace_path = run_dir / "traces" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
 
     assert prediction_path.exists()
     assert trace_path.exists()
-    assert not (artifacts_dir / "predictions" / "two_phase" / "folder").exists()
+    assert not (run_dir / "predictions" / "two_phase" / "folder").exists()
 
 
-def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch):
+def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
+    tmp_path, monkeypatch
+):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    checkpoint_path = tmp_path / "checkpoint.json"
-    artifacts_dir = tmp_path / "artifacts"
-    progress_events: list[dict[str, object]] = []
+    output_dir = tmp_path / "results"
+    captured_manifests: list[dict[str, object]] = []
 
     def fake_run_llm_benchmark(**kwargs):
         progress_callback = kwargs["progress_callback"]
@@ -2420,15 +2430,14 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
                 {
                     "doc_id": "doc-1",
                     "annotations": [],
-                    "metadata": {
-                        "token_usage": {"total_tokens": 15, "api_calls": 2},
-                    },
+                    "metadata": {"token_usage": {"total_tokens": 15, "api_calls": 2}},
                 }
             ],
             "results": [{"doc_id": "doc-1"}],
         }
         progress_callback(partial_payload)
-        progress_events.append(partial_payload)
+        manifest_path = next(output_dir.rglob("manifest.json"))
+        captured_manifests.append(json.loads(manifest_path.read_text(encoding="utf-8")))
         return {
             **partial_payload,
             "status": "completed",
@@ -2437,6 +2446,8 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
                 "id_only": {"micro": {"f1": 1.0}},
             },
             "estimated_cost": None,
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         }
 
     monkeypatch.setattr(
@@ -2446,23 +2457,27 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        checkpoint_path=str(checkpoint_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
-    assert progress_events
+    assert captured_manifests[0]["status"] == "partial"
+    run_dir = Path(result["run_dir"])
+    checkpoint_path = run_dir / "checkpoint.json"
     assert checkpoint_path.exists()
-    checkpoint_payload = checkpoint_path.read_text(encoding="utf-8")
-    assert '"status": "completed"' in checkpoint_payload
-    assert result["checkpoint_path"] == str(checkpoint_path)
+    assert '"status": "completed"' in checkpoint_path.read_text(encoding="utf-8")
+    final_manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert final_manifest["status"] == "complete"
 
 
-def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
+def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    checkpoint_path = tmp_path / "checkpoint.json"
-    checkpoint_path.write_text(
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
@@ -2482,8 +2497,9 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
         llm_cli.run_llm_benchmark_cli(
             test_file=str(test_file),
             llm_model="gemini-2.5-flash",
-            checkpoint_path=str(checkpoint_path),
-            output_path=str(tmp_path / "summary.json"),
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
         )
 
 
@@ -2492,10 +2508,12 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
 ):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    checkpoint_path = tmp_path / "checkpoint.json"
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
-    checkpoint_path.write_text(
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
@@ -2535,6 +2553,8 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
             },
             "prediction_records": [],
             "results": [],
+            "term_records": [],
+            "case_records": [],
         }
 
     monkeypatch.setattr(
@@ -2544,40 +2564,53 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
     llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        checkpoint_path=str(checkpoint_path),
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
     )
 
     assert captured_checkpoint_state["status"] == "running"
     assert "ontology_aware_metrics" not in captured_checkpoint_state
 
 
-def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
+def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_existing_run(
     tmp_path, monkeypatch
 ):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    output_path.write_text(
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
                 "dataset": "GeneReviews",
-                "llm_model": "gemini-2.5-pro",
+                "llm_provider": None,
+                "llm_model": "gemini-2.5-flash",
+                "llm_base_url": None,
+                "llm_timeout_seconds": None,
+                "llm_seed": None,
                 "llm_mode": "two_phase",
                 "llm_internal_mode": "whole_document_grounded",
                 "language": "en",
+                "capture_phase1_debug": False,
                 "prompt_templates_dir": None,
                 "requested_doc_ids": None,
                 "status": "completed",
+                "prediction_records": [],
+                "results": [],
             }
         ),
         encoding="utf-8",
     )
 
+    captured: dict[str, object] = {}
+
     def fake_run_llm_benchmark(**kwargs):
-        assert kwargs["checkpoint_state"] is None
+        captured.update(kwargs)
         return {
             "status": "completed",
             "cases": 0,
@@ -2601,6 +2634,8 @@ def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
             },
             "prediction_records": [],
             "results": [],
+            "term_records": [],
+            "case_records": [],
             "metrics": {
                 "assertion_aware": {"micro": {"f1": 0.0}},
                 "id_only": {"micro": {"f1": 0.0}},
@@ -2615,12 +2650,15 @@ def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
     )
 
     assert result["llm_model"] == "gemini-2.5-flash"
+    assert captured["checkpoint_state"]["status"] == "completed"
     assert (
-        json.loads(output_path.read_text(encoding="utf-8"))["llm_model"]
+        json.loads(run_layout.summary_path.read_text(encoding="utf-8"))["llm_model"]
         == "gemini-2.5-flash"
     )
 

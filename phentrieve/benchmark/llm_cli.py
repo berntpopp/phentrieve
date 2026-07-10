@@ -7,7 +7,6 @@ import logging
 import os
 import re
 import tempfile
-from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -21,27 +20,24 @@ from phentrieve.benchmark.llm_benchmark import (
     DEFAULT_LLM_BENCHMARK_DATASET,
     DEFAULT_LLM_BENCHMARK_MODE,
 )
+from phentrieve.benchmark.result_store import (
+    create_run_layout,
+    sha256_path,
+    write_json,
+    write_jsonl,
+    write_manifest,
+)
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_URL
 from phentrieve.utils import setup_logging_cli
 
 app = typer.Typer(help="Benchmark LLM full-text extraction.")
 console = Console()
 logger = logging.getLogger(__name__)
-DEFAULT_LLM_BENCHMARK_OUTPUT_DIR = Path("results") / "llm"
 CHECKPOINT_DEFAULTS: dict[str, Any] = {
     "ontology_aware_metrics": False,
     "ontology_semantic_floor": 0.30,
     "ontology_similarity_formula": "hybrid",
 }
-
-
-def _default_output_path() -> Path:
-    timestamp = datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%SZ")
-    return DEFAULT_LLM_BENCHMARK_OUTPUT_DIR / f"llm_benchmark_{timestamp}.json"
-
-
-def _default_artifacts_dir(output_path: Path) -> Path:
-    return output_path.parent / output_path.stem
 
 
 def _artifact_filename_stem(record: dict[str, Any]) -> str:
@@ -67,9 +63,9 @@ def run_llm_benchmark_cli(
     llm_internal_mode: str = "whole_document_grounded",
     dataset: str = DEFAULT_LLM_BENCHMARK_DATASET,
     doc_ids: list[str] | None = None,
-    output_path: str | None = None,
-    checkpoint_path: str | None = None,
-    artifacts_dir: str | None = None,
+    output_dir: str = "results",
+    run_id: str | None = None,
+    overwrite: bool = False,
     language: str = DEFAULT_LLM_LANGUAGE,
     prompt_templates_dir: str | None = None,
     pricing_config: str | None = None,
@@ -87,16 +83,8 @@ def run_llm_benchmark_cli(
     currency: str | None = None,
     debug: bool = False,
 ) -> dict[str, Any]:
-    """Run the LLM benchmark and persist summary plus comparison artifacts."""
+    """Run the LLM benchmark and persist canonical run-layout artifacts."""
     setup_logging_cli(debug=debug)
-    logger.info(
-        "Benchmark CLI input: test_file=%s model=%s mode=%s dataset=%s output_path=%s",
-        test_file,
-        llm_model,
-        llm_mode,
-        dataset,
-        output_path or "default",
-    )
     test_file_path = Path(test_file)
     if not test_file_path.exists():
         raise ValueError(f"Benchmark test file not found: {test_file}")
@@ -109,18 +97,27 @@ def run_llm_benchmark_cli(
                 f"Benchmark test file must be valid JSON: {test_file}"
             ) from exc
 
-    resolved_output_path = Path(output_path) if output_path else _default_output_path()
-    resolved_checkpoint_path = (
-        Path(checkpoint_path) if checkpoint_path else resolved_output_path
+    dataset_name = dataset if test_file_path.is_dir() else test_file_path.stem
+    run_layout = create_run_layout(
+        Path(output_dir),
+        "llm",
+        dataset_name,
+        llm_model,
+        run_id=run_id,
+        exact_run_id=run_id is not None,
+        overwrite=overwrite,
     )
-    resolved_artifacts_dir = (
-        Path(artifacts_dir)
-        if artifacts_dir
-        else _default_artifacts_dir(resolved_output_path)
+    checkpoint_path = run_layout.run_dir / "checkpoint.json"
+    dataset_sha256 = sha256_path(test_file_path)
+    logger.info(
+        "Benchmark CLI input: test_file=%s model=%s mode=%s dataset=%s run_dir=%s",
+        test_file,
+        llm_model,
+        llm_mode,
+        dataset,
+        run_layout.run_dir,
     )
-    resolved_output_path.parent.mkdir(parents=True, exist_ok=True)
-    resolved_checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
-    resolved_artifacts_dir.mkdir(parents=True, exist_ok=True)
+
     accounting_config = _load_accounting_config(
         pricing_config_path=pricing_config,
         llm_provider=llm_provider,
@@ -135,42 +132,51 @@ def run_llm_benchmark_cli(
         currency=currency,
     )
 
-    existing_checkpoint = (
-        _load_checkpoint_payload(
-            path=resolved_checkpoint_path,
-            current_run={
-                "test_file": str(test_file_path),
-                "dataset": dataset,
-                "llm_provider": llm_provider,
-                "llm_model": llm_model,
-                "llm_base_url": llm_base_url,
-                "llm_timeout_seconds": llm_timeout_seconds,
-                "llm_seed": llm_seed,
-                "llm_mode": llm_mode,
-                "llm_internal_mode": llm_internal_mode,
-                "language": language,
-                "capture_phase1_debug": capture_phase1_debug,
-                "ontology_aware_metrics": ontology_aware_metrics,
-                "ontology_semantic_floor": ontology_semantic_floor,
-                "ontology_similarity_formula": ontology_similarity_formula,
-                "prompt_templates_dir": prompt_templates_dir,
-                "requested_doc_ids": list(doc_ids) if doc_ids else None,
-            },
-            allow_completed=True,
-        )
-        if checkpoint_path is not None
-        else None
+    existing_checkpoint = _load_checkpoint_payload(
+        path=checkpoint_path,
+        current_run={
+            "test_file": str(test_file_path),
+            "dataset": dataset,
+            "llm_provider": llm_provider,
+            "llm_model": llm_model,
+            "llm_base_url": llm_base_url,
+            "llm_timeout_seconds": llm_timeout_seconds,
+            "llm_seed": llm_seed,
+            "llm_mode": llm_mode,
+            "llm_internal_mode": llm_internal_mode,
+            "language": language,
+            "capture_phase1_debug": capture_phase1_debug,
+            "ontology_aware_metrics": ontology_aware_metrics,
+            "ontology_semantic_floor": ontology_semantic_floor,
+            "ontology_similarity_formula": ontology_similarity_formula,
+            "prompt_templates_dir": prompt_templates_dir,
+            "requested_doc_ids": list(doc_ids) if doc_ids else None,
+        },
+        allow_completed=True,
     )
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
         checkpoint_payload = dict(snapshot)
-        checkpoint_payload["output_path"] = str(resolved_output_path)
-        checkpoint_payload["checkpoint_path"] = str(resolved_checkpoint_path)
-        checkpoint_payload["artifacts_dir"] = str(resolved_artifacts_dir)
-        _write_json_atomic(resolved_checkpoint_path, checkpoint_payload)
-        _write_benchmark_artifacts(
-            artifacts_dir=resolved_artifacts_dir,
+        checkpoint_payload["run_id"] = run_layout.run_id
+        checkpoint_payload["output_dir"] = str(output_dir)
+        _write_json_atomic(checkpoint_path, checkpoint_payload)
+        predictions_dir, traces_dir, metrics_path = _write_benchmark_artifacts(
+            run_dir=run_layout.run_dir,
             benchmark_payload=checkpoint_payload,
+        )
+        write_manifest(
+            run_layout,
+            _manifest_metadata(
+                payload=checkpoint_payload,
+                dataset_sha256=dataset_sha256,
+                test_file_path=test_file_path,
+                status="partial",
+            ),
+            extra_artifacts=_extra_artifacts(
+                predictions_dir=predictions_dir,
+                traces_dir=traces_dir,
+                metrics_path=metrics_path,
+            ),
         )
 
     result = llm_benchmark.run_llm_benchmark(
@@ -199,21 +205,50 @@ def run_llm_benchmark_cli(
     )
 
     payload = dict(result)
-    payload["output_path"] = str(resolved_output_path)
-    payload["checkpoint_path"] = str(resolved_checkpoint_path)
-    payload["artifacts_dir"] = str(resolved_artifacts_dir)
-    _write_json_atomic(resolved_output_path, payload)
-    metrics_path, predictions_dir = _write_benchmark_artifacts(
-        artifacts_dir=resolved_artifacts_dir,
+    payload["run_id"] = run_layout.run_id
+    payload["run_dir"] = str(run_layout.run_dir)
+    payload["output_dir"] = str(output_dir)
+
+    predictions_dir, traces_dir, metrics_path = _write_benchmark_artifacts(
+        run_dir=run_layout.run_dir,
         benchmark_payload=payload,
     )
     if metrics_path is not None:
         payload["metrics_path"] = str(metrics_path)
     if predictions_dir is not None:
         payload["predictions_dir"] = str(predictions_dir)
-    _write_json_atomic(resolved_output_path, payload)
-    _write_json_atomic(resolved_checkpoint_path, payload)
-    logger.info("Saved LLM benchmark summary to %s", resolved_output_path)
+
+    term_records = payload.get("term_records") or []
+    case_records = payload.get("case_records") or []
+    canonical_summary = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"results", "prediction_records", "term_records", "case_records"}
+    }
+    canonical_summary["run_id"] = run_layout.run_id
+    canonical_summary["benchmark_type"] = "llm"
+    canonical_summary["dataset_name"] = dataset_name
+    write_json(run_layout.summary_path, canonical_summary)
+    write_jsonl(run_layout.terms_path, term_records)
+    write_jsonl(run_layout.cases_path, case_records)
+
+    manifest_status = "failed" if result.get("status") == "failed" else "complete"
+    write_manifest(
+        run_layout,
+        _manifest_metadata(
+            payload=payload,
+            dataset_sha256=dataset_sha256,
+            test_file_path=test_file_path,
+            status=manifest_status,
+        ),
+        extra_artifacts=_extra_artifacts(
+            predictions_dir=predictions_dir,
+            traces_dir=traces_dir,
+            metrics_path=metrics_path,
+        ),
+    )
+    _write_json_atomic(checkpoint_path, payload)
+    logger.info("Saved LLM benchmark summary to %s", run_layout.summary_path)
     return payload
 
 
@@ -386,18 +421,67 @@ def _checkpoint_matches_run(
     )
 
 
+def _extra_artifacts(
+    *,
+    predictions_dir: Path | None,
+    traces_dir: Path | None,
+    metrics_path: Path | None,
+) -> dict[str, tuple[Path, str]]:
+    extra: dict[str, tuple[Path, str]] = {}
+    if predictions_dir is not None:
+        extra["llm_predictions"] = (predictions_dir, "inode/directory")
+    if traces_dir is not None:
+        extra["llm_traces"] = (traces_dir, "inode/directory")
+    if metrics_path is not None:
+        extra["metrics"] = (metrics_path, "application/json")
+    return extra
+
+
+def _manifest_metadata(
+    *,
+    payload: dict[str, Any],
+    dataset_sha256: str,
+    test_file_path: Path,
+    status: str,
+) -> dict[str, Any]:
+    dataset_metadata = payload.get("dataset_metadata") or {}
+    term_records = payload.get("term_records") or []
+    case_records = payload.get("case_records") or []
+    timing_breakdown = payload.get("timing_breakdown") or {}
+    return {
+        "status": status,
+        "elapsed_seconds": timing_breakdown.get("wall_clock_seconds"),
+        "dataset": {
+            **dataset_metadata,
+            "path": str(test_file_path.resolve()),
+            "sha256": dataset_sha256,
+        },
+        "config": {
+            "llm_provider": payload.get("llm_provider"),
+            "llm_model": payload.get("llm_model"),
+            "llm_mode": payload.get("llm_mode"),
+            "llm_internal_mode": payload.get("llm_internal_mode"),
+            "language": payload.get("language"),
+            "ontology_aware_metrics": payload.get("ontology_aware_metrics"),
+        },
+        "counts": {
+            "documents": payload.get("cases", 0),
+            "terms": len(term_records),
+            "cases": len(case_records),
+        },
+    }
+
+
 def _write_benchmark_artifacts(
     *,
-    artifacts_dir: Path,
+    run_dir: Path,
     benchmark_payload: dict[str, Any],
-) -> tuple[Path | None, Path | None]:
+) -> tuple[Path | None, Path | None, Path | None]:
     predictions_dir: Path | None = None
     traces_dir: Path | None = None
     prediction_records = benchmark_payload.get("prediction_records")
     if isinstance(prediction_records, list):
-        predictions_dir = (
-            artifacts_dir / "predictions" / str(benchmark_payload["llm_mode"])
-        )
+        predictions_dir = run_dir / "predictions" / str(benchmark_payload["llm_mode"])
         predictions_dir.mkdir(parents=True, exist_ok=True)
         for record in prediction_records:
             artifact_stem = _artifact_filename_stem(record)
@@ -407,9 +491,7 @@ def _write_benchmark_artifacts(
             )
             if isinstance(record.get("trace"), dict):
                 if traces_dir is None:
-                    traces_dir = (
-                        artifacts_dir / "traces" / str(benchmark_payload["llm_mode"])
-                    )
+                    traces_dir = run_dir / "traces" / str(benchmark_payload["llm_mode"])
                     traces_dir.mkdir(parents=True, exist_ok=True)
                 (traces_dir / f"{artifact_stem}.json").write_text(
                     json.dumps(record["trace"], indent=2),
@@ -419,7 +501,7 @@ def _write_benchmark_artifacts(
     metrics_path: Path | None = None
     metrics = benchmark_payload.get("metrics")
     if isinstance(metrics, dict):
-        metrics_dir = artifacts_dir / "metrics"
+        metrics_dir = run_dir / "metrics"
         metrics_dir.mkdir(parents=True, exist_ok=True)
         metrics_path = metrics_dir / f"benchmark_{benchmark_payload['llm_mode']}.json"
         metrics_path.write_text(
@@ -451,8 +533,8 @@ def _write_benchmark_artifacts(
             ),
             encoding="utf-8",
         )
-    logger.info("Saved benchmark artifacts to %s", artifacts_dir)
-    return metrics_path, predictions_dir
+    logger.info("Saved benchmark artifacts to %s", run_dir)
+    return predictions_dir, traces_dir, metrics_path
 
 
 @app.callback(invoke_without_command=True)
