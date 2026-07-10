@@ -268,8 +268,10 @@ def test_get_prompt_falls_back_to_english():
     template = get_prompt(AnnotationMode.TWO_PHASE, "fr")
 
     assert template.language == "en"
-    assert template.source_path.endswith(
-        "phentrieve/llm/prompts/templates/two_phase/en.yaml"
+    assert (
+        Path(template.source_path)
+        .as_posix()
+        .endswith("phentrieve/llm/prompts/templates/two_phase/en.yaml")
     )
 
 

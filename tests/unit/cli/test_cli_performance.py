@@ -5,6 +5,7 @@ complete quickly without loading heavy dependencies like PyTorch.
 """
 
 import subprocess
+import sys
 import time
 
 import pytest
@@ -102,8 +103,8 @@ def test_no_heavy_imports_on_cli_load():
     libraries are not imported when the CLI module is loaded.
     """
     result = subprocess.run(
-        [  # noqa: S607 - Partial path acceptable for testing Python in PATH
-            "python",
+        [
+            sys.executable,
             "-c",
             # Explicit concatenation to avoid implicit string concat warning
             (

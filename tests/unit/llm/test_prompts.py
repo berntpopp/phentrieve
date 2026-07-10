@@ -23,7 +23,7 @@ def test_get_mapping_prompt_loads_packaged_template() -> None:
     assert template.language == "fr"
     assert template.version == "v4.1.0"
     assert "You map clinical phenotype phrases to HPO terms." in template.system_prompt
-    assert template.source_path.endswith("two_phase/en_mapping.yaml")
+    assert Path(template.source_path).as_posix().endswith("two_phase/en_mapping.yaml")
 
 
 def test_get_batch_mapping_prompt_uses_shared_english_template_with_requested_language() -> (
@@ -33,7 +33,11 @@ def test_get_batch_mapping_prompt_uses_shared_english_template_with_requested_la
 
     assert template.language == "de"
     assert template.version == "v4.1.0"
-    assert template.source_path.endswith("two_phase/en_mapping_batch.yaml")
+    assert (
+        Path(template.source_path)
+        .as_posix()
+        .endswith("two_phase/en_mapping_batch.yaml")
+    )
 
 
 def test_load_prompt_template_prefers_user_override(monkeypatch, tmp_path) -> None:

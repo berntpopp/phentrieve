@@ -35,7 +35,7 @@ from phentrieve.utils import generate_collection_name
 @pytest.fixture
 def temp_index_dir():
     """Create a temporary directory for index testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
         yield Path(tmpdir)
 
 
