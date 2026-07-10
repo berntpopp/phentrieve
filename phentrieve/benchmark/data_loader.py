@@ -257,4 +257,6 @@ def _directory_dataset_source(dataset: str) -> str:
 
 
 def _directory_dataset_name(dataset: str) -> str:
+    if dataset in RAG_HPO_PAPER_DATASETS:
+        return f"rag_hpo_{dataset}"
     return f"phenobert_{dataset}"
