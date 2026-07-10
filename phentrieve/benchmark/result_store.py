@@ -144,7 +144,12 @@ def _artifact_entry(layout: RunLayout, path: Path, media_type: str) -> dict[str,
     }
 
 
-def write_manifest(layout: RunLayout, metadata: Mapping[str, Any]) -> dict[str, Any]:
+def write_manifest(
+    layout: RunLayout,
+    metadata: Mapping[str, Any],
+    *,
+    extra_artifacts: Mapping[str, tuple[Path, str]] | None = None,
+) -> dict[str, Any]:
     """Write a run manifest containing machine-readable artifact roles."""
     artifacts: dict[str, dict[str, str]] = {}
     candidates = (
@@ -154,6 +159,10 @@ def write_manifest(layout: RunLayout, metadata: Mapping[str, Any]) -> dict[str, 
         ("chunk_diagnostics", layout.chunks_path, "application/x-ndjson"),
     )
     for role, path, media_type in candidates:
+        if path.exists():
+            artifacts[role] = _artifact_entry(layout, path, media_type)
+
+    for role, (path, media_type) in (extra_artifacts or {}).items():
         if path.exists():
             artifacts[role] = _artifact_entry(layout, path, media_type)
 

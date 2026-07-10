@@ -137,6 +137,31 @@ def test_create_run_layout_accepts_llm_benchmark_type(tmp_path) -> None:
     )
 
 
+def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "GeneReviews", "model", run_id="run")
+    predictions_dir = layout.run_dir / "predictions" / "two_phase"
+    predictions_dir.mkdir(parents=True)
+    (predictions_dir / "case_1.json").write_text("{}", encoding="utf-8")
+    metrics_path = layout.run_dir / "metrics" / "benchmark_two_phase.json"
+    missing_traces_dir = layout.run_dir / "traces" / "two_phase"
+
+    manifest = write_manifest(
+        layout,
+        {"status": "complete"},
+        extra_artifacts={
+            "llm_predictions": (predictions_dir, "inode/directory"),
+            "llm_traces": (missing_traces_dir, "inode/directory"),
+            "metrics": (metrics_path, "application/json"),
+        },
+    )
+
+    assert manifest["artifacts"]["llm_predictions"]["path"] == (
+        "predictions/two_phase"
+    )
+    assert "llm_traces" not in manifest["artifacts"]
+    assert "metrics" not in manifest["artifacts"]
+
+
 def test_discover_artifacts_prefers_canonical_manifests_and_falls_back_to_legacy(
     tmp_path,
 ) -> None:
