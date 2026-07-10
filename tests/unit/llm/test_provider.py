@@ -20,6 +20,7 @@ from phentrieve.llm.provider import (
     LLMProvider,
     OllamaStructuredOutputProvider,
     OpenAIStructuredOutputProvider,
+    OpenRouterStructuredOutputProvider,
     ToolExecutor,
     get_llm_provider,
     resolve_llm_provider_request,
@@ -243,6 +244,30 @@ def test_get_llm_provider_infers_openai_from_prefixed_model(monkeypatch) -> None
     assert provider.model_name == "gpt-5.4"
 
 
+def test_get_llm_provider_keeps_openrouter_model_slug(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENROUTER_API_KEY", "test-key")
+
+    provider = get_llm_provider(
+        llm_provider="openrouter",
+        llm_model="meta-llama/llama-3.1-70b-instruct",
+    )
+
+    assert provider.provider_name == "openrouter"
+    assert provider.model_name == "meta-llama/llama-3.1-70b-instruct"
+    assert provider.base_url == "https://openrouter.ai/api/v1"
+
+
+def test_resolve_openrouter_request_keeps_slash_model_slug() -> None:
+    request = resolve_llm_provider_request(
+        llm_provider="openrouter",
+        llm_model="meta-llama/llama-3.1-70b-instruct",
+    )
+
+    assert request.provider == "openrouter"
+    assert request.model == "meta-llama/llama-3.1-70b-instruct"
+    assert request.base_url == "https://openrouter.ai/api/v1"
+
+
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
     monkeypatch,
 ) -> None:
@@ -307,6 +332,11 @@ def test_get_llm_provider_passes_timeout_override_to_ollama() -> None:
         ("ollama", "qwen3.5:35b", None),
         ("anthropic", "claude-sonnet-4-6", "PHENTRIEVE_ANTHROPIC_API_KEY"),
         ("openai", "gpt-5.4-mini", "PHENTRIEVE_OPENAI_API_KEY"),
+        (
+            "openrouter",
+            "meta-llama/llama-3.1-70b-instruct",
+            "PHENTRIEVE_OPENROUTER_API_KEY",
+        ),
     ],
 )
 def test_get_llm_provider_respects_zero_timeout_override(
@@ -325,6 +355,18 @@ def test_get_llm_provider_respects_zero_timeout_override(
     )
 
     assert provider.timeout_seconds == 0
+
+
+def test_openrouter_provider_uses_openai_key_fallback(monkeypatch) -> None:
+    monkeypatch.delenv("PHENTRIEVE_OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+
+    provider = OpenRouterStructuredOutputProvider(
+        model_name="meta-llama/llama-3.1-70b-instruct",
+    )
+
+    assert provider.provider_name == "openrouter"
+    assert provider.model_name == "meta-llama/llama-3.1-70b-instruct"
 
 
 def test_ollama_structured_prompt_posts_native_chat_schema(mocker) -> None:
