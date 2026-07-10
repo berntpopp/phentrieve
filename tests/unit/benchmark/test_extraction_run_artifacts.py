@@ -56,7 +56,7 @@ def test_extraction_run_preserves_terms_cases_and_raw_chunk_candidates(
         benchmark.extractor,
         "extract_with_details",
         lambda text: (
-            [("HP:0001250", "PRESENT")],
+            [("HP:0001250", "PRESENT"), ("HP:0001254", "ABSENT")],
             {
                 "processed_chunks": [
                     {
@@ -76,9 +76,10 @@ def test_extraction_run_preserves_terms_cases_and_raw_chunk_candidates(
                                     "hpo_id": "HP:0004322",
                                     "label": "Abnormality of movement",
                                 },
+                                {"hpo_id": "HP:0001254", "label": "Lethargy"},
                             ]
                         ],
-                        "similarities": [[0.9, 0.42]],
+                        "similarities": [[0.9, 0.42, 0.8]],
                     }
                 ],
                 "chunk_results": [
@@ -91,7 +92,13 @@ def test_extraction_run_preserves_terms_cases_and_raw_chunk_candidates(
                                 "name": "Seizure",
                                 "score": 0.9,
                                 "assertion_status": "affirmed",
-                            }
+                            },
+                            {
+                                "id": "HP:0001254",
+                                "name": "Lethargy",
+                                "score": 0.8,
+                                "assertion_status": "negated",
+                            },
                         ],
                     }
                 ],
@@ -100,8 +107,16 @@ def test_extraction_run_preserves_terms_cases_and_raw_chunk_candidates(
                         "id": "HP:0001250",
                         "name": "Seizure",
                         "score": 0.9,
-                        "chunks": [{"chunk_idx": 0, "score": 0.9}],
-                    }
+                        "chunks": [0],
+                        "assertion_status": "affirmed",
+                    },
+                    {
+                        "id": "HP:0001254",
+                        "name": "Lethargy",
+                        "score": 0.8,
+                        "chunks": [0],
+                        "assertion_status": "negated",
+                    },
                 ],
             },
         ),
@@ -125,8 +140,19 @@ def test_extraction_run_preserves_terms_cases_and_raw_chunk_candidates(
 
     assert {term["hpo_id"]: term["outcome"] for term in terms} == {
         "HP:0001250": "tp",
+        "HP:0001254": "filtered",
         "HP:0004322": "filtered",
     }
+    assert next(term for term in terms if term["hpo_id"] == "HP:0001250")[
+        "source_chunk_ids"
+    ] == [0]
+    terms_by_id = {term["hpo_id"]: term for term in terms}
+    assert terms_by_id["HP:0001250"]["filter_stage"] is None
+    assert terms_by_id["HP:0001254"]["is_pipeline_prediction"] is True
+    assert terms_by_id["HP:0001254"]["is_evaluated_prediction"] is False
+    assert terms_by_id["HP:0001254"]["filter_stage"] == "scoring_mode"
+    assert terms_by_id["HP:0004322"]["filter_stage"] == "chunk_threshold"
+    assert cases[0]["pipeline_predicted_hpo_ids"] == ["HP:0001250", "HP:0001254"]
     assert cases[0]["doc_id"] == "GSC_1"
     assert cases[0]["metrics"] == {"tp": 1, "fp": 0, "fn": 0}
     assert chunks[0]["candidates"][1] == {

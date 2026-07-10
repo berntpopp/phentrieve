@@ -79,7 +79,10 @@ The important files are:
 - `summary.json`: aggregate metrics and per-case arrays used by comparisons and
   the standard benchmark graphics.
 - `terms.jsonl`: ranked or extracted HPO terms, scores, gold membership, and
-  TP/FP/FN outcomes. Use this for term-level analysis.
+  TP/FP/FN outcomes. Extraction records distinguish pipeline predictions from
+  evaluated predictions and identify whether a term was removed by the chunk
+  threshold, chunk selection, aggregation confidence, or scoring mode. Use
+  this for term-level analysis.
 - `cases.jsonl`: query/document inputs, predictions, per-case metrics, timings,
   and errors. Use this for statistical analysis.
 - `diagnostics/chunks.jsonl`: extraction chunks and every returned top-N

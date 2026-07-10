@@ -881,8 +881,21 @@ class ExtractionBenchmark:
                         candidate["component_scores"] = metadata["component_scores"]
                     candidates.append(candidate)
                     previous = raw_by_id.get(hpo_id)
+                    passed_any = bool(candidate["passes_threshold"])
+                    used_any = bool(candidate["used_in_aggregation"])
+                    if previous is not None:
+                        passed_any = passed_any or bool(previous["passes_threshold"])
+                        used_any = used_any or bool(previous["used_in_aggregation"])
                     if previous is None or score > previous["score"]:
-                        raw_by_id[hpo_id] = {**candidate, "chunk_id": chunk_index}
+                        raw_by_id[hpo_id] = {
+                            **candidate,
+                            "chunk_id": chunk_index,
+                            "passes_threshold": passed_any,
+                            "used_in_aggregation": used_any,
+                        }
+                    else:
+                        previous["passes_threshold"] = passed_any
+                        previous["used_in_aggregation"] = used_any
 
                 chunks.append(
                     {
@@ -904,7 +917,10 @@ class ExtractionBenchmark:
                 str(term.get("id") or term.get("hpo_id") or ""): term
                 for term in details.get("aggregated_results", [])
             }
-            for hpo_id in sorted(gold_ids | predicted_ids | set(raw_by_id)):
+            pipeline_predicted_ids = set(aggregated)
+            for hpo_id in sorted(
+                gold_ids | predicted_ids | pipeline_predicted_ids | set(raw_by_id)
+            ):
                 if hpo_id in gold_ids and hpo_id in predicted_ids:
                     outcome = "tp"
                 elif hpo_id in predicted_ids:
@@ -915,6 +931,21 @@ class ExtractionBenchmark:
                     outcome = "filtered"
                 raw = raw_by_id.get(hpo_id, {})
                 aggregate = aggregated.get(hpo_id, {})
+                if hpo_id in predicted_ids:
+                    filter_stage = None
+                elif hpo_id in pipeline_predicted_ids:
+                    filter_stage = "scoring_mode"
+                elif raw.get("used_in_aggregation"):
+                    filter_stage = "aggregation_confidence"
+                elif raw.get("passes_threshold"):
+                    filter_stage = "chunk_selection"
+                elif raw:
+                    filter_stage = "chunk_threshold"
+                else:
+                    filter_stage = "not_retrieved"
+                pipeline_status = aggregate.get(
+                    "assertion_status", aggregate.get("status")
+                )
                 terms.append(
                     {
                         "doc_id": result.doc_id,
@@ -926,15 +957,30 @@ class ExtractionBenchmark:
                         "outcome": outcome,
                         "is_gold": hpo_id in gold_ids,
                         "is_predicted": hpo_id in predicted_ids,
+                        "is_pipeline_prediction": hpo_id in pipeline_predicted_ids,
+                        "is_evaluated_prediction": hpo_id in predicted_ids,
+                        "filter_stage": filter_stage,
                         "gold_assertion": gold.get(hpo_id),
                         "predicted_assertion": predicted.get(hpo_id),
+                        "pipeline_assertion": ASSERTION_STATUS_MAP.get(
+                            str(pipeline_status),
+                            pipeline_status,
+                        ),
                         "rank": raw.get("rank"),
                         "raw_score": raw.get("score"),
                         "final_score": aggregate.get("score"),
                         "source_chunk_ids": [
-                            chunk.get("chunk_idx")
+                            (
+                                chunk.get("chunk_idx")
+                                if isinstance(chunk, dict)
+                                else chunk
+                            )
                             for chunk in aggregate.get("chunks", [])
-                            if isinstance(chunk, dict)
+                            if isinstance(chunk, int)
+                            or (
+                                isinstance(chunk, dict)
+                                and isinstance(chunk.get("chunk_idx"), int)
+                            )
                         ],
                     }
                 )
@@ -947,6 +993,7 @@ class ExtractionBenchmark:
                     "doc_id": result.doc_id,
                     "text": document.get("text", ""),
                     "expected_hpo_ids": sorted(gold_ids),
+                    "pipeline_predicted_hpo_ids": sorted(pipeline_predicted_ids),
                     "predicted_hpo_ids": sorted(predicted_ids),
                     "metrics": {"tp": tp, "fp": fp, "fn": fn},
                     "elapsed_seconds": captured["elapsed_seconds"],
