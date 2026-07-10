@@ -53,6 +53,21 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_path(path: Path) -> str:
+    """Hash one file or a directory tree using relative paths and contents."""
+    if path.is_file():
+        return sha256_file(path)
+    digest = hashlib.sha256()
+    for file_path in sorted(item for item in path.rglob("*") if item.is_file()):
+        relative_path = file_path.relative_to(path).as_posix().encode("utf-8")
+        digest.update(len(relative_path).to_bytes(8, "big"))
+        digest.update(relative_path)
+        with file_path.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+    return digest.hexdigest()
+
+
 def create_run_layout(
     results_root: Path,
     benchmark_type: BenchmarkType,

@@ -10,6 +10,7 @@ from phentrieve.benchmark.result_store import (
     discover_artifacts,
     safe_slug,
     sha256_file,
+    sha256_path,
     utc_run_id,
     write_json,
     write_jsonl,
@@ -106,6 +107,22 @@ def test_json_jsonl_checksum_and_manifest_round_trip(tmp_path) -> None:
     assert json.loads(layout.manifest_path.read_text(encoding="utf-8"))[
         "status"
     ] == "complete"
+
+
+def test_sha256_path_hashes_directory_names_and_contents_deterministically(
+    tmp_path,
+) -> None:
+    dataset = tmp_path / "dataset"
+    (dataset / "annotations").mkdir(parents=True)
+    (dataset / "annotations" / "b.json").write_text("b", encoding="utf-8")
+    (dataset / "annotations" / "a.json").write_text("a", encoding="utf-8")
+
+    first = sha256_path(dataset)
+    second = sha256_path(dataset)
+    (dataset / "annotations" / "a.json").write_text("changed", encoding="utf-8")
+
+    assert first == second
+    assert sha256_path(dataset) != first
 
 
 def test_discover_artifacts_prefers_canonical_manifests_and_falls_back_to_legacy(

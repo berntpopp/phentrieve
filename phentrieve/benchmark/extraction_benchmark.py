@@ -28,6 +28,7 @@ from phentrieve.benchmark.data_loader import (
 )
 from phentrieve.benchmark.result_store import (
     RunLayout,
+    sha256_path,
     write_json,
     write_jsonl,
     write_manifest,
@@ -974,6 +975,7 @@ class ExtractionBenchmark:
                 "dataset": {
                     **dataset_metadata,
                     "path": str(test_file.resolve()),
+                    "sha256": sha256_path(test_file),
                 },
                 "config": {
                     "scoring_mode": config.scoring_mode,
