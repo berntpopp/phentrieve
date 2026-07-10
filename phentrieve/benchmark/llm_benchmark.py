@@ -722,7 +722,9 @@ def run_llm_benchmark(
         config=resolved_accounting_config.energy_accounting,
     )
 
-    return _build_benchmark_payload(
+    term_records, case_records = _build_terms_and_cases(documents, results)
+
+    final_payload = _build_benchmark_payload(
         test_path=test_path,
         dataset=dataset,
         documents=documents,
@@ -758,6 +760,9 @@ def run_llm_benchmark(
         },
         status="completed",
     )
+    final_payload["term_records"] = term_records
+    final_payload["case_records"] = case_records
+    return final_payload
 
 
 def _restore_checkpoint_state(

@@ -2067,6 +2067,22 @@ def test_run_llm_benchmark_resumes_completed_cases_from_checkpoint(monkeypatch):
     assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
     assert result["token_usage"]["api_calls"] == 3
     assert result["timing_breakdown"]["wall_clock_seconds"] >= 12.0
+    assert [record["doc_id"] for record in result["case_records"]] == [
+        "doc-1",
+        "doc-2",
+    ]
+    assert {
+        record["doc_id"]: record["status"] for record in result["case_records"]
+    } == {"doc-1": "complete", "doc-2": "complete"}
+    term_ids_by_doc = {
+        doc_id: sorted(
+            term["hpo_id"]
+            for term in result["term_records"]
+            if term["doc_id"] == doc_id
+        )
+        for doc_id in ("doc-1", "doc-2")
+    }
+    assert term_ids_by_doc == {"doc-1": ["HP:0001250"], "doc-2": ["HP:0001251"]}
 
 
 def test_run_llm_benchmark_temporarily_overrides_prompt_templates_dir(
@@ -2756,3 +2772,66 @@ def test_build_terms_and_cases_marks_failed_documents():
     assert cases[0]["expected_hpo_ids"] == ["HP:0001250"]
     assert cases[0]["predicted_hpo_ids"] == []
     assert cases[0]["metrics"] == {"tp": 0, "fp": 0, "fn": 1}
+
+
+def test_run_llm_benchmark_returns_term_and_case_records(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [
+                        {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"}
+                    ],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                    )
+                ],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert result["term_records"] == [
+        {
+            "doc_id": "doc-1",
+            "hpo_id": "HP:0001250",
+            "label": "Seizure",
+            "is_gold": True,
+            "is_predicted": True,
+            "gold_assertion": "PRESENT",
+            "predicted_assertion": "PRESENT",
+            "outcome": "tp",
+            "evidence": "seizures",
+            "category": None,
+        }
+    ]
+    assert result["case_records"][0]["doc_id"] == "doc-1"
+    assert result["case_records"][0]["metrics"] == {"tp": 1, "fp": 0, "fn": 0}
+    assert result["case_records"][0]["status"] == "complete"
