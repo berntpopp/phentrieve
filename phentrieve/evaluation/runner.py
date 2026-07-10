@@ -69,6 +69,7 @@ def run_evaluation(
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
     overwrite: bool = False,
+    run_id: str | None = None,
 ) -> dict[str, Any] | None:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
@@ -116,6 +117,8 @@ def run_evaluation(
             "retrieval",
             Path(test_file).stem,
             model_name,
+            run_id=run_id,
+            exact_run_id=run_id is not None,
             overwrite=overwrite,
         )
         summaries_dir = run_layout.legacy_dir

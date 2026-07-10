@@ -66,6 +66,13 @@ def run_benchmarks(
             help="Root directory for unique benchmark run directories",
         ),
     ] = None,
+    run_id: Annotated[
+        str | None,
+        typer.Option(
+            "--run-id",
+            help="Explicit run identifier; existing runs require --overwrite",
+        ),
+    ] = None,
     overwrite: Annotated[
         bool,
         typer.Option(
@@ -153,6 +160,8 @@ def run_benchmarks(
         kwargs["output"] = output
     if results_dir is not None:
         kwargs["results_dir_override"] = results_dir
+    if run_id is not None:
+        kwargs["run_id"] = run_id
     results = orchestrate_benchmark(**kwargs)
 
     if results:

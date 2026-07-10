@@ -63,6 +63,7 @@ def orchestrate_benchmark(
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
     overwrite: bool = False,
+    run_id: str | None = None,
 ) -> dict[str, Any] | list[dict[str, Any]] | None:
     """
     Run benchmark evaluations for HPO term retrieval.
@@ -166,6 +167,7 @@ def orchestrate_benchmark(
                 multi_vector=multi_vector,
                 aggregation_strategy=aggregation_strategy,
                 overwrite=overwrite,
+                run_id=run_id,
             )
 
             if results:

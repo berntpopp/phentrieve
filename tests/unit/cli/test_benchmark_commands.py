@@ -123,6 +123,7 @@ class TestRunBenchmarks:
             trust_remote_code=True,
             similarity_formula="simple_resnik_like",
             results_dir="custom-results",
+            run_id="baseline",
             overwrite=True,
             debug=True,
         )
@@ -141,6 +142,7 @@ class TestRunBenchmarks:
         assert call_kwargs["trust_remote_code"] is True
         assert call_kwargs["similarity_formula"] == "simple_resnik_like"
         assert call_kwargs["results_dir_override"] == "custom-results"
+        assert call_kwargs["run_id"] == "baseline"
         assert call_kwargs["overwrite"] is True
         assert call_kwargs["debug"] is True
 
