@@ -38,14 +38,7 @@ def test_load_models_combines_arguments_and_file(tmp_path: Path) -> None:
     ]
 
 
-def test_safe_model_slug_removes_path_separators() -> None:
-    assert (
-        runner.safe_model_slug("meta-llama/llama-3.1-70b-instruct")
-        == "meta-llama__llama-3.1-70b-instruct"
-    )
-
-
-def test_build_command_passes_model_as_cli_parameter(tmp_path: Path) -> None:
+def test_build_command_passes_output_dir_only(tmp_path: Path) -> None:
     output_dir = tmp_path / "results"
 
     command = runner.build_command(
@@ -64,7 +57,8 @@ def test_build_command_passes_model_as_cli_parameter(tmp_path: Path) -> None:
     assert (
         command[command.index("--llm-model") + 1] == "meta-llama/llama-3.1-70b-instruct"
     )
-    assert command[command.index("--output-path") + 1] == str(
-        output_dir / "meta-llama__llama-3.1-70b-instruct.json"
-    )
+    assert command[command.index("--output-dir") + 1] == str(output_dir)
+    assert "--output-path" not in command
+    assert "--checkpoint-path" not in command
+    assert "--artifacts-dir" not in command
     assert command[-2:] == ["--language", "en"]
