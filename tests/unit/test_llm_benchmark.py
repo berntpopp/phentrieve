@@ -2664,3 +2664,95 @@ def test_aggregate_assertion_distribution_sums_records():
     # Undercount is visible: 2 of 3 records contributed.
     assert agg["documents_counted"] == 2
     assert agg["documents_total"] == 3
+
+
+def test_build_terms_and_cases_classifies_tp_fp_fn_and_prefers_gold_labels():
+    documents = [
+        {
+            "id": "doc-1",
+            "gold_hpo_terms": [
+                {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"},
+                {"id": "HP:0001251", "label": "Ataxia", "assertion": "PRESENT"},
+            ],
+        }
+    ]
+    results = [
+        {
+            "case_index": 1,
+            "doc_id": "doc-1",
+            "expected_hpo_ids": ["HP:0001250", "HP:0001251"],
+            "predicted_hpo_ids": ["HP:0001250", "HP:0001252"],
+            "predicted_terms": [
+                {
+                    "term_id": "HP:0001250",
+                    "label": "Seizure disorder",
+                    "assertion": "PRESENT",
+                    "evidence": "seizures",
+                    "category": "neurological",
+                },
+                {
+                    "term_id": "HP:0001252",
+                    "label": "Hypotonia",
+                    "assertion": "PRESENT",
+                    "evidence": "low tone",
+                    "category": "neurological",
+                },
+            ],
+            "timing_seconds": 1.5,
+            "token_usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "estimated_cost": {"total_cost": 0.01},
+            "partial_failure_counts": {
+                "phase1_completed_groups": 1,
+                "phase1_failed_groups": 0,
+                "phase1_partial_failures": 0,
+            },
+        }
+    ]
+
+    terms, cases = llm_benchmark._build_terms_and_cases(documents, results)
+
+    terms_by_id = {term["hpo_id"]: term for term in terms}
+    assert terms_by_id["HP:0001250"]["outcome"] == "tp"
+    assert terms_by_id["HP:0001250"]["label"] == "Seizure"
+    assert terms_by_id["HP:0001251"]["outcome"] == "fn"
+    assert terms_by_id["HP:0001251"]["is_predicted"] is False
+    assert terms_by_id["HP:0001252"]["outcome"] == "fp"
+    assert terms_by_id["HP:0001252"]["label"] == "Hypotonia"
+    assert terms_by_id["HP:0001252"]["evidence"] == "low tone"
+    assert terms_by_id["HP:0001252"]["category"] == "neurological"
+
+    assert len(cases) == 1
+    assert cases[0]["doc_id"] == "doc-1"
+    assert cases[0]["metrics"] == {"tp": 1, "fp": 1, "fn": 1}
+    assert cases[0]["timing_seconds"] == 1.5
+    assert cases[0]["status"] == "complete"
+
+
+def test_build_terms_and_cases_marks_failed_documents():
+    documents = [
+        {
+            "id": "doc-1",
+            "gold_hpo_terms": [
+                {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"}
+            ],
+        }
+    ]
+    results = [
+        {
+            "case_index": 1,
+            "doc_id": "doc-1",
+            "status": "failed",
+            "error_phase": "phase1",
+            "error_message": "Structured extraction failed",
+        }
+    ]
+
+    terms, cases = llm_benchmark._build_terms_and_cases(documents, results)
+
+    assert len(terms) == 1
+    assert terms[0]["hpo_id"] == "HP:0001250"
+    assert terms[0]["outcome"] == "fn"
+    assert cases[0]["status"] == "failed"
+    assert cases[0]["expected_hpo_ids"] == ["HP:0001250"]
+    assert cases[0]["predicted_hpo_ids"] == []
+    assert cases[0]["metrics"] == {"tp": 0, "fp": 0, "fn": 1}
