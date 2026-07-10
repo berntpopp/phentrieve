@@ -3,14 +3,15 @@
 Utility functions for loading, processing, and analyzing benchmark summary files.
 """
 
-import glob
 import json
 import logging
-import os
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
+
+from phentrieve.benchmark.result_store import discover_artifacts
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def load_summary_files(directory: str) -> list[dict[str, Any]]:
         List of dictionaries containing benchmark summaries
     """
     summaries = []
-    json_files = glob.glob(os.path.join(directory, "*.json"))
+    json_files = discover_artifacts(Path(directory), "summary")
     logger.debug(f"Found {len(json_files)} summary files in {directory}")
 
     for file_path in json_files:

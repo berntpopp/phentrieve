@@ -5,7 +5,6 @@ This module compares benchmark summary files and can generate simple charts for
 dense retrieval metrics.
 """
 
-import glob
 import json
 import logging
 import os
@@ -16,6 +15,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from phentrieve.benchmark.result_store import discover_artifacts
 from phentrieve.config import (
     DEFAULT_SUMMARIES_SUBDIR,
     DEFAULT_VISUALIZATIONS_SUBDIR,
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 def load_benchmark_summaries(summaries_dir: str) -> list[dict[str, Any]]:
     """Load benchmark summary files from the specified directory."""
-    summary_files = glob.glob(os.path.join(summaries_dir, "*.json"))
+    summary_files = discover_artifacts(Path(summaries_dir), "summary")
     if not summary_files:
         logger.warning("No summary files found in %s", summaries_dir)
         return []
@@ -57,6 +57,10 @@ def compare_benchmark_summaries(summaries: list[dict[str, Any]]) -> pd.DataFrame
             "Model": summary.get("model", "Unknown"),
             "Original Model Name": summary.get("original_model_name", "Unknown"),
             "Timestamp": summary.get("timestamp", "Unknown"),
+            "Dataset": summary.get(
+                "dataset_name", summary.get("test_file", "Unknown")
+            ),
+            "Run ID": summary.get("run_id", "legacy"),
             "Test Cases": summary.get("num_test_cases", 0),
             "MRR (Dense)": summary.get("mrr_dense", 0),
         }
