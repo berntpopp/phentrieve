@@ -57,8 +57,22 @@ def run_benchmarks(
     ] = False,
     output: Annotated[
         str | None,
-        typer.Option("--output", help="Output CSV file for detailed results"),
+        typer.Option("--output", help="Output CSV file for multi-model comparison"),
     ] = None,
+    results_dir: Annotated[
+        str | None,
+        typer.Option(
+            "--results-dir",
+            help="Root directory for unique benchmark run directories",
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option(
+            "--overwrite",
+            help="Allow reuse of an explicitly selected existing run",
+        ),
+    ] = False,
     create_sample: Annotated[
         bool, typer.Option("--create-sample", help="Create a sample test dataset")
     ] = False,
@@ -126,6 +140,7 @@ def run_benchmarks(
         "similarity_formula": similarity_formula,
         "multi_vector": multi_vector,
         "aggregation_strategy": aggregation_strategy,
+        "overwrite": overwrite,
     }
     # Only add optional string params when provided (allows orchestrator defaults)
     if test_file is not None:
@@ -136,9 +151,15 @@ def run_benchmarks(
         kwargs["model_list"] = model_list
     if output is not None:
         kwargs["output"] = output
+    if results_dir is not None:
+        kwargs["results_dir_override"] = results_dir
     results = orchestrate_benchmark(**kwargs)
 
     if results:
+        completed_results = results if isinstance(results, list) else [results]
+        for result in completed_results:
+            if result.get("run_dir"):
+                typer.echo(f"Results: {result['run_dir']}")
         if isinstance(results, list):
             typer.secho(
                 f"Benchmark completed successfully for {len(results)} models!",

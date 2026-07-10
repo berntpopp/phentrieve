@@ -122,6 +122,8 @@ class TestRunBenchmarks:
             create_sample=True,
             trust_remote_code=True,
             similarity_formula="simple_resnik_like",
+            results_dir="custom-results",
+            overwrite=True,
             debug=True,
         )
 
@@ -138,6 +140,8 @@ class TestRunBenchmarks:
         assert call_kwargs["create_sample"] is True
         assert call_kwargs["trust_remote_code"] is True
         assert call_kwargs["similarity_formula"] == "simple_resnik_like"
+        assert call_kwargs["results_dir_override"] == "custom-results"
+        assert call_kwargs["overwrite"] is True
         assert call_kwargs["debug"] is True
 
     def test_benchmark_fails_with_no_results(self, mocker):
