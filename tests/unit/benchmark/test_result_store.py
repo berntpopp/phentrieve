@@ -176,3 +176,33 @@ def test_discover_artifacts_prefers_canonical_manifests_and_falls_back_to_legacy
     assert discover_artifacts(legacy_root, "summary") == [
         legacy_root / "model_summary.json"
     ]
+
+
+def test_discover_artifacts_finds_llm_runs_alongside_other_benchmark_types(
+    tmp_path,
+) -> None:
+    retrieval_layout = create_run_layout(
+        tmp_path, "retrieval", "set", "model", run_id="run"
+    )
+    write_json(retrieval_layout.summary_path, {"model": "retrieval-model"})
+    write_manifest(retrieval_layout, {"status": "complete"})
+
+    extraction_layout = create_run_layout(
+        tmp_path, "extraction", "GSC", "model", run_id="run"
+    )
+    write_json(extraction_layout.summary_path, {"model": "extraction-model"})
+    write_manifest(extraction_layout, {"status": "complete"})
+
+    llm_layout = create_run_layout(
+        tmp_path, "llm", "GeneReviews", "model", run_id="run"
+    )
+    write_json(llm_layout.summary_path, {"model": "llm-model"})
+    write_manifest(llm_layout, {"status": "complete"})
+
+    discovered = discover_artifacts(tmp_path, "summary")
+
+    assert set(discovered) == {
+        retrieval_layout.summary_path,
+        extraction_layout.summary_path,
+        llm_layout.summary_path,
+    }
