@@ -8,6 +8,7 @@ from phentrieve.benchmark.result_store import (
 from phentrieve.evaluation.comparison_orchestrator import (
     compare_benchmark_summaries,
     load_benchmark_summaries,
+    orchestrate_benchmark_comparison,
 )
 from phentrieve.evaluation.result_analyzer import load_summary_files
 
@@ -44,3 +45,15 @@ def test_comparison_loaders_still_accept_legacy_flat_summaries(tmp_path) -> None
 
     assert load_benchmark_summaries(str(tmp_path))[0]["model"] == "legacy"
     assert load_summary_files(str(tmp_path))[0]["model"] == "legacy"
+
+
+def test_comparison_default_searches_the_results_root(tmp_path) -> None:
+    layout = create_run_layout(
+        tmp_path, "retrieval", "set", "model", run_id="run"
+    )
+    write_json(layout.summary_path, {"model": "model", "mrr_dense": 0.8})
+    write_manifest(layout, {"status": "complete"})
+    comparison = orchestrate_benchmark_comparison(results_dir_override=str(tmp_path))
+
+    assert comparison is not None
+    assert comparison.iloc[0]["Model"] == "model"

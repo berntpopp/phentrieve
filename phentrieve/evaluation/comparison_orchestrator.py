@@ -16,10 +16,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from phentrieve.benchmark.result_store import discover_artifacts
-from phentrieve.config import (
-    DEFAULT_SUMMARIES_SUBDIR,
-    DEFAULT_VISUALIZATIONS_SUBDIR,
-)
+from phentrieve.config import DEFAULT_VISUALIZATIONS_SUBDIR
 from phentrieve.utils import get_default_results_dir, resolve_data_path
 
 logger = logging.getLogger(__name__)
@@ -105,7 +102,7 @@ def orchestrate_benchmark_comparison(
     summaries_load_path = (
         Path(summaries_dir).expanduser().resolve()
         if summaries_dir
-        else base_results_dir / DEFAULT_SUMMARIES_SUBDIR
+        else base_results_dir
     )
     output_dir_viz = (
         Path(output_dir).expanduser().resolve()
