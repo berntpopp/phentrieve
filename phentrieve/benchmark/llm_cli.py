@@ -602,24 +602,24 @@ def benchmark_llm(
             help="Benchmark only the selected document id. Repeat for multiple documents.",
         ),
     ] = None,
-    output_path: Annotated[
-        str | None,
-        typer.Option("--output-path", help="Path to save the benchmark summary JSON."),
-    ] = None,
-    checkpoint_path: Annotated[
-        str | None,
-        typer.Option(
-            "--checkpoint-path",
-            help="Path to save per-document benchmark checkpoint state.",
-        ),
-    ] = None,
-    artifacts_dir: Annotated[
+    output_dir: Annotated[
+        str,
+        typer.Option("--output-dir", help="Root directory for unique benchmark runs."),
+    ] = "results",
+    run_id: Annotated[
         str | None,
         typer.Option(
-            "--artifacts-dir",
-            help="Directory for benchmark metrics and per-document prediction artifacts.",
+            "--run-id",
+            help="Explicit run identifier; existing runs require --overwrite.",
         ),
     ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option(
+            "--overwrite",
+            help="Allow reuse of an existing explicit run directory.",
+        ),
+    ] = False,
     language: Annotated[
         str,
         typer.Option("--language", help="Prompt language for the benchmark run."),
@@ -740,9 +740,9 @@ def benchmark_llm(
             llm_internal_mode=llm_internal_mode,
             dataset=dataset,
             doc_ids=doc_ids,
-            output_path=output_path,
-            checkpoint_path=checkpoint_path,
-            artifacts_dir=artifacts_dir,
+            output_dir=output_dir,
+            run_id=run_id,
+            overwrite=overwrite,
             language=language,
             prompt_templates_dir=prompt_templates_dir,
             pricing_config=pricing_config,
@@ -765,17 +765,14 @@ def benchmark_llm(
         raise typer.Exit(code=1) from exc
 
     logger.info(
-        "Completed LLM benchmark: cases=%s model=%s mode=%s output=%s",
+        "Completed LLM benchmark: cases=%s model=%s mode=%s run_dir=%s",
         result["cases"],
         result["llm_model"],
         result["llm_mode"],
-        result["output_path"],
+        result["run_dir"],
     )
     console.print("[bold cyan]LLM benchmark complete[/bold cyan]")
     console.print(f"Cases: {result['cases']}")
     console.print(f"Model: {result['llm_model']}")
     console.print(f"Mode: {result['llm_mode']}")
-    console.print(f"Results saved to: {result['output_path']}")
-    artifacts_dir_value = result.get("artifacts_dir")
-    if artifacts_dir_value:
-        console.print(f"Artifacts saved to: {artifacts_dir_value}")
+    console.print(f"\n[green]Results saved to {result['run_dir']}[/green]")
