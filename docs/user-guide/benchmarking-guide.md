@@ -64,12 +64,13 @@ Use `GSC_plus`, `ID_68`, and `GeneReviews` under
 
 ## Run Artifacts
 
-Retrieval and extraction runs use this hierarchy:
+Retrieval, extraction, and LLM full-text runs use this hierarchy:
 
 ```text
 results/
   retrieval/<dataset>/<model>/<run-id>/
   extraction/<dataset>/<model>/<run-id>/
+  llm/<dataset>/<model>/<run-id>/
 ```
 
 The important files are:
@@ -87,8 +88,12 @@ The important files are:
   and errors. Use this for statistical analysis.
 - `diagnostics/chunks.jsonl`: extraction chunks and every returned top-N
   candidate before thresholding. This is diagnostic material rather than the
-  primary result.
+  primary result. Extraction only; absent for retrieval and LLM runs.
 - `legacy/`: the previous summary JSON, CSV, and extraction result formats.
+  Retrieval and extraction only.
+- `predictions/<llm-mode>/`, `traces/<llm-mode>/` (only with
+  `--capture-phase1-debug`), and `metrics/`: per-document LLM predictions,
+  optional phase-1 debug traces, and an aggregate metrics JSON. LLM runs only.
 
 Comparison and visualization commands discover structured runs recursively and
 still accept old flat summary directories:
@@ -122,16 +127,17 @@ The converted corpus contains these dataset subsets:
 - `GeneReviews`
 - `all`
 
-The output JSON includes:
+The RAG-HPO `GSC` and `CSC` sets under `tests/data/en/raghpo_paper/` are also
+supported (see [GSC And CSC Extraction Benchmarks](#gsc-and-csc-extraction-benchmarks)
+for background on the corpora).
 
-- `cases`
-- `dataset`
-- `llm_model`
-- `llm_mode`
-- `dataset_metadata`
-- `metrics`
-- `results`
-- `output_path`
+Like retrieval and extraction runs, each invocation writes to its own
+`results/llm/<dataset>/<model>/<run-id>/` directory (see
+[Run Artifacts](#run-artifacts)): `manifest.json`, `summary.json`,
+`terms.jsonl`, `cases.jsonl`, plus the LLM-specific `predictions/`, `traces/`,
+and `metrics/` artifacts. Use `--run-id` for a stable name; reusing that name
+requires the explicit `--overwrite` option, matching the retrieval and
+extraction commands. `--output-dir` (default `results`) sets the result root.
 
 ## Corpus Acquisition And Conversion
 
