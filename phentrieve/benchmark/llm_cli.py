@@ -28,6 +28,7 @@ from phentrieve.benchmark.result_store import (
     write_manifest,
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_URL
+from phentrieve.llm.providers.resolver import resolve_llm_provider_request
 from phentrieve.utils import setup_logging_cli
 
 app = typer.Typer(help="Benchmark LLM full-text extraction.")
@@ -132,14 +133,25 @@ def run_llm_benchmark_cli(
         currency=currency,
     )
 
+    # Match against the RESOLVED provider/model/base_url, not the raw CLI
+    # inputs: run_llm_benchmark() persists whatever the provider resolver
+    # settles on (e.g. the default provider when --llm-provider is omitted,
+    # or the model-prefix-inferred provider for "ollama/llama3.1"-style
+    # ids), so comparing raw inputs here would spuriously flag every such
+    # run as a checkpoint mismatch.
+    resolved_provider_request = resolve_llm_provider_request(
+        llm_provider=llm_provider,
+        llm_model=llm_model,
+        llm_base_url=llm_base_url,
+    )
     existing_checkpoint = _load_checkpoint_payload(
         path=checkpoint_path,
         current_run={
             "test_file": str(test_file_path),
             "dataset": dataset,
-            "llm_provider": llm_provider,
-            "llm_model": llm_model,
-            "llm_base_url": llm_base_url,
+            "llm_provider": resolved_provider_request.provider,
+            "llm_model": resolved_provider_request.model,
+            "llm_base_url": resolved_provider_request.base_url,
             "llm_timeout_seconds": llm_timeout_seconds,
             "llm_seed": llm_seed,
             "llm_mode": llm_mode,

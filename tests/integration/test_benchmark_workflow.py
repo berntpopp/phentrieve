@@ -515,6 +515,62 @@ def test_llm_benchmark_smoke_supports_phenobert_directory(
     assert (Path(result["run_dir"]) / "summary.json").exists()
 
 
+def test_llm_benchmark_cli_resumes_completed_run_with_default_flags(
+    tmp_path, monkeypatch
+):
+    """A real (non-mocked-away) completed run must be resumable via the same
+    --run-id/--overwrite without explicitly repeating every original flag.
+
+    Regression test: run_llm_benchmark()'s persisted checkpoint previously
+    omitted capture_phase1_debug, so _checkpoint_matches_run() always saw a
+    mismatch (None vs. the CLI's False default) on any real second
+    invocation, making --run-id/--overwrite resume impossible in practice.
+    """
+    output_dir = tmp_path / "results"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            assert text
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+
+    run_kwargs = {
+        "test_file": str(Path("tests/data/en/phenobert")),
+        "dataset": "GeneReviews",
+        "llm_model": "gemini-2.5-flash",
+        "llm_mode": "two_phase",
+        "output_dir": str(output_dir),
+        "run_id": "resume-check",
+    }
+
+    first = run_llm_benchmark_cli(**run_kwargs)
+    assert first["cases"] == 10
+
+    second = run_llm_benchmark_cli(**run_kwargs, overwrite=True)
+    assert second["cases"] == 10
+    assert second["run_dir"] == first["run_dir"]
+
+
 def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatch):
     output_dir = tmp_path / "results"
 
