@@ -2522,7 +2522,7 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
             {
                 "test_file": str(test_file),
                 "dataset": "GeneReviews",
-                "llm_provider": None,
+                "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",
                 "llm_base_url": None,
                 "llm_timeout_seconds": None,
@@ -2592,7 +2592,7 @@ def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_exis
             {
                 "test_file": str(test_file),
                 "dataset": "GeneReviews",
-                "llm_provider": None,
+                "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",
                 "llm_base_url": None,
                 "llm_timeout_seconds": None,
