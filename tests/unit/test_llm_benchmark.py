@@ -2577,6 +2577,78 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
     assert "ontology_aware_metrics" not in captured_checkpoint_state
 
 
+def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_key(
+    tmp_path, monkeypatch
+):
+    """Checkpoints written before capture_phase1_debug was persisted must still
+    match a same-config resume via CHECKPOINT_DEFAULTS, not just checkpoints
+    written by the current code (which always includes the key)."""
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
+        json.dumps(
+            {
+                "test_file": str(test_file),
+                "dataset": "GeneReviews",
+                "llm_provider": "gemini",
+                "llm_model": "gemini-2.5-flash",
+                "llm_base_url": None,
+                "llm_timeout_seconds": None,
+                "llm_seed": None,
+                "llm_mode": "two_phase",
+                "llm_internal_mode": "whole_document_grounded",
+                "language": "en",
+                "prompt_templates_dir": None,
+                "requested_doc_ids": None,
+                "status": "running",
+                "prediction_records": [],
+                "results": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    captured_checkpoint_state: dict[str, object] = {}
+
+    def fake_run_llm_benchmark(**kwargs):
+        captured_checkpoint_state.update(kwargs["checkpoint_state"])
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "metrics": {
+                "assertion_aware": {"micro": {"f1": 0.0}},
+                "id_only": {"micro": {"f1": 0.0}},
+            },
+            "prediction_records": [],
+            "results": [],
+            "term_records": [],
+            "case_records": [],
+        }
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark, "run_llm_benchmark", fake_run_llm_benchmark
+    )
+
+    llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
+    )
+
+    assert captured_checkpoint_state["status"] == "running"
+    assert "capture_phase1_debug" not in captured_checkpoint_state
+
+
 def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_existing_run(
     tmp_path, monkeypatch
 ):

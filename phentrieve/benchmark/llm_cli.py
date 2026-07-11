@@ -35,6 +35,7 @@ app = typer.Typer(help="Benchmark LLM full-text extraction.")
 console = Console()
 logger = logging.getLogger(__name__)
 CHECKPOINT_DEFAULTS: dict[str, Any] = {
+    "capture_phase1_debug": False,
     "ontology_aware_metrics": False,
     "ontology_semantic_floor": 0.30,
     "ontology_similarity_formula": "hybrid",
