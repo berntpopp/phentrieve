@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import tempfile
+import warnings
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -42,6 +43,50 @@ CHECKPOINT_DEFAULTS: dict[str, Any] = {
 }
 
 
+def _build_checkpoint_identity(
+    *,
+    test_file_path: Path,
+    dataset_sha256: str,
+    accounting_config: llm_benchmark.BenchmarkAccountingConfig,
+    dataset: str,
+    resolved_provider: str,
+    resolved_model: str,
+    resolved_base_url: str | None,
+    llm_timeout_seconds: int | None,
+    llm_seed: int | None,
+    llm_mode: str,
+    llm_internal_mode: str,
+    language: str,
+    capture_phase1_debug: bool,
+    ontology_aware_metrics: bool,
+    ontology_semantic_floor: float,
+    ontology_similarity_formula: str,
+    prompt_templates_dir: str | None,
+    doc_ids: list[str] | None,
+) -> dict[str, Any]:
+    """Return every input that determines reusable checkpoint contents."""
+    return {
+        "test_file": str(test_file_path),
+        "dataset_sha256": dataset_sha256,
+        "accounting_config": accounting_config.model_dump(mode="json"),
+        "dataset": dataset,
+        "llm_provider": resolved_provider,
+        "llm_model": resolved_model,
+        "llm_base_url": resolved_base_url,
+        "llm_timeout_seconds": llm_timeout_seconds,
+        "llm_seed": llm_seed,
+        "llm_mode": llm_mode,
+        "llm_internal_mode": llm_internal_mode,
+        "language": language,
+        "capture_phase1_debug": capture_phase1_debug,
+        "ontology_aware_metrics": ontology_aware_metrics,
+        "ontology_semantic_floor": ontology_semantic_floor,
+        "ontology_similarity_formula": ontology_similarity_formula,
+        "prompt_templates_dir": prompt_templates_dir,
+        "requested_doc_ids": list(doc_ids) if doc_ids else None,
+    }
+
+
 def _artifact_filename_stem(record: dict[str, Any]) -> str:
     case_index = record.get("case_index")
     case_prefix = f"case_{case_index}" if case_index is not None else "case"
@@ -68,6 +113,9 @@ def run_llm_benchmark_cli(
     output_dir: str = "results",
     run_id: str | None = None,
     overwrite: bool = False,
+    output_path: str | None = None,
+    checkpoint_path: str | None = None,
+    artifacts_dir: str | None = None,
     language: str = DEFAULT_LLM_LANGUAGE,
     prompt_templates_dir: str | None = None,
     pricing_config: str | None = None,
@@ -86,7 +134,15 @@ def run_llm_benchmark_cli(
     debug: bool = False,
 ) -> dict[str, Any]:
     """Run the LLM benchmark and persist canonical run-layout artifacts."""
+    if output_path or checkpoint_path or artifacts_dir:
+        warnings.warn(
+            "output_path, checkpoint_path, and artifacts_dir are deprecated; "
+            "use output_dir, run_id, and overwrite instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     setup_logging_cli(debug=debug)
+    legacy_checkpoint_path = checkpoint_path
     test_file_path = Path(test_file)
     if not test_file_path.exists():
         raise ValueError(f"Benchmark test file not found: {test_file}")
@@ -109,7 +165,7 @@ def run_llm_benchmark_cli(
         exact_run_id=run_id is not None,
         overwrite=overwrite,
     )
-    checkpoint_path = run_layout.run_dir / "checkpoint.json"
+    canonical_checkpoint_path = run_layout.run_dir / "checkpoint.json"
     dataset_sha256 = sha256_path(test_file_path)
     logger.info(
         "Benchmark CLI input: test_file=%s model=%s mode=%s dataset=%s run_dir=%s",
@@ -145,34 +201,38 @@ def run_llm_benchmark_cli(
         llm_model=llm_model,
         llm_base_url=llm_base_url,
     )
+    checkpoint_identity = _build_checkpoint_identity(
+        test_file_path=test_file_path,
+        dataset_sha256=dataset_sha256,
+        accounting_config=accounting_config,
+        dataset=dataset,
+        resolved_provider=resolved_provider_request.provider,
+        resolved_model=resolved_provider_request.model,
+        resolved_base_url=resolved_provider_request.base_url,
+        llm_timeout_seconds=llm_timeout_seconds,
+        llm_seed=llm_seed,
+        llm_mode=llm_mode,
+        llm_internal_mode=llm_internal_mode,
+        language=language,
+        capture_phase1_debug=capture_phase1_debug,
+        ontology_aware_metrics=ontology_aware_metrics,
+        ontology_semantic_floor=ontology_semantic_floor,
+        ontology_similarity_formula=ontology_similarity_formula,
+        prompt_templates_dir=prompt_templates_dir,
+        doc_ids=doc_ids,
+    )
     existing_checkpoint = _load_checkpoint_payload(
-        path=checkpoint_path,
-        current_run={
-            "test_file": str(test_file_path),
-            "dataset": dataset,
-            "llm_provider": resolved_provider_request.provider,
-            "llm_model": resolved_provider_request.model,
-            "llm_base_url": resolved_provider_request.base_url,
-            "llm_timeout_seconds": llm_timeout_seconds,
-            "llm_seed": llm_seed,
-            "llm_mode": llm_mode,
-            "llm_internal_mode": llm_internal_mode,
-            "language": language,
-            "capture_phase1_debug": capture_phase1_debug,
-            "ontology_aware_metrics": ontology_aware_metrics,
-            "ontology_semantic_floor": ontology_semantic_floor,
-            "ontology_similarity_formula": ontology_similarity_formula,
-            "prompt_templates_dir": prompt_templates_dir,
-            "requested_doc_ids": list(doc_ids) if doc_ids else None,
-        },
+        path=canonical_checkpoint_path,
+        current_run=checkpoint_identity,
         allow_completed=True,
     )
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
         checkpoint_payload = dict(snapshot)
+        checkpoint_payload.update(checkpoint_identity)
         checkpoint_payload["run_id"] = run_layout.run_id
         checkpoint_payload["output_dir"] = str(output_dir)
-        _write_json_atomic(checkpoint_path, checkpoint_payload)
+        _write_json_atomic(canonical_checkpoint_path, checkpoint_payload)
         predictions_dir, traces_dir, metrics_path = _write_benchmark_artifacts(
             run_dir=run_layout.run_dir,
             benchmark_payload=checkpoint_payload,
@@ -218,6 +278,7 @@ def run_llm_benchmark_cli(
     )
 
     payload = dict(result)
+    payload.update(checkpoint_identity)
     payload["run_id"] = run_layout.run_id
     payload["run_dir"] = str(run_layout.run_dir)
     payload["output_dir"] = str(output_dir)
@@ -260,9 +321,47 @@ def run_llm_benchmark_cli(
             metrics_path=metrics_path,
         ),
     )
-    _write_json_atomic(checkpoint_path, payload)
+    _write_json_atomic(canonical_checkpoint_path, payload)
+    _write_legacy_artifacts(
+        payload=payload,
+        output_path=output_path,
+        checkpoint_path=legacy_checkpoint_path,
+        artifacts_dir=artifacts_dir,
+    )
     logger.info("Saved LLM benchmark summary to %s", run_layout.summary_path)
     return payload
+
+
+def _write_legacy_artifacts(
+    *,
+    payload: dict[str, Any],
+    output_path: str | None,
+    checkpoint_path: str | None,
+    artifacts_dir: str | None,
+) -> None:
+    """Preserve deprecated output locations during the migration period."""
+    if output_path is not None:
+        output = Path(output_path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        payload["output_path"] = output_path
+        _write_json_atomic(output, payload)
+    if checkpoint_path is not None:
+        checkpoint = Path(checkpoint_path)
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        payload["checkpoint_path"] = checkpoint_path
+        _write_json_atomic(checkpoint, payload)
+    if artifacts_dir is None:
+        return
+    predictions, traces, metrics = _write_benchmark_artifacts(
+        run_dir=Path(artifacts_dir), benchmark_payload=payload
+    )
+    payload["artifacts_dir"] = artifacts_dir
+    if predictions is not None:
+        payload["legacy_predictions_dir"] = str(predictions)
+    if traces is not None:
+        payload["legacy_traces_dir"] = str(traces)
+    if metrics is not None:
+        payload["legacy_metrics_path"] = str(metrics)
 
 
 def _load_accounting_config(
@@ -635,6 +734,18 @@ def benchmark_llm(
             help="Allow reuse of an existing explicit run directory.",
         ),
     ] = False,
+    output_path: Annotated[
+        str | None,
+        typer.Option("--output-path", hidden=True),
+    ] = None,
+    checkpoint_path: Annotated[
+        str | None,
+        typer.Option("--checkpoint-path", hidden=True),
+    ] = None,
+    artifacts_dir: Annotated[
+        str | None,
+        typer.Option("--artifacts-dir", hidden=True),
+    ] = None,
     language: Annotated[
         str,
         typer.Option("--language", help="Prompt language for the benchmark run."),
@@ -758,6 +869,9 @@ def benchmark_llm(
             output_dir=output_dir,
             run_id=run_id,
             overwrite=overwrite,
+            output_path=output_path,
+            checkpoint_path=checkpoint_path,
+            artifacts_dir=artifacts_dir,
             language=language,
             prompt_templates_dir=prompt_templates_dir,
             pricing_config=pricing_config,

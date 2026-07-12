@@ -2485,6 +2485,10 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
                 "llm_model": "gemini-2.5-pro",
                 "llm_mode": "two_phase",
@@ -2521,6 +2525,10 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
                 "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",
@@ -2577,6 +2585,68 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
     assert "ontology_aware_metrics" not in captured_checkpoint_state
 
 
+def test_checkpoint_identity_includes_dataset_and_accounting_fingerprints(tmp_path):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    accounting = llm_benchmark.BenchmarkAccountingConfig(
+        token_pricing=llm_benchmark.TokenPricingConfig(
+            input_cost_per_1m_tokens=1.25,
+        )
+    )
+
+    identity = llm_cli._build_checkpoint_identity(
+        test_file_path=test_file,
+        dataset_sha256="dataset-hash",
+        accounting_config=accounting,
+        dataset="CSC",
+        resolved_provider="openrouter",
+        resolved_model="google/model",
+        resolved_base_url="https://openrouter.ai/api/v1",
+        llm_timeout_seconds=None,
+        llm_seed=None,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+        capture_phase1_debug=False,
+        ontology_aware_metrics=False,
+        ontology_semantic_floor=0.3,
+        ontology_similarity_formula="hybrid",
+        prompt_templates_dir=None,
+        doc_ids=None,
+    )
+
+    assert identity["dataset_sha256"] == "dataset-hash"
+    assert (
+        identity["accounting_config"]["token_pricing"]["input_cost_per_1m_tokens"]
+        == 1.25
+    )
+
+
+def test_write_legacy_llm_artifacts_preserves_deprecated_paths(tmp_path):
+    payload = {
+        "llm_mode": "two_phase",
+        "llm_model": "google/model",
+        "dataset": "CSC",
+        "cases": 0,
+        "prediction_records": [],
+        "metrics": {"micro": {"f1": 1.0}},
+    }
+    output_path = tmp_path / "legacy" / "summary.json"
+    checkpoint_path = tmp_path / "legacy" / "checkpoint.json"
+    artifacts_dir = tmp_path / "legacy-artifacts"
+
+    llm_cli._write_legacy_artifacts(
+        payload=payload,
+        output_path=str(output_path),
+        checkpoint_path=str(checkpoint_path),
+        artifacts_dir=str(artifacts_dir),
+    )
+
+    assert output_path.is_file()
+    assert checkpoint_path.is_file()
+    assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").is_file()
+
+
 def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_key(
     tmp_path, monkeypatch
 ):
@@ -2594,6 +2664,10 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_k
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
                 "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",
@@ -2663,6 +2737,10 @@ def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_exis
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
                 "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",

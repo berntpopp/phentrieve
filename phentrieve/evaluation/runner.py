@@ -195,6 +195,14 @@ def run_evaluation(
             # Skip test cases with no expected IDs
             if not expected_ids:
                 logging.warning(f"Skipping test case {i + 1} with no expected HPO IDs")
+                case_records.append(
+                    {
+                        "case_index": i + 1,
+                        "description": description,
+                        "expected_hpo_ids": [],
+                        "status": "not_evaluable",
+                    }
+                )
                 continue
 
             try:
@@ -596,6 +604,9 @@ def run_evaluation(
                         ),
                         "failed": sum(
                             case["status"] == "failed" for case in case_records
+                        ),
+                        "not_evaluable": sum(
+                            case["status"] == "not_evaluable" for case in case_records
                         ),
                     },
                 },

@@ -90,3 +90,48 @@ def test_run_evaluation_writes_ranked_canonical_and_legacy_artifacts(
     assert cases[0]["status"] == "complete"
     assert (run_dir / "legacy" / "model_summary.json").is_file()
     assert (run_dir / "legacy" / "model_detailed.csv").is_file()
+
+
+def test_run_evaluation_records_cases_without_gold_as_not_evaluable(
+    tmp_path, monkeypatch
+) -> None:
+    test_file = tmp_path / "no_gold.json"
+    test_file.write_text(
+        json.dumps(
+            [{"description": "no-gold", "text": "normal", "expected_hpo_ids": []}]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "phentrieve.evaluation.runner.load_embedding_model", lambda **kwargs: object()
+    )
+    monkeypatch.setattr(
+        "phentrieve.evaluation.runner.DenseRetriever.from_model_name",
+        lambda **kwargs: _FakeRetriever(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.evaluation.runner.calculate_bootstrap_ci_for_metrics",
+        lambda results, k_values: {},
+    )
+
+    result = run_evaluation(
+        model_name="Org/Model",
+        test_file=str(test_file),
+        k_values=(1,),
+        save_results=True,
+        results_dir=tmp_path / "results",
+    )
+
+    assert result is not None
+    run_dir = result["run_dir"]
+    cases = _read_jsonl(run_dir / "cases.jsonl")
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert cases == [
+        {
+            "case_index": 1,
+            "description": "no-gold",
+            "expected_hpo_ids": [],
+            "status": "not_evaluable",
+        }
+    ]
+    assert manifest["counts"]["not_evaluable"] == 1
