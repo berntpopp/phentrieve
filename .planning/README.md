@@ -85,10 +85,6 @@ execution context.
 
 ## Current Specs
 
-- `specs/2026-07-10-benchmark-result-structure-design.md` - design for
-  collision-free retrieval and extraction benchmark runs with primary
-  term/case artifacts, separate chunk diagnostics, manifests, and legacy
-  compatibility.
 - `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md` -
   design for making the LLM-emitted `assertion`/`experiencer` axes
   load-bearing, surfacing family-history findings and "X without Y" excluded
@@ -124,10 +120,6 @@ execution context.
 
 ## Recently Completed
 
-- `completed/2026-07-10-benchmark-result-structure-plan.md` - structured,
-  timestamped retrieval and extraction benchmark runs; raw ranked terms,
-  per-case statistics, GSC/CSC chunk diagnostics, recursive comparison, and
-  legacy artifact compatibility.
 - `completed/2026-06-14-mcp-stabilization-plan.md` - completed execution
   record for the MCP stabilization pass (PR #291, shipped v0.24.0): all 14
   findings (B1, B2, LLM-1, LLM-2, R1, R2, B3, D4, D3, D1, D2, R3, Q1, B4) as
