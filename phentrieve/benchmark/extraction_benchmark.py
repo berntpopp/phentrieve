@@ -46,6 +46,7 @@ from phentrieve.evaluation.extraction_metrics import (
     OntologyAwareCorpusMetrics,
     serialize_ontology_metrics,
 )
+from phentrieve.utils import calculate_similarity
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
@@ -866,7 +867,7 @@ class ExtractionBenchmark:
                     if rank - 1 < len(similarity_rows):
                         score = float(similarity_rows[rank - 1])
                     elif rank - 1 < len(distance_rows):
-                        score = 1.0 - float(distance_rows[rank - 1])
+                        score = calculate_similarity(float(distance_rows[rank - 1]))
                     else:
                         score = 0.0
                     candidate = {
