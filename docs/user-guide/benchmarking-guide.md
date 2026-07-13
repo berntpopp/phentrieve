@@ -91,16 +91,19 @@ The important files are:
   primary result. Extraction only; absent for retrieval and LLM runs.
 - `legacy/`: the previous summary JSON, CSV, and extraction result formats.
   Retrieval and extraction only.
-- `predictions/<llm-mode>/`, `traces/<llm-mode>/` (only with
-  `--capture-phase1-debug`), and `metrics/`: per-document LLM predictions,
-  optional phase-1 debug traces, and an aggregate metrics JSON. LLM runs only.
+- `predictions/<llm-mode>/`, `traces/<llm-mode>/`, and `metrics/`: per-document
+  LLM predictions, per-document pipeline traces, and an aggregate metrics JSON.
+  LLM runs only. Traces are always written; `--capture-phase1-debug` adds the
+  phase-1 retrieval detail to them rather than enabling them.
 
 Comparison and visualization commands discover structured runs recursively and
-still accept old flat summary directories:
+still accept old flat summary directories. Both compare dense retrieval metrics,
+so they only ever load `retrieval` runs; pointing them at a results root that
+also holds extraction and LLM runs is safe:
 
 ```bash
-phentrieve benchmark compare --summaries-dir results/retrieval
-phentrieve benchmark visualize --summaries-dir results/retrieval
+phentrieve benchmark compare --summaries-dir results
+phentrieve benchmark visualize --summaries-dir results
 ```
 
 When `--results-dir` is omitted for retrieval, `PHENTRIEVE_RESULTS_DIR` or the
