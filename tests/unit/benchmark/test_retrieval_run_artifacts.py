@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from phentrieve.evaluation.runner import run_evaluation
 
@@ -73,7 +74,9 @@ def test_run_evaluation_writes_ranked_canonical_and_legacy_artifacts(
     )
 
     assert result is not None
-    run_dir = result["run_dir"]
+    # run_dir is a str so the results dict stays JSON-serializable for callers.
+    assert isinstance(result["run_dir"], str)
+    run_dir = Path(result["run_dir"])
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     terms = _read_jsonl(run_dir / "terms.jsonl")
     cases = _read_jsonl(run_dir / "cases.jsonl")
@@ -123,13 +126,16 @@ def test_run_evaluation_records_cases_without_gold_as_not_evaluable(
     )
 
     assert result is not None
-    run_dir = result["run_dir"]
+    run_dir = Path(result["run_dir"])
     cases = _read_jsonl(run_dir / "cases.jsonl")
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    # Keyed by the same 0-based ``case_id`` that terms.jsonl and the evaluable
+    # cases use, so every row in cases.jsonl is joinable on one stable key.
     assert cases == [
         {
-            "case_index": 1,
+            "case_id": 0,
             "description": "no-gold",
+            "text": "normal",
             "expected_hpo_ids": [],
             "status": "not_evaluable",
         }

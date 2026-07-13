@@ -47,7 +47,7 @@ from phentrieve.evaluation.statistics import (
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
-from phentrieve.utils import get_model_slug
+from phentrieve.utils import calculate_similarity, get_model_slug
 
 # Alias for backward compatibility within this module
 _convert_multi_vector_to_chromadb_format = convert_multi_vector_to_chromadb_format
@@ -197,8 +197,9 @@ def run_evaluation(
                 logging.warning(f"Skipping test case {i + 1} with no expected HPO IDs")
                 case_records.append(
                     {
-                        "case_index": i + 1,
+                        "case_id": i,
                         "description": description,
+                        "text": text,
                         "expected_hpo_ids": [],
                         "status": "not_evaluable",
                     }
@@ -260,7 +261,7 @@ def run_evaluation(
                     if rank - 1 < len(similarities):
                         score = float(similarities[rank - 1])
                     elif rank - 1 < len(distances):
-                        score = 1.0 - float(distances[rank - 1])
+                        score = calculate_similarity(float(distances[rank - 1]))
                     else:
                         score = 0.0
                     term_records.append(
@@ -612,7 +613,7 @@ def run_evaluation(
                 },
             )
             results["run_id"] = run_layout.run_id
-            results["run_dir"] = run_layout.run_dir
+            results["run_dir"] = str(run_layout.run_dir)
 
         # Log summary of results
         logging.info(f"Benchmark results for {model_name}:")
