@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -12,6 +13,8 @@ from pathlib import Path
 from typing import Any, Literal
 
 BenchmarkType = Literal["retrieval", "extraction", "llm"]
+
+CHECKPOINT_FILENAME = "checkpoint.json"
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +32,7 @@ class RunLayout:
     terms_path: Path
     cases_path: Path
     chunks_path: Path
+    checkpoint_path: Path
     legacy_dir: Path
 
 
@@ -68,6 +72,24 @@ def sha256_path(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _reset_run_dir(run_dir: Path) -> None:
+    """Delete a previous run's artifacts while keeping its resume checkpoint.
+
+    Without this, an overwritten run inherits files it never produced and
+    ``write_manifest`` registers them as its own, because it decides purely on
+    ``Path.exists()``. The checkpoint survives because the LLM benchmark reuses
+    an existing run directory precisely to resume from it; its identity is
+    validated separately before any of it is trusted.
+    """
+    for item in run_dir.iterdir():
+        if item.name == CHECKPOINT_FILENAME:
+            continue
+        if item.is_dir() and not item.is_symlink():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+
+
 def create_run_layout(
     results_root: Path,
     benchmark_type: BenchmarkType,
@@ -96,6 +118,9 @@ def create_run_layout(
             run_dir = parent / selected_run_id
             suffix += 1
 
+    if run_dir.exists() and overwrite:
+        _reset_run_dir(run_dir)
+
     run_dir.mkdir(parents=True, exist_ok=overwrite)
     legacy_dir = run_dir / "legacy"
     legacy_dir.mkdir(parents=True, exist_ok=True)
@@ -112,6 +137,7 @@ def create_run_layout(
         terms_path=run_dir / "terms.jsonl",
         cases_path=run_dir / "cases.jsonl",
         chunks_path=run_dir / "diagnostics" / "chunks.jsonl",
+        checkpoint_path=run_dir / CHECKPOINT_FILENAME,
         legacy_dir=legacy_dir,
     )
 
@@ -188,12 +214,30 @@ def write_manifest(
     return manifest
 
 
-def discover_artifacts(root: Path, role: str) -> list[Path]:
-    """Discover canonical artifacts recursively, with legacy fallback."""
+def discover_artifacts(
+    root: Path,
+    role: str,
+    *,
+    benchmark_type: BenchmarkType | None = None,
+) -> list[Path]:
+    """Discover canonical artifacts recursively, with legacy fallback.
+
+    ``benchmark_type`` restricts discovery to one kind of run. Callers that
+    interpret an artifact against a fixed metric schema must set it: every
+    benchmark type writes a ``summary`` role, so an unfiltered search of a
+    shared result root also returns extraction and LLM summaries. The legacy
+    fallback stays unfiltered because the old flat layout only held retrieval
+    summaries.
+    """
     canonical: list[Path] = []
     for manifest_path in sorted(root.rglob("manifest.json")):
         try:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if (
+                benchmark_type is not None
+                and manifest.get("benchmark_type") != benchmark_type
+            ):
+                continue
             artifact = manifest.get("artifacts", {}).get(role)
             relative_path = artifact.get("path") if isinstance(artifact, dict) else None
             if not isinstance(relative_path, str):

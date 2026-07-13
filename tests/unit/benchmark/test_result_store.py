@@ -206,3 +206,72 @@ def test_discover_artifacts_finds_llm_runs_alongside_other_benchmark_types(
         extraction_layout.summary_path,
         llm_layout.summary_path,
     }
+
+
+def test_overwrite_clears_previous_run_artifacts(tmp_path) -> None:
+    """An overwritten run must not inherit artifacts it never produced.
+
+    ``write_manifest`` decides what to advertise purely from ``Path.exists()``,
+    so a stale file left behind by the previous run would be registered as an
+    artifact of the new one.
+    """
+    first = create_run_layout(
+        tmp_path, "extraction", "GSC", "model", run_id="exp", exact_run_id=True
+    )
+    write_jsonl(first.terms_path, [{"hpo_id": "HP:0001250", "run": 1}])
+    write_jsonl(first.chunks_path, [{"chunk_id": 0, "run": 1}])
+    write_json(first.legacy_dir / "model_summary.json", {"run": 1})
+    (first.run_dir / "predictions").mkdir()
+    (first.run_dir / "predictions" / "doc_b.json").write_text("{}", encoding="utf-8")
+    write_manifest(first, {"status": "complete"})
+
+    # Second run reuses the id but produces no chunk diagnostics this time.
+    second = create_run_layout(
+        tmp_path, "extraction", "GSC", "model", run_id="exp", overwrite=True
+    )
+    write_jsonl(second.terms_path, [{"hpo_id": "HP:0004322", "run": 2}])
+    manifest = write_manifest(second, {"status": "complete"})
+
+    assert second.run_dir == first.run_dir
+    assert not second.chunks_path.exists()
+    assert not (second.run_dir / "predictions").exists()
+    assert not (second.legacy_dir / "model_summary.json").exists()
+    assert "chunk_diagnostics" not in manifest["artifacts"]
+    assert "legacy_compatibility" not in manifest["artifacts"]
+    assert json.loads(second.terms_path.read_text(encoding="utf-8"))["run"] == 2
+
+
+def test_overwrite_preserves_the_resume_checkpoint(tmp_path) -> None:
+    """The LLM benchmark reuses a run directory precisely to resume from it."""
+    first = create_run_layout(
+        tmp_path, "llm", "CSC", "model", run_id="exp", exact_run_id=True
+    )
+    write_json(first.checkpoint_path, {"status": "running", "completed": ["doc-a"]})
+    write_jsonl(first.terms_path, [{"hpo_id": "HP:0001250"}])
+
+    second = create_run_layout(
+        tmp_path, "llm", "CSC", "model", run_id="exp", overwrite=True
+    )
+
+    assert second.checkpoint_path.exists()
+    assert json.loads(second.checkpoint_path.read_text(encoding="utf-8"))[
+        "completed"
+    ] == ["doc-a"]
+    assert not second.terms_path.exists()
+
+
+def test_discover_artifacts_can_filter_by_benchmark_type(tmp_path) -> None:
+    """Every benchmark type writes a ``summary`` role into a shared root."""
+    for benchmark_type in ("retrieval", "extraction", "llm"):
+        layout = create_run_layout(
+            tmp_path, benchmark_type, "set", "model", run_id="run"
+        )
+        write_json(layout.summary_path, {"benchmark_type": benchmark_type})
+        write_manifest(layout, {"status": "complete"})
+
+    assert len(discover_artifacts(tmp_path, "summary")) == 3
+    retrieval_only = discover_artifacts(tmp_path, "summary", benchmark_type="retrieval")
+    assert len(retrieval_only) == 1
+    assert json.loads(retrieval_only[0].read_text(encoding="utf-8")) == {
+        "benchmark_type": "retrieval"
+    }

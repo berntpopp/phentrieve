@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 def load_benchmark_summaries(summaries_dir: str) -> list[dict[str, Any]]:
-    """Load benchmark summary files from the specified directory."""
-    summary_files = discover_artifacts(Path(summaries_dir), "summary")
+    """Load retrieval benchmark summary files from the specified directory."""
+    summary_files = discover_artifacts(
+        Path(summaries_dir), "summary", benchmark_type="retrieval"
+    )
     if not summary_files:
         logger.warning("No summary files found in %s", summaries_dir)
         return []

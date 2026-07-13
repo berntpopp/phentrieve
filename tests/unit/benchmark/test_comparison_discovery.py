@@ -55,3 +55,43 @@ def test_comparison_default_searches_the_results_root(tmp_path) -> None:
 
     assert comparison is not None
     assert comparison.iloc[0]["Model"] == "model"
+
+
+def test_comparison_ignores_extraction_and_llm_runs_in_a_shared_root(tmp_path) -> None:
+    """Compare renders a dense-retrieval table, so it must load retrieval only.
+
+    All three benchmark types write a ``summary`` role into the same results
+    root. Loading them all made extraction and LLM runs appear as retrieval
+    models scoring ``MRR (Dense) = 0``.
+    """
+    retrieval = create_run_layout(
+        tmp_path, "retrieval", "200cases_o3_v1", "model-a", run_id="ret"
+    )
+    write_json(
+        retrieval.summary_path,
+        {
+            "model": "model-a",
+            "benchmark_type": "retrieval",
+            "dataset_name": "200cases_o3_v1",
+            "mrr_dense": 0.8,
+        },
+    )
+    write_manifest(retrieval, {"status": "complete"})
+
+    for benchmark_type, dataset in (("extraction", "GSC"), ("llm", "CSC")):
+        other = create_run_layout(
+            tmp_path, benchmark_type, dataset, "model-b", run_id="x"
+        )
+        write_json(
+            other.summary_path,
+            {"benchmark_type": benchmark_type, "dataset_name": dataset},
+        )
+        write_manifest(other, {"status": "complete"})
+
+    summaries = load_benchmark_summaries(str(tmp_path))
+    assert [summary["benchmark_type"] for summary in summaries] == ["retrieval"]
+    assert [item["model"] for item in load_summary_files(str(tmp_path))] == ["model-a"]
+
+    frame = compare_benchmark_summaries(summaries)
+    assert list(frame["Model"]) == ["model-a"]
+    assert list(frame["MRR (Dense)"]) == [0.8]
