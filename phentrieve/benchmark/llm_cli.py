@@ -29,6 +29,7 @@ from phentrieve.benchmark.result_store import (
     write_manifest,
 )
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_URL
+from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.providers.resolver import resolve_llm_provider_request
 from phentrieve.utils import setup_logging_cli
 
@@ -41,6 +42,49 @@ CHECKPOINT_DEFAULTS: dict[str, Any] = {
     "ontology_semantic_floor": 0.30,
     "ontology_similarity_formula": "hybrid",
 }
+
+# Identity keys with no meaningful historical default: a checkpoint written
+# before the key existed carries no evidence either way, so it is resumed under
+# the behaviour it was written with rather than being invalidated on upgrade.
+# Checkpoints written from now on always carry these and are fully verified.
+_UNVERIFIABLE_WHEN_ABSENT = frozenset({"prompt_templates_sha256"})
+
+
+def _prompt_templates_sha256(prompt_templates_dir: str | None) -> dict[str, str | None]:
+    """Hash the prompt templates this run will actually load.
+
+    The prompt is an experimental variable, so results produced under one set of
+    templates must not be merged with results produced under another. Recording
+    only the templates *directory* in the checkpoint identity is not enough:
+    editing a template in place between two runs of the same ``--run-id`` leaves
+    the path unchanged, so the resume would silently mix old-prompt and
+    new-prompt document outputs into one set of metrics.
+    """
+    user_dir = (
+        Path(prompt_templates_dir)
+        if prompt_templates_dir is not None
+        else prompt_loader.USER_TEMPLATES_DIR
+    )
+    package_dir = prompt_loader.PACKAGE_TEMPLATES_DIR
+    return {
+        "package": sha256_path(package_dir) if package_dir.exists() else None,
+        "user": sha256_path(user_dir) if user_dir.exists() else None,
+    }
+
+
+def _derive_run_status(case_records: list[dict[str, Any]]) -> str:
+    """Derive run health from per-case outcomes.
+
+    ``run_llm_benchmark`` reports ``completed`` for any run that finishes its
+    document loop, including one in which every document failed, so the run
+    status has to be recomputed from the cases themselves.
+    """
+    if not case_records:
+        return "complete"
+    failed = sum(1 for case in case_records if case.get("status") == "failed")
+    if failed == 0:
+        return "complete"
+    return "failed" if failed == len(case_records) else "partial"
 
 
 def _build_checkpoint_identity(
@@ -83,6 +127,7 @@ def _build_checkpoint_identity(
         "ontology_semantic_floor": ontology_semantic_floor,
         "ontology_similarity_formula": ontology_similarity_formula,
         "prompt_templates_dir": prompt_templates_dir,
+        "prompt_templates_sha256": _prompt_templates_sha256(prompt_templates_dir),
         "requested_doc_ids": list(doc_ids) if doc_ids else None,
     }
 
@@ -165,7 +210,7 @@ def run_llm_benchmark_cli(
         exact_run_id=run_id is not None,
         overwrite=overwrite,
     )
-    canonical_checkpoint_path = run_layout.run_dir / "checkpoint.json"
+    canonical_checkpoint_path = run_layout.checkpoint_path
     dataset_sha256 = sha256_path(test_file_path)
     logger.info(
         "Benchmark CLI input: test_file=%s model=%s mode=%s dataset=%s run_dir=%s",
@@ -306,7 +351,11 @@ def run_llm_benchmark_cli(
     write_jsonl(run_layout.terms_path, term_records)
     write_jsonl(run_layout.cases_path, case_records)
 
-    manifest_status = "failed" if result.get("status") == "failed" else "complete"
+    manifest_status = (
+        "failed"
+        if result.get("status") == "failed"
+        else _derive_run_status(case_records)
+    )
     write_manifest(
         run_layout,
         _manifest_metadata(
@@ -530,6 +579,7 @@ def _checkpoint_matches_run(
     return all(
         payload.get(key, CHECKPOINT_DEFAULTS.get(key)) == value
         for key, value in current_run.items()
+        if key in payload or key not in _UNVERIFIABLE_WHEN_ABSENT
     )
 
 
@@ -565,7 +615,12 @@ def _manifest_metadata(
     if "term_records" in payload:
         counts["terms"] = len(payload["term_records"] or [])
     if "case_records" in payload:
-        counts["cases"] = len(payload["case_records"] or [])
+        case_records = payload["case_records"] or []
+        counts["cases"] = len(case_records)
+        counts["failed"] = sum(
+            1 for case in case_records if case.get("status") == "failed"
+        )
+        counts["complete"] = counts["cases"] - counts["failed"]
     return {
         "status": status,
         "elapsed_seconds": timing_breakdown.get("wall_clock_seconds"),

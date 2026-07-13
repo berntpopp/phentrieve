@@ -3027,3 +3027,70 @@ def test_run_llm_benchmark_returns_term_and_case_records(monkeypatch):
     assert result["case_records"][0]["doc_id"] == "doc-1"
     assert result["case_records"][0]["metrics"] == {"tp": 1, "fp": 0, "fn": 0}
     assert result["case_records"][0]["status"] == "complete"
+
+
+def test_derive_run_status_reflects_failed_documents() -> None:
+    """``run_llm_benchmark`` reports ``completed`` even when documents failed."""
+    assert llm_cli._derive_run_status([]) == "complete"
+    assert llm_cli._derive_run_status([{"status": "complete"}]) == "complete"
+    assert (
+        llm_cli._derive_run_status([{"status": "complete"}, {"status": "failed"}])
+        == "partial"
+    )
+    assert (
+        llm_cli._derive_run_status([{"status": "failed"}, {"status": "failed"}])
+        == "failed"
+    )
+
+
+def test_prompt_template_edits_change_the_checkpoint_identity(tmp_path) -> None:
+    """A checkpoint must not be resumable under different prompt templates.
+
+    Only the templates *directory* used to be part of the checkpoint identity,
+    so editing a template in place left the identity unchanged and let a resume
+    merge old-prompt and new-prompt document outputs into one set of metrics.
+    """
+    templates = tmp_path / "prompts"
+    templates.mkdir()
+    template_file = templates / "extract.yaml"
+    template_file.write_text("prompt: original\n", encoding="utf-8")
+
+    before = llm_cli._prompt_templates_sha256(str(templates))
+    template_file.write_text("prompt: edited\n", encoding="utf-8")
+    after = llm_cli._prompt_templates_sha256(str(templates))
+
+    assert before["user"] is not None
+    assert before["user"] != after["user"]
+
+    assert not llm_cli._checkpoint_matches_run(
+        payload={"prompt_templates_sha256": before},
+        current_run={"prompt_templates_sha256": after},
+    )
+    assert llm_cli._checkpoint_matches_run(
+        payload={"prompt_templates_sha256": before},
+        current_run={"prompt_templates_sha256": before},
+    )
+
+
+def test_checkpoint_without_prompt_hash_stays_resumable(tmp_path) -> None:
+    """Checkpoints predating prompt hashing must not be invalidated on upgrade.
+
+    They carry no evidence about the templates they ran under, so they keep the
+    behaviour they were written with. A checkpoint that *does* record a hash is
+    still compared strictly.
+    """
+    templates = tmp_path / "prompts"
+    templates.mkdir()
+    (templates / "extract.yaml").write_text("prompt: original\n", encoding="utf-8")
+    current = llm_cli._prompt_templates_sha256(str(templates))
+
+    # Legacy payload: key absent entirely -> unverifiable -> still resumable.
+    assert llm_cli._checkpoint_matches_run(
+        payload={"llm_model": "m"},
+        current_run={"llm_model": "m", "prompt_templates_sha256": current},
+    )
+    # Recorded payload: key present and different -> rejected.
+    assert not llm_cli._checkpoint_matches_run(
+        payload={"llm_model": "m", "prompt_templates_sha256": {"user": "stale"}},
+        current_run={"llm_model": "m", "prompt_templates_sha256": current},
+    )
