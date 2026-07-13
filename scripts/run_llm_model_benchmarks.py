@@ -8,16 +8,6 @@ import subprocess
 from pathlib import Path
 
 
-def safe_model_slug(model: str) -> str:
-    return (
-        model.strip()
-        .replace("\\", "__")
-        .replace("/", "__")
-        .replace(":", "_")
-        .replace(" ", "_")
-    )
-
-
 def load_models(
     *,
     model_args: list[str] | None = None,
@@ -47,7 +37,6 @@ def build_command(
     output_dir: Path,
     extra_args: list[str] | None = None,
 ) -> list[str]:
-    model_slug = safe_model_slug(model)
     command = ["uv", "run"]
     if env_file is not None:
         command.extend(["--env-file", str(env_file)])
@@ -62,12 +51,8 @@ def build_command(
             provider,
             "--llm-model",
             model,
-            "--output-path",
-            str(output_dir / f"{model_slug}.json"),
-            "--checkpoint-path",
-            str(output_dir / f"{model_slug}.checkpoint.json"),
-            "--artifacts-dir",
-            str(output_dir / model_slug),
+            "--output-dir",
+            str(output_dir),
         ]
     )
     command.extend(extra_args or [])

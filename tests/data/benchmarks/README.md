@@ -21,8 +21,27 @@ tests/data/benchmarks/
     ├── 70cases_gemini_v1.json # 70 cases - Medium evaluation
     ├── 70cases_o3_v1.json     # 70 cases - Medium evaluation
     ├── 200cases_gemini_v1.json # 200 cases - Comprehensive
-    └── 200cases_o3_v1.json    # 200 cases - Comprehensive
+    ├── 200cases_o3_v1.json    # 200 cases - Comprehensive
+    └── 570terms_german.json   # 570 cases - Primary large evaluation
 ```
+
+## Benchmark Set Roles
+
+The benchmark data keeps its existing paths for CLI and test compatibility. Use
+these roles when choosing datasets for new evaluations:
+
+| Role | Dataset | Path | Use When |
+|------|---------|------|----------|
+| Canonical single-term | German 570 terms | `tests/data/benchmarks/german/570terms_german.json` | Primary large German term-level retrieval benchmark |
+| Canonical single-term | German 200 terms | `tests/data/benchmarks/german/200cases_o3_v1.json` | Smaller official German term-level retrieval benchmark |
+| Comparison/regression single-term | German 200 Gemini terms | `tests/data/benchmarks/german/200cases_gemini_v1.json` | Cross-source comparison and regression investigation |
+| Smoke single-term | Tiny/small German sets | `tests/data/benchmarks/german/tiny_v1.json`, `tests/data/benchmarks/german/small_v1.json` | Fast local and CI smoke checks |
+| Regression single-term | German 70-case sets | `tests/data/benchmarks/german/70cases_*_v1.json` | Medium-size comparison and regression checks |
+
+For full-text and text-fragment LLM benchmarks, use `GSC` and `CSC` under
+`tests/data/en/raghpo_paper/` as canonical corpora. Use `GSC_plus`, `ID_68`,
+and `GeneReviews` under `tests/data/en/phenobert/` for regression and
+diagnostic runs.
 
 ## Dataset Details
 
@@ -38,6 +57,7 @@ All datasets contain German clinical text with English HPO term mappings.
 | **70cases_o3_v1.json** | 70 | OpenAI O3 translation | Medium-scale evaluation | Cross-model validation |
 | **200cases_gemini_v1.json** | 200 | Gemini 2.5 AI translation | Comprehensive benchmarking | Full model evaluation |
 | **200cases_o3_v1.json** | 200 | OpenAI O3 translation | Comprehensive benchmarking | Production readiness testing |
+| **570terms_german.json** | 570 | Curated German terms | Primary large benchmark | Release and model comparisons |
 
 ### Dataset Characteristics
 
@@ -101,7 +121,8 @@ phentrieve benchmark run \
 # Comprehensive benchmark with all models
 phentrieve benchmark run \
   --test-file german/200cases_o3_v1.json \
-  --all-models
+  --all-models \
+  --results-dir results
 
 # Compare results across datasets
 phentrieve benchmark compare
@@ -109,6 +130,12 @@ phentrieve benchmark compare
 # Generate visualizations
 phentrieve benchmark visualize
 ```
+
+Each run is stored under
+`<results-root>/retrieval/<dataset>/<model>/<run-id>/`. Start with
+`summary.json` for aggregate metrics, `terms.jsonl` for ranked HPO results, and
+`cases.jsonl` for per-case statistics. Legacy JSON/CSV exports remain under the
+run's `legacy/` directory.
 
 ### Python API
 

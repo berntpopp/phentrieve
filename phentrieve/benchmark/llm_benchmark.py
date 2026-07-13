@@ -671,6 +671,7 @@ def run_llm_benchmark(
                         llm_internal_mode=llm_internal_mode,
                         language=language,
                         prompt_templates_dir=prompt_templates_dir,
+                        capture_phase1_debug=capture_phase1_debug,
                         ontology_aware_metrics=ontology_aware_metrics,
                         ontology_semantic_floor=ontology_semantic_floor,
                         ontology_similarity_formula=ontology_similarity_formula,
@@ -722,7 +723,9 @@ def run_llm_benchmark(
         config=resolved_accounting_config.energy_accounting,
     )
 
-    return _build_benchmark_payload(
+    term_records, case_records = _build_terms_and_cases(documents, results)
+
+    final_payload = _build_benchmark_payload(
         test_path=test_path,
         dataset=dataset,
         documents=documents,
@@ -735,6 +738,7 @@ def run_llm_benchmark(
         llm_internal_mode=llm_internal_mode,
         language=language,
         prompt_templates_dir=prompt_templates_dir,
+        capture_phase1_debug=capture_phase1_debug,
         ontology_aware_metrics=ontology_aware_metrics,
         ontology_semantic_floor=ontology_semantic_floor,
         ontology_similarity_formula=ontology_similarity_formula,
@@ -758,6 +762,9 @@ def run_llm_benchmark(
         },
         status="completed",
     )
+    final_payload["term_records"] = term_records
+    final_payload["case_records"] = case_records
+    return final_payload
 
 
 def _restore_checkpoint_state(
@@ -893,6 +900,103 @@ def _sum_token_usage(records: list[dict[str, Any]]) -> dict[str, int]:
     return totals
 
 
+def _build_terms_and_cases(
+    documents: list[dict[str, Any]],
+    results: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Build canonical terms.jsonl/cases.jsonl records from benchmark results.
+
+    Works uniformly whether ``results`` came from a single run or a
+    checkpoint-resumed run: ``_restore_checkpoint_state`` already merges
+    prior completed records with newly processed ones into ``results``
+    before the caller invokes this, so no resume-specific branching is
+    needed here.
+    """
+    terms: list[dict[str, Any]] = []
+    cases: list[dict[str, Any]] = []
+    ordered_records = sorted(
+        results, key=lambda record: int(record.get("case_index", 0) or 0)
+    )
+    for record in ordered_records:
+        case_index = int(record.get("case_index", 0) or 0)
+        if case_index < 1 or case_index > len(documents):
+            continue
+        document = documents[case_index - 1]
+        doc_id = str(record.get("doc_id", document.get("id", "")))
+        gold_hpo_terms = document.get("gold_hpo_terms", [])
+        gold_assertions = dict(parse_gold_terms(gold_hpo_terms))
+        gold_labels = {
+            str(term.get("id") or term.get("hpo_id") or ""): str(term.get("label", ""))
+            for term in gold_hpo_terms
+            if isinstance(term, dict)
+        }
+        gold_ids = set(gold_assertions)
+
+        predicted_terms = list(record.get("predicted_terms", []))
+        predicted_by_id: dict[str, dict[str, Any]] = {
+            str(term["term_id"]): term
+            for term in predicted_terms
+            if term.get("term_id")
+        }
+        predicted_ids = set(predicted_by_id)
+
+        for hpo_id in sorted(gold_ids | predicted_ids):
+            is_gold = hpo_id in gold_ids
+            is_predicted = hpo_id in predicted_ids
+            if is_gold and is_predicted:
+                outcome = "tp"
+            elif is_predicted:
+                outcome = "fp"
+            else:
+                outcome = "fn"
+            predicted_term = predicted_by_id.get(hpo_id, {})
+            terms.append(
+                {
+                    "doc_id": doc_id,
+                    "hpo_id": hpo_id,
+                    "label": gold_labels.get(hpo_id) or predicted_term.get("label", ""),
+                    "is_gold": is_gold,
+                    "is_predicted": is_predicted,
+                    "gold_assertion": gold_assertions.get(hpo_id),
+                    "predicted_assertion": predicted_term.get("assertion"),
+                    "outcome": outcome,
+                    "evidence": predicted_term.get("evidence"),
+                    "category": predicted_term.get("category"),
+                }
+            )
+
+        expected_hpo_ids = record.get("expected_hpo_ids")
+        if not isinstance(expected_hpo_ids, list):
+            expected_hpo_ids = sorted(gold_ids)
+        predicted_hpo_ids = record.get("predicted_hpo_ids")
+        if not isinstance(predicted_hpo_ids, list):
+            predicted_hpo_ids = sorted(predicted_ids)
+        expected_set = set(expected_hpo_ids)
+        predicted_set = set(predicted_hpo_ids)
+        cases.append(
+            {
+                "doc_id": doc_id,
+                "expected_hpo_ids": expected_hpo_ids,
+                "predicted_hpo_ids": predicted_hpo_ids,
+                "metrics": {
+                    "tp": len(predicted_set & expected_set),
+                    "fp": len(predicted_set - expected_set),
+                    "fn": len(expected_set - predicted_set),
+                },
+                "timing_seconds": record.get("timing_seconds"),
+                "token_usage": record.get("token_usage"),
+                "estimated_cost": record.get("estimated_cost"),
+                "partial_failure_counts": record.get("partial_failure_counts"),
+                "status": (
+                    "failed"
+                    if str(record.get("status", "")).lower() == "failed"
+                    else "complete"
+                ),
+            }
+        )
+    return terms, cases
+
+
 def _build_benchmark_payload(
     *,
     test_path: Path,
@@ -907,6 +1011,7 @@ def _build_benchmark_payload(
     llm_internal_mode: str,
     language: str,
     prompt_templates_dir: str | None,
+    capture_phase1_debug: bool,
     ontology_aware_metrics: bool,
     ontology_semantic_floor: float,
     ontology_similarity_formula: str,
@@ -938,6 +1043,7 @@ def _build_benchmark_payload(
         "llm_internal_mode": llm_internal_mode,
         "language": language,
         "prompt_templates_dir": prompt_templates_dir,
+        "capture_phase1_debug": capture_phase1_debug,
         "ontology_aware_metrics": ontology_aware_metrics,
         "ontology_semantic_floor": ontology_semantic_floor,
         "ontology_similarity_formula": ontology_similarity_formula,

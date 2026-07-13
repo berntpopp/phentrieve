@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass
 from dataclasses import replace as dataclass_replace
 from datetime import datetime
@@ -24,6 +25,13 @@ from phentrieve.benchmark.data_loader import (
     ASSERTION_STATUS_MAP,
     load_benchmark_data,
     parse_gold_terms,
+)
+from phentrieve.benchmark.result_store import (
+    RunLayout,
+    sha256_path,
+    write_json,
+    write_jsonl,
+    write_manifest,
 )
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -38,6 +46,7 @@ from phentrieve.evaluation.extraction_metrics import (
     OntologyAwareCorpusMetrics,
     serialize_ontology_metrics,
 )
+from phentrieve.utils import calculate_similarity
 
 if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
@@ -184,7 +193,7 @@ class HPOExtractor:
         assertion_statuses = [chunk["status"].value for chunk in processed_chunks]
 
         # Extract HPO terms - NOW CAPTURE chunk_results!
-        aggregated_results, chunk_results = orchestrate_hpo_extraction(
+        orchestration_result = orchestrate_hpo_extraction(
             text_chunks=text_chunks,
             retriever=self._retriever,
             num_results_per_chunk=self.config.num_results_per_chunk,
@@ -195,6 +204,8 @@ class HPOExtractor:
             assertion_statuses=assertion_statuses,
             include_details=False,
         )
+        aggregated_results = orchestration_result.aggregated_results
+        chunk_results = orchestration_result.chunk_results
 
         # Convert to (hpo_id, assertion) tuples using module-level mapping
         results = []
@@ -213,9 +224,12 @@ class HPOExtractor:
                     "chunk_idx": i,
                     "text": chunk["text"],
                     "assertion_status": chunk["status"].value,
+                    "start_char": chunk.get("start_char", -1),
+                    "end_char": chunk.get("end_char", -1),
                 }
                 for i, chunk in enumerate(processed_chunks)
             ],
+            "raw_query_results": orchestration_result.raw_query_results,
         }
 
         return results, details
@@ -238,6 +252,7 @@ class ExtractionBenchmark:
         test_file: Path,
         output_dir: Path,
         config_overrides: dict[str, Any] | None = None,
+        run_layout: RunLayout | None = None,
     ) -> CorpusMetrics:
         """Run extraction benchmark on test dataset."""
         # Create config copy and apply overrides (don't mutate original)
@@ -261,19 +276,27 @@ class ExtractionBenchmark:
         # Process each document
         results: list[ExtractionResult] = []
         detailed_results: list[dict[str, Any]] = []
+        canonical_details: dict[str, dict[str, Any]] = {}
         total_docs = len(test_data["documents"])
+        benchmark_start = time.perf_counter()
 
         for idx, doc in enumerate(test_data["documents"]):
             logger.info(f"Processing document {idx + 1}/{total_docs}: {doc['id']}")
 
             # Extract HPO terms (with details only if detailed_output enabled)
-            if config.detailed_output:
+            document_start = time.perf_counter()
+            if config.detailed_output or run_layout is not None:
                 extracted, extraction_details = self.extractor.extract_with_details(
                     doc["text"]
                 )
             else:
                 extracted = self.extractor.extract(doc["text"])
                 extraction_details = {}
+            canonical_details[str(doc["id"])] = {
+                "document": doc,
+                "details": extraction_details,
+                "elapsed_seconds": time.perf_counter() - document_start,
+            }
 
             # Parse gold standard
             gold = self._parse_gold_terms(doc["gold_hpo_terms"])
@@ -334,7 +357,7 @@ class ExtractionBenchmark:
             )
 
         # Save results (pass detailed_results only if enabled)
-        self._save_results(
+        summary = self._save_results(
             results,
             metrics,
             output_dir,
@@ -343,6 +366,18 @@ class ExtractionBenchmark:
             ontology_metrics,
             detailed_results if config.detailed_output else None,
         )
+
+        if run_layout is not None:
+            self._save_canonical_run(
+                run_layout=run_layout,
+                results=results,
+                summary=summary,
+                config=config,
+                dataset_metadata=test_data.get("metadata", {}),
+                canonical_details=canonical_details,
+                elapsed_seconds=time.perf_counter() - benchmark_start,
+                test_file=test_file,
+            )
 
         return metrics
 
@@ -661,7 +696,7 @@ class ExtractionBenchmark:
         config: ExtractionConfig,
         ontology_metrics: OntologyAwareCorpusMetrics | None = None,
         detailed_results: list[dict[str, Any]] | None = None,
-    ):
+    ) -> dict[str, Any]:
         """Save benchmark results to files."""
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -775,3 +810,233 @@ class ExtractionBenchmark:
             logger.info(f"Detailed analysis saved to {detailed_file}")
 
         logger.info(f"Results saved to {output_dir}")
+        return summary
+
+    def _save_canonical_run(
+        self,
+        *,
+        run_layout: RunLayout,
+        results: list[ExtractionResult],
+        summary: dict[str, Any],
+        config: ExtractionConfig,
+        dataset_metadata: dict[str, Any],
+        canonical_details: dict[str, dict[str, Any]],
+        elapsed_seconds: float,
+        test_file: Path,
+    ) -> None:
+        """Write analysis-first extraction artifacts for one structured run."""
+        terms: list[dict[str, Any]] = []
+        cases: list[dict[str, Any]] = []
+        chunks: list[dict[str, Any]] = []
+
+        for result in results:
+            captured = canonical_details[result.doc_id]
+            document = captured["document"]
+            details = captured["details"]
+            predicted = dict(result.predicted)
+            gold = dict(result.gold)
+            predicted_ids = set(predicted)
+            gold_ids = set(gold)
+            raw_by_id: dict[str, dict[str, Any]] = {}
+
+            processed_chunks = details.get("processed_chunks", [])
+            thresholded_chunks = {
+                int(chunk.get("chunk_idx", index)): chunk
+                for index, chunk in enumerate(details.get("chunk_results", []))
+            }
+            raw_query_results = details.get("raw_query_results", [])
+            for chunk_index, processed_chunk in enumerate(processed_chunks):
+                raw_result = (
+                    raw_query_results[chunk_index]
+                    if chunk_index < len(raw_query_results)
+                    else {}
+                )
+                metadata_rows = (raw_result.get("metadatas") or [[]])[0]
+                similarity_rows = (raw_result.get("similarities") or [[]])[0]
+                distance_rows = (raw_result.get("distances") or [[]])[0]
+                accepted_matches = thresholded_chunks.get(chunk_index, {}).get(
+                    "matches", []
+                )
+                accepted_ids = {
+                    str(match.get("id") or match.get("hpo_id") or "")
+                    for match in accepted_matches
+                }
+                candidates = []
+                for rank, metadata in enumerate(metadata_rows, start=1):
+                    hpo_id = str(metadata.get("hpo_id") or metadata.get("id") or "")
+                    if rank - 1 < len(similarity_rows):
+                        score = float(similarity_rows[rank - 1])
+                    elif rank - 1 < len(distance_rows):
+                        score = calculate_similarity(float(distance_rows[rank - 1]))
+                    else:
+                        score = 0.0
+                    candidate = {
+                        "rank": rank,
+                        "hpo_id": hpo_id,
+                        "label": metadata.get("label", metadata.get("name", "")),
+                        "score": score,
+                        "passes_threshold": score >= config.chunk_retrieval_threshold,
+                        "used_in_aggregation": hpo_id in accepted_ids,
+                    }
+                    if "component_scores" in metadata:
+                        candidate["component_scores"] = metadata["component_scores"]
+                    candidates.append(candidate)
+                    previous = raw_by_id.get(hpo_id)
+                    passed_any = bool(candidate["passes_threshold"])
+                    used_any = bool(candidate["used_in_aggregation"])
+                    if previous is not None:
+                        passed_any = passed_any or bool(previous["passes_threshold"])
+                        used_any = used_any or bool(previous["used_in_aggregation"])
+                    if previous is None or score > previous["score"]:
+                        raw_by_id[hpo_id] = {
+                            **candidate,
+                            "chunk_id": chunk_index,
+                            "passes_threshold": passed_any,
+                            "used_in_aggregation": used_any,
+                        }
+                    else:
+                        previous["passes_threshold"] = passed_any
+                        previous["used_in_aggregation"] = used_any
+
+                chunks.append(
+                    {
+                        "doc_id": result.doc_id,
+                        "chunk_id": chunk_index,
+                        "text": processed_chunk.get("text", ""),
+                        "start_char": processed_chunk.get("start_char", -1),
+                        "end_char": processed_chunk.get("end_char", -1),
+                        "assertion_status": processed_chunk.get("assertion_status"),
+                        "candidates": candidates,
+                    }
+                )
+
+            labels = {
+                str(term.get("id") or term.get("hpo_id") or ""): term.get("label", "")
+                for term in document.get("gold_hpo_terms", [])
+            }
+            aggregated = {
+                str(term.get("id") or term.get("hpo_id") or ""): term
+                for term in details.get("aggregated_results", [])
+            }
+            pipeline_predicted_ids = set(aggregated)
+            for hpo_id in sorted(
+                gold_ids | predicted_ids | pipeline_predicted_ids | set(raw_by_id)
+            ):
+                if hpo_id in gold_ids and hpo_id in predicted_ids:
+                    outcome = "tp"
+                elif hpo_id in predicted_ids:
+                    outcome = "fp"
+                elif hpo_id in gold_ids:
+                    outcome = "fn"
+                else:
+                    outcome = "filtered"
+                raw = raw_by_id.get(hpo_id, {})
+                aggregate = aggregated.get(hpo_id, {})
+                if hpo_id in predicted_ids:
+                    filter_stage = None
+                elif hpo_id in pipeline_predicted_ids:
+                    filter_stage = "scoring_mode"
+                elif raw.get("used_in_aggregation"):
+                    filter_stage = "aggregation_confidence"
+                elif raw.get("passes_threshold"):
+                    filter_stage = "chunk_selection"
+                elif raw:
+                    filter_stage = "chunk_threshold"
+                else:
+                    filter_stage = "not_retrieved"
+                pipeline_status = aggregate.get(
+                    "assertion_status", aggregate.get("status")
+                )
+                terms.append(
+                    {
+                        "doc_id": result.doc_id,
+                        "hpo_id": hpo_id,
+                        "label": labels.get(
+                            hpo_id,
+                            aggregate.get("name", raw.get("label", "")),
+                        ),
+                        "outcome": outcome,
+                        "is_gold": hpo_id in gold_ids,
+                        "is_predicted": hpo_id in predicted_ids,
+                        "is_pipeline_prediction": hpo_id in pipeline_predicted_ids,
+                        "is_evaluated_prediction": hpo_id in predicted_ids,
+                        "filter_stage": filter_stage,
+                        "gold_assertion": gold.get(hpo_id),
+                        "predicted_assertion": predicted.get(hpo_id),
+                        "pipeline_assertion": ASSERTION_STATUS_MAP.get(
+                            str(pipeline_status),
+                            pipeline_status,
+                        ),
+                        "rank": raw.get("rank"),
+                        "raw_score": raw.get("score"),
+                        "final_score": aggregate.get("score"),
+                        "source_chunk_ids": [
+                            (
+                                chunk.get("chunk_idx")
+                                if isinstance(chunk, dict)
+                                else chunk
+                            )
+                            for chunk in aggregate.get("chunks", [])
+                            if isinstance(chunk, int)
+                            or (
+                                isinstance(chunk, dict)
+                                and isinstance(chunk.get("chunk_idx"), int)
+                            )
+                        ],
+                    }
+                )
+
+            tp = len(predicted_ids & gold_ids)
+            fp = len(predicted_ids - gold_ids)
+            fn = len(gold_ids - predicted_ids)
+            cases.append(
+                {
+                    "doc_id": result.doc_id,
+                    "text": document.get("text", ""),
+                    "expected_hpo_ids": sorted(gold_ids),
+                    "pipeline_predicted_hpo_ids": sorted(pipeline_predicted_ids),
+                    "predicted_hpo_ids": sorted(predicted_ids),
+                    "metrics": {"tp": tp, "fp": fp, "fn": fn},
+                    "elapsed_seconds": captured["elapsed_seconds"],
+                    "status": "complete",
+                }
+            )
+
+        canonical_summary = {
+            **summary,
+            "run_id": run_layout.run_id,
+            "benchmark_type": "extraction",
+            "dataset_name": dataset_metadata.get("dataset_name", config.dataset),
+            "elapsed_seconds": elapsed_seconds,
+        }
+        write_json(run_layout.summary_path, canonical_summary)
+        write_jsonl(run_layout.terms_path, terms)
+        write_jsonl(run_layout.cases_path, cases)
+        write_jsonl(run_layout.chunks_path, chunks)
+        write_manifest(
+            run_layout,
+            {
+                "status": "complete",
+                "elapsed_seconds": elapsed_seconds,
+                "dataset": {
+                    **dataset_metadata,
+                    "path": str(test_file.resolve()),
+                    "sha256": sha256_path(test_file),
+                },
+                "config": {
+                    "scoring_mode": config.scoring_mode,
+                    "chunk_retrieval_threshold": config.chunk_retrieval_threshold,
+                    "min_confidence_for_aggregated": (
+                        config.min_confidence_for_aggregated
+                    ),
+                    "num_results_per_chunk": config.num_results_per_chunk,
+                    "multi_vector": config.multi_vector,
+                    "include_assertions": config.include_assertions,
+                },
+                "counts": {
+                    "documents": len(cases),
+                    "terms": len(terms),
+                    "chunks": len(chunks),
+                },
+            },
+        )

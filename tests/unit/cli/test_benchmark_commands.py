@@ -122,6 +122,9 @@ class TestRunBenchmarks:
             create_sample=True,
             trust_remote_code=True,
             similarity_formula="simple_resnik_like",
+            results_dir="custom-results",
+            run_id="baseline",
+            overwrite=True,
             debug=True,
         )
 
@@ -138,6 +141,9 @@ class TestRunBenchmarks:
         assert call_kwargs["create_sample"] is True
         assert call_kwargs["trust_remote_code"] is True
         assert call_kwargs["similarity_formula"] == "simple_resnik_like"
+        assert call_kwargs["results_dir_override"] == "custom-results"
+        assert call_kwargs["run_id"] == "baseline"
+        assert call_kwargs["overwrite"] is True
         assert call_kwargs["debug"] is True
 
     def test_benchmark_fails_with_no_results(self, mocker):
@@ -251,6 +257,27 @@ def test_benchmark_group_exposes_llm_subcommand():
     assert "llm" in result.stdout
 
 
+def test_benchmark_llm_run_help_exposes_run_layout_options():
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_app,
+        ["benchmark", "llm", "--help"],
+        env={"COLUMNS": "200"},
+        color=False,
+    )
+
+    help_text = strip_ansi(result.stdout)
+
+    assert result.exit_code == 0
+    assert "--output-dir" in help_text
+    assert "--run-id" in help_text
+    assert "--overwrite" in help_text
+    assert "--output-path" not in help_text
+    assert "--checkpoint-path" not in help_text
+    assert "--artifacts-dir" not in help_text
+
+
 def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
     runner = CliRunner()
 
@@ -267,6 +294,10 @@ def test_benchmark_extraction_run_help_exposes_ontology_metric_options():
     assert "--ontology-aware-metrics" in help_text
     assert "--ontology-semantic-floor" in help_text
     assert "--ontology-similarity-formula" in help_text
+    assert "GSC" in help_text
+    assert "CSC" in help_text
+    assert "--run-id" in help_text
+    assert "--overwrite" in help_text
 
 
 def test_benchmark_llm_command_shows_friendly_error_for_missing_file(tmp_path):
@@ -302,7 +333,7 @@ def test_benchmark_llm_command_accepts_phenobert_directory(tmp_path, monkeypatch
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         },
     )
 
@@ -337,7 +368,7 @@ def test_benchmark_llm_defaults_to_genereviews_dataset(tmp_path, monkeypatch):
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(
@@ -373,7 +404,7 @@ def test_benchmark_cli_passes_provider_to_runner(tmp_path, monkeypatch) -> None:
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(
@@ -416,7 +447,7 @@ def test_benchmark_llm_command_passes_language_and_prompt_templates_dir(
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(
@@ -457,7 +488,7 @@ def test_benchmark_llm_command_passes_doc_ids(tmp_path, monkeypatch):
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(
@@ -500,7 +531,7 @@ def test_benchmark_llm_command_passes_timeout_override(tmp_path, monkeypatch):
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(
@@ -541,7 +572,7 @@ def test_benchmark_llm_command_passes_ontology_metric_options(tmp_path, monkeypa
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(tmp_path / "result.json"),
+            "run_dir": str(tmp_path / "result"),
         }
 
     monkeypatch.setattr(

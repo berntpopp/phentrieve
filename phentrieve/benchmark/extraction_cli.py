@@ -15,6 +15,7 @@ from phentrieve.benchmark.extraction_benchmark import (
     ExtractionConfig,
 )
 from phentrieve.benchmark.extraction_reporter import ExtractionReporter
+from phentrieve.benchmark.result_store import create_run_layout
 from phentrieve.config import DEFAULT_MULTI_VECTOR
 
 app = typer.Typer(
@@ -32,11 +33,22 @@ def run(
     model: str = typer.Option("BAAI/bge-m3", help="Embedding model to use"),
     language: str = typer.Option("en", help="Language code (en, de, es, fr, nl)"),
     output_dir: Path = typer.Option(
-        Path("results/extraction"), help="Output directory for results"
+        Path("results"), help="Root directory for unique benchmark runs"
     ),
     dataset: str = typer.Option(
         "all",
-        help="PhenoBERT dataset: all, GSC_plus, ID_68, GeneReviews (only for directory input)",
+        help="Dataset: all, GSC_plus, ID_68, GeneReviews, GSC, or CSC "
+        "(only for directory input)",
+    ),
+    run_id: str | None = typer.Option(
+        None,
+        "--run-id",
+        help="Explicit run identifier; existing runs require --overwrite",
+    ),
+    overwrite: bool = typer.Option(
+        False,
+        "--overwrite",
+        help="Allow reuse of an existing explicit run directory",
     ),
     averaging: str = typer.Option(
         "micro", help="Averaging strategy: micro, macro, or weighted"
@@ -148,13 +160,28 @@ def run(
         ontology_similarity_formula=ontology_similarity_formula,
     )
 
+    dataset_name = dataset if test_path.is_dir() else test_path.stem
+    run_layout = create_run_layout(
+        output_dir,
+        "extraction",
+        dataset_name,
+        model,
+        run_id=run_id,
+        exact_run_id=run_id is not None,
+        overwrite=overwrite,
+    )
+
     # Initialize benchmark
     benchmark = ExtractionBenchmark(model, config=config)
 
     # Run benchmark
     with console.status("Processing documents..."):
         try:
-            metrics = benchmark.run_benchmark(test_path, output_dir)
+            metrics = benchmark.run_benchmark(
+                test_path,
+                run_layout.legacy_dir,
+                run_layout=run_layout,
+            )
         except Exception as e:
             console.print(f"[red]Error running benchmark: {e}[/red]")
             if verbose:
@@ -165,7 +192,7 @@ def run(
 
     # Display results
     _display_results(metrics)
-    console.print(f"\n[green]Results saved to {output_dir}[/green]")
+    console.print(f"\n[green]Results saved to {run_layout.run_dir}[/green]")
 
 
 _GATED_METRICS = ("micro_f1", "micro_precision", "micro_recall")

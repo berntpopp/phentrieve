@@ -1,15 +1,114 @@
 # Benchmarking Guide
 
-This page shows the concrete benchmark commands for retrieval and LLM full-text
-validation.
+This page shows the concrete benchmark commands for retrieval, document
+extraction, and LLM full-text validation.
 
 ## Retrieval Benchmark
+
+Use the canonical German single-term datasets for official retrieval
+comparisons:
+
+```bash
+phentrieve benchmark run \
+  --test-file tests/data/benchmarks/german/570terms_german.json \
+  --model-name "FremyCompany/BioLORD-2023-M" \
+  --results-dir results
+```
+
+```bash
+phentrieve benchmark run \
+  --test-file tests/data/benchmarks/german/200cases_o3_v1.json \
+  --model-name "FremyCompany/BioLORD-2023-M" \
+  --results-dir results
+```
+
+The default benchmark remains the small smoke dataset for fast local checks:
 
 ```bash
 phentrieve benchmark run \
   --test-file tests/data/benchmarks/german/tiny_v1.json \
-  --model-name "sentence-transformers/LaBSE"
+  --model-name "sentence-transformers/LaBSE" \
+  --results-dir results
 ```
+
+Each model run receives its own directory. Use `--run-id baseline` for a stable
+name. Reusing that name requires the explicit `--overwrite` option.
+
+## GSC And CSC Extraction Benchmarks
+
+The canonical text-fragment corpora are the converted RAG-HPO `GSC` and `CSC`
+sets under `tests/data/en/raghpo_paper/`. They are legacy polarity-blind
+corpora, so use `present-only` scoring while leaving assertion detection
+enabled:
+
+```bash
+phentrieve benchmark extraction run tests/data/en/raghpo_paper \
+  --dataset GSC \
+  --model "FremyCompany/BioLORD-2023-M" \
+  --language en \
+  --scoring-mode present-only \
+  --output-dir results
+```
+
+```bash
+phentrieve benchmark extraction run tests/data/en/raghpo_paper \
+  --dataset CSC \
+  --model "FremyCompany/BioLORD-2023-M" \
+  --language en \
+  --scoring-mode present-only \
+  --output-dir results
+```
+
+Use `GSC_plus`, `ID_68`, and `GeneReviews` under
+`tests/data/en/phenobert/` for regression and diagnostic runs.
+
+## Run Artifacts
+
+Retrieval, extraction, and LLM full-text runs use this hierarchy:
+
+```text
+results/
+  retrieval/<dataset>/<model>/<run-id>/
+  extraction/<dataset>/<model>/<run-id>/
+  llm/<dataset>/<model>/<run-id>/
+```
+
+The important files are:
+
+- `manifest.json`: run identity, dataset checksum, model, configuration, status,
+  and machine-readable artifact locations.
+- `summary.json`: aggregate metrics and per-case arrays used by comparisons and
+  the standard benchmark graphics.
+- `terms.jsonl`: ranked or extracted HPO terms, scores, gold membership, and
+  TP/FP/FN outcomes. Extraction records distinguish pipeline predictions from
+  evaluated predictions and identify whether a term was removed by the chunk
+  threshold, chunk selection, aggregation confidence, or scoring mode. Use
+  this for term-level analysis.
+- `cases.jsonl`: query/document inputs, predictions, per-case metrics, timings,
+  and errors. Use this for statistical analysis.
+- `diagnostics/chunks.jsonl`: extraction chunks and every returned top-N
+  candidate before thresholding. This is diagnostic material rather than the
+  primary result. Extraction only; absent for retrieval and LLM runs.
+- `legacy/`: the previous summary JSON, CSV, and extraction result formats.
+  Retrieval and extraction only.
+- `predictions/<llm-mode>/`, `traces/<llm-mode>/`, and `metrics/`: per-document
+  LLM predictions, per-document pipeline traces, and an aggregate metrics JSON.
+  LLM runs only. Traces are always written; `--capture-phase1-debug` adds the
+  phase-1 retrieval detail to them rather than enabling them.
+
+Comparison and visualization commands discover structured runs recursively and
+still accept old flat summary directories. Both compare dense retrieval metrics,
+so they only ever load `retrieval` runs; pointing them at a results root that
+also holds extraction and LLM runs is safe:
+
+```bash
+phentrieve benchmark compare --summaries-dir results
+phentrieve benchmark visualize --summaries-dir results
+```
+
+When `--results-dir` is omitted for retrieval, `PHENTRIEVE_RESULTS_DIR` or the
+configured user results directory is used. Extraction defaults to the local
+`results/` root.
 
 ## LLM Full-Text Benchmark
 
@@ -31,16 +130,17 @@ The converted corpus contains these dataset subsets:
 - `GeneReviews`
 - `all`
 
-The output JSON includes:
+The RAG-HPO `GSC` and `CSC` sets under `tests/data/en/raghpo_paper/` are also
+supported (see [GSC And CSC Extraction Benchmarks](#gsc-and-csc-extraction-benchmarks)
+for background on the corpora).
 
-- `cases`
-- `dataset`
-- `llm_model`
-- `llm_mode`
-- `dataset_metadata`
-- `metrics`
-- `results`
-- `output_path`
+Like retrieval and extraction runs, each invocation writes to its own
+`results/llm/<dataset>/<model>/<run-id>/` directory (see
+[Run Artifacts](#run-artifacts)): `manifest.json`, `summary.json`,
+`terms.jsonl`, `cases.jsonl`, plus the LLM-specific `predictions/`, `traces/`,
+and `metrics/` artifacts. Use `--run-id` for a stable name; reusing that name
+requires the explicit `--overwrite` option, matching the retrieval and
+extraction commands. `--output-dir` (default `results`) sets the result root.
 
 ## Corpus Acquisition And Conversion
 

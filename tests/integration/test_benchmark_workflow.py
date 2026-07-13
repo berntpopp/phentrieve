@@ -420,7 +420,7 @@ def test_empty_benchmark_handles_gracefully(temp_results_dir):
 
 
 def test_llm_benchmark_smoke_writes_result_file(tmp_path, monkeypatch):
-    output_path = tmp_path / "llm_benchmark_result.json"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         "phentrieve.benchmark.llm_benchmark.run_llm_benchmark",
@@ -428,7 +428,6 @@ def test_llm_benchmark_smoke_writes_result_file(tmp_path, monkeypatch):
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
-            "output_path": str(output_path),
         },
     )
 
@@ -436,12 +435,13 @@ def test_llm_benchmark_smoke_writes_result_file(tmp_path, monkeypatch):
         test_file="tests/data/benchmarks/german/tiny_v1.json",
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     assert result["cases"] == 1
-    assert Path(result["output_path"]).exists()
-    assert json.loads(output_path.read_text(encoding="utf-8"))["llm_model"] == (
+    summary_path = Path(result["run_dir"]) / "summary.json"
+    assert summary_path.exists()
+    assert json.loads(summary_path.read_text(encoding="utf-8"))["llm_model"] == (
         "gemini-2.5-flash"
     )
 
@@ -470,7 +470,7 @@ def test_llm_benchmark_cli_rejects_invalid_json_input(tmp_path):
 def test_llm_benchmark_smoke_supports_phenobert_directory(
     tmp_path, monkeypatch, benchmark_data_dir
 ):
-    output_path = tmp_path / "llm_benchmark_gene_reviews.json"
+    output_dir = tmp_path / "results"
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -506,17 +506,73 @@ def test_llm_benchmark_smoke_supports_phenobert_directory(
         dataset="GeneReviews",
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     assert result["cases"] == 10
     assert result["dataset"] == "GeneReviews"
     assert result["test_file"] == str(Path("tests/data/en/phenobert"))
-    assert Path(result["output_path"]).exists()
+    assert (Path(result["run_dir"]) / "summary.json").exists()
+
+
+def test_llm_benchmark_cli_resumes_completed_run_with_default_flags(
+    tmp_path, monkeypatch
+):
+    """A real (non-mocked-away) completed run must be resumable via the same
+    --run-id/--overwrite without explicitly repeating every original flag.
+
+    Regression test: run_llm_benchmark()'s persisted checkpoint previously
+    omitted capture_phase1_debug, so _checkpoint_matches_run() always saw a
+    mismatch (None vs. the CLI's False default) on any real second
+    invocation, making --run-id/--overwrite resume impossible in practice.
+    """
+    output_dir = tmp_path / "results"
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            assert text
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.get_llm_provider",
+        lambda llm_model: object(),
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark.TwoPhaseLLMPipeline",
+        _FakePipeline,
+    )
+    monkeypatch.setattr(
+        "phentrieve.benchmark.llm_benchmark._build_grounded_chunks",
+        lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+
+    run_kwargs = {
+        "test_file": str(Path("tests/data/en/phenobert")),
+        "dataset": "GeneReviews",
+        "llm_model": "gemini-2.5-flash",
+        "llm_mode": "two_phase",
+        "output_dir": str(output_dir),
+        "run_id": "resume-check",
+    }
+
+    first = run_llm_benchmark_cli(**run_kwargs)
+    assert first["cases"] == 10
+
+    second = run_llm_benchmark_cli(**run_kwargs, overwrite=True)
+    assert second["cases"] == 10
+    assert second["run_dir"] == first["run_dir"]
 
 
 def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatch):
-    output_path = tmp_path / "llm_benchmark_grounded_trace.json"
+    output_dir = tmp_path / "results"
 
     class _FakePipeline:
         def __init__(self, provider):
@@ -575,7 +631,7 @@ def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatc
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
         llm_internal_mode="whole_document_grounded",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     observability = result["prediction_records"][0]["metadata"]["observability"]
@@ -588,7 +644,7 @@ def test_llm_benchmark_smoke_persists_grounded_trace_fields(tmp_path, monkeypatc
 
 
 def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
-    output_path = tmp_path / "llm_benchmark_group_failures.json"
+    output_dir = tmp_path / "results"
     captured_calls: list[dict[str, object]] = []
 
     class _FakeProvider:
@@ -726,7 +782,7 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
         llm_internal_mode="whole_document_grounded",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     assert captured_calls
@@ -795,7 +851,7 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
 def test_benchmark_artifact_persists_group_counts_and_phase1_group_timings(
     tmp_path, monkeypatch
 ):
-    output_path = tmp_path / "llm_benchmark_group_observability.json"
+    output_dir = tmp_path / "results"
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
@@ -959,14 +1015,17 @@ def test_benchmark_artifact_persists_group_counts_and_phase1_group_timings(
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
         llm_internal_mode="whole_document_grounded",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     prediction_record = result["prediction_records"][0]
     observability = prediction_record["metadata"]["observability"]
     phase1_groups = prediction_record["trace"]["phase1"]["groups"]
-    persisted = json.loads(output_path.read_text(encoding="utf-8"))
-    persisted_prediction = persisted["prediction_records"][0]
+    predictions_dir = Path(result["predictions_dir"])
+    persisted_prediction_path = next(predictions_dir.glob("*.json"))
+    persisted_prediction = json.loads(
+        persisted_prediction_path.read_text(encoding="utf-8")
+    )
     persisted_observability = persisted_prediction["metadata"]["observability"]
     persisted_phase1_groups = persisted_prediction["trace"]["phase1"]["groups"]
     assert observability["grounded_chunks"] == 2
@@ -987,7 +1046,7 @@ def test_benchmark_artifact_persists_group_counts_and_phase1_group_timings(
 
 
 def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch):
-    output_path = tmp_path / "llm_benchmark_partial_failure_counts.json"
+    output_dir = tmp_path / "results"
 
     class _FakeProvider:
         def count_tokens(self, *, system_prompt, user_prompt):
@@ -1111,16 +1170,20 @@ def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch)
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
         llm_internal_mode="whole_document_grounded",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     prediction_record = result["prediction_records"][0]
     observability = prediction_record["metadata"]["observability"]
-    persisted = json.loads(output_path.read_text(encoding="utf-8"))
-    persisted_record = persisted["results"][0]
-    persisted_observability = persisted["prediction_records"][0]["metadata"][
-        "observability"
-    ]
+    predictions_dir = Path(result["predictions_dir"])
+    persisted_prediction = json.loads(
+        next(predictions_dir.glob("*.json")).read_text(encoding="utf-8")
+    )
+    persisted_observability = persisted_prediction["metadata"]["observability"]
+    cases_path = Path(result["run_dir"]) / "cases.jsonl"
+    persisted_record = json.loads(
+        cases_path.read_text(encoding="utf-8").splitlines()[0]
+    )
     assert observability["failed_groups"] == 1
     assert result["results"][0]["partial_failure_counts"] == {
         "phase1_completed_groups": 1,
@@ -1138,7 +1201,7 @@ def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch)
 def test_benchmark_grouped_execution_keeps_legacy_pipeline_call_surface(
     tmp_path, monkeypatch
 ):
-    output_path = tmp_path / "llm_benchmark_legacy_pipeline.json"
+    output_dir = tmp_path / "results"
     build_extraction_groups_calls: list[dict[str, object]] = []
     captured_calls: list[dict[str, object]] = []
 
@@ -1217,7 +1280,7 @@ def test_benchmark_grouped_execution_keeps_legacy_pipeline_call_surface(
         llm_model="gemini-2.5-flash",
         llm_mode="two_phase",
         llm_internal_mode="whole_document_grounded",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     assert build_extraction_groups_calls
@@ -1235,7 +1298,7 @@ def test_llm_benchmark_rejects_unknown_phenobert_dataset(tmp_path):
             test_file=str(Path("tests/data/en/phenobert")),
             dataset="not_a_dataset",
             llm_model="gemini-2.5-flash",
-            output_path=str(tmp_path / "result.json"),
+            output_dir=str(tmp_path / "results"),
         )
 
 
@@ -1248,7 +1311,7 @@ def test_llm_benchmark_rejects_invalid_phenobert_root(tmp_path):
             test_file=str(invalid_root),
             dataset="GeneReviews",
             llm_model="gemini-2.5-flash",
-            output_path=str(tmp_path / "result.json"),
+            output_dir=str(tmp_path / "results"),
         )
 
 

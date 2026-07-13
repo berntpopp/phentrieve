@@ -63,7 +63,7 @@ def test_load_phenobert_data_accepts_raghpo_paper_datasets(tmp_path) -> None:
 
     payload = load_phenobert_data(tmp_path, dataset="CSC")
 
-    assert payload["metadata"]["dataset_name"] == "phenobert_CSC"
+    assert payload["metadata"]["dataset_name"] == "rag_hpo_CSC"
     assert payload["metadata"]["source"] == "rag_hpo_paper"
     assert payload["metadata"]["dataset_namespace"] == "rag_hpo_paper"
     assert payload["documents"][0]["id"] == "CSC_1"

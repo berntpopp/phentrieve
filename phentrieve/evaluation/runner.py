@@ -5,7 +5,6 @@ This module provides functionality for running comprehensive benchmark
 evaluations of the HPO retrieval system using various metrics.
 """
 
-import json
 import logging
 import os
 import time
@@ -16,6 +15,14 @@ from typing import Any
 import pandas as pd
 from tqdm import tqdm
 
+from phentrieve.benchmark.result_store import (
+    RunLayout,
+    create_run_layout,
+    sha256_file,
+    write_json,
+    write_jsonl,
+    write_manifest,
+)
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
     DEFAULT_K_VALUES,
@@ -40,7 +47,7 @@ from phentrieve.evaluation.statistics import (
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
-from phentrieve.utils import get_model_slug
+from phentrieve.utils import calculate_similarity, get_model_slug
 
 # Alias for backward compatibility within this module
 _convert_multi_vector_to_chromadb_format = convert_multi_vector_to_chromadb_format
@@ -61,6 +68,8 @@ def run_evaluation(
     # Multi-vector parameters (Issue #136)
     multi_vector: bool = False,
     aggregation_strategy: str = DEFAULT_AGGREGATION_STRATEGY,
+    overwrite: bool = False,
+    run_id: str | None = None,
 ) -> dict[str, Any] | None:
     """
     Run a complete benchmark evaluation for a model on a test dataset.
@@ -86,26 +95,34 @@ def run_evaluation(
     # Create output directory structure
     detailed_results_dir = None
     summaries_dir = None
+    run_layout: RunLayout | None = None
     if save_results:
         if results_dir is None:
             # Log error if results_dir is None
             logging.error("results_dir must be provided when save_results is True")
             raise ValueError("results_dir must be provided when save_results is True")
 
-        # Create results directories if they don't exist
-        if not results_dir.exists():
-            results_dir.mkdir(parents=True, exist_ok=True)
-
-        detailed_results_dir = results_dir / "detailed"
-        summaries_dir = results_dir / "summaries"
-        os.makedirs(detailed_results_dir, exist_ok=True)
-        os.makedirs(summaries_dir, exist_ok=True)
+        results_dir.mkdir(parents=True, exist_ok=True)
 
     # Load test data
     test_cases = load_test_data(test_file)
     if not test_cases:
         logging.error(f"Failed to load test data from {test_file}")
         return None
+
+    if save_results:
+        assert results_dir is not None
+        run_layout = create_run_layout(
+            results_dir,
+            "retrieval",
+            Path(test_file).stem,
+            model_name,
+            run_id=run_id,
+            exact_run_id=run_id is not None,
+            overwrite=overwrite,
+        )
+        summaries_dir = run_layout.legacy_dir
+        detailed_results_dir = run_layout.legacy_dir
 
     # Create a descriptive name for the benchmark run
     model_slug = get_model_slug(model_name)
@@ -161,6 +178,8 @@ def run_evaluation(
         map_dense_values: dict[int, list[float]] = {k: [] for k in k_values}
 
         detailed_results = []
+        term_records: list[dict[str, Any]] = []
+        case_records: list[dict[str, Any]] = []
 
         # Run benchmark for each test case
         logging.info(f"Running benchmark on {len(test_cases)} test cases")
@@ -171,10 +190,20 @@ def run_evaluation(
             text = test_case["text"]
             expected_ids = test_case.get("expected_hpo_ids", [])
             description = test_case.get("description", f"Case {i + 1}")
+            case_start_time = time.perf_counter()
 
             # Skip test cases with no expected IDs
             if not expected_ids:
                 logging.warning(f"Skipping test case {i + 1} with no expected HPO IDs")
+                case_records.append(
+                    {
+                        "case_id": i,
+                        "description": description,
+                        "text": text,
+                        "expected_hpo_ids": [],
+                        "status": "not_evaluable",
+                    }
+                )
                 continue
 
             try:
@@ -216,6 +245,41 @@ def run_evaluation(
                     dense_term_ids = [
                         meta.get("hpo_id", "") for meta in dense_metadatas
                     ]
+
+                similarities_entry = dense_results.get("similarities") or [[]]
+                similarities = similarities_entry[0] if similarities_entry else []
+                distances_entry = dense_results.get("distances") or [[]]
+                distances = distances_entry[0] if distances_entry else []
+                ids_entry = dense_results.get("ids") or [[]]
+                result_ids = ids_entry[0] if ids_entry else []
+                for rank, metadata in enumerate(dense_metadatas, start=1):
+                    hpo_id = str(
+                        metadata.get("hpo_id")
+                        or metadata.get("id")
+                        or (result_ids[rank - 1] if rank - 1 < len(result_ids) else "")
+                    )
+                    if rank - 1 < len(similarities):
+                        score = float(similarities[rank - 1])
+                    elif rank - 1 < len(distances):
+                        score = calculate_similarity(float(distances[rank - 1]))
+                    else:
+                        score = 0.0
+                    term_records.append(
+                        {
+                            "case_id": i,
+                            "hpo_id": hpo_id,
+                            "label": metadata.get("label", metadata.get("name", "")),
+                            "rank": rank,
+                            "score": score,
+                            "is_gold": hpo_id in expected_ids,
+                            "is_predicted": True,
+                            **(
+                                {"component_scores": metadata["component_scores"]}
+                                if "component_scores" in metadata
+                                else {}
+                            ),
+                        }
+                    )
 
                 # Calculate baseline MRR
                 mrr_dense = mean_reciprocal_rank(dense_results, expected_ids)
@@ -280,23 +344,39 @@ def run_evaluation(
                     "mrr_dense": mrr_dense,
                     **dense_hit_rates,
                     **dense_max_ont_sims,
+                    **dense_ndcgs,
+                    **dense_recalls,
+                    **dense_precisions,
+                    **dense_maps,
                 }
 
                 detailed_results.append(case_result)
+                case_records.append(
+                    {
+                        **case_result,
+                        "expected_hpo_ids": expected_ids,
+                        "retrieved_hpo_ids": dense_term_ids,
+                        "elapsed_seconds": time.perf_counter() - case_start_time,
+                        "status": "complete",
+                    }
+                )
 
             except Exception as e:
                 logging.error(f"Error processing test case {i + 1}: {e}")
                 # Add a failed entry
-                detailed_results.append(
-                    {
-                        "case_id": i,
-                        "description": description,
-                        "text": text,
-                        "expected_ids": expected_ids,
-                        "mrr": 0.0,
-                        "error": str(e),
-                    }
-                )
+                failed_case = {
+                    "case_id": i,
+                    "description": description,
+                    "text": text,
+                    "expected_ids": expected_ids,
+                    "expected_hpo_ids": expected_ids,
+                    "mrr_dense": 0.0,
+                    "elapsed_seconds": time.perf_counter() - case_start_time,
+                    "status": "failed",
+                    "error": {"type": type(e).__name__, "message": str(e)},
+                }
+                detailed_results.append(failed_case)
+                case_records.append(failed_case)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -455,6 +535,16 @@ def run_evaluation(
             # Add confidence intervals
             summary["confidence_intervals"] = confidence_intervals
 
+            assert run_layout is not None
+            summary.update(
+                {
+                    "run_id": run_layout.run_id,
+                    "benchmark_type": "retrieval",
+                    "dataset_name": Path(test_file).stem,
+                    "elapsed_seconds": elapsed_time,
+                }
+            )
+
             # Save summary to file
             # Type narrowing: these are not None inside save_results block
             assert summaries_dir is not None
@@ -466,8 +556,7 @@ def run_evaluation(
             # Add suffix for multi-vector to distinguish from single-vector results
             file_suffix = "_multi" if multi_vector else ""
             summary_path = summaries_dir / f"{model_slug}{file_suffix}_summary.json"
-            with open(summary_path, "w") as f:
-                json.dump(summary, f, indent=2)
+            write_json(summary_path, summary)
 
             # Save detailed results as CSV
             os.makedirs(detailed_results_dir, exist_ok=True)
@@ -475,6 +564,56 @@ def run_evaluation(
             # Use model_slug for CSV files
             csv_path = detailed_results_dir / f"{model_slug}{file_suffix}_detailed.csv"
             detailed_df.to_csv(csv_path, index=False)
+
+            write_json(run_layout.summary_path, summary)
+            write_jsonl(run_layout.terms_path, term_records)
+            write_jsonl(run_layout.cases_path, case_records)
+            run_status = (
+                "failed"
+                if case_records
+                and all(case["status"] == "failed" for case in case_records)
+                else (
+                    "partial"
+                    if any(case["status"] == "failed" for case in case_records)
+                    else "complete"
+                )
+            )
+            write_manifest(
+                run_layout,
+                {
+                    "status": run_status,
+                    "started_at": summary["timestamp"],
+                    "elapsed_seconds": elapsed_time,
+                    "dataset": {
+                        "name": Path(test_file).stem,
+                        "path": str(Path(test_file).resolve()),
+                        "sha256": sha256_file(Path(test_file)),
+                        "case_count": len(test_cases),
+                    },
+                    "config": {
+                        "k_values": list(k_values),
+                        "similarity_threshold": similarity_threshold,
+                        "similarity_formula": similarity_formula,
+                        "multi_vector": multi_vector,
+                        "aggregation_strategy": (
+                            aggregation_strategy if multi_vector else None
+                        ),
+                    },
+                    "counts": {
+                        "complete": sum(
+                            case["status"] == "complete" for case in case_records
+                        ),
+                        "failed": sum(
+                            case["status"] == "failed" for case in case_records
+                        ),
+                        "not_evaluable": sum(
+                            case["status"] == "not_evaluable" for case in case_records
+                        ),
+                    },
+                },
+            )
+            results["run_id"] = run_layout.run_id
+            results["run_dir"] = str(run_layout.run_dir)
 
         # Log summary of results
         logging.info(f"Benchmark results for {model_name}:")

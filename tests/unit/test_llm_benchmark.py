@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from phentrieve.benchmark import llm_benchmark, llm_cli
+from phentrieve.benchmark.result_store import create_run_layout
 
 pytestmark = pytest.mark.unit
 
@@ -229,30 +230,32 @@ def test_run_llm_benchmark_preserves_requested_doc_id_order(monkeypatch):
 def test_run_llm_benchmark_cli_sets_up_logging(tmp_path, mocker, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "result.json"
+    output_dir = tmp_path / "results"
 
     mock_setup_logging = mocker.patch("phentrieve.benchmark.llm_cli.setup_logging_cli")
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 0,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
             "dataset": kwargs["dataset"],
-            "output_path": str(output_path),
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     mock_setup_logging.assert_called_once_with(debug=False)
-    assert result["output_path"] == str(output_path)
-    assert output_path.exists()
+    run_dir = Path(result["run_dir"])
+    assert run_dir.is_relative_to(output_dir)
+    assert (run_dir / "summary.json").exists()
+    assert (run_dir / "manifest.json").exists()
 
 
 def test_run_llm_benchmark_passes_provider_to_factory(monkeypatch) -> None:
@@ -674,7 +677,7 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
 ) -> None:
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "result.json"
+    output_dir = tmp_path / "results"
     pricing_path = tmp_path / "pricing.json"
     pricing_path.write_text(
         json.dumps(
@@ -693,9 +696,11 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
     def fake_run_llm_benchmark(**kwargs):
         captured.update(kwargs)
         return {
+            "status": "completed",
             "cases": 0,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
         }
 
     monkeypatch.setattr(
@@ -707,7 +712,7 @@ def test_run_llm_benchmark_cli_prefers_cli_pricing_over_file(
         llm_model="gemini-2.5-flash",
         pricing_config=str(pricing_path),
         input_cost_per_1m_tokens=0.9,
-        output_path=str(output_path),
+        output_dir=str(output_dir),
     )
 
     accounting_config = captured["accounting_config"]
@@ -2067,6 +2072,22 @@ def test_run_llm_benchmark_resumes_completed_cases_from_checkpoint(monkeypatch):
     assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
     assert result["token_usage"]["api_calls"] == 3
     assert result["timing_breakdown"]["wall_clock_seconds"] >= 12.0
+    assert [record["doc_id"] for record in result["case_records"]] == [
+        "doc-1",
+        "doc-2",
+    ]
+    assert {
+        record["doc_id"]: record["status"] for record in result["case_records"]
+    } == {"doc-1": "complete", "doc-2": "complete"}
+    term_ids_by_doc = {
+        doc_id: sorted(
+            term["hpo_id"]
+            for term in result["term_records"]
+            if term["doc_id"] == doc_id
+        )
+        for doc_id in ("doc-1", "doc-2")
+    }
+    assert term_ids_by_doc == {"doc-1": ["HP:0001250"], "doc-2": ["HP:0001251"]}
 
 
 def test_run_llm_benchmark_temporarily_overrides_prompt_templates_dir(
@@ -2206,13 +2227,13 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
 ):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2240,10 +2261,7 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
                     "trace": {
                         "phase1": {"extracted": [{"phrase": "seizures"}]},
                         "projected_predictions": [
-                            {
-                                "term_id": "HP:0001250",
-                                "assertion": "PRESENT",
-                            }
+                            {"term_id": "HP:0001250", "assertion": "PRESENT"}
                         ],
                     },
                     "metadata": {
@@ -2254,32 +2272,39 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
                 }
             ],
             "results": [{"doc_id": "doc-1"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
-    assert result["output_path"] == str(output_path)
-    assert (artifacts_dir / "predictions" / "two_phase" / "case_doc-1.json").exists()
-    assert (artifacts_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
-    assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").exists()
+    run_dir = Path(result["run_dir"])
+    assert (run_dir / "predictions" / "two_phase" / "case_doc-1.json").exists()
+    assert (run_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
+    assert (run_dir / "metrics" / "benchmark_two_phase.json").exists()
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["artifacts"]["llm_predictions"]["path"] == "predictions/two_phase"
+    assert manifest["artifacts"]["llm_traces"]["path"] == "traces/two_phase"
+    assert (
+        manifest["artifacts"]["metrics"]["path"] == "metrics/benchmark_two_phase.json"
+    )
 
 
 def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2297,14 +2322,15 @@ def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkey
             },
             "prediction_records": [],
             "results": [{"doc_id": "doc-1"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         },
     )
 
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
     metrics_path = Path(result["metrics_path"])
@@ -2321,13 +2347,13 @@ def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkey
 def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatch):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
+    output_dir = tmp_path / "results"
 
     monkeypatch.setattr(
         llm_cli.llm_benchmark,
         "run_llm_benchmark",
         lambda **kwargs: {
+            "status": "completed",
             "cases": 1,
             "llm_model": kwargs["llm_model"],
             "llm_mode": kwargs["llm_mode"],
@@ -2353,35 +2379,35 @@ def test_run_llm_benchmark_cli_sanitizes_artifact_filenames(tmp_path, monkeypatc
                 }
             ],
             "results": [{"doc_id": "folder/unsafe doc:id"}],
+            "term_records": [],
+            "case_records": [{"doc_id": "folder/unsafe doc:id", "status": "complete"}],
         },
     )
 
-    llm_cli.run_llm_benchmark_cli(
+    result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
+    run_dir = Path(result["run_dir"])
     prediction_path = (
-        artifacts_dir / "predictions" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
+        run_dir / "predictions" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
     )
-    trace_path = (
-        artifacts_dir / "traces" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
-    )
+    trace_path = run_dir / "traces" / "two_phase" / "case_7_folder_unsafe_doc_id.json"
 
     assert prediction_path.exists()
     assert trace_path.exists()
-    assert not (artifacts_dir / "predictions" / "two_phase" / "folder").exists()
+    assert not (run_dir / "predictions" / "two_phase" / "folder").exists()
 
 
-def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch):
+def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
+    tmp_path, monkeypatch
+):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    checkpoint_path = tmp_path / "checkpoint.json"
-    artifacts_dir = tmp_path / "artifacts"
-    progress_events: list[dict[str, object]] = []
+    output_dir = tmp_path / "results"
+    captured_manifests: list[dict[str, object]] = []
 
     def fake_run_llm_benchmark(**kwargs):
         progress_callback = kwargs["progress_callback"]
@@ -2404,15 +2430,14 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
                 {
                     "doc_id": "doc-1",
                     "annotations": [],
-                    "metadata": {
-                        "token_usage": {"total_tokens": 15, "api_calls": 2},
-                    },
+                    "metadata": {"token_usage": {"total_tokens": 15, "api_calls": 2}},
                 }
             ],
             "results": [{"doc_id": "doc-1"}],
         }
         progress_callback(partial_payload)
-        progress_events.append(partial_payload)
+        manifest_path = next(output_dir.rglob("manifest.json"))
+        captured_manifests.append(json.loads(manifest_path.read_text(encoding="utf-8")))
         return {
             **partial_payload,
             "status": "completed",
@@ -2421,6 +2446,8 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
                 "id_only": {"micro": {"f1": 1.0}},
             },
             "estimated_cost": None,
+            "term_records": [],
+            "case_records": [{"doc_id": "doc-1", "status": "complete"}],
         }
 
     monkeypatch.setattr(
@@ -2430,26 +2457,38 @@ def test_run_llm_benchmark_cli_writes_checkpoint_snapshot(tmp_path, monkeypatch)
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
-        checkpoint_path=str(checkpoint_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
     )
 
-    assert progress_events
+    assert captured_manifests[0]["status"] == "partial"
+    assert "terms" not in captured_manifests[0]["counts"]
+    assert "cases" not in captured_manifests[0]["counts"]
+    run_dir = Path(result["run_dir"])
+    checkpoint_path = run_dir / "checkpoint.json"
     assert checkpoint_path.exists()
-    checkpoint_payload = checkpoint_path.read_text(encoding="utf-8")
-    assert '"status": "completed"' in checkpoint_payload
-    assert result["checkpoint_path"] == str(checkpoint_path)
+    assert '"status": "completed"' in checkpoint_path.read_text(encoding="utf-8")
+    final_manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert final_manifest["status"] == "complete"
+    assert final_manifest["counts"]["terms"] == 0
+    assert final_manifest["counts"]["cases"] == 1
 
 
-def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
+def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    checkpoint_path = tmp_path / "checkpoint.json"
-    checkpoint_path.write_text(
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
                 "llm_model": "gemini-2.5-pro",
                 "llm_mode": "two_phase",
@@ -2466,8 +2505,9 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path):
         llm_cli.run_llm_benchmark_cli(
             test_file=str(test_file),
             llm_model="gemini-2.5-flash",
-            checkpoint_path=str(checkpoint_path),
-            output_path=str(tmp_path / "summary.json"),
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
         )
 
 
@@ -2476,15 +2516,21 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
 ):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    checkpoint_path = tmp_path / "checkpoint.json"
-    output_path = tmp_path / "summary.json"
-    artifacts_dir = tmp_path / "artifacts"
-    checkpoint_path.write_text(
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
-                "llm_provider": None,
+                "llm_provider": "gemini",
                 "llm_model": "gemini-2.5-flash",
                 "llm_base_url": None,
                 "llm_timeout_seconds": None,
@@ -2519,6 +2565,8 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
             },
             "prediction_records": [],
             "results": [],
+            "term_records": [],
+            "case_records": [],
         }
 
     monkeypatch.setattr(
@@ -2528,40 +2576,195 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
     llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        checkpoint_path=str(checkpoint_path),
-        output_path=str(output_path),
-        artifacts_dir=str(artifacts_dir),
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
     )
 
     assert captured_checkpoint_state["status"] == "running"
     assert "ontology_aware_metrics" not in captured_checkpoint_state
 
 
-def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
-    tmp_path, monkeypatch
-):
+def test_checkpoint_identity_includes_dataset_and_accounting_fingerprints(tmp_path):
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
-    output_path = tmp_path / "summary.json"
-    output_path.write_text(
+    accounting = llm_benchmark.BenchmarkAccountingConfig(
+        token_pricing=llm_benchmark.TokenPricingConfig(
+            input_cost_per_1m_tokens=1.25,
+        )
+    )
+
+    identity = llm_cli._build_checkpoint_identity(
+        test_file_path=test_file,
+        dataset_sha256="dataset-hash",
+        accounting_config=accounting,
+        dataset="CSC",
+        resolved_provider="openrouter",
+        resolved_model="google/model",
+        resolved_base_url="https://openrouter.ai/api/v1",
+        llm_timeout_seconds=None,
+        llm_seed=None,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+        capture_phase1_debug=False,
+        ontology_aware_metrics=False,
+        ontology_semantic_floor=0.3,
+        ontology_similarity_formula="hybrid",
+        prompt_templates_dir=None,
+        doc_ids=None,
+    )
+
+    assert identity["dataset_sha256"] == "dataset-hash"
+    assert (
+        identity["accounting_config"]["token_pricing"]["input_cost_per_1m_tokens"]
+        == 1.25
+    )
+
+
+def test_write_legacy_llm_artifacts_preserves_deprecated_paths(tmp_path):
+    payload = {
+        "llm_mode": "two_phase",
+        "llm_model": "google/model",
+        "dataset": "CSC",
+        "cases": 0,
+        "prediction_records": [],
+        "metrics": {"micro": {"f1": 1.0}},
+    }
+    output_path = tmp_path / "legacy" / "summary.json"
+    checkpoint_path = tmp_path / "legacy" / "checkpoint.json"
+    artifacts_dir = tmp_path / "legacy-artifacts"
+
+    llm_cli._write_legacy_artifacts(
+        payload=payload,
+        output_path=str(output_path),
+        checkpoint_path=str(checkpoint_path),
+        artifacts_dir=str(artifacts_dir),
+    )
+
+    assert output_path.is_file()
+    assert checkpoint_path.is_file()
+    assert (artifacts_dir / "metrics" / "benchmark_two_phase.json").is_file()
+
+
+def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_key(
+    tmp_path, monkeypatch
+):
+    """Checkpoints written before capture_phase1_debug was persisted must still
+    match a same-config resume via CHECKPOINT_DEFAULTS, not just checkpoints
+    written by the current code (which always includes the key)."""
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
         json.dumps(
             {
                 "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
                 "dataset": "GeneReviews",
-                "llm_model": "gemini-2.5-pro",
+                "llm_provider": "gemini",
+                "llm_model": "gemini-2.5-flash",
+                "llm_base_url": None,
+                "llm_timeout_seconds": None,
+                "llm_seed": None,
                 "llm_mode": "two_phase",
                 "llm_internal_mode": "whole_document_grounded",
                 "language": "en",
                 "prompt_templates_dir": None,
                 "requested_doc_ids": None,
+                "status": "running",
+                "prediction_records": [],
+                "results": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    captured_checkpoint_state: dict[str, object] = {}
+
+    def fake_run_llm_benchmark(**kwargs):
+        captured_checkpoint_state.update(kwargs["checkpoint_state"])
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "metrics": {
+                "assertion_aware": {"micro": {"f1": 0.0}},
+                "id_only": {"micro": {"f1": 0.0}},
+            },
+            "prediction_records": [],
+            "results": [],
+            "term_records": [],
+            "case_records": [],
+        }
+
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark, "run_llm_benchmark", fake_run_llm_benchmark
+    )
+
+    llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
+    )
+
+    assert captured_checkpoint_state["status"] == "running"
+    assert "capture_phase1_debug" not in captured_checkpoint_state
+
+
+def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_existing_run(
+    tmp_path, monkeypatch
+):
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    (run_layout.run_dir / "checkpoint.json").write_text(
+        json.dumps(
+            {
+                "test_file": str(test_file),
+                "dataset_sha256": llm_cli.sha256_path(test_file),
+                "accounting_config": llm_benchmark.BenchmarkAccountingConfig().model_dump(
+                    mode="json"
+                ),
+                "dataset": "GeneReviews",
+                "llm_provider": "gemini",
+                "llm_model": "gemini-2.5-flash",
+                "llm_base_url": None,
+                "llm_timeout_seconds": None,
+                "llm_seed": None,
+                "llm_mode": "two_phase",
+                "llm_internal_mode": "whole_document_grounded",
+                "language": "en",
+                "capture_phase1_debug": False,
+                "prompt_templates_dir": None,
+                "requested_doc_ids": None,
                 "status": "completed",
+                "prediction_records": [],
+                "results": [],
             }
         ),
         encoding="utf-8",
     )
 
+    captured: dict[str, object] = {}
+
     def fake_run_llm_benchmark(**kwargs):
-        assert kwargs["checkpoint_state"] is None
+        captured.update(kwargs)
         return {
             "status": "completed",
             "cases": 0,
@@ -2585,6 +2788,8 @@ def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
             },
             "prediction_records": [],
             "results": [],
+            "term_records": [],
+            "case_records": [],
             "metrics": {
                 "assertion_aware": {"micro": {"f1": 0.0}},
                 "id_only": {"micro": {"f1": 0.0}},
@@ -2599,12 +2804,15 @@ def test_run_llm_benchmark_cli_overwrites_existing_output_without_checkpoint(
     result = llm_cli.run_llm_benchmark_cli(
         test_file=str(test_file),
         llm_model="gemini-2.5-flash",
-        output_path=str(output_path),
+        output_dir=str(output_dir),
+        run_id="fixed-run",
+        overwrite=True,
     )
 
     assert result["llm_model"] == "gemini-2.5-flash"
+    assert captured["checkpoint_state"]["status"] == "completed"
     assert (
-        json.loads(output_path.read_text(encoding="utf-8"))["llm_model"]
+        json.loads(run_layout.summary_path.read_text(encoding="utf-8"))["llm_model"]
         == "gemini-2.5-flash"
     )
 
@@ -2664,3 +2872,225 @@ def test_aggregate_assertion_distribution_sums_records():
     # Undercount is visible: 2 of 3 records contributed.
     assert agg["documents_counted"] == 2
     assert agg["documents_total"] == 3
+
+
+def test_build_terms_and_cases_classifies_tp_fp_fn_and_prefers_gold_labels():
+    documents = [
+        {
+            "id": "doc-1",
+            "gold_hpo_terms": [
+                {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"},
+                {"id": "HP:0001251", "label": "Ataxia", "assertion": "PRESENT"},
+            ],
+        }
+    ]
+    results = [
+        {
+            "case_index": 1,
+            "doc_id": "doc-1",
+            "expected_hpo_ids": ["HP:0001250", "HP:0001251"],
+            "predicted_hpo_ids": ["HP:0001250", "HP:0001252"],
+            "predicted_terms": [
+                {
+                    "term_id": "HP:0001250",
+                    "label": "Seizure disorder",
+                    "assertion": "PRESENT",
+                    "evidence": "seizures",
+                    "category": "neurological",
+                },
+                {
+                    "term_id": "HP:0001252",
+                    "label": "Hypotonia",
+                    "assertion": "PRESENT",
+                    "evidence": "low tone",
+                    "category": "neurological",
+                },
+            ],
+            "timing_seconds": 1.5,
+            "token_usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "estimated_cost": {"total_cost": 0.01},
+            "partial_failure_counts": {
+                "phase1_completed_groups": 1,
+                "phase1_failed_groups": 0,
+                "phase1_partial_failures": 0,
+            },
+        }
+    ]
+
+    terms, cases = llm_benchmark._build_terms_and_cases(documents, results)
+
+    terms_by_id = {term["hpo_id"]: term for term in terms}
+    assert terms_by_id["HP:0001250"]["outcome"] == "tp"
+    assert terms_by_id["HP:0001250"]["label"] == "Seizure"
+    assert terms_by_id["HP:0001251"]["outcome"] == "fn"
+    assert terms_by_id["HP:0001251"]["is_predicted"] is False
+    assert terms_by_id["HP:0001252"]["outcome"] == "fp"
+    assert terms_by_id["HP:0001252"]["label"] == "Hypotonia"
+    assert terms_by_id["HP:0001252"]["evidence"] == "low tone"
+    assert terms_by_id["HP:0001252"]["category"] == "neurological"
+
+    assert len(cases) == 1
+    assert cases[0]["doc_id"] == "doc-1"
+    assert cases[0]["metrics"] == {"tp": 1, "fp": 1, "fn": 1}
+    assert cases[0]["timing_seconds"] == 1.5
+    assert cases[0]["status"] == "complete"
+
+
+def test_build_terms_and_cases_marks_failed_documents():
+    documents = [
+        {
+            "id": "doc-1",
+            "gold_hpo_terms": [
+                {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"}
+            ],
+        }
+    ]
+    results = [
+        {
+            "case_index": 1,
+            "doc_id": "doc-1",
+            "status": "failed",
+            "error_phase": "phase1",
+            "error_message": "Structured extraction failed",
+        }
+    ]
+
+    terms, cases = llm_benchmark._build_terms_and_cases(documents, results)
+
+    assert len(terms) == 1
+    assert terms[0]["hpo_id"] == "HP:0001250"
+    assert terms[0]["outcome"] == "fn"
+    assert cases[0]["status"] == "failed"
+    assert cases[0]["expected_hpo_ids"] == ["HP:0001250"]
+    assert cases[0]["predicted_hpo_ids"] == []
+    assert cases[0]["metrics"] == {"tp": 0, "fp": 0, "fn": 1}
+
+
+def test_run_llm_benchmark_returns_term_and_case_records(monkeypatch):
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "Patient has seizures.",
+                    "gold_hpo_terms": [
+                        {"id": "HP:0001250", "label": "Seizure", "assertion": "PRESENT"}
+                    ],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _FakePipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta, LLMPhenotype
+
+            return LLMExtractionResult(
+                terms=[
+                    LLMPhenotype(
+                        term_id="HP:0001250",
+                        label="Seizure",
+                        evidence="seizures",
+                        assertion="present",
+                    )
+                ],
+                meta=LLMMeta(llm_model=config.model, llm_mode=config.mode),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _FakePipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert result["term_records"] == [
+        {
+            "doc_id": "doc-1",
+            "hpo_id": "HP:0001250",
+            "label": "Seizure",
+            "is_gold": True,
+            "is_predicted": True,
+            "gold_assertion": "PRESENT",
+            "predicted_assertion": "PRESENT",
+            "outcome": "tp",
+            "evidence": "seizures",
+            "category": None,
+        }
+    ]
+    assert result["case_records"][0]["doc_id"] == "doc-1"
+    assert result["case_records"][0]["metrics"] == {"tp": 1, "fp": 0, "fn": 0}
+    assert result["case_records"][0]["status"] == "complete"
+
+
+def test_derive_run_status_reflects_failed_documents() -> None:
+    """``run_llm_benchmark`` reports ``completed`` even when documents failed."""
+    assert llm_cli._derive_run_status([]) == "complete"
+    assert llm_cli._derive_run_status([{"status": "complete"}]) == "complete"
+    assert (
+        llm_cli._derive_run_status([{"status": "complete"}, {"status": "failed"}])
+        == "partial"
+    )
+    assert (
+        llm_cli._derive_run_status([{"status": "failed"}, {"status": "failed"}])
+        == "failed"
+    )
+
+
+def test_prompt_template_edits_change_the_checkpoint_identity(tmp_path) -> None:
+    """A checkpoint must not be resumable under different prompt templates.
+
+    Only the templates *directory* used to be part of the checkpoint identity,
+    so editing a template in place left the identity unchanged and let a resume
+    merge old-prompt and new-prompt document outputs into one set of metrics.
+    """
+    templates = tmp_path / "prompts"
+    templates.mkdir()
+    template_file = templates / "extract.yaml"
+    template_file.write_text("prompt: original\n", encoding="utf-8")
+
+    before = llm_cli._prompt_templates_sha256(str(templates))
+    template_file.write_text("prompt: edited\n", encoding="utf-8")
+    after = llm_cli._prompt_templates_sha256(str(templates))
+
+    assert before["user"] is not None
+    assert before["user"] != after["user"]
+
+    assert not llm_cli._checkpoint_matches_run(
+        payload={"prompt_templates_sha256": before},
+        current_run={"prompt_templates_sha256": after},
+    )
+    assert llm_cli._checkpoint_matches_run(
+        payload={"prompt_templates_sha256": before},
+        current_run={"prompt_templates_sha256": before},
+    )
+
+
+def test_checkpoint_without_prompt_hash_stays_resumable(tmp_path) -> None:
+    """Checkpoints predating prompt hashing must not be invalidated on upgrade.
+
+    They carry no evidence about the templates they ran under, so they keep the
+    behaviour they were written with. A checkpoint that *does* record a hash is
+    still compared strictly.
+    """
+    templates = tmp_path / "prompts"
+    templates.mkdir()
+    (templates / "extract.yaml").write_text("prompt: original\n", encoding="utf-8")
+    current = llm_cli._prompt_templates_sha256(str(templates))
+
+    # Legacy payload: key absent entirely -> unverifiable -> still resumable.
+    assert llm_cli._checkpoint_matches_run(
+        payload={"llm_model": "m"},
+        current_run={"llm_model": "m", "prompt_templates_sha256": current},
+    )
+    # Recorded payload: key present and different -> rejected.
+    assert not llm_cli._checkpoint_matches_run(
+        payload={"llm_model": "m", "prompt_templates_sha256": {"user": "stale"}},
+        current_run={"llm_model": "m", "prompt_templates_sha256": current},
+    )
