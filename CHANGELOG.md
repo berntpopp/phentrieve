@@ -18,6 +18,54 @@ together:
 
 ## [Unreleased]
 
+## [0.26.0] — 2026-07-13 (CLI 0.26.0 / API 0.17.0 / Frontend 0.17.1)
+
+Reproducible benchmark result storage. Retrieval, extraction, and LLM benchmarks
+now write to one collision-free run directory per run, described by a manifest
+that records the run's identity, dataset checksum, configuration, and the
+machine-readable location of every artifact it produced. The API is unchanged.
+
+### Added
+
+- **Shared benchmark result store** (`phentrieve/benchmark/result_store.py`).
+  Runs land in `results/<type>/<dataset>/<model>/<run-id>/` with a `manifest.json`,
+  a `summary.json`, and analysis-first `terms.jsonl` / `cases.jsonl` artifacts;
+  extraction additionally emits `diagnostics/chunks.jsonl` with every retrieved
+  candidate and the stage at which it was filtered. Previous flat output formats
+  are preserved under `legacy/` for the migration period.
+- **`--run-id` / `--overwrite` / `--output-dir`** on the retrieval, extraction, and
+  LLM benchmark commands, for stable run names and explicit reuse. The LLM
+  benchmark's `--output-path`, `--checkpoint-path`, and `--artifacts-dir` are
+  deprecated but still honoured.
+- **CSC/GSC LLM benchmark support** and recursive discovery of nested runs by
+  comparison and visualization commands.
+
+### Changed
+
+- **Checkpoint reuse is bound to the inputs that determine its contents** —
+  dataset checksum, accounting configuration, resolved provider/model/base URL,
+  and the contents of the prompt templates the run loads. An edited prompt
+  template can no longer be resumed into an existing run, which would have merged
+  old-prompt and new-prompt document outputs into one set of metrics.
+- **Retrieval benchmarks record non-evaluable cases explicitly** rather than
+  dropping them, and every row of `cases.jsonl` is keyed on the same 0-based
+  `case_id` that `terms.jsonl` joins on.
+- **Frontend dependencies** bumped (vite, eslint, prettier, postcss, terser,
+  libphonenumber-js, @vitest/coverage-v8).
+
+### Fixed
+
+- **Overwritten runs no longer inherit artifacts they did not produce.** Reusing a
+  run directory left the previous run's files in place, and the manifest — which
+  decides what to advertise from what exists on disk — published them as the new
+  run's own output.
+- **`benchmark compare` no longer lists extraction and LLM runs as retrieval
+  models.** All three benchmark types write a `summary` artifact into the shared
+  results root, so the dense-retrieval comparison table had been picking them up
+  and scoring them `MRR (Dense) = 0`.
+- **LLM run status is derived from per-case outcomes.** A run in which every
+  document failed had still been recorded in its manifest as `complete`.
+
 ## [0.25.0] — 2026-07-04 (CLI 0.25.0 / API 0.17.0 / Frontend 0.17.0)
 
 LLM extraction contract v2 (Phase 2, blocks B0–B3): the model's assertion and
