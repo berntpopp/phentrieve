@@ -54,6 +54,7 @@ class TestPrepareHpoData:
             data_dir_override=None,
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
             hpo_version=None,  # Default to latest
+            expected_sha256=None,
         )
 
         # Check success message
@@ -106,7 +107,25 @@ class TestPrepareHpoData:
             data_dir_override=None,
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
             hpo_version=None,  # Default to latest
+            expected_sha256=None,
         )
+
+    def test_prepares_data_with_pinned_source_digest(self, mocker):
+        """Test that a source digest is forwarded to the HPO orchestrator."""
+        from phentrieve.cli.data_commands import prepare_hpo_data
+
+        expected_sha256 = "a" * 64
+        mocker.patch("phentrieve.utils.setup_logging_cli")
+        mock_orchestrate = mocker.patch(
+            "phentrieve.data_processing.hpo_parser.orchestrate_hpo_preparation",
+            return_value=True,
+        )
+        mocker.patch("typer.echo")
+        mocker.patch("typer.secho")
+
+        prepare_hpo_data(hpo_sha256=expected_sha256)
+
+        assert mock_orchestrate.call_args.kwargs["expected_sha256"] == expected_sha256
 
     def test_prepares_data_with_custom_data_dir(self, mocker):
         """Test data preparation with custom data directory."""
@@ -132,6 +151,7 @@ class TestPrepareHpoData:
             data_dir_override="/custom/data/path",
             include_obsolete=False,  # Issue #133: Default filters obsolete terms
             hpo_version=None,  # Default to latest
+            expected_sha256=None,
         )
 
     def test_prepares_data_with_all_options(self, mocker):
@@ -163,6 +183,7 @@ class TestPrepareHpoData:
             data_dir_override="/custom/path",
             include_obsolete=True,  # Issue #133: Passed through
             hpo_version=None,  # Default to latest
+            expected_sha256=None,
         )
 
     def test_preparation_fails_with_error(self, mocker):
