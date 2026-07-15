@@ -179,7 +179,8 @@ def _hpo_version_sort_key(hpo_version: str | None) -> tuple[int, int, int]:
     match = _HPO_VERSION_PATTERN.fullmatch(hpo_version)
     if match is None:
         return (0, 0, 0)
-    return tuple(int(component) for component in match.groups())
+    year, month, day = match.groups()
+    return (int(year), int(month), int(day))
 
 
 def _release_hpo_version_sort_key(release: ReleaseInfo) -> tuple[int, int, int]:
