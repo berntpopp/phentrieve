@@ -1,373 +1,98 @@
-name: Build and Release Data Bundles
-
-# Build pre-computed HPO data bundles for distribution via GitHub Releases
-# See: https://github.com/berntpopp/phentrieve/issues/117
+name: Build Verified HPO Data Release
 
 on:
-  # Manual trigger with options
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Data-release tag owned by the caller repository.
+        required: true
+        type: string
+      release_spec_path:
+        description: Path to the immutable release JSON in the caller repository.
+        required: true
+        type: string
+      source_commit:
+        description: Immutable Phentrieve source commit used to build the indexes.
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
-      hpo_version:
-        description: 'HPO version (e.g., v2025-03-03)'
-        required: false
-        default: 'latest'
+      release_tag:
+        description: Data-release tag.
+        required: true
         type: string
-      models:
-        description: 'Models to build (comma-separated, or "all" for benchmark models)'
-        required: false
-        default: 'FremyCompany/BioLORD-2023-M'
+      release_spec_path:
+        description: Path to the immutable release JSON in the caller repository.
+        required: true
         type: string
-      index_type:
-        description: 'Index type to build: single, multi, or both'
-        required: false
-        default: 'both'
-        type: choice
-        options:
-          - single
-          - multi
-          - both
-      create_release:
-        description: 'Create GitHub Release with bundles'
-        required: false
-        default: true
-        type: boolean
+      source_commit:
+        description: Immutable Phentrieve source commit used to build the indexes.
+        required: true
+        type: string
 
-  # Trigger on release creation (draft or published)
-  release:
-    types: [created]
-
-# Prevent concurrent bundle builds
 concurrency:
-  group: data-bundles-${{ github.ref }}
-  cancel-in-progress: false  # Don't cancel - builds are expensive
-
-env:
-  PYTHON_VERSION: '3.11'
-  # Default models for release builds
-  DEFAULT_MODELS: |
-    FremyCompany/BioLORD-2023-M
-    BAAI/bge-m3
-    sentence-transformers/LaBSE
+  group: hpo-data-${{ inputs.release_tag }}
+  cancel-in-progress: false
 
 jobs:
-  prepare-matrix:
-    name: Prepare Build Matrix
-    runs-on: ubuntu-latest
-    outputs:
-      models: ${{ steps.set-matrix.outputs.models }}
-      hpo_version: ${{ steps.set-matrix.outputs.hpo_version }}
-
-    steps:
-      - name: Determine models to build
-        id: set-matrix
-        run: |
-          # Determine models list
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            INPUT_MODELS="${{ github.event.inputs.models }}"
-            if [ "$INPUT_MODELS" = "all" ]; then
-              # All benchmark models
-              MODELS='["FremyCompany/BioLORD-2023-M","BAAI/bge-m3","sentence-transformers/LaBSE","sentence-transformers/paraphrase-multilingual-mpnet-base-v2","sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2","Alibaba-NLP/gte-multilingual-base","jinaai/jina-embeddings-v2-base-de","T-Systems-onsite/cross-en-de-roberta-sentence-transformer","sentence-transformers/distiluse-base-multilingual-cased-v2"]'
-            else
-              # Convert comma-separated to JSON array
-              MODELS=$(echo "$INPUT_MODELS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";""))' -c)
-            fi
-            HPO_VERSION="${{ github.event.inputs.hpo_version }}"
-          else
-            # Release trigger - use default models
-            MODELS='["FremyCompany/BioLORD-2023-M","BAAI/bge-m3","sentence-transformers/LaBSE"]'
-            HPO_VERSION="latest"
-          fi
-
-          echo "models=$MODELS" >> $GITHUB_OUTPUT
-          echo "hpo_version=$HPO_VERSION" >> $GITHUB_OUTPUT
-          echo "Building bundles for models: $MODELS"
-          echo "HPO version: $HPO_VERSION"
-
-  build-minimal-bundle:
-    name: Build Minimal Bundle (DB Only)
-    runs-on: ubuntu-latest
-    needs: prepare-matrix
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-
-      - name: Set up Python
-        run: uv python install ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - name: Prepare HPO data
-        run: |
-          HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
-          if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
-            uv run phentrieve data prepare --hpo-version "$HPO_VERSION" --force --debug
-          else
-            uv run phentrieve data prepare --force --debug
-          fi
-
-      - name: Create minimal bundle
-        run: |
-          mkdir -p dist/bundles
-          uv run python -c "
-          from pathlib import Path
-          from phentrieve.data_processing.bundle_packager import create_bundle
-
-          bundle_path = create_bundle(
-              output_dir=Path('dist/bundles'),
-              model_name=None,  # Minimal bundle - no index
-              data_dir=Path('data'),
-          )
-          print(f'Created bundle: {bundle_path}')
-          "
-
-      - name: Generate bundle checksums
-        run: |
-          cd dist/bundles
-          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
-          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
-
-      - name: Upload minimal bundle artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: bundle-minimal
-          path: dist/bundles/*.tar.gz
-          retention-days: 7
-
-  build-model-bundles:
-    name: Build ${{ matrix.model }} Bundle
-    runs-on: ubuntu-latest
-    needs: [prepare-matrix, build-minimal-bundle]
-    timeout-minutes: 120  # Index building can take time
-    strategy:
-      fail-fast: false
-      matrix:
-        model: ${{ fromJson(needs.prepare-matrix.outputs.models) }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Free disk space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-          tool-cache: false
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-
-      - name: Set up Python
-        run: uv python install ${{ env.PYTHON_VERSION }}
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - name: Cache Hugging Face models
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/huggingface
-          key: hf-${{ matrix.model }}-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            hf-${{ matrix.model }}-
-            hf-
-
-      - name: Prepare HPO data
-        run: |
-          HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
-          if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
-            uv run phentrieve data prepare --hpo-version "$HPO_VERSION" --force --debug
-          else
-            uv run phentrieve data prepare --force --debug
-          fi
-
-      - name: Build vector indexes and create bundles
-        id: create-bundle
-        run: |
-          mkdir -p dist/bundles
-          INDEX_TYPE="${{ github.event.inputs.index_type || 'both' }}"
-          MODEL="${{ matrix.model }}"
-
-          if [ "$INDEX_TYPE" = "single" ] || [ "$INDEX_TYPE" = "both" ]; then
-            rm -rf data/indexes
-            uv run phentrieve index build --model-name "$MODEL" --recreate --debug
-            uv run phentrieve data bundle create \
-              --model "$MODEL" \
-              --output-dir dist/bundles \
-              --data-dir data \
-              --debug
-          fi
-
-          if [ "$INDEX_TYPE" = "multi" ] || [ "$INDEX_TYPE" = "both" ]; then
-            rm -rf data/indexes
-            uv run phentrieve index build --model-name "$MODEL" --multi-vector --recreate --debug
-            uv run phentrieve data bundle create \
-              --model "$MODEL" \
-              --output-dir dist/bundles \
-              --data-dir data \
-              --multi-vector \
-              --debug
-          fi
-
-      - name: Generate bundle checksums
-        run: |
-          cd dist/bundles
-          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
-          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
-
-      - name: Get model slug for artifact name
-        id: slug
-        run: |
-          # Convert model name to safe artifact name
-          SLUG=$(echo "${{ matrix.model }}" | sed 's|/|_|g' | sed 's|-|_|g' | tr '[:upper:]' '[:lower:]')
-          echo "slug=$SLUG" >> $GITHUB_OUTPUT
-
-      - name: Upload bundle artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: bundle-${{ steps.slug.outputs.slug }}
-          path: dist/bundles/*.tar.gz
-          retention-days: 7
-
-  create-release:
-    name: Upload Bundles to Release
-    runs-on: ubuntu-latest
-    needs: [prepare-matrix, build-minimal-bundle, build-model-bundles]
-    if: |
-      (github.event_name == 'release') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+  build-and-draft:
+    name: Build and Draft ${{ inputs.release_tag }}
+    runs-on: [self-hosted, linux, x64, gpu]
+    timeout-minutes: 720
     permissions:
       contents: write
-
     steps:
-      - name: Validate release index type
-        run: |
-          INDEX_TYPE="${{ github.event.inputs.index_type || 'both' }}"
-          if [ "$INDEX_TYPE" != "both" ]; then
-            echo "::error::Release publishing requires index_type=both so release notes match uploaded assets."
-            exit 1
-          fi
-
-      - name: Download all bundle artifacts
-        uses: actions/download-artifact@v8
+      - name: Checkout data-release repository
+        uses: actions/checkout@v7
         with:
-          path: bundles
-          pattern: bundle-*
-          merge-multiple: true
+          path: data-release
 
-      - name: List downloaded bundles
-        run: |
-          echo "Downloaded bundles:"
-          ls -la bundles/
-
-      - name: Generate bundle checksums
-        run: |
-          cd bundles
-          sha256sum phentrieve-data-*.tar.gz > SHA256SUMS.txt
-          sha256sum *-multivec.tar.gz > SHA256SUMS-multivec.txt || true
-
-      - name: Get release tag
-        id: release-info
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
-          else
-            HPO_VERSION="${{ needs.prepare-matrix.outputs.hpo_version }}"
-            if [ "$HPO_VERSION" != "latest" ] && [ -n "$HPO_VERSION" ]; then
-              TAG="data-$HPO_VERSION"
-            else
-              TAG="data-$(date +%Y%m%d)"
-            fi
-          fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "Release tag: $TAG"
-
-      - name: Upload bundles to release
-        uses: softprops/action-gh-release@v3
+      - name: Checkout pinned Phentrieve source
+        uses: actions/checkout@v7
         with:
-          tag_name: ${{ steps.release-info.outputs.tag }}
-          files: |
-            bundles/*.tar.gz
-            bundles/*.txt
-          fail_on_unmatched_files: false
-          generate_release_notes: false
-          append_body: true
-          body: |
+          repository: berntpopp/phentrieve
+          ref: ${{ inputs.source_commit }}
+          path: phentrieve
 
-            ## Pre-built Data Bundles
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: latest
+          enable-cache: true
+          cache-dependency-glob: phentrieve/uv.lock
 
-            HPO version: `${{ needs.prepare-matrix.outputs.hpo_version }}`
+      - name: Install pinned dependencies
+        working-directory: phentrieve
+        run: uv sync --frozen --all-extras --dev
 
-            | Bundle | Description |
-            | --- | --- |
-            | `phentrieve-data-*-minimal.tar.gz` | HPO SQLite database only |
-            | `phentrieve-data-*-biolord.tar.gz` | BioLORD single-vector embeddings |
-            | `phentrieve-data-*-biolord-multivec.tar.gz` | BioLORD multivector embeddings |
-            | `phentrieve-data-*-bge-m3.tar.gz` | BGE-M3 single-vector embeddings |
-            | `phentrieve-data-*-bge-m3-multivec.tar.gz` | BGE-M3 multivector embeddings |
-            | `phentrieve-data-*-labse.tar.gz` | LaBSE single-vector embeddings |
-            | `phentrieve-data-*-labse-multivec.tar.gz` | LaBSE multivector embeddings |
+      - name: Build serial CUDA matrix
+        working-directory: phentrieve
+        run: |
+          uv run python scripts/build_data_release.py \
+            --spec "${GITHUB_WORKSPACE}/data-release/${{ inputs.release_spec_path }}" \
+            --data-dir ".runs/${{ inputs.release_tag }}/data" \
+            --output-dir "dist/${{ inputs.release_tag }}" \
+            --device cuda
 
-            ### Usage
+      - name: Run retrieval smoke checks
+        working-directory: phentrieve
+        run: |
+          uv run python scripts/verify_data_release.py \
+            --spec "${GITHUB_WORKSPACE}/data-release/${{ inputs.release_spec_path }}" \
+            --bundle-dir "dist/${{ inputs.release_tag }}" \
+            --smoke-test
 
-            ```bash
-            # Download and extract
-            phentrieve data download --model biolord
-
-            # Or manually
-            gh release download ${{ steps.release-info.outputs.tag }} --pattern 'phentrieve-data-*-biolord.tar.gz'
-            tar -xzf phentrieve-data-*-biolord.tar.gz -C ~/.local/share/phentrieve/
-            ```
+      - name: Create caller-owned draft release
+        working-directory: phentrieve
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    needs: [build-minimal-bundle, build-model-bundles]
-    if: always()
-
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: bundles
-          pattern: bundle-*
-          merge-multiple: true
-        continue-on-error: true
-
-      - name: Generate summary
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "## Data Bundle Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Bundle | Size |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
-
-          if [ -d "bundles" ]; then
-            for bundle in bundles/*.tar.gz; do
-              if [ -f "$bundle" ]; then
-                NAME=$(basename "$bundle")
-                SIZE=$(du -h "$bundle" | cut -f1)
-                echo "| \`$NAME\` | $SIZE |" >> $GITHUB_STEP_SUMMARY
-              fi
-            done
-          else
-            echo "| No bundles found | - |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Bundles are available as workflow artifacts for 7 days." >> $GITHUB_STEP_SUMMARY
+          gh release create "${{ inputs.release_tag }}" \
+            --repo "${{ github.repository }}" \
+            --draft \
+            --title "HPO ${{ inputs.release_tag }}" \
+            --notes "Verified HPO vector-index data release. See release-manifest.json and verification-report.json." \
+            "dist/${{ inputs.release_tag }}"/*.tar.gz \
+            "dist/${{ inputs.release_tag }}/SHA256SUMS" \
+            "dist/${{ inputs.release_tag }}/release-manifest.json" \
+            "dist/${{ inputs.release_tag }}/verification-report.json"

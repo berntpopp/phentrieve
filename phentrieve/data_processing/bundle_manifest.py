@@ -88,6 +88,7 @@ class EmbeddingModelInfo:
     dimension: int  # e.g., 768
     distance_metric: str = "cosine"  # e.g., "cosine", "l2", "ip"
     multi_vector: bool = False  # Whether index uses multi-vector approach
+    revision: str = ""  # Immutable Hugging Face commit used for release builds
 
     @classmethod
     def from_model_name(
@@ -96,6 +97,7 @@ class EmbeddingModelInfo:
         dimension: int,
         distance_metric: str = "cosine",
         multi_vector: bool = False,
+        revision: str = "",
     ) -> EmbeddingModelInfo:
         """Create from model name with auto-generated slug."""
         return cls(
@@ -104,6 +106,7 @@ class EmbeddingModelInfo:
             dimension=dimension,
             distance_metric=distance_metric,
             multi_vector=multi_vector,
+            revision=revision,
         )
 
 
@@ -139,6 +142,7 @@ class BundleManifest:
     hpo_version: str = ""
     hpo_release_date: str = ""
     hpo_source_url: str = ""
+    hpo_source_sha256: str = ""
 
     # Term Statistics
     total_terms: int = 0
@@ -152,6 +156,8 @@ class BundleManifest:
     created_at: str = ""
     created_by: str = "phentrieve"
     phentrieve_version: str = ""
+    source_commit: str = ""
+    lockfile_sha256: str = ""
 
     # Checksums (SHA-256)
     checksums: dict[str, str] = field(default_factory=dict)

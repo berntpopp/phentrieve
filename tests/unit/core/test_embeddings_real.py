@@ -135,6 +135,21 @@ class TestLoadEmbeddingModel:
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
+    def test_pinned_revision_is_forwarded_to_sentence_transformers(
+        self, mock_cuda, mock_st
+    ):
+        """Test that a release build can request an immutable model revision."""
+        mock_cuda.return_value = False
+        mock_model = Mock()
+        mock_st.return_value = mock_model
+        revision = "a" * 40
+
+        load_embedding_model(model_name="sentence-transformers/test", revision=revision)
+
+        mock_st.assert_called_once_with("sentence-transformers/test", revision=revision)
+
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_error_handling(self, mock_cuda, mock_st):
         """Test error handling when model loading fails."""
         # Arrange

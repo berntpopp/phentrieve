@@ -10,12 +10,13 @@ Human Phenotype Ontology (HPO) data including:
 - Precomputing graph properties (ancestor sets, term depths) for ALL terms
 """
 
+import hashlib
 import json
 import logging
 import os
 import sys
 from collections import defaultdict, deque
-from datetime import UTC
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -393,7 +394,49 @@ def get_replacement_term(node_data: dict) -> str | None:
 # --- End Obsolete Term Detection ---
 
 
-def download_hpo_json(hpo_file_path: Path, version: str | None = None) -> bool:
+def compute_file_sha256(file_path: Path) -> str:
+    """Return the SHA-256 digest for a file without loading it into memory."""
+    digest = hashlib.sha256()
+    with file_path.open("rb") as file_handle:
+        for chunk in iter(lambda: file_handle.read(HPO_CHUNK_SIZE), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def verify_hpo_json_sha256(hpo_file_path: Path, expected_sha256: str) -> str:
+    """Verify an HPO JSON file against a pinned SHA-256 digest."""
+    normalized_expected = expected_sha256.lower()
+    if len(normalized_expected) != 64 or any(
+        character not in "0123456789abcdef" for character in normalized_expected
+    ):
+        raise ValueError(
+            "Expected HPO SHA-256 must be a 64-character hexadecimal digest"
+        )
+
+    actual_sha256 = compute_file_sha256(hpo_file_path)
+    if actual_sha256 != normalized_expected:
+        raise ValueError(
+            "HPO JSON SHA-256 mismatch: "
+            f"expected {normalized_expected}, got {actual_sha256}"
+        )
+    return actual_sha256
+
+
+def get_hpo_release_date(version: str) -> str:
+    """Extract and validate the ISO release date embedded in an HPO release tag."""
+    try:
+        return date.fromisoformat(version.removeprefix("v")).isoformat()
+    except ValueError as error:
+        raise ValueError(
+            f"HPO release tag must use vYYYY-MM-DD format, got {version!r}"
+        ) from error
+
+
+def download_hpo_json(
+    hpo_file_path: Path,
+    version: str | None = None,
+    expected_sha256: str | None = None,
+) -> bool:
     """
     Download a specific version of the HPO JSON file.
 
@@ -401,6 +444,7 @@ def download_hpo_json(hpo_file_path: Path, version: str | None = None) -> bool:
         hpo_file_path: Path to save the downloaded file
         version: HPO version tag (e.g., "v2025-11-24"). If None or "latest",
                  fetches the latest version from GitHub.
+        expected_sha256: Optional pinned digest required for a reproducible input.
 
     Returns:
         True if download succeeded, False otherwise
@@ -409,27 +453,41 @@ def download_hpo_json(hpo_file_path: Path, version: str | None = None) -> bool:
     resolved_version = resolve_hpo_version(version)
     download_url = get_hpo_json_url(resolved_version)
 
-    os.makedirs(os.path.dirname(hpo_file_path), exist_ok=True)
+    hpo_file_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_file_path = hpo_file_path.with_name(f".{hpo_file_path.name}.part")
     logger.info(
         f"Attempting to download HPO JSON ({resolved_version}) from {download_url} to {hpo_file_path}"
     )
     try:
         response = requests.get(download_url, stream=True, timeout=HPO_DOWNLOAD_TIMEOUT)
         response.raise_for_status()
-        with open(hpo_file_path, "wb") as f:
+        with temporary_file_path.open("wb") as file_handle:
             for chunk in response.iter_content(chunk_size=HPO_CHUNK_SIZE):
-                f.write(chunk)
+                if chunk:
+                    file_handle.write(chunk)
+        if expected_sha256 is not None:
+            verify_hpo_json_sha256(temporary_file_path, expected_sha256)
+        temporary_file_path.replace(hpo_file_path)
         logger.info(f"HPO JSON file ({resolved_version}) downloaded successfully.")
         return True
     except requests.exceptions.RequestException as e:
+        temporary_file_path.unlink(missing_ok=True)
         logger.error(f"Error downloading HPO JSON file: {e}")
         return False
+    except ValueError:
+        temporary_file_path.unlink(missing_ok=True)
+        raise
     except Exception as e:
+        temporary_file_path.unlink(missing_ok=True)
         logger.error(f"An unexpected error occurred during HPO JSON download: {e}")
         return False
 
 
-def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> dict | None:
+def load_hpo_json(
+    hpo_file_path: Path,
+    version: str | None = None,
+    expected_sha256: str | None = None,
+) -> dict | None:
     """
     Load the HPO JSON file, downloading if necessary.
 
@@ -437,16 +495,23 @@ def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> dict | Non
         hpo_file_path: Path to the HPO JSON file
         version: HPO version to download if file doesn't exist.
                  If None or "latest", fetches the latest version.
+        expected_sha256: Optional pinned digest required for a reproducible input.
     """
     try:
         if not os.path.exists(hpo_file_path):
             logger.warning(
                 f"HPO JSON file not found at {hpo_file_path}. Attempting download."
             )
-            if not download_hpo_json(hpo_file_path, version=version):
+            if not download_hpo_json(
+                hpo_file_path,
+                version=version,
+                expected_sha256=expected_sha256,
+            ):
                 logger.error("Failed to download HPO JSON file.")
                 return None
 
+        if expected_sha256 is not None:
+            verify_hpo_json_sha256(hpo_file_path, expected_sha256)
         logger.info(f"Loading HPO JSON from {hpo_file_path}")
         with open(hpo_file_path, encoding="utf-8") as f:
             data = json.load(f)
@@ -456,6 +521,8 @@ def load_hpo_json(hpo_file_path: Path, version: str | None = None) -> dict | Non
     except json.JSONDecodeError as e:
         logger.error(f"Error decoding HPO JSON file {hpo_file_path}: {e}")
         return None
+    except ValueError:
+        raise
     except Exception as e:
         logger.error(f"Error loading HPO JSON file {hpo_file_path}: {e}")
         return None
@@ -903,6 +970,7 @@ def prepare_hpo_data(
     db_path: Path | None = None,
     include_obsolete: bool = False,
     hpo_version: str | None = None,
+    expected_sha256: str | None = None,
 ) -> tuple[bool, str | None, str | None]:
     """
     Core HPO data preparation: download, parse, save ALL terms to SQLite, compute graph data.
@@ -915,6 +983,8 @@ def prepare_hpo_data(
                          See Issue #133 for details on obsolete term filtering.
         hpo_version: HPO version to download. If None or "latest", fetches the latest
                     version from GitHub. Otherwise uses the specified version (e.g., "v2025-11-24").
+        expected_sha256: Optional SHA-256 digest for the source hp.json. When set,
+                         preparation rejects a file that differs from the release input.
 
     Returns:
         Tuple of (success: bool, error_message: Optional[str], resolved_version: str | None)
@@ -937,12 +1007,29 @@ def prepare_hpo_data(
         logger.info(
             f"Force update or file missing. Downloading HPO JSON ({resolved_version}) to {hpo_file_path}..."
         )
-        if not download_hpo_json(hpo_file_path, version=resolved_version):
+        try:
+            downloaded = download_hpo_json(
+                hpo_file_path,
+                version=resolved_version,
+                expected_sha256=expected_sha256,
+            )
+        except ValueError as error:
+            return False, str(error), None
+        if not downloaded:
             return False, f"Failed to download HPO JSON to {hpo_file_path}", None
     else:
         logger.info(f"Using existing HPO JSON: {hpo_file_path}")
 
-    hpo_data = load_hpo_json(hpo_file_path, version=resolved_version)
+    try:
+        hpo_data = load_hpo_json(
+            hpo_file_path,
+            version=resolved_version,
+            expected_sha256=expected_sha256,
+        )
+        hpo_source_sha256 = compute_file_sha256(hpo_file_path)
+        hpo_release_date = get_hpo_release_date(resolved_version)
+    except ValueError as error:
+        return False, str(error), None
     if not hpo_data:
         return False, f"Failed to load HPO JSON from {hpo_file_path}", None
 
@@ -1056,13 +1143,13 @@ def prepare_hpo_data(
     # 9. Store metadata (HPO version, download date, obsolete stats, etc.)
     logger.info("Storing HPO metadata in database...")
     try:
-        from datetime import datetime
-
         # Use the resolved version (actual version tag, not "latest")
         hpo_source_url = get_hpo_json_url(resolved_version)
         db.set_metadata("hpo_version", resolved_version)
         db.set_metadata("hpo_download_date", datetime.now(UTC).isoformat())
+        db.set_metadata("hpo_release_date", hpo_release_date)
         db.set_metadata("hpo_source_url", hpo_source_url)
+        db.set_metadata("hpo_source_sha256", hpo_source_sha256)
         # Store obsolete term statistics (Issue #133)
         db.set_metadata("active_terms_count", str(len(terms_data)))
         db.set_metadata("obsolete_terms_filtered", str(obsolete_count))
@@ -1088,6 +1175,7 @@ def orchestrate_hpo_preparation(
     data_dir_override: str | None = None,
     include_obsolete: bool = False,
     hpo_version: str | None = None,
+    expected_sha256: str | None = None,
 ) -> bool:
     """
     Orchestrates HPO data download, extraction of ALL terms to SQLite, and precomputation of graph properties.
@@ -1100,6 +1188,7 @@ def orchestrate_hpo_preparation(
                          See Issue #133 for details on obsolete term filtering.
         hpo_version: HPO version to download. If None or "latest", fetches the latest
                     version from GitHub. Otherwise uses the specified version (e.g., "v2025-11-24").
+        expected_sha256: Optional SHA-256 digest for a pinned source hp.json.
 
     Returns:
         True if preparation succeeded, False otherwise
@@ -1123,6 +1212,7 @@ def orchestrate_hpo_preparation(
             db_path=db_path,
             include_obsolete=include_obsolete,
             hpo_version=hpo_version,
+            expected_sha256=expected_sha256,
         )
 
         if not success:

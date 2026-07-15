@@ -13,10 +13,18 @@ from phentrieve.data_processing.multi_vector_document_creator import (
     create_multi_vector_documents,
     get_component_stats,
 )
+from phentrieve.data_processing.release_contract import (
+    DATA_RELEASE_MODELS,
+    DataReleaseSpec,
+    ModelReleaseSpec,
+)
 
 __all__ = [
     "create_hpo_documents",
     "create_multi_vector_documents",
+    "DATA_RELEASE_MODELS",
+    "DataReleaseSpec",
     "get_component_stats",
     "load_hpo_terms",
+    "ModelReleaseSpec",
 ]

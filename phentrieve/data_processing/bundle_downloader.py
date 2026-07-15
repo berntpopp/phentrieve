@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import tempfile
 from collections.abc import Callable
@@ -24,6 +25,7 @@ from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from phentrieve.config import DEFAULT_DATA_RELEASE_REPOSITORY
 from phentrieve.data_processing.bundle_manifest import (
     SLUG_TO_MODEL,
     get_model_slug,
@@ -38,12 +40,24 @@ logger = logging.getLogger(__name__)
 
 # GitHub API configuration
 GITHUB_API_BASE = "https://api.github.com"
-GITHUB_REPO = "berntpopp/phentrieve"
-GITHUB_RELEASES_URL = f"{GITHUB_API_BASE}/repos/{GITHUB_REPO}/releases"
 
 # Download configuration
 DEFAULT_TIMEOUT = 60  # seconds
 DOWNLOAD_CHUNK_SIZE = 8192  # bytes
+
+
+def get_data_release_repository() -> str:
+    """Return the configured repository that owns data-only releases."""
+    repository = os.environ.get(
+        "PHENTRIEVE_DATA_RELEASE_REPOSITORY",
+        DEFAULT_DATA_RELEASE_REPOSITORY,
+    ).strip()
+    return repository or DEFAULT_DATA_RELEASE_REPOSITORY
+
+
+def get_data_release_releases_url() -> str:
+    """Return the GitHub API endpoint for the configured data repository."""
+    return f"{GITHUB_API_BASE}/repos/{get_data_release_repository()}/releases"
 
 
 @dataclass
@@ -84,7 +98,7 @@ def list_available_releases(
     Returns:
         List of ReleaseInfo objects
     """
-    url = f"{GITHUB_RELEASES_URL}?per_page={limit}"
+    url = f"{get_data_release_releases_url()}?per_page={limit}"
 
     try:
         req = Request(url, headers={"Accept": "application/vnd.github.v3+json"})  # noqa: S310

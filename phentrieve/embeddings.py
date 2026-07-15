@@ -91,6 +91,7 @@ def load_embedding_model(
     trust_remote_code: bool = False,
     device: str | None = None,
     force_reload: bool = False,
+    revision: str | None = None,
 ) -> SentenceTransformer:
     """
     Load a sentence transformer embedding model with caching and GPU support.
@@ -108,6 +109,7 @@ def load_embedding_model(
             best available device (CUDA > MPS > CPU).
         force_reload: If True, forces a fresh load even if model is cached.
             Useful for testing or when model files have been updated.
+        revision: Optional immutable Hugging Face revision to load.
 
     Returns:
         Loaded SentenceTransformer model instance. Multiple calls with the same
@@ -135,6 +137,7 @@ def load_embedding_model(
     if model_name is None:
         model_name = DEFAULT_BIOLORD_MODEL
         logging.info(f"No model specified, using default model: {model_name}")
+    registry_key = f"{model_name}@{revision}" if revision else model_name
 
     # Determine device - auto-detect if not specified
     if device is None:
@@ -146,8 +149,8 @@ def load_embedding_model(
             device = "cpu"
 
     # Fast path: Check cache without lock (double-check locking pattern)
-    if not force_reload and model_name in _MODEL_REGISTRY:
-        cached_model = _MODEL_REGISTRY[model_name]
+    if not force_reload and registry_key in _MODEL_REGISTRY:
+        cached_model = _MODEL_REGISTRY[registry_key]
         logging.debug(
             f"Returning cached embedding model: {model_name} "
             f"(current device: {cached_model.device})"
@@ -160,40 +163,45 @@ def load_embedding_model(
             cached_model.to(device)
             # Update registry with device-moved model
             with _REGISTRY_LOCK:
-                _MODEL_REGISTRY[model_name] = cached_model
+                _MODEL_REGISTRY[registry_key] = cached_model
         return cached_model
 
     # Slow path: Acquire lock and load model
     with _REGISTRY_LOCK:
         # Re-check cache after acquiring lock (another thread might have loaded it)
-        if not force_reload and model_name in _MODEL_REGISTRY:
-            cached_model = _MODEL_REGISTRY[model_name]
+        if not force_reload and registry_key in _MODEL_REGISTRY:
+            cached_model = _MODEL_REGISTRY[registry_key]
             logging.debug(f"Returning cached embedding model (post-lock): {model_name}")
             # Move to requested device if needed
             if not _devices_match(str(cached_model.device), device):
                 logging.debug(f"Moving cached model {model_name} to {device}")
                 cached_model.to(device)
-                _MODEL_REGISTRY[model_name] = cached_model
+                _MODEL_REGISTRY[registry_key] = cached_model
             return cached_model
 
         # No cached version available - load fresh
         logging.info(f"Loading embedding model: {model_name} on {device}")
 
         try:
+            model_kwargs = {"revision": revision} if revision else {}
             if trust_remote_code:
                 logging.info(
                     f"Loading model '{model_name}' with trust_remote_code=True on {device}"
                 )
-                model = SentenceTransformer(model_name, trust_remote_code=True)
+                model = SentenceTransformer(
+                    model_name,
+                    trust_remote_code=True,
+                    **model_kwargs,
+                )
             else:
                 logging.info(f"Loading model '{model_name}' on {device}")
-                model = SentenceTransformer(model_name)
+                model = SentenceTransformer(model_name, **model_kwargs)
 
             # Move model to specified device
             model.to(device)
 
             # Store in registry for future reuse
-            _MODEL_REGISTRY[model_name] = model
+            _MODEL_REGISTRY[registry_key] = model
             logging.info(
                 f"Successfully loaded and cached model {model_name} on {device}"
             )

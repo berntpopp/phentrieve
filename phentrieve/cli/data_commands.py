@@ -42,6 +42,13 @@ def prepare_hpo_data(
             help="HPO version to download (e.g., 'v2025-11-24'). Default: fetch latest from GitHub.",
         ),
     ] = None,
+    hpo_sha256: Annotated[
+        str | None,
+        typer.Option(
+            "--hpo-sha256",
+            help="Expected SHA-256 for hp.json. Required for a reproducible source pin.",
+        ),
+    ] = None,
 ):
     """Prepare HPO data for indexing.
 
@@ -50,6 +57,7 @@ def prepare_hpo_data(
 
     By default, fetches the latest HPO version from GitHub. Use --hpo-version
     to specify a particular version (e.g., --hpo-version v2025-11-24).
+    Use --hpo-sha256 with a pinned version to verify the source artifact.
 
     By default, obsolete HPO terms are filtered out to prevent retrieval
     errors (Issue #133). Use --include-obsolete for analysis purposes.
@@ -70,6 +78,7 @@ def prepare_hpo_data(
         data_dir_override=data_dir,
         include_obsolete=include_obsolete,
         hpo_version=hpo_version,
+        expected_sha256=hpo_sha256,
     )
 
     if success:

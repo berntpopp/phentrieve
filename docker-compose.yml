@@ -58,7 +58,7 @@ services:
         #   BUNDLE_URL: ""
         #   BUILD_INDEXES: "false"
         # =============================================================================
-        BUNDLE_URL: ${PHENTRIEVE_BUNDLE_URL:-https://github.com/berntpopp/phentrieve/releases/download/data-v2026-02-16/phentrieve-data-v2026-02-16-biolord-multivec.tar.gz}
+        BUNDLE_URL: ${PHENTRIEVE_BUNDLE_URL:-https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-06-23-r1/phentrieve-data-v2026-06-23-biolord-multivec.tar.gz}
         BUILD_INDEXES: ${PHENTRIEVE_BUILD_INDEXES:-false}
         BUILD_MODEL: ${PHENTRIEVE_BUILD_MODEL:-FremyCompany/BioLORD-2023-M}
       cache_from:

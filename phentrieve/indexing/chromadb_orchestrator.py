@@ -11,18 +11,23 @@ import logging
 import os
 import time
 
-from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
+from phentrieve.config import BENCHMARK_MODELS, DEFAULT_HPO_DB_FILENAME, DEFAULT_MODEL
 from phentrieve.data_processing.document_creator import (
     create_hpo_documents,
     load_hpo_terms,
 )
+from phentrieve.data_processing.hpo_database import HPODatabase
 from phentrieve.data_processing.multi_vector_document_creator import (
     create_multi_vector_documents,
     get_component_stats,
 )
 from phentrieve.embeddings import load_embedding_model
 from phentrieve.indexing.chromadb_indexer import build_chromadb_index
-from phentrieve.utils import get_default_index_dir, resolve_data_path
+from phentrieve.utils import (
+    get_default_data_dir,
+    get_default_index_dir,
+    resolve_data_path,
+)
 
 
 def orchestrate_index_building(
@@ -36,6 +41,7 @@ def orchestrate_index_building(
     index_dir_override: str | None = None,
     data_dir_override: str | None = None,
     multi_vector: bool = False,
+    model_revision: str | None = None,
 ) -> bool:
     """Orchestrates loading data, models, and building ChromaDB indexes.
 
@@ -50,12 +56,30 @@ def orchestrate_index_building(
         index_dir_override: Override for index directory path
         data_dir_override: Override for data directory path
         multi_vector: Build multi-vector index (separate vectors per component)
+        model_revision: Optional immutable Hugging Face revision for one model build.
 
     Returns:
         True if all requested indexes were built successfully, False otherwise
     """
     start_time = time.time()
     index_type = "multi_vector" if multi_vector else "single_vector"
+
+    data_dir = resolve_data_path(data_dir_override, "data_dir", get_default_data_dir)
+    db_path = data_dir / DEFAULT_HPO_DB_FILENAME
+    if not db_path.exists():
+        logging.error("HPO database not found: %s", db_path)
+        return False
+    with HPODatabase(db_path) as db:
+        hpo_version = db.get_metadata("hpo_version")
+        hpo_source_sha256 = db.get_metadata("hpo_source_sha256")
+    if not hpo_version or hpo_version == "latest":
+        logging.error("HPO database is missing a resolved release version")
+        return False
+    if not hpo_source_sha256:
+        logging.error(
+            "HPO database is missing its source digest. Re-run 'phentrieve data prepare'."
+        )
+        return False
 
     logging.info("Loading HPO terms for indexing...")
     hpo_terms = load_hpo_terms(data_dir_override=data_dir_override)
@@ -112,6 +136,7 @@ def orchestrate_index_building(
                 model_name=model_name,
                 trust_remote_code=trust_remote_code,
                 device=device_override,  # Pass CPU/GPU preference
+                revision=model_revision,
             )
             if not model:
                 raise ValueError(f"Failed to load model {model_name}")
@@ -126,6 +151,9 @@ def orchestrate_index_building(
                 recreate=recreate,
                 index_dir=index_dir,
                 index_type=index_type,
+                hpo_version=hpo_version,
+                hpo_source_sha256=hpo_source_sha256,
+                model_revision=model_revision,
             )
             if result:
                 logging.info(f"✓ Index built successfully for model: {model_name}")

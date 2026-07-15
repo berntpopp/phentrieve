@@ -16,6 +16,7 @@ from phentrieve.data_processing.bundle_manifest import BundleManifest
 from phentrieve.data_processing.bundle_packager import (
     _get_index_dimension,
     _populate_manifest_from_db,
+    _validate_collection_provenance,
     _verify_bundle_checksums,
     _verify_collection_exists,
     create_bundle,
@@ -103,6 +104,47 @@ class TestCreateBundle:
         assert bundle_path.name == "phentrieve-data-v2025-03-03-minimal.tar.gz"
         with tarfile.open(bundle_path, "r:gz") as tar:
             assert {"hpo_data.db", "manifest.json"} <= set(tar.getnames())
+
+    @pytest.mark.parametrize(
+        ("metadata_update", "count", "message"),
+        [
+            ({"hpo_version": "latest"}, 2, "HPO version"),
+            ({"model": "other/model"}, 2, "model"),
+            ({"index_type": "multi_vector"}, 2, "index type"),
+            ({}, 1, "document count"),
+        ],
+    )
+    def test_rejects_collection_with_invalid_release_metadata(
+        self, tmp_path, metadata_update, count, message
+    ):
+        """A bundle must not hide an incomplete or mismatched index."""
+        manifest = BundleManifest(
+            hpo_version="v2026-06-23",
+            hpo_source_sha256="a" * 64,
+            active_terms=2,
+        )
+        metadata = {
+            "hpo_version": "v2026-06-23",
+            "hpo_source_sha256": "a" * 64,
+            "model": "FremyCompany/BioLORD-2023-M",
+            "model_revision": "b" * 40,
+            "index_type": "single_vector",
+            "expected_document_count": 2,
+            "dimension": 768,
+        }
+        metadata.update(metadata_update)
+        collection = MagicMock()
+        collection.metadata = metadata
+        collection.count.return_value = count
+
+        with pytest.raises(ValueError, match=message):
+            _validate_collection_provenance(
+                collection=collection,
+                manifest=manifest,
+                model_name="FremyCompany/BioLORD-2023-M",
+                index_type="single_vector",
+                expected_document_count=2,
+            )
 
 
 # =============================================================================
@@ -450,8 +492,9 @@ class TestPopulateManifestFromDb:
             mock_db = MagicMock()
             mock_db.get_metadata.side_effect = lambda key: {
                 "hpo_version": "v2025-03-03",
-                "hpo_download_date": "2025-03-03",
+                "hpo_release_date": "2025-03-03",
                 "hpo_source_url": "https://example.com/hp.json",
+                "hpo_source_sha256": "a" * 64,
                 "active_terms_count": "17000",
                 "obsolete_terms_filtered": "2000",
             }.get(key)
@@ -464,6 +507,8 @@ class TestPopulateManifestFromDb:
 
         # Assert
         assert manifest.hpo_version == "v2025-03-03"
+        assert manifest.hpo_release_date == "2025-03-03"
+        assert manifest.hpo_source_sha256 == "a" * 64
         assert manifest.active_terms == 17000
         assert manifest.obsolete_terms == 2000
         assert manifest.total_terms == 19000
