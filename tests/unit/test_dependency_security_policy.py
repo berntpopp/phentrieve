@@ -85,6 +85,36 @@ def test_dependency_review_gate_allowlists_accepted_chromadb_vulnerability() -> 
     assert "GHSA-f4j7-r4q5-qw2c" in ci_workflow
 
 
+def test_transformers_vulnerability_exceptions_are_narrow_and_documented() -> None:
+    """The JinaBert runtime blocks a compatible Transformers 5.x upgrade.
+
+    These exceptions are temporary: the remote Jina implementation is pinned to an
+    immutable commit and must be migrated to a patched Transformers release before
+    they can be removed.
+    """
+    security_workflow = (
+        REPO_ROOT / ".github" / "workflows" / "security.yml"
+    ).read_text(encoding="utf-8")
+    ci_workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+    dependencies = _pyproject()["project"]["dependencies"]
+
+    assert any(
+        "transformers>=4.41.0,<5.0.0" in dependency for dependency in dependencies
+    )
+    assert "JinaBert" in security_workflow
+    for advisory in (
+        "PYSEC-2025-217",
+        "PYSEC-2026-2288",
+        "PYSEC-2026-2289",
+        "PYSEC-2026-2290",
+    ):
+        assert f"--ignore-vuln {advisory}" in security_workflow
+    for advisory in ("GHSA-29pf-2h5f-8g72", "GHSA-fgcw-684q-jj6r"):
+        assert advisory in ci_workflow
+
+
 def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:
     """ChromaDB 1.5.9 no longer pulls posthog; if a future resolution does, keep
     it below the PostHog 6 capture() signature break (constrained in pyproject)."""

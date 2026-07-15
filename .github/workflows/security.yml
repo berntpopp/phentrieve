@@ -63,16 +63,26 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          # Ignored vulnerabilities have no patched release yet (checked 2026-06-13):
+          # Ignored vulnerabilities have no compatible patched release yet (checked 2026-07-15):
           # - CVE-2025-3000 / GHSA-rrmf-rvhw-rf47: torch.jit.script memory corruption,
           #   <= 2.12.0 vulnerable, no patched release available. Remove once a fixed torch ships.
           # - GHSA-f4j7-r4q5-qw2c / CVE-2026-45829: chromadb >=1.0.0,<=1.5.9. ChromaDB 1.x is
           #   REQUIRED to read the published multi-vector data bundles (0.6.x cannot); 1.5.9 is
           #   the latest release and no patched 1.x exists yet. Accepted risk. Remove once a
           #   patched chromadb >1.5.9 ships.
+          # - PYSEC-2025-217, PYSEC-2026-2288, PYSEC-2026-2289, and PYSEC-2026-2290:
+          #   JinaBert's pinned remote implementation is incompatible with Transformers 5.x,
+          #   the fixed major release. Its exact model and code commits are validated by the
+          #   data-release contract, and only that trusted code path is enabled. Remove these
+          #   exceptions once JinaBert supports a patched Transformers release, before the next
+          #   HPO data release.
           uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi \
             --ignore-vuln CVE-2025-3000 \
-            --ignore-vuln GHSA-f4j7-r4q5-qw2c
+            --ignore-vuln GHSA-f4j7-r4q5-qw2c \
+            --ignore-vuln PYSEC-2025-217 \
+            --ignore-vuln PYSEC-2026-2288 \
+            --ignore-vuln PYSEC-2026-2289 \
+            --ignore-vuln PYSEC-2026-2290
 
   # Python SAST with Bandit (run directly with uv for proper pyproject.toml support)
   bandit:

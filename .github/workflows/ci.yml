@@ -301,7 +301,12 @@ jobs:
           #   fails with KeyError '_type'); 1.5.9 is the latest release and the
           #   advisory has no patched fix yet (see security.yml and the
           #   test_dependency_security_policy.py policy tests).
-          jq --argjson allowed_advisories '["GHSA-f4j7-r4q5-qw2c"]' '
+          # - GHSA-29pf-2h5f-8g72 and GHSA-fgcw-684q-jj6r: Transformers 5.x
+          #   contains the fixes, but JinaBert's immutable remote implementation
+          #   cannot load under that major version. The data-release contract pins
+          #   both model and code commits. Remove before the next HPO data release
+          #   once JinaBert supports a patched Transformers release.
+          jq --argjson allowed_advisories '["GHSA-f4j7-r4q5-qw2c", "GHSA-29pf-2h5f-8g72", "GHSA-fgcw-684q-jj6r"]' '
             [
               .[]
               | select(.change_type != "removed")
