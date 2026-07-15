@@ -89,6 +89,8 @@ class EmbeddingModelInfo:
     distance_metric: str = "cosine"  # e.g., "cosine", "l2", "ip"
     multi_vector: bool = False  # Whether index uses multi-vector approach
     revision: str = ""  # Immutable Hugging Face commit used for release builds
+    trust_remote_code: bool = False  # Whether the pinned model uses custom code
+    code_revision: str | None = None  # Immutable custom-code commit, if used
 
     @classmethod
     def from_model_name(
@@ -98,6 +100,8 @@ class EmbeddingModelInfo:
         distance_metric: str = "cosine",
         multi_vector: bool = False,
         revision: str = "",
+        trust_remote_code: bool = False,
+        code_revision: str | None = None,
     ) -> EmbeddingModelInfo:
         """Create from model name with auto-generated slug."""
         return cls(
@@ -107,6 +111,8 @@ class EmbeddingModelInfo:
             distance_metric=distance_metric,
             multi_vector=multi_vector,
             revision=revision,
+            trust_remote_code=trust_remote_code,
+            code_revision=code_revision,
         )
 
 

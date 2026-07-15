@@ -17,6 +17,8 @@ import logging
 import shutil
 import tarfile
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -127,40 +129,45 @@ def create_bundle(
                 f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
             )
 
-        try:
-            collection = _get_collection(index_base_dir, collection_name)
-        except Exception as error:
-            mv_flag = " --multi-vector" if multi_vector else ""
-            raise ValueError(
-                f"Collection '{collection_name}' not found in ChromaDB. "
-                f"Run 'phentrieve index build --model-name \"{model_name}\"{mv_flag}' first."
-            ) from error
-
-        expected_document_count = _expected_document_count(
-            collection=collection,
-            manifest=manifest,
-            multi_vector=multi_vector,
-            release_spec=release_spec,
-        )
         model_revision = _expected_model_revision(
             model_name=model_name,
             release_spec=release_spec,
         )
-        dimension = _validate_collection_provenance(
-            collection=collection,
-            manifest=manifest,
+        model_trust_remote_code = _expected_model_trust_remote_code(
             model_name=model_name,
-            index_type="multi_vector" if multi_vector else "single_vector",
-            expected_document_count=expected_document_count,
-            expected_model_revision=model_revision,
+            release_spec=release_spec,
         )
+        model_code_revision = _expected_model_code_revision(
+            model_name=model_name,
+            release_spec=release_spec,
+        )
+        with _open_collection(index_base_dir, collection_name) as collection:
+            expected_document_count = _expected_document_count(
+                collection=collection,
+                manifest=manifest,
+                multi_vector=multi_vector,
+                release_spec=release_spec,
+            )
+            dimension = _validate_collection_provenance(
+                collection=collection,
+                manifest=manifest,
+                model_name=model_name,
+                index_type="multi_vector" if multi_vector else "single_vector",
+                expected_document_count=expected_document_count,
+                expected_model_revision=model_revision,
+            )
+            resolved_model_revision = str(
+                cast(Any, collection).metadata.get("model_revision", "")
+            )
         logger.info(f"Found validated {index_type_str} collection: {collection_name}")
 
         manifest.model = EmbeddingModelInfo.from_model_name(
             model_name,
             dimension=dimension,
             multi_vector=multi_vector,
-            revision=str(cast(Any, collection).metadata.get("model_revision", "")),
+            revision=resolved_model_revision,
+            trust_remote_code=model_trust_remote_code,
+            code_revision=model_code_revision,
         )
 
     # Create bundle in temp directory
@@ -279,6 +286,36 @@ def _expected_model_revision(
     raise ValueError(f"Model {model_name!r} is not declared in the release spec")
 
 
+def _expected_model_trust_remote_code(
+    model_name: str,
+    release_spec: DataReleaseSpec | None,
+) -> bool:
+    """Return the custom-code policy pinned for a release model."""
+    if release_spec is None:
+        return False
+    for model in release_spec.models:
+        if model.name == model_name:
+            return model.trust_remote_code
+    raise ValueError(
+        f"Model {model_name!r} is not present in the release specification"
+    )
+
+
+def _expected_model_code_revision(
+    model_name: str,
+    release_spec: DataReleaseSpec | None,
+) -> str | None:
+    """Return the immutable custom-code revision required by a release model."""
+    if release_spec is None:
+        return None
+    for model in release_spec.models:
+        if model.name == model_name:
+            return model.code_revision
+    raise ValueError(
+        f"Model {model_name!r} is not present in the release specification"
+    )
+
+
 def _expected_document_count(
     collection: object,
     manifest: BundleManifest,
@@ -301,19 +338,23 @@ def _expected_document_count(
     return raw_count
 
 
-def _get_collection(index_dir: Path, collection_name: str) -> object:
-    """Open the named ChromaDB collection using the project settings."""
+@contextmanager
+def _open_collection(index_dir: Path, collection_name: str) -> Iterator[object]:
+    """Keep the owning Chroma client alive while using its collection."""
     import chromadb
 
     vector_store_config = VectorStoreConfig(
         path=str(index_dir),
         collection_name=collection_name,
     )
-    client = chromadb.PersistentClient(
+    client: Any = chromadb.PersistentClient(
         path=str(index_dir),
         settings=vector_store_config.to_chromadb_settings(),
     )
-    return cast(object, client.get_collection(collection_name))
+    try:
+        yield cast(object, client.get_collection(collection_name))
+    finally:
+        client.close()
 
 
 def _validate_collection_provenance(

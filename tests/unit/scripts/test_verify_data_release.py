@@ -87,6 +87,7 @@ def _write_release_archives(bundle_dir: Path, spec: DataReleaseSpec) -> list[Pat
                         dimension=3,
                         multi_vector=multi_vector,
                         revision=model.revision,
+                        trust_remote_code=model.trust_remote_code,
                     ),
                 ),
             )

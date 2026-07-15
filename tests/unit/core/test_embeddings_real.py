@@ -150,6 +150,29 @@ class TestLoadEmbeddingModel:
 
     @patch("phentrieve.embeddings.SentenceTransformer")
     @patch("phentrieve.embeddings.torch.cuda.is_available")
+    def test_pinned_custom_code_revision_is_forwarded_to_sentence_transformers(
+        self, mock_cuda, mock_st
+    ):
+        mock_cuda.return_value = False
+        mock_model = Mock()
+        mock_st.return_value = mock_model
+
+        load_embedding_model(
+            model_name="example/custom",
+            revision="a" * 40,
+            code_revision="b" * 40,
+            trust_remote_code=True,
+        )
+
+        mock_st.assert_called_once_with(
+            "example/custom",
+            revision="a" * 40,
+            trust_remote_code=True,
+            model_kwargs={"code_revision": "b" * 40},
+        )
+
+    @patch("phentrieve.embeddings.SentenceTransformer")
+    @patch("phentrieve.embeddings.torch.cuda.is_available")
     def test_error_handling(self, mock_cuda, mock_st):
         """Test error handling when model loading fails."""
         # Arrange

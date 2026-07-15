@@ -9,6 +9,7 @@ import logging
 import os
 import time
 from pathlib import Path
+from typing import Any
 
 import chromadb
 from chromadb.api.types import Metadatas
@@ -74,6 +75,16 @@ def build_chromadb_index(
 
     # Record start time for performance measurement
     start_time = time.time()
+    client: Any | None = None
+
+    def finish(result: bool) -> bool:
+        """Release the persistent database handle before returning."""
+        if client is not None:
+            try:
+                client.close()
+            except Exception as error:
+                logging.warning("Unable to close ChromaDB client: %s", error)
+        return result
 
     # Initialize ChromaDB
     logging.info(f"Initializing ChromaDB at {index_dir}")
@@ -132,17 +143,17 @@ def build_chromadb_index(
                         "Use recreate=True to rebuild it.",
                         mismatched_metadata,
                     )
-                    return False
+                    return finish(False)
                 if existing_count == len(documents):
                     logging.info("Using an existing complete, matching collection")
-                    return True
+                    return finish(True)
                 logging.error(
                     "Existing collection has %d documents; expected %d. "
                     "Use recreate=True to rebuild it.",
                     existing_count,
                     len(documents),
                 )
-                return False
+                return finish(False)
         except Exception as e:
             # Collection didn't exist or some other error
             logging.debug(f"Note: {e}")
@@ -172,7 +183,7 @@ def build_chromadb_index(
         )
     except Exception as e:
         logging.error(f"Error initializing ChromaDB: {e}")
-        return False
+        return finish(False)
 
     # Get the device the model is on
     device = next(model.parameters()).device
@@ -213,7 +224,7 @@ def build_chromadb_index(
             logging.error(
                 f"Error processing batch {i // batch_size + 1}/{total_batches}: {e}"
             )
-            return False
+            return finish(False)
 
     persisted_count = collection.count()
     if persisted_count != len(documents):
@@ -222,10 +233,10 @@ def build_chromadb_index(
             persisted_count,
             len(documents),
         )
-        return False
+        return finish(False)
 
     end_time = time.time()
     logging.info(f"Index built successfully in {end_time - start_time:.2f} seconds!")
     logging.info(f"Indexed {len(documents)} documents ({index_type} index).")
     logging.info(f"Index location: {os.path.abspath(str(index_dir))}")
-    return True
+    return finish(True)

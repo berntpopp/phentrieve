@@ -15,6 +15,7 @@ import pytest
 from phentrieve.data_processing.bundle_manifest import BundleManifest
 from phentrieve.data_processing.bundle_packager import (
     _get_index_dimension,
+    _open_collection,
     _populate_manifest_from_db,
     _validate_collection_provenance,
     _verify_bundle_checksums,
@@ -104,6 +105,21 @@ class TestCreateBundle:
         assert bundle_path.name == "phentrieve-data-v2025-03-03-minimal.tar.gz"
         with tarfile.open(bundle_path, "r:gz") as tar:
             assert {"hpo_data.db", "manifest.json"} <= set(tar.getnames())
+
+    def test_keeps_chromadb_client_open_until_collection_validation_finishes(
+        self, tmp_path
+    ):
+        """A collection must not outlive the client that owns its Rust bindings."""
+        collection = MagicMock()
+        client = MagicMock()
+        client.get_collection.return_value = collection
+
+        with patch("chromadb.PersistentClient", return_value=client):
+            with _open_collection(tmp_path, "test_collection") as resolved:
+                assert resolved is collection
+                client.close.assert_not_called()
+
+        client.close.assert_called_once()
 
     @pytest.mark.parametrize(
         ("metadata_update", "count", "message"),

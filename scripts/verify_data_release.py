@@ -9,11 +9,11 @@ import json
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from phentrieve.data_processing.bundle_manifest import BundleManifest
 from phentrieve.data_processing.bundle_packager import (
-    _get_collection,
+    _open_collection,
     _validate_collection_provenance,
     extract_bundle,
 )
@@ -112,6 +112,12 @@ def _verify_manifest(
         )
     if manifest.model.revision != model.revision:
         raise ValueError("Manifest model revision does not match release spec")
+    if manifest.model.trust_remote_code != model.trust_remote_code:
+        raise ValueError(
+            "Manifest model custom-code policy does not match release spec"
+        )
+    if manifest.model.code_revision != model.code_revision:
+        raise ValueError("Manifest model code revision does not match release spec")
     if manifest.model.multi_vector != multi_vector:
         raise ValueError("Manifest vector mode does not match archive name")
 
@@ -130,33 +136,35 @@ def _verify_archive_index(
     collection_name = generate_collection_name(model.name)
     if multi_vector:
         collection_name = f"{collection_name}_multi"
-    collection = _get_collection(index_dir, collection_name)
-    expected_count = spec.expected_document_count(
-        "multi_vector" if multi_vector else "single_vector"
-    )
-    _validate_collection_provenance(
-        collection=collection,
-        manifest=manifest,
-        model_name=model.name,
-        index_type="multi_vector" if multi_vector else "single_vector",
-        expected_document_count=expected_count,
-        expected_model_revision=model.revision,
-    )
-    if smoke_test:
-        embedding_model = load_embedding_model(
+    with _open_collection(index_dir, collection_name) as collection:
+        expected_count = spec.expected_document_count(
+            "multi_vector" if multi_vector else "single_vector"
+        )
+        _validate_collection_provenance(
+            collection=collection,
+            manifest=manifest,
             model_name=model.name,
-            revision=model.revision,
+            index_type="multi_vector" if multi_vector else "single_vector",
+            expected_document_count=expected_count,
+            expected_model_revision=model.revision,
         )
-        query_embedding = embedding_model.encode(["phenotypic abnormality"])
-        result = collection.query(
-            query_embeddings=query_embedding.tolist(),
-            n_results=1,
-        )
-        if not result.get("ids") or not result["ids"][0]:
-            raise ValueError(
-                f"Retrieval smoke test returned no result for {model.name}"
+        if smoke_test:
+            embedding_model = load_embedding_model(
+                model_name=model.name,
+                revision=model.revision,
+                trust_remote_code=model.trust_remote_code,
+                code_revision=model.code_revision,
             )
-        clear_model_registry()
+            query_embedding = embedding_model.encode(["phenotypic abnormality"])
+            result = cast(Any, collection).query(
+                query_embeddings=query_embedding.tolist(),
+                n_results=1,
+            )
+            if not result.get("ids") or not result["ids"][0]:
+                raise ValueError(
+                    f"Retrieval smoke test returned no result for {model.name}"
+                )
+            clear_model_registry()
 
 
 def verify_release(

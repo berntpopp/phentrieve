@@ -1029,11 +1029,11 @@ class TestTextProcessingModelValidation:
             ),
         }
 
-    def test_non_default_benchmark_model_does_not_infer_trust_from_name(self):
-        """Only the default retrieval model should require remote-code trust."""
+    def test_release_model_policy_allows_pinned_custom_code(self):
+        """Pinned release models explicitly declare their custom-code requirement."""
         assert (
             _get_trust_remote_code_for_model("jinaai/jina-embeddings-v2-base-de")
-            is False
+            is True
         )
 
     @pytest.mark.asyncio

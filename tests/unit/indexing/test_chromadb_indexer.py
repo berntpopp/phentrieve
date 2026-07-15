@@ -56,6 +56,7 @@ class _Client:
     def __init__(self, persist_adds: bool = True) -> None:
         self.collection: _Collection | None = None
         self.persist_adds = persist_adds
+        self.closed = False
 
     def get_collection(self, name: str) -> _Collection:
         if self.collection is None:
@@ -68,6 +69,9 @@ class _Client:
     def create_collection(self, name: str, metadata: dict[str, object]) -> _Collection:
         self.collection = _Collection(metadata, persist_adds=self.persist_adds)
         return self.collection
+
+    def close(self) -> None:
+        self.closed = True
 
 
 @pytest.fixture
@@ -122,6 +126,7 @@ def test_build_writes_pinned_collection_metadata(
     assert client.collection.metadata["index_type"] == "single_vector"
     assert client.collection.metadata["dimension"] == 768
     assert client.collection.metadata["expected_document_count"] == len(documents)
+    assert client.closed
 
 
 def test_build_fails_immediately_when_embedding_fails(
@@ -143,6 +148,7 @@ def test_build_fails_immediately_when_embedding_fails(
     assert not success
     assert client.collection is not None
     assert client.collection.count() == 0
+    assert client.closed
 
 
 def test_build_rejects_a_persisted_count_mismatch(
