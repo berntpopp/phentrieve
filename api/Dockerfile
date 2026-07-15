@@ -38,7 +38,7 @@ ARG SQLITE_SHA3_256=9b2b1e73f577def1d5b75c5541555a7f42e6e073ad19f7a9118478389c9b
 
 # Pre-built data bundle URL (Mode 1)
 # Default: BioLORD multivector bundle - recommended model/index.
-ARG BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2026-02-16/phentrieve-data-v2026-02-16-biolord-multivec.tar.gz"
+ARG BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-06-23-r1/phentrieve-data-v2026-06-23-biolord-multivec.tar.gz"
 
 # Build indexes from scratch (Mode 2) - requires BUNDLE_URL=""
 ARG BUILD_INDEXES="false"
