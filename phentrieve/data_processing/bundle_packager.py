@@ -17,6 +17,8 @@ import logging
 import shutil
 import tarfile
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -128,7 +130,7 @@ def create_bundle(
             )
 
         try:
-            collection = _get_collection(index_base_dir, collection_name)
+            collection_context = _open_collection(index_base_dir, collection_name)
         except Exception as error:
             mv_flag = " --multi-vector" if multi_vector else ""
             raise ValueError(
@@ -136,24 +138,25 @@ def create_bundle(
                 f"Run 'phentrieve index build --model-name \"{model_name}\"{mv_flag}' first."
             ) from error
 
-        expected_document_count = _expected_document_count(
-            collection=collection,
-            manifest=manifest,
-            multi_vector=multi_vector,
-            release_spec=release_spec,
-        )
-        model_revision = _expected_model_revision(
-            model_name=model_name,
-            release_spec=release_spec,
-        )
-        dimension = _validate_collection_provenance(
-            collection=collection,
-            manifest=manifest,
-            model_name=model_name,
-            index_type="multi_vector" if multi_vector else "single_vector",
-            expected_document_count=expected_document_count,
-            expected_model_revision=model_revision,
-        )
+        with collection_context as collection:
+            expected_document_count = _expected_document_count(
+                collection=collection,
+                manifest=manifest,
+                multi_vector=multi_vector,
+                release_spec=release_spec,
+            )
+            model_revision = _expected_model_revision(
+                model_name=model_name,
+                release_spec=release_spec,
+            )
+            dimension = _validate_collection_provenance(
+                collection=collection,
+                manifest=manifest,
+                model_name=model_name,
+                index_type="multi_vector" if multi_vector else "single_vector",
+                expected_document_count=expected_document_count,
+                expected_model_revision=model_revision,
+            )
         logger.info(f"Found validated {index_type_str} collection: {collection_name}")
 
         manifest.model = EmbeddingModelInfo.from_model_name(
@@ -301,19 +304,23 @@ def _expected_document_count(
     return raw_count
 
 
-def _get_collection(index_dir: Path, collection_name: str) -> object:
-    """Open the named ChromaDB collection using the project settings."""
+@contextmanager
+def _open_collection(index_dir: Path, collection_name: str) -> Iterator[object]:
+    """Keep the owning Chroma client alive while using its collection."""
     import chromadb
 
     vector_store_config = VectorStoreConfig(
         path=str(index_dir),
         collection_name=collection_name,
     )
-    client = chromadb.PersistentClient(
+    client: Any = chromadb.PersistentClient(
         path=str(index_dir),
         settings=vector_store_config.to_chromadb_settings(),
     )
-    return cast(object, client.get_collection(collection_name))
+    try:
+        yield cast(object, client.get_collection(collection_name))
+    finally:
+        client.close()
 
 
 def _validate_collection_provenance(
