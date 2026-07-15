@@ -49,6 +49,7 @@ __all__ = [
     "HPO_BASE_URL",
     "HPO_DOWNLOAD_TIMEOUT",
     "HPO_CHUNK_SIZE",
+    "DEFAULT_DATA_RELEASE_REPOSITORY",
     # Multi-vector configuration
     "DEFAULT_MULTI_VECTOR",
     "DEFAULT_AGGREGATION_STRATEGY",
@@ -344,6 +345,7 @@ _DEFAULT_HPO_BASE_URL_FALLBACK = (
 )
 _DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK = 60
 _DEFAULT_HPO_CHUNK_SIZE_FALLBACK = 8192
+DEFAULT_DATA_RELEASE_REPOSITORY = "berntpopp/phentrieve-data"
 
 
 # =============================================================================

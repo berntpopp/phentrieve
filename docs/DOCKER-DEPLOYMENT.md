@@ -168,14 +168,18 @@ docker build -t phentrieve-api ./api
 
 # Or specify a different bundle
 docker build \
-  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve/releases/download/data-v2026-02-16/phentrieve-data-v2026-02-16-biolord-multivec.tar.gz" \
+  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-06-23-r1/phentrieve-data-v2026-06-23-biolord-multivec.tar.gz" \
   -t phentrieve-api ./api
 ```
 
-**Available bundles** (from [GitHub Releases](https://github.com/berntpopp/phentrieve/releases)):
-- `phentrieve-data-v2026-02-16-biolord-multivec.tar.gz` - BioLORD multivector, recommended
-- `phentrieve-data-v2026-02-16-biolord.tar.gz` - BioLORD single-vector
-- `phentrieve-data-v2026-02-16-minimal.tar.gz` - HPO SQLite database only
+**Available bundles** (from [the dedicated data releases](https://github.com/berntpopp/phentrieve-data/releases)):
+- `phentrieve-data-v2026-06-23-biolord-multivec.tar.gz` - BioLORD multivector, recommended
+- `phentrieve-data-v2026-06-23-biolord.tar.gz` - BioLORD single-vector
+- `phentrieve-data-v2026-06-23-minimal.tar.gz` - HPO SQLite database only
+
+The legacy `data-v2026-02-16` assets remain in the software repository. Set
+`PHENTRIEVE_DATA_RELEASE_REPOSITORY=berntpopp/phentrieve` only when a legacy
+release must be installed.
 
 ### Mode 2: Build from Scratch
 

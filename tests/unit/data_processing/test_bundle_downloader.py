@@ -9,6 +9,8 @@ from phentrieve.data_processing.bundle_downloader import (
     check_for_updates,
     download_and_extract_bundle,
     find_bundle,
+    get_data_release_releases_url,
+    get_data_release_repository,
 )
 from phentrieve.data_processing.bundle_manifest import (
     BundleManifest,
@@ -16,6 +18,26 @@ from phentrieve.data_processing.bundle_manifest import (
 )
 
 pytestmark = pytest.mark.unit
+
+
+def test_data_release_repository_defaults_to_dedicated_repository(monkeypatch):
+    monkeypatch.delenv("PHENTRIEVE_DATA_RELEASE_REPOSITORY", raising=False)
+
+    assert get_data_release_repository() == "berntpopp/phentrieve-data"
+    assert (
+        get_data_release_releases_url()
+        == "https://api.github.com/repos/berntpopp/phentrieve-data/releases"
+    )
+
+
+def test_data_release_repository_honors_explicit_legacy_override(monkeypatch):
+    monkeypatch.setenv("PHENTRIEVE_DATA_RELEASE_REPOSITORY", "berntpopp/phentrieve")
+
+    assert get_data_release_repository() == "berntpopp/phentrieve"
+    assert (
+        get_data_release_releases_url()
+        == "https://api.github.com/repos/berntpopp/phentrieve/releases"
+    )
 
 
 def test_parse_bundle_filename_detects_single_and_multivector_assets():
