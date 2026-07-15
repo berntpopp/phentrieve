@@ -203,6 +203,31 @@ class TestBundleManifest:
         assert restored.model.name == original.model.name
         assert restored.model.dimension == original.model.dimension
 
+    def test_roundtrip_preserves_release_provenance(self):
+        """Published bundles retain every immutable build input."""
+        model = EmbeddingModelInfo.from_model_name(
+            "FremyCompany/BioLORD-2023-M",
+            dimension=768,
+            revision="a" * 40,
+        )
+        original = BundleManifest(
+            hpo_version="v2026-06-23",
+            hpo_release_date="2026-06-23",
+            hpo_source_sha256="b" * 64,
+            source_commit="c" * 40,
+            lockfile_sha256="d" * 64,
+            model=model,
+        )
+
+        restored = BundleManifest.from_json(original.to_json())
+
+        assert restored.hpo_release_date == "2026-06-23"
+        assert restored.hpo_source_sha256 == "b" * 64
+        assert restored.source_commit == "c" * 40
+        assert restored.lockfile_sha256 == "d" * 64
+        assert restored.model is not None
+        assert restored.model.revision == "a" * 40
+
     def test_save_and_load(self, tmp_path):
         """Test saving and loading manifest from file."""
         # Arrange

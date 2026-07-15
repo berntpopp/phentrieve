@@ -32,6 +32,7 @@ from phentrieve.data_processing.bundle_manifest import (
     compute_file_checksum,
     get_model_slug,
 )
+from phentrieve.data_processing.release_contract import DataReleaseSpec
 from phentrieve.utils import generate_collection_name, get_default_data_dir
 
 if TYPE_CHECKING:
@@ -61,6 +62,7 @@ def create_bundle(
     include_hpo_json: bool = False,
     hpo_version: str | None = None,
     multi_vector: bool = False,
+    release_spec: DataReleaseSpec | None = None,
 ) -> Path:
     """
     Create a pre-built data bundle for distribution.
@@ -72,6 +74,7 @@ def create_bundle(
         include_hpo_json: Include original hp.json file
         hpo_version: Override HPO version (default: from config)
         multi_vector: If True, bundle multi-vector index (with _multi suffix)
+        release_spec: Immutable release contract required for a published data build.
 
     Returns:
         Path to created bundle file
@@ -102,6 +105,8 @@ def create_bundle(
 
     # Get term statistics from database
     _populate_manifest_from_db(manifest, db_path)
+    if release_spec is not None:
+        _apply_release_spec_provenance(manifest, release_spec)
 
     # Handle embedding model
     index_base_dir = None
@@ -122,20 +127,40 @@ def create_bundle(
                 f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
             )
 
-        # Verify the collection exists in ChromaDB
-        if not _verify_collection_exists(index_base_dir, collection_name):
+        try:
+            collection = _get_collection(index_base_dir, collection_name)
+        except Exception as error:
             mv_flag = " --multi-vector" if multi_vector else ""
             raise ValueError(
                 f"Collection '{collection_name}' not found in ChromaDB. "
                 f"Run 'phentrieve index build --model-name \"{model_name}\"{mv_flag}' first."
-            )
+            ) from error
 
-        logger.info(f"Found {index_type_str} collection: {collection_name}")
+        expected_document_count = _expected_document_count(
+            collection=collection,
+            manifest=manifest,
+            multi_vector=multi_vector,
+            release_spec=release_spec,
+        )
+        model_revision = _expected_model_revision(
+            model_name=model_name,
+            release_spec=release_spec,
+        )
+        dimension = _validate_collection_provenance(
+            collection=collection,
+            manifest=manifest,
+            model_name=model_name,
+            index_type="multi_vector" if multi_vector else "single_vector",
+            expected_document_count=expected_document_count,
+            expected_model_revision=model_revision,
+        )
+        logger.info(f"Found validated {index_type_str} collection: {collection_name}")
 
-        # Get embedding dimension from index metadata
-        dimension = _get_index_dimension(index_base_dir)
         manifest.model = EmbeddingModelInfo.from_model_name(
-            model_name, dimension=dimension, multi_vector=multi_vector
+            model_name,
+            dimension=dimension,
+            multi_vector=multi_vector,
+            revision=str(cast(Any, collection).metadata.get("model_revision", "")),
         )
 
     # Create bundle in temp directory
@@ -202,10 +227,11 @@ def _populate_manifest_from_db(manifest: BundleManifest, db_path: Path) -> None:
     with HPODatabase(db_path) as db:
         # Get metadata
         manifest.hpo_version = db.get_metadata("hpo_version") or manifest.hpo_version
-        manifest.hpo_release_date = db.get_metadata("hpo_download_date") or ""
+        manifest.hpo_release_date = db.get_metadata("hpo_release_date") or ""
         manifest.hpo_source_url = (
             db.get_metadata("hpo_source_url") or manifest.hpo_source_url
         )
+        manifest.hpo_source_sha256 = db.get_metadata("hpo_source_sha256") or ""
 
         # Get term statistics
         active_str = db.get_metadata("active_terms_count")
@@ -217,6 +243,128 @@ def _populate_manifest_from_db(manifest: BundleManifest, db_path: Path) -> None:
             manifest.obsolete_terms = int(obsolete_str)
 
         manifest.total_terms = manifest.active_terms + manifest.obsolete_terms
+
+
+def _apply_release_spec_provenance(
+    manifest: BundleManifest, release_spec: DataReleaseSpec
+) -> None:
+    """Require database provenance to match an immutable data-release specification."""
+    for field_name, actual, expected in (
+        ("HPO version", manifest.hpo_version, release_spec.hpo_version),
+        ("HPO release date", manifest.hpo_release_date, release_spec.hpo_release_date),
+        ("HPO source URL", manifest.hpo_source_url, release_spec.hpo_source_url),
+        ("HPO source SHA-256", manifest.hpo_source_sha256, release_spec.hpo_sha256),
+        ("active term count", manifest.active_terms, release_spec.active_terms),
+    ):
+        if actual != expected:
+            raise ValueError(
+                f"Database {field_name} does not match release spec: "
+                f"expected {expected!r}, got {actual!r}"
+            )
+
+    manifest.source_commit = release_spec.source_commit
+    manifest.lockfile_sha256 = release_spec.lockfile_sha256
+    manifest.phentrieve_version = release_spec.phentrieve_version
+
+
+def _expected_model_revision(
+    model_name: str, release_spec: DataReleaseSpec | None
+) -> str | None:
+    """Return the required model revision for a release build."""
+    if release_spec is None:
+        return None
+    for model in release_spec.models:
+        if model.name == model_name:
+            return model.revision
+    raise ValueError(f"Model {model_name!r} is not declared in the release spec")
+
+
+def _expected_document_count(
+    collection: object,
+    manifest: BundleManifest,
+    multi_vector: bool,
+    release_spec: DataReleaseSpec | None,
+) -> int:
+    """Resolve the expected count from the release spec or validated collection metadata."""
+    index_type = "multi_vector" if multi_vector else "single_vector"
+    if release_spec is not None:
+        return release_spec.expected_document_count(index_type)
+    if not multi_vector:
+        return manifest.active_terms
+
+    metadata = cast(Any, collection).metadata or {}
+    raw_count = metadata.get("expected_document_count")
+    if not isinstance(raw_count, int) or raw_count <= 0:
+        raise ValueError(
+            "Multi-vector collection is missing a valid expected document count"
+        )
+    return raw_count
+
+
+def _get_collection(index_dir: Path, collection_name: str) -> object:
+    """Open the named ChromaDB collection using the project settings."""
+    import chromadb
+
+    vector_store_config = VectorStoreConfig(
+        path=str(index_dir),
+        collection_name=collection_name,
+    )
+    client = chromadb.PersistentClient(
+        path=str(index_dir),
+        settings=vector_store_config.to_chromadb_settings(),
+    )
+    return cast(object, client.get_collection(collection_name))
+
+
+def _validate_collection_provenance(
+    collection: object,
+    manifest: BundleManifest,
+    model_name: str,
+    index_type: str,
+    expected_document_count: int,
+    expected_model_revision: str | None = None,
+) -> int:
+    """Reject collections that cannot be proven to match the bundle inputs."""
+    metadata = cast(Any, collection).metadata or {}
+    expected_metadata = {
+        "hpo_version": manifest.hpo_version,
+        "hpo_source_sha256": manifest.hpo_source_sha256,
+        "model": model_name,
+        "index_type": index_type,
+        "expected_document_count": expected_document_count,
+    }
+    labels = {
+        "hpo_version": "HPO version",
+        "hpo_source_sha256": "HPO source SHA-256",
+        "model": "model",
+        "index_type": "index type",
+        "expected_document_count": "expected document count",
+    }
+    for key, expected in expected_metadata.items():
+        if metadata.get(key) != expected:
+            raise ValueError(
+                f"Collection {labels[key]} does not match bundle input: "
+                f"expected {expected!r}, got {metadata.get(key)!r}"
+            )
+    if expected_model_revision is not None and (
+        metadata.get("model_revision") != expected_model_revision
+    ):
+        raise ValueError(
+            "Collection model revision does not match release spec: "
+            f"expected {expected_model_revision!r}, got {metadata.get('model_revision')!r}"
+        )
+
+    actual_document_count = cast(Any, collection).count()
+    if actual_document_count != expected_document_count:
+        raise ValueError(
+            "Collection document count does not match bundle input: "
+            f"expected {expected_document_count}, got {actual_document_count}"
+        )
+
+    dimension = metadata.get("dimension")
+    if not isinstance(dimension, int) or dimension <= 0:
+        raise ValueError(f"Collection has invalid embedding dimension: {dimension!r}")
+    return dimension
 
 
 def _get_index_dimension(index_dir: Path) -> int:
