@@ -61,6 +61,12 @@ def test_hpo_v2026_06_23_release_contract_has_complete_matrix():
         "gte-multi",
         "jina-de",
     }
+    assert {
+        model.slug: model.code_revision for model in spec.models if model.code_revision
+    } == {
+        "gte-multi": "40ced75c3017eb27626c9d4ea981bde21a2662f4",
+        "jina-de": "f3ec4cf7de7e561007f27c9efc7148b0bd713f81",
+    }
 
 
 @pytest.mark.parametrize(
@@ -106,6 +112,16 @@ def test_model_spec_rejects_non_boolean_custom_code_policy():
             slug="example",
             revision="a" * 40,
             trust_remote_code="true",  # type: ignore[arg-type]
+        )
+
+
+def test_model_spec_requires_a_pinned_custom_code_revision():
+    with pytest.raises(ValueError, match="code_revision"):
+        ModelReleaseSpec(
+            name="example/model",
+            slug="example",
+            revision="a" * 40,
+            trust_remote_code=True,
         )
 
 

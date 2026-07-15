@@ -137,6 +137,10 @@ def create_bundle(
             model_name=model_name,
             release_spec=release_spec,
         )
+        model_code_revision = _expected_model_code_revision(
+            model_name=model_name,
+            release_spec=release_spec,
+        )
         with _open_collection(index_base_dir, collection_name) as collection:
             expected_document_count = _expected_document_count(
                 collection=collection,
@@ -163,6 +167,7 @@ def create_bundle(
             multi_vector=multi_vector,
             revision=resolved_model_revision,
             trust_remote_code=model_trust_remote_code,
+            code_revision=model_code_revision,
         )
 
     # Create bundle in temp directory
@@ -291,6 +296,21 @@ def _expected_model_trust_remote_code(
     for model in release_spec.models:
         if model.name == model_name:
             return model.trust_remote_code
+    raise ValueError(
+        f"Model {model_name!r} is not present in the release specification"
+    )
+
+
+def _expected_model_code_revision(
+    model_name: str,
+    release_spec: DataReleaseSpec | None,
+) -> str | None:
+    """Return the immutable custom-code revision required by a release model."""
+    if release_spec is None:
+        return None
+    for model in release_spec.models:
+        if model.name == model_name:
+            return model.code_revision
     raise ValueError(
         f"Model {model_name!r} is not present in the release specification"
     )

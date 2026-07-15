@@ -35,7 +35,7 @@ Examples:
 import logging
 import threading
 import warnings
-from typing import cast
+from typing import Any, cast
 
 import torch
 from sentence_transformers import SentenceTransformer
@@ -92,6 +92,7 @@ def load_embedding_model(
     device: str | None = None,
     force_reload: bool = False,
     revision: str | None = None,
+    code_revision: str | None = None,
 ) -> SentenceTransformer:
     """
     Load a sentence transformer embedding model with caching and GPU support.
@@ -137,7 +138,9 @@ def load_embedding_model(
     if model_name is None:
         model_name = DEFAULT_BIOLORD_MODEL
         logging.info(f"No model specified, using default model: {model_name}")
-    registry_key = f"{model_name}@{revision}" if revision else model_name
+    registry_key = "@".join(
+        value for value in (model_name, revision, code_revision) if value
+    )
 
     # Determine device - auto-detect if not specified
     if device is None:
@@ -183,7 +186,9 @@ def load_embedding_model(
         logging.info(f"Loading embedding model: {model_name} on {device}")
 
         try:
-            model_kwargs = {"revision": revision} if revision else {}
+            model_kwargs: dict[str, object] = {"revision": revision} if revision else {}
+            if code_revision:
+                model_kwargs["model_kwargs"] = {"code_revision": code_revision}
             if trust_remote_code:
                 logging.info(
                     f"Loading model '{model_name}' with trust_remote_code=True on {device}"
@@ -199,6 +204,7 @@ def load_embedding_model(
 
             # Move model to specified device
             model.to(device)
+            _repair_gte_multilingual_position_ids(model_name, model)
 
             # Store in registry for future reuse
             _MODEL_REGISTRY[registry_key] = model
@@ -213,6 +219,22 @@ def load_embedding_model(
             logging.error(error_msg)
             logging.error("Make sure you have run: pip install -r requirements.txt")
             raise ValueError(error_msg) from e
+
+
+def _repair_gte_multilingual_position_ids(
+    model_name: str, model: SentenceTransformer
+) -> None:
+    """Initialize the uninitialized position buffer in GTE's pinned custom code."""
+    if model_name != "Alibaba-NLP/gte-multilingual-base":
+        return
+    transformer = cast(Any, model[0])
+    embeddings = transformer.auto_model.embeddings
+    position_ids = cast(torch.Tensor, embeddings.position_ids)
+    embeddings.position_ids = torch.arange(
+        position_ids.numel(),
+        dtype=position_ids.dtype,
+        device=position_ids.device,
+    )
 
 
 def clear_model_registry() -> None:

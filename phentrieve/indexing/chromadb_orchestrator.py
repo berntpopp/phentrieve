@@ -42,6 +42,7 @@ def orchestrate_index_building(
     data_dir_override: str | None = None,
     multi_vector: bool = False,
     model_revision: str | None = None,
+    code_revision: str | None = None,
 ) -> bool:
     """Orchestrates loading data, models, and building ChromaDB indexes.
 
@@ -57,6 +58,7 @@ def orchestrate_index_building(
         data_dir_override: Override for data directory path
         multi_vector: Build multi-vector index (separate vectors per component)
         model_revision: Optional immutable Hugging Face revision for one model build.
+        code_revision: Optional immutable revision for model custom code.
 
     Returns:
         True if all requested indexes were built successfully, False otherwise
@@ -137,6 +139,7 @@ def orchestrate_index_building(
                 trust_remote_code=trust_remote_code,
                 device=device_override,  # Pass CPU/GPU preference
                 revision=model_revision,
+                code_revision=code_revision,
             )
             if not model:
                 raise ValueError(f"Failed to load model {model_name}")

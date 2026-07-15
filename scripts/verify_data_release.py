@@ -116,6 +116,8 @@ def _verify_manifest(
         raise ValueError(
             "Manifest model custom-code policy does not match release spec"
         )
+    if manifest.model.code_revision != model.code_revision:
+        raise ValueError("Manifest model code revision does not match release spec")
     if manifest.model.multi_vector != multi_vector:
         raise ValueError("Manifest vector mode does not match archive name")
 
@@ -151,6 +153,7 @@ def _verify_archive_index(
                 model_name=model.name,
                 revision=model.revision,
                 trust_remote_code=model.trust_remote_code,
+                code_revision=model.code_revision,
             )
             query_embedding = embedding_model.encode(["phenotypic abnormality"])
             result = cast(Any, collection).query(

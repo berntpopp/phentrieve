@@ -27,6 +27,7 @@ class ModelReleaseSpec:
     slug: str
     revision: str
     trust_remote_code: bool = False
+    code_revision: str | None = None
 
     def __post_init__(self) -> None:
         if not self.name:
@@ -37,6 +38,12 @@ class ModelReleaseSpec:
             raise ValueError(f"invalid model revision: {self.revision!r}")
         if not isinstance(self.trust_remote_code, bool):
             raise ValueError("trust_remote_code must be a boolean")
+        if self.code_revision is not None and not _GIT_SHA_PATTERN.fullmatch(
+            self.code_revision
+        ):
+            raise ValueError(f"invalid code revision: {self.code_revision!r}")
+        if self.trust_remote_code and self.code_revision is None:
+            raise ValueError("trust_remote_code models require a pinned code_revision")
 
 
 DATA_RELEASE_MODELS: tuple[ModelReleaseSpec, ...] = (
@@ -70,12 +77,14 @@ DATA_RELEASE_MODELS: tuple[ModelReleaseSpec, ...] = (
         slug="gte-multi",
         revision="9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
         trust_remote_code=True,
+        code_revision="40ced75c3017eb27626c9d4ea981bde21a2662f4",
     ),
     ModelReleaseSpec(
         name="jinaai/jina-embeddings-v2-base-de",
         slug="jina-de",
         revision="3f9eede875721714945b6a99a3198299243cf2be",
         trust_remote_code=True,
+        code_revision="f3ec4cf7de7e561007f27c9efc7148b0bd713f81",
     ),
     ModelReleaseSpec(
         name="T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
