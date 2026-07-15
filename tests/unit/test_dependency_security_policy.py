@@ -103,3 +103,14 @@ def test_torch_vulnerability_exception_is_explicitly_limited_to_no_patch() -> No
 
     assert "CVE-2025-3000" in security_workflow
     assert "no patched release" in security_workflow
+
+
+def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:
+    """The pip-audit requirement set must not resolve vulnerable setuptools 81."""
+    dev_dependencies = _pyproject()["dependency-groups"]["dev"]
+    packages = _uv_packages()
+
+    assert any(
+        dependency.startswith("setuptools>=83.0.0") for dependency in dev_dependencies
+    )
+    assert packages["setuptools"] >= Version("83.0.0")
