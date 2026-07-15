@@ -26,6 +26,7 @@ class ModelReleaseSpec:
     name: str
     slug: str
     revision: str
+    trust_remote_code: bool = False
 
     def __post_init__(self) -> None:
         if not self.name:
@@ -34,6 +35,8 @@ class ModelReleaseSpec:
             raise ValueError(f"invalid model slug: {self.slug!r}")
         if not _GIT_SHA_PATTERN.fullmatch(self.revision):
             raise ValueError(f"invalid model revision: {self.revision!r}")
+        if not isinstance(self.trust_remote_code, bool):
+            raise ValueError("trust_remote_code must be a boolean")
 
 
 DATA_RELEASE_MODELS: tuple[ModelReleaseSpec, ...] = (
@@ -66,11 +69,13 @@ DATA_RELEASE_MODELS: tuple[ModelReleaseSpec, ...] = (
         name="Alibaba-NLP/gte-multilingual-base",
         slug="gte-multi",
         revision="9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
+        trust_remote_code=True,
     ),
     ModelReleaseSpec(
         name="jinaai/jina-embeddings-v2-base-de",
         slug="jina-de",
         revision="3f9eede875721714945b6a99a3198299243cf2be",
+        trust_remote_code=True,
     ),
     ModelReleaseSpec(
         name="T-Systems-onsite/cross-en-de-roberta-sentence-transformer",

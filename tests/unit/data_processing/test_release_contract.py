@@ -57,6 +57,10 @@ def test_hpo_v2026_06_23_release_contract_has_complete_matrix():
         "tsystems-ende",
         "distiluse-multi",
     ]
+    assert {model.slug for model in spec.models if model.trust_remote_code} == {
+        "gte-multi",
+        "jina-de",
+    }
 
 
 @pytest.mark.parametrize(
@@ -92,6 +96,16 @@ def test_model_spec_rejects_unpinned_model_revision():
             name="example/model",
             slug="example",
             revision="main",
+        )
+
+
+def test_model_spec_rejects_non_boolean_custom_code_policy():
+    with pytest.raises(ValueError, match="trust_remote_code"):
+        ModelReleaseSpec(
+            name="example/model",
+            slug="example",
+            revision="a" * 40,
+            trust_remote_code="true",  # type: ignore[arg-type]
         )
 
 

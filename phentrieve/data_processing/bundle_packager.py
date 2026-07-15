@@ -129,24 +129,19 @@ def create_bundle(
                 f"Run 'phentrieve index build --model-name \"{model_name}\"' first."
             )
 
-        try:
-            collection_context = _open_collection(index_base_dir, collection_name)
-        except Exception as error:
-            mv_flag = " --multi-vector" if multi_vector else ""
-            raise ValueError(
-                f"Collection '{collection_name}' not found in ChromaDB. "
-                f"Run 'phentrieve index build --model-name \"{model_name}\"{mv_flag}' first."
-            ) from error
-
-        with collection_context as collection:
+        model_revision = _expected_model_revision(
+            model_name=model_name,
+            release_spec=release_spec,
+        )
+        model_trust_remote_code = _expected_model_trust_remote_code(
+            model_name=model_name,
+            release_spec=release_spec,
+        )
+        with _open_collection(index_base_dir, collection_name) as collection:
             expected_document_count = _expected_document_count(
                 collection=collection,
                 manifest=manifest,
                 multi_vector=multi_vector,
-                release_spec=release_spec,
-            )
-            model_revision = _expected_model_revision(
-                model_name=model_name,
                 release_spec=release_spec,
             )
             dimension = _validate_collection_provenance(
@@ -157,13 +152,17 @@ def create_bundle(
                 expected_document_count=expected_document_count,
                 expected_model_revision=model_revision,
             )
+            resolved_model_revision = str(
+                cast(Any, collection).metadata.get("model_revision", "")
+            )
         logger.info(f"Found validated {index_type_str} collection: {collection_name}")
 
         manifest.model = EmbeddingModelInfo.from_model_name(
             model_name,
             dimension=dimension,
             multi_vector=multi_vector,
-            revision=str(cast(Any, collection).metadata.get("model_revision", "")),
+            revision=resolved_model_revision,
+            trust_remote_code=model_trust_remote_code,
         )
 
     # Create bundle in temp directory
@@ -280,6 +279,21 @@ def _expected_model_revision(
         if model.name == model_name:
             return model.revision
     raise ValueError(f"Model {model_name!r} is not declared in the release spec")
+
+
+def _expected_model_trust_remote_code(
+    model_name: str,
+    release_spec: DataReleaseSpec | None,
+) -> bool:
+    """Return the custom-code policy pinned for a release model."""
+    if release_spec is None:
+        return False
+    for model in release_spec.models:
+        if model.name == model_name:
+            return model.trust_remote_code
+    raise ValueError(
+        f"Model {model_name!r} is not present in the release specification"
+    )
 
 
 def _expected_document_count(

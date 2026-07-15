@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_MODEL
+from phentrieve.data_processing.release_contract import DATA_RELEASE_MODELS
 
 
 @dataclass(frozen=True)
@@ -31,5 +32,11 @@ def resolve_retrieval_model_policy(model_name: str | None) -> RetrievalModelPoli
 
     return RetrievalModelPolicy(
         model_name=resolved_model_name,
-        trust_remote_code=resolved_model_name == DEFAULT_MODEL,
+        trust_remote_code=(
+            resolved_model_name == DEFAULT_MODEL
+            or any(
+                model.name == resolved_model_name and model.trust_remote_code
+                for model in DATA_RELEASE_MODELS
+            )
+        ),
     )

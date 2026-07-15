@@ -94,6 +94,7 @@ def _build_model_bundle(
     output_dir: Path,
     model_name: str,
     model_revision: str,
+    trust_remote_code: bool,
     multi_vector: bool,
     batch_size: int,
     device: str | None,
@@ -110,6 +111,7 @@ def _build_model_bundle(
         data_dir_override=str(data_dir),
         multi_vector=multi_vector,
         model_revision=model_revision,
+        trust_remote_code=trust_remote_code,
     )
     if not success and device != "cpu" and batch_size > 128:
         clear_model_registry()
@@ -123,6 +125,7 @@ def _build_model_bundle(
             data_dir_override=str(data_dir),
             multi_vector=multi_vector,
             model_revision=model_revision,
+            trust_remote_code=trust_remote_code,
         )
     if not success:
         raise ValueError(f"Failed to build {index_type} index for {model_name}")
@@ -169,6 +172,7 @@ def build_release(
                     output_dir=output_dir,
                     model_name=model.name,
                     model_revision=model.revision,
+                    trust_remote_code=model.trust_remote_code,
                     multi_vector=multi_vector,
                     batch_size=batch_size,
                     device=device,
