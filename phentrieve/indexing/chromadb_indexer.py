@@ -29,6 +29,9 @@ def build_chromadb_index(
     recreate: bool = False,
     index_dir: Path | None = None,
     index_type: str = "single_vector",
+    hpo_version: str | None = None,
+    hpo_source_sha256: str | None = None,
+    model_revision: str | None = None,
 ) -> bool:
     """
     Build a ChromaDB index for the given documents using the specified embedding model.
@@ -43,12 +46,19 @@ def build_chromadb_index(
         recreate: Whether to recreate the collection if it exists
         index_dir: Directory to store the index
         index_type: Type of index - "single_vector" or "multi_vector"
+        hpo_version: Resolved HPO release tag used to create the source database.
+        hpo_source_sha256: Verified SHA-256 for the source hp.json.
+        model_revision: Optional immutable Hugging Face revision for the model.
 
     Returns:
         bool: True if indexing was successful, False otherwise
     """
     if not documents:
         logging.error("No documents provided for indexing")
+        return False
+
+    if not hpo_version or hpo_version == "latest":
+        logging.error("A resolved, pinned HPO version is required for indexing")
         return False
 
     # Validate index_dir is provided
@@ -86,35 +96,53 @@ def build_chromadb_index(
             settings=vector_store_config.to_chromadb_settings(),
         )
 
-        # Initialize skip collection creation flag
-        skip_collection_creation = False
-
         # Check if collection already exists
         try:
             existing_collection = client.get_collection(
                 name=vector_store_config.collection_name
             )
 
-            if recreate:
+            existing_count = existing_collection.count()
+            if recreate or existing_count == 0:
                 logging.info(
                     f"Deleting existing collection: {vector_store_config.collection_name}"
                 )
                 client.delete_collection(name=vector_store_config.collection_name)
             else:
                 logging.info(
-                    f"Collection {vector_store_config.collection_name} already exists with {existing_collection.count()} documents"
+                    f"Collection {vector_store_config.collection_name} already exists with {existing_count} documents"
                 )
-                if existing_collection.count() > 0:
-                    logging.info(
-                        "Using existing collection (use recreate=True to rebuild)"
+                expected_metadata = {
+                    "hpo_version": hpo_version,
+                    "hpo_source_sha256": hpo_source_sha256 or "",
+                    "model": model_name,
+                    "model_revision": model_revision or "unpinned",
+                    "index_type": index_type,
+                    "expected_document_count": len(documents),
+                }
+                existing_metadata = existing_collection.metadata or {}
+                mismatched_metadata = {
+                    key: (existing_metadata.get(key), value)
+                    for key, value in expected_metadata.items()
+                    if existing_metadata.get(key) != value
+                }
+                if mismatched_metadata:
+                    logging.error(
+                        "Existing collection metadata does not match this build: %s. "
+                        "Use recreate=True to rebuild it.",
+                        mismatched_metadata,
                     )
+                    return False
+                if existing_count == len(documents):
+                    logging.info("Using an existing complete, matching collection")
                     return True
-                else:
-                    logging.info("Collection exists but is empty, will populate it")
-                    # Use the existing collection instead of creating a new one
-                    collection = existing_collection
-                    # Set a flag to skip collection creation below
-                    skip_collection_creation = True
+                logging.error(
+                    "Existing collection has %d documents; expected %d. "
+                    "Use recreate=True to rebuild it.",
+                    existing_count,
+                    len(documents),
+                )
+                return False
         except Exception as e:
             # Collection didn't exist or some other error
             logging.debug(f"Note: {e}")
@@ -125,27 +153,23 @@ def build_chromadb_index(
             f"Using embedding dimension {model_dimension} for model {model_name}"
         )
 
-        # Create a new collection with specified metadata if needed
-        if not skip_collection_creation:
-            collection = client.create_collection(
-                name=vector_store_config.collection_name,
-                metadata={
-                    "hpo_version": "latest",
-                    "model": model_name,
-                    "dimension": model_dimension,
-                    "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "hnsw:space": vector_store_config.distance_metric,
-                    "index_type": index_type,
-                },
-            )
-        if not skip_collection_creation:
-            logging.info(
-                f"Created new collection: {vector_store_config.collection_name} with dimension {model_dimension}"
-            )
-        else:
-            logging.info(
-                f"Using existing collection: {vector_store_config.collection_name} with dimension {model_dimension}"
-            )
+        collection = client.create_collection(
+            name=vector_store_config.collection_name,
+            metadata={
+                "hpo_version": hpo_version,
+                "hpo_source_sha256": hpo_source_sha256 or "",
+                "model": model_name,
+                "model_revision": model_revision or "unpinned",
+                "dimension": model_dimension,
+                "expected_document_count": len(documents),
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "hnsw:space": vector_store_config.distance_metric,
+                "index_type": index_type,
+            },
+        )
+        logging.info(
+            f"Created new collection: {vector_store_config.collection_name} with dimension {model_dimension}"
+        )
     except Exception as e:
         logging.error(f"Error initializing ChromaDB: {e}")
         return False
@@ -189,7 +213,16 @@ def build_chromadb_index(
             logging.error(
                 f"Error processing batch {i // batch_size + 1}/{total_batches}: {e}"
             )
-            continue
+            return False
+
+    persisted_count = collection.count()
+    if persisted_count != len(documents):
+        logging.error(
+            "Incomplete index build: collection contains %d documents; expected %d",
+            persisted_count,
+            len(documents),
+        )
+        return False
 
     end_time = time.time()
     logging.info(f"Index built successfully in {end_time - start_time:.2f} seconds!")
