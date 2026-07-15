@@ -4,6 +4,20 @@ Standalone scripts for data processing, conversion, and analysis.
 
 ## Available Scripts
 
+### verify_data_release.py
+
+Verify every archive in a committed HPO data-release specification before
+uploading or publishing it. The verifier checks the exact archive matrix,
+SHA256SUMS, bundle manifests, collection metadata/counts, and optionally
+runs one retrieval query per model/vector-mode archive.
+
+```bash
+uv run python scripts/verify_data_release.py \
+  --spec releases/hpo-v2026-06-23-r1.json \
+  --bundle-dir dist/hpo-v2026-06-23-r1 \
+  --smoke-test
+```
+
 ### `run_llm_model_benchmarks.py`
 
 Run `phentrieve benchmark llm` for several provider/model targets without
