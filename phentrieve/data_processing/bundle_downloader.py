@@ -44,6 +44,7 @@ GITHUB_API_BASE = "https://api.github.com"
 # Download configuration
 DEFAULT_TIMEOUT = 60  # seconds
 DOWNLOAD_CHUNK_SIZE = 8192  # bytes
+_HPO_VERSION_PATTERN = re.compile(r"^v(\d{4})-(\d{2})-(\d{2})$")
 
 
 def get_data_release_repository() -> str:
@@ -171,6 +172,25 @@ def _parse_bundle_filename(filename: str) -> tuple[str | None, str | None, bool]
     return None, None, False
 
 
+def _hpo_version_sort_key(hpo_version: str | None) -> tuple[int, int, int]:
+    """Return a sortable release date for a conventional HPO version string."""
+    if hpo_version is None:
+        return (0, 0, 0)
+    match = _HPO_VERSION_PATTERN.fullmatch(hpo_version)
+    if match is None:
+        return (0, 0, 0)
+    year, month, day = match.groups()
+    return (int(year), int(month), int(day))
+
+
+def _release_hpo_version_sort_key(release: ReleaseInfo) -> tuple[int, int, int]:
+    """Use the newest bundle HPO version, not GitHub's release timestamp."""
+    return max(
+        (_hpo_version_sort_key(bundle.hpo_version) for bundle in release.bundles),
+        default=(0, 0, 0),
+    )
+
+
 def find_bundle(
     model_name: str,
     hpo_version: str | None = None,
@@ -205,6 +225,9 @@ def find_bundle(
         if not releases:
             logger.warning(f"Release {release_tag} not found")
             return None
+
+    if hpo_version is None and release_tag is None:
+        releases = sorted(releases, key=_release_hpo_version_sort_key, reverse=True)
 
     # Search through releases for matching bundle
     for release in releases:
