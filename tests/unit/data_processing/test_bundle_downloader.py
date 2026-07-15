@@ -96,6 +96,47 @@ def test_find_bundle_defaults_to_single_vector_asset(mocker):
     assert bundle.multi_vector is False
 
 
+def test_find_bundle_defaults_to_newest_hpo_version_not_latest_release(mocker):
+    """Historical mirrors must not displace the newest ontology by publish date."""
+    historical = ReleaseInfo(
+        tag_name="data-v2026-02-16",
+        name="Historical data v2026-02-16",
+        published_at="2026-07-15T19:51:42Z",
+        bundles=[
+            BundleAsset(
+                name="phentrieve-data-v2026-02-16-biolord.tar.gz",
+                download_url="https://example.test/v2026-02-16.tar.gz",
+                size=100,
+                hpo_version="v2026-02-16",
+                model_slug="biolord",
+            )
+        ],
+    )
+    current = ReleaseInfo(
+        tag_name="hpo-v2026-06-23-r1",
+        name="Verified data v2026-06-23",
+        published_at="2026-07-15T19:03:18Z",
+        bundles=[
+            BundleAsset(
+                name="phentrieve-data-v2026-06-23-biolord.tar.gz",
+                download_url="https://example.test/v2026-06-23.tar.gz",
+                size=100,
+                hpo_version="v2026-06-23",
+                model_slug="biolord",
+            )
+        ],
+    )
+    mocker.patch(
+        "phentrieve.data_processing.bundle_downloader.list_available_releases",
+        return_value=[historical, current],
+    )
+
+    bundle = find_bundle(model_name="biolord")
+
+    assert bundle is not None
+    assert bundle.hpo_version == "v2026-06-23"
+
+
 def test_find_bundle_can_select_multivector_asset(mocker):
     release = ReleaseInfo(
         tag_name="data-v2026-02-16",
