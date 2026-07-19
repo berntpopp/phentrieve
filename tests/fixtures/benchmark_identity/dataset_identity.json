@@ -1,0 +1,12 @@
+{
+  "schema_version": "phentrieve-dataset-identity/v1",
+  "dataset_name": "synthetic-benchmark-example",
+  "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "input_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "gold_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "document_ids_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "projection": "positive_hpo_present_v1",
+  "excluded_document_ids": [
+    "synthetic-document-003"
+  ]
+}

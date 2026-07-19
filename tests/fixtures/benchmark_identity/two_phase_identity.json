@@ -1,0 +1,20 @@
+{
+  "schema_version": "phentrieve-prompt-bundle/v1",
+  "mode": "two_phase",
+  "language": "en",
+  "prompt_behavior_version": "1",
+  "components": [
+    {
+      "name": "extraction",
+      "version": "3.1.0"
+    },
+    {
+      "name": "mapping",
+      "version": "4.1.0"
+    },
+    {
+      "name": "batch_mapping",
+      "version": "4.1.0"
+    }
+  ]
+}
