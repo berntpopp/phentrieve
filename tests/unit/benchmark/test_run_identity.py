@@ -233,6 +233,24 @@ def test_asset_identity_reads_installed_bundle_manifest(tmp_path) -> None:
     assert len(identity.manifest_sha256) == 64
 
 
+@pytest.mark.parametrize("hpo_value", [None, "", "   ", pytest.param("missing", id="missing")])
+def test_asset_identity_requires_hpo_version_provenance(tmp_path, hpo_value) -> None:
+    manifest = {
+        "model": {
+            "name": "BAAI/bge-m3",
+            "slug": "bge-m3",
+            "dimension": 1024,
+            "multi_vector": False,
+        }
+    }
+    if hpo_value != "missing":
+        manifest["hpo_version"] = hpo_value
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="no valid HPO version provenance"):
+        load_retrieval_asset_identity(tmp_path)
+
+
 def test_evaluation_hpo_must_match_asset_hpo() -> None:
     asset = RetrievalAssetIdentity(
         asset_type="single_vector",
@@ -248,6 +266,17 @@ def test_evaluation_hpo_must_match_asset_hpo() -> None:
         ),
     ):
         validate_evaluation_hpo_version("v2025-03-03", asset)
+
+
+def test_evaluation_hpo_version_must_be_non_empty() -> None:
+    asset = RetrievalAssetIdentity(
+        asset_type="single_vector",
+        embedding_model="BAAI/bge-m3",
+        hpo_version="v2026-06-23",
+        manifest_sha256="a" * 64,
+    )
+    with pytest.raises(ValueError, match="Evaluation HPO version must be non-empty"):
+        validate_evaluation_hpo_version("   ", asset)
 
 
 def _fingerprint_identities():

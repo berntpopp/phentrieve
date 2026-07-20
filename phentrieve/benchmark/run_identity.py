@@ -155,6 +155,11 @@ def load_retrieval_asset_identity(
         raise ValueError("No installed retrieval bundle manifest was found.")
     if manifest.model is None:
         raise ValueError("Installed retrieval bundle manifest has no embedding model.")
+    if not isinstance(manifest.hpo_version, str) or not manifest.hpo_version.strip():
+        raise ValueError(
+            "Installed retrieval bundle manifest has no valid HPO version provenance: "
+            "expected non-empty 'hpo_version'."
+        )
 
     manifest_path = (data_dir or _default_data_dir()) / "manifest.json"
     return RetrievalAssetIdentity(
@@ -170,6 +175,10 @@ def validate_evaluation_hpo_version(
     asset: RetrievalAssetIdentity,
 ) -> None:
     """Reject evaluation and retrieval assets built from different HPO versions."""
+    if not isinstance(asset.hpo_version, str) or not asset.hpo_version.strip():
+        raise ValueError("Retrieval asset HPO version provenance must be non-empty.")
+    if not isinstance(evaluation_hpo_version, str) or not evaluation_hpo_version.strip():
+        raise ValueError("Evaluation HPO version must be non-empty.")
     if evaluation_hpo_version != asset.hpo_version:
         raise ValueError(
             f"Evaluation HPO version {evaluation_hpo_version!r} does not match "
