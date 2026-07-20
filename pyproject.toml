@@ -31,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "sentence-transformers>=4.1.0,<6.0.0",
-    "transformers>=4.41.0,<5.0.0",           # JinaBert remote implementation is incompatible with Transformers 5.x
+    "transformers>=4.41.0,<6.0.0",           # JinaBert remote implementation is incompatible with Transformers 5.x
     "chromadb>=1.5.9,<2.0.0",               # 1.x required to read the published multi-vector data bundles (0.6.x cannot)
     "requests>=2.31.0",
     "urllib3>=2.7.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v, PYSEC-2026-141, PYSEC-2026-142)
