@@ -287,6 +287,26 @@ class TestVerifyBundleChecksums:
 
         assert "missing" in str(exc_info.value)
 
+    def test_raises_for_empty_inventory(self, tmp_path):
+        with pytest.raises(ValueError, match="empty"):
+            _verify_bundle_checksums(BundleManifest(), tmp_path)
+
+    @pytest.mark.parametrize(
+        "unsafe_key",
+        ["../outside.txt", "/absolute.txt", "C:\\absolute.txt"],
+    )
+    def test_rejects_unsafe_checksum_paths(self, tmp_path, unsafe_key):
+        manifest = BundleManifest(checksums={unsafe_key: "0" * 64})
+
+        with pytest.raises(ValueError, match="unsafe checksum path"):
+            _verify_bundle_checksums(manifest, tmp_path)
+
+    def test_raises_when_directory_missing(self, tmp_path):
+        manifest = BundleManifest(checksums={"indexes/": "0" * 64})
+
+        with pytest.raises(ValueError, match="indexes/.*missing"):
+            _verify_bundle_checksums(manifest, tmp_path)
+
 
 # =============================================================================
 # Tests for _get_index_dimension()

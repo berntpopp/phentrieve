@@ -19,6 +19,10 @@ from phentrieve.benchmark.run_identity import (
     load_retrieval_asset_identity,
     validate_evaluation_hpo_version,
 )
+from phentrieve.data_processing.bundle_manifest import (
+    compute_directory_checksum,
+    compute_file_checksum,
+)
 from phentrieve.llm.prompts.identity import (
     PromptBundleIdentity,
     PromptComponentIdentity,
@@ -37,6 +41,36 @@ def _document(identifier: str, text: str, hpo_ids: list[str]) -> dict[str, objec
             {"id": hpo_id, "assertion": "PRESENT"} for hpo_id in hpo_ids
         ],
     }
+
+
+def _write_installed_bundle(tmp_path: Path) -> Path:
+    database = tmp_path / "hpo_data.db"
+    indexes = tmp_path / "indexes"
+    indexes.mkdir()
+    database.write_bytes(b"ontology")
+    (indexes / "vectors.bin").write_bytes(b"vectors")
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            {
+                "hpo_version": "v2026-06-23",
+                "model": {
+                    "name": "BAAI/bge-m3",
+                    "slug": "bge-m3",
+                    "dimension": 1024,
+                    "multi_vector": True,
+                    "revision": "model-commit",
+                    "trust_remote_code": True,
+                    "code_revision": "code-commit",
+                },
+                "checksums": {
+                    "hpo_data.db": compute_file_checksum(database),
+                    "indexes/": compute_directory_checksum(indexes),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return indexes
 
 
 def test_json_formatting_only_changes_source_hash(tmp_path) -> None:
@@ -344,20 +378,7 @@ def test_directory_source_hash_is_scoped_to_selected_dataset(tmp_path) -> None:
 
 
 def test_asset_identity_reads_installed_bundle_manifest(tmp_path) -> None:
-    (tmp_path / "manifest.json").write_text(
-        json.dumps(
-            {
-                "hpo_version": "v2026-06-23",
-                "model": {
-                    "name": "BAAI/bge-m3",
-                    "slug": "bge-m3",
-                    "dimension": 1024,
-                    "multi_vector": True,
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
+    _write_installed_bundle(tmp_path)
 
     identity = load_retrieval_asset_identity(tmp_path)
 
@@ -365,6 +386,40 @@ def test_asset_identity_reads_installed_bundle_manifest(tmp_path) -> None:
     assert identity.embedding_model == "BAAI/bge-m3"
     assert identity.hpo_version == "v2026-06-23"
     assert len(identity.manifest_sha256) == 64
+    assert len(identity.content_sha256) == 64
+    assert identity.model_revision == "model-commit"
+    assert identity.trust_remote_code is True
+    assert identity.code_revision == "code-commit"
+
+
+def test_asset_identity_rejects_incomplete_bundle_inventory(tmp_path) -> None:
+    _write_installed_bundle(tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["checksums"].pop("indexes/")
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="required checksum entries"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def test_asset_identity_detects_tampered_bundle_content(tmp_path) -> None:
+    _write_installed_bundle(tmp_path)
+    (tmp_path / "indexes" / "vectors.bin").write_bytes(b"tampered")
+
+    with pytest.raises(ValueError, match="Checksum verification failed.*indexes/"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def test_asset_identity_rejects_checksum_path_traversal(tmp_path) -> None:
+    _write_installed_bundle(tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["checksums"]["../outside.txt"] = "0" * 64
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsafe checksum path"):
+        load_retrieval_asset_identity(tmp_path)
 
 
 @pytest.mark.parametrize(

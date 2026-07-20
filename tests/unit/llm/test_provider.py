@@ -4,6 +4,7 @@ import inspect
 import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from threading import Barrier
 from types import ModuleType, SimpleNamespace
 from typing import Any
@@ -905,6 +906,55 @@ def test_tool_executor_uses_multi_vector_queries_when_enabled() -> None:
             ],
         },
     ]
+
+
+def test_tool_executor_threads_manifest_model_and_index_configuration(
+    monkeypatch, tmp_path
+) -> None:
+    loaded: dict[str, Any] = {}
+    embedding_model = object()
+    retriever = FakeRetriever()
+
+    def fake_load_embedding_model(model_name, **kwargs):
+        loaded["embedding"] = (model_name, kwargs)
+        return embedding_model
+
+    def fake_from_model_name(**kwargs):
+        loaded["retriever"] = kwargs
+        return retriever
+
+    monkeypatch.setattr(
+        "phentrieve.embeddings.load_embedding_model", fake_load_embedding_model
+    )
+    monkeypatch.setattr(
+        "phentrieve.retrieval.dense_retriever.DenseRetriever.from_model_name",
+        fake_from_model_name,
+    )
+
+    executor = ToolExecutor(
+        model_name="org/pinned-model",
+        model_revision="model-commit",
+        trust_remote_code=True,
+        code_revision="code-commit",
+        index_dir=tmp_path / "indexes",
+        multi_vector=False,
+    )
+    executor._get_phentrieve_components("en")
+
+    assert loaded["embedding"] == (
+        "org/pinned-model",
+        {
+            "trust_remote_code": True,
+            "revision": "model-commit",
+            "code_revision": "code-commit",
+        },
+    )
+    assert loaded["retriever"] == {
+        "model": embedding_model,
+        "model_name": "org/pinned-model",
+        "index_dir": Path(tmp_path / "indexes"),
+        "multi_vector": False,
+    }
 
 
 def test_process_clinical_text_defaults_come_from_config(monkeypatch) -> None:

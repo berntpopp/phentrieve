@@ -21,6 +21,7 @@ from phentrieve.benchmark.data_loader import (
     normalize_benchmark_assertion,
     parse_gold_terms,
 )
+from phentrieve.benchmark.run_identity import RetrievalAssetIdentity
 from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     ExtractionResult,
@@ -40,6 +41,7 @@ from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
 from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+from phentrieve.llm.tools import ToolExecutor
 from phentrieve.llm.types import AnnotationMode, GroundedChunk, LLMPipelineConfig
 
 logger = logging.getLogger(__name__)
@@ -317,6 +319,8 @@ def run_llm_benchmark(
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
     _resolved_provider_request: ResolvedLLMProviderRequest | None = None,
+    _retrieval_asset_identity: RetrievalAssetIdentity | None = None,
+    _retrieval_index_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Run the LLM benchmark directly against the configured provider."""
     if llm_mode != DEFAULT_LLM_BENCHMARK_MODE:
@@ -442,7 +446,20 @@ def run_llm_benchmark(
     evaluator = CorpusExtractionMetrics(averaging=DEFAULT_METRIC_AVERAGING)
 
     with _temporary_prompt_templates_dir(prompt_templates_dir):
-        pipeline = TwoPhaseLLMPipeline(provider=provider)
+        tool_executor = None
+        if _retrieval_asset_identity is not None:
+            tool_executor = ToolExecutor(
+                model_name=_retrieval_asset_identity.embedding_model,
+                model_revision=_retrieval_asset_identity.model_revision or None,
+                trust_remote_code=_retrieval_asset_identity.trust_remote_code,
+                code_revision=_retrieval_asset_identity.code_revision,
+                index_dir=_retrieval_index_dir,
+                multi_vector=_retrieval_asset_identity.asset_type == "multi_vector",
+            )
+        pipeline_kwargs: dict[str, Any] = {"provider": provider}
+        if tool_executor is not None:
+            pipeline_kwargs["tool_executor"] = tool_executor
+        pipeline = TwoPhaseLLMPipeline(**pipeline_kwargs)
         config = LLMPipelineConfig(
             provider=resolved_provider_name,
             model=resolved_model_name,

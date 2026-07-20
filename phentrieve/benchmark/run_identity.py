@@ -64,6 +64,10 @@ class RetrievalAssetIdentity:
     embedding_model: str
     hpo_version: str
     manifest_sha256: str
+    content_sha256: str = ""
+    model_revision: str = ""
+    trust_remote_code: bool = False
+    code_revision: str | None = None
 
 
 @dataclass(frozen=True)
@@ -223,6 +227,7 @@ def load_retrieval_asset_identity(
     from phentrieve.data_processing.bundle_downloader import (
         get_installed_bundle_info,
     )
+    from phentrieve.data_processing.bundle_packager import _verify_bundle_checksums
 
     manifest = get_installed_bundle_info(data_dir)
     if manifest is None:
@@ -235,12 +240,32 @@ def load_retrieval_asset_identity(
             "expected non-empty 'hpo_version'."
         )
 
-    manifest_path = (data_dir or _default_data_dir()) / "manifest.json"
+    bundle_dir = data_dir or _default_data_dir()
+    required_checksums = {"hpo_data.db", "indexes/"}
+    normalized_keys = {key.replace("\\", "/") for key in manifest.checksums}
+    missing_checksums = sorted(required_checksums - normalized_keys)
+    if missing_checksums:
+        raise ValueError(
+            "Installed retrieval bundle is missing required checksum entries: "
+            + ", ".join(missing_checksums)
+        )
+    verified_inventory = _verify_bundle_checksums(manifest, bundle_dir)
+    content_sha256 = _canonical_sha256(
+        [
+            {"path": path, "sha256": checksum}
+            for path, checksum in sorted(verified_inventory.items())
+        ]
+    )
+    manifest_path = bundle_dir / "manifest.json"
     return RetrievalAssetIdentity(
         asset_type="multi_vector" if manifest.model.multi_vector else "single_vector",
         embedding_model=manifest.model.name,
         hpo_version=manifest.hpo_version,
         manifest_sha256=_sha256_file(manifest_path),
+        content_sha256=content_sha256,
+        model_revision=manifest.model.revision,
+        trust_remote_code=manifest.model.trust_remote_code,
+        code_revision=manifest.model.code_revision,
     )
 
 

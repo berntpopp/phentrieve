@@ -14,12 +14,13 @@ See: https://github.com/berntpopp/phentrieve/issues/117
 from __future__ import annotations
 
 import logging
+import re
 import shutil
 import tarfile
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, cast
 
 from phentrieve.config import (
@@ -523,7 +524,37 @@ def extract_bundle(
     return manifest
 
 
-def _verify_bundle_checksums(manifest: BundleManifest, target_dir: Path) -> None:
+def _normalize_checksum_key(filename: str) -> tuple[str, bool]:
+    """Return a portable relative manifest path and its directory marker."""
+    if not isinstance(filename, str) or not filename.strip():
+        raise ValueError("Bundle manifest contains an unsafe checksum path: empty key")
+    portable = filename.replace("\\", "/")
+    is_directory = portable.endswith("/")
+    portable = portable.rstrip("/")
+    path = PurePosixPath(portable)
+    if (
+        path.is_absolute()
+        or re.match(r"^[A-Za-z]:", portable)
+        or any(part in {"", ".", ".."} for part in path.parts)
+    ):
+        raise ValueError(f"Bundle manifest contains unsafe checksum path: {filename}")
+    normalized = path.as_posix()
+    return (f"{normalized}/" if is_directory else normalized, is_directory)
+
+
+def _reject_symlink_components(target_dir: Path, target: Path) -> None:
+    current = target_dir
+    for part in target.relative_to(target_dir).parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(
+                f"Bundle checksum path must not contain symlinks: {target}"
+            )
+
+
+def _verify_bundle_checksums(
+    manifest: BundleManifest, target_dir: Path
+) -> dict[str, str]:
     """
     Verify all checksums in extracted bundle.
 
@@ -534,23 +565,47 @@ def _verify_bundle_checksums(manifest: BundleManifest, target_dir: Path) -> None
     Raises:
         ValueError: If any checksum fails
     """
+    if not manifest.checksums:
+        raise ValueError("Bundle checksum inventory is empty")
+
+    root = target_dir.resolve()
     failed = []
+    verified: dict[str, str] = {}
 
     for filename, expected_hash in manifest.checksums.items():
-        if filename.endswith("/"):
+        normalized, is_directory = _normalize_checksum_key(filename)
+        if normalized in verified:
+            raise ValueError(f"Duplicate normalized bundle checksum path: {normalized}")
+        portable = normalized.rstrip("/")
+        target = root.joinpath(*PurePosixPath(portable).parts)
+        _reject_symlink_components(root, target)
+        if not isinstance(expected_hash, str) or not re.fullmatch(
+            r"[0-9a-fA-F]{64}", expected_hash
+        ):
+            raise ValueError(f"Invalid SHA-256 checksum for bundle path: {filename}")
+
+        if is_directory:
             # Directory checksum
-            dir_path = target_dir / filename.rstrip("/")
-            if dir_path.exists():
-                actual_hash = compute_directory_checksum(dir_path)
+            if target.is_dir():
+                if any(path.is_symlink() for path in target.rglob("*")):
+                    raise ValueError(
+                        f"Bundle checksum directory must not contain symlinks: {filename}"
+                    )
+                actual_hash = compute_directory_checksum(target)
                 if actual_hash != expected_hash:
                     failed.append(filename)
+                else:
+                    verified[normalized] = actual_hash
+            else:
+                failed.append(f"{filename} (missing)")
         else:
             # File checksum
-            file_path = target_dir / filename
-            if file_path.exists():
-                actual_hash = compute_file_checksum(file_path)
+            if target.is_file():
+                actual_hash = compute_file_checksum(target)
                 if actual_hash != expected_hash:
                     failed.append(filename)
+                else:
+                    verified[normalized] = actual_hash
             else:
                 failed.append(f"{filename} (missing)")
 
@@ -558,6 +613,7 @@ def _verify_bundle_checksums(manifest: BundleManifest, target_dir: Path) -> None
         raise ValueError(f"Checksum verification failed for: {', '.join(failed)}")
 
     logger.info("All checksums verified successfully")
+    return verified
 
 
 def list_available_bundles(

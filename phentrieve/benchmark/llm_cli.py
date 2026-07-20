@@ -46,7 +46,7 @@ from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 from phentrieve.llm.providers.resolver import resolve_llm_provider_request
-from phentrieve.utils import setup_logging_cli
+from phentrieve.utils import get_default_data_dir, setup_logging_cli
 
 app = typer.Typer(help="Benchmark LLM full-text extraction.")
 console = Console()
@@ -419,6 +419,8 @@ def run_llm_benchmark_cli(
         checkpoint_state=existing_checkpoint,
         progress_callback=_persist_checkpoint,
         _resolved_provider_request=resolved_provider_request,
+        _retrieval_asset_identity=retrieval_identity,
+        _retrieval_index_dir=(_data_dir or get_default_data_dir()) / "indexes",
     )
 
     payload = cast(dict[str, Any], _sanitize_persisted_base_urls(result))
