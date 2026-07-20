@@ -15,8 +15,10 @@ from pydantic import BaseModel, Field, field_validator
 
 from phentrieve.benchmark import energy
 from phentrieve.benchmark.data_loader import (
+    CANONICAL_ASSERTION_MAP,
     LLM_ASSERTION_TO_BENCHMARK,
     load_benchmark_data,
+    normalize_benchmark_assertion,
     parse_gold_terms,
 )
 from phentrieve.evaluation.extraction_metrics import (
@@ -46,53 +48,73 @@ DEFAULT_LLM_BENCHMARK_DATASET = "GeneReviews"
 DEFAULT_LLM_BENCHMARK_MODE = "two_phase"
 DEFAULT_METRIC_AVERAGING = "micro"
 DEFAULT_ID_ONLY_ASSERTION = "PRESENT"
-ASSERTION_PROJECTION_SCHEMA = "phentrieve-assertion-projection/v1"
+ASSERTION_PROJECTION_SCHEMA = "phentrieve-assertion-projection/v2"
 
 DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
     "GeneReviews": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": "PRESENT",
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": "PRESENT",
+        "FAMILY_HISTORY": None,
     },
     "CSC": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": None,
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
     },
     "GSC": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": None,
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
     },
 }
 
 
 def resolve_dataset_assertion_projection(
-    dataset: str,
+    dataset: str, source_dataset: str | None = None
 ) -> dict[str, str | None] | None:
     """Return the assertion projection used by runtime scoring."""
-    return DATASET_ASSERTION_PROJECTION.get(dataset)
+    effective_dataset = (
+        source_dataset if dataset == "all" and source_dataset else dataset
+    )
+    return DATASET_ASSERTION_PROJECTION.get(effective_dataset)
 
 
 def describe_dataset_assertion_projection(dataset: str) -> dict[str, object]:
     """Return a canonical identity payload for the runtime projection."""
     projection = resolve_dataset_assertion_projection(dataset)
+    source_mappings = (
+        {
+            name: (
+                dict(DATASET_ASSERTION_PROJECTION[name])
+                if name in DATASET_ASSERTION_PROJECTION
+                else None
+            )
+            for name in ("CSC", "GSC", "GeneReviews", "GSC_plus", "ID_68")
+        }
+        if dataset == "all"
+        else None
+    )
     return {
         "schema_version": ASSERTION_PROJECTION_SCHEMA,
-        "mode": "mapped" if projection is not None else "normalized_passthrough",
+        "mode": (
+            "source_mapped"
+            if source_mappings is not None
+            else "mapped"
+            if projection is not None
+            else "normalized_passthrough"
+        ),
         "mapping": dict(projection) if projection is not None else None,
+        "source_mappings": source_mappings,
+        "normalization": {
+            "algorithm": "strip_casefold_lookup_default_v1",
+            "mapping": dict(CANONICAL_ASSERTION_MAP),
+            "unknown_prediction": DEFAULT_ID_ONLY_ASSERTION,
+            "other_prediction": "drop_when_mapped",
+            "unknown_gold": "reject",
+        },
     }
 
 
@@ -597,6 +619,7 @@ def run_llm_benchmark(
             predicted_terms = _serialize_predicted_terms(
                 pipeline_result,
                 dataset=dataset,
+                source_dataset=document.get("source_dataset"),
             )
             predicted_with_assertions = sorted(
                 _prediction_tuples_with_assertions(predicted_terms)
@@ -1246,7 +1269,9 @@ def _build_prediction_record(
         # were produced per RAW assertion and how many the dataset's present-only
         # projection drops from scoring. Does not change any metric.
         "assertion_distribution": _assertion_distribution(
-            pipeline_result, dataset=dataset
+            pipeline_result,
+            dataset=dataset,
+            source_dataset=document.get("source_dataset"),
         ),
         "metadata": {
             "llm_provider": pipeline_result.meta.llm_provider,
@@ -1287,11 +1312,13 @@ def _serialize_predicted_terms(
     pipeline_result: Any,
     *,
     dataset: str,
+    source_dataset: str | None = None,
 ) -> list[dict[str, str | None]]:
     predicted_terms: list[dict[str, str | None]] = []
     for term in pipeline_result.terms:
         projected_assertion = _project_assertion_for_dataset(
             dataset=dataset,
+            source_dataset=source_dataset,
             assertion=getattr(term, "assertion", None),
         )
         if projected_assertion is None:
@@ -1309,7 +1336,9 @@ def _serialize_predicted_terms(
     return predicted_terms
 
 
-def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, Any]:
+def _assertion_distribution(
+    pipeline_result: Any, *, dataset: str, source_dataset: str | None = None
+) -> dict[str, Any]:
     """Count predicted findings by RAW assertion (pre-projection).
 
     The LLM benchmark scores a dataset-specific present-only projection (see
@@ -1327,7 +1356,9 @@ def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, 
         by_assertion[raw] = by_assertion.get(raw, 0) + 1
         if (
             _project_assertion_for_dataset(
-                dataset=dataset, assertion=getattr(term, "assertion", None)
+                dataset=dataset,
+                source_dataset=source_dataset,
+                assertion=getattr(term, "assertion", None),
             )
             is None
         ):
@@ -1468,21 +1499,19 @@ def _build_observability_counts(
 def _project_assertion_for_dataset(
     *,
     dataset: str,
+    source_dataset: str | None = None,
     assertion: str | None,
 ) -> str | None:
-    dataset_projection = resolve_dataset_assertion_projection(dataset)
-    raw_assertion = (
-        assertion.strip().lower()
-        if isinstance(assertion, str) and assertion.strip()
-        else None
+    dataset_projection = resolve_dataset_assertion_projection(dataset, source_dataset)
+    raw_assertion = assertion.strip().casefold() if assertion else ""
+    if dataset_projection is not None and raw_assertion == "other":
+        return None
+    normalized_assertion = normalize_benchmark_assertion(
+        assertion, reject_unknown=False
     )
     if dataset_projection is None:
-        return _normalize_assertion(assertion)
-    if raw_assertion is None:
-        return DEFAULT_ID_ONLY_ASSERTION
-    if raw_assertion in dataset_projection:
-        return dataset_projection[raw_assertion]
-    return _normalize_assertion(assertion)
+        return normalized_assertion
+    return dataset_projection.get(normalized_assertion, DEFAULT_ID_ONLY_ASSERTION)
 
 
 def _prediction_tuples_with_assertions(

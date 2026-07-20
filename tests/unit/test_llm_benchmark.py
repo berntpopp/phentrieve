@@ -2753,13 +2753,36 @@ def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) 
 def test_assertion_projection_descriptor_matches_passthrough_runtime() -> None:
     descriptor = llm_benchmark.describe_dataset_assertion_projection("all")
 
-    assert descriptor == {
-        "schema_version": "phentrieve-assertion-projection/v1",
-        "mode": "normalized_passthrough",
-        "mapping": None,
-    }
+    assert descriptor["schema_version"] == "phentrieve-assertion-projection/v2"
+    assert descriptor["mode"] == "source_mapped"
+    assert descriptor["mapping"] is None
+    assert descriptor["normalization"]["unknown_gold"] == "reject"
     assert (
         llm_benchmark._project_assertion_for_dataset(dataset="all", assertion="negated")
+        == "ABSENT"
+    )
+
+
+def test_all_projection_descriptor_binds_source_specific_runtime_rules() -> None:
+    descriptor = llm_benchmark.describe_dataset_assertion_projection("all")
+
+    assert descriptor["schema_version"] == "phentrieve-assertion-projection/v2"
+    assert descriptor["source_mappings"]["CSC"]["ABSENT"] is None
+    assert descriptor["source_mappings"]["GSC"]["UNCERTAIN"] is None
+    assert descriptor["source_mappings"]["GSC_plus"] is None
+
+
+def test_all_projection_uses_document_source_for_predictions() -> None:
+    assert (
+        llm_benchmark._project_assertion_for_dataset(
+            dataset="all", source_dataset="CSC", assertion="absent"
+        )
+        is None
+    )
+    assert (
+        llm_benchmark._project_assertion_for_dataset(
+            dataset="all", source_dataset="GSC_plus", assertion="absent"
+        )
         == "ABSENT"
     )
 

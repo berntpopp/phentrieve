@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+from phentrieve.benchmark import data_loader
 from phentrieve.benchmark.run_identity import (
     DatasetIdentity,
     RetrievalAssetIdentity,
@@ -153,7 +154,7 @@ def test_non_present_assertion_change_changes_scoring_identity(tmp_path) -> None
     document["gold_hpo_terms"] = [{"id": "HP:1", "assertion": "NEGATED"}]
     _write_dataset(path, [document])
     before = build_dataset_identity(path, dataset="all")
-    document["gold_hpo_terms"] = [{"id": "HP:1", "assertion": "FAMILY"}]
+    document["gold_hpo_terms"] = [{"id": "HP:1", "assertion": "FAMILY_HISTORY"}]
     _write_dataset(path, [document])
     after = build_dataset_identity(path, dataset="all")
     assert before.gold_sha256 == after.gold_sha256
@@ -163,6 +164,40 @@ def test_non_present_assertion_change_changes_scoring_identity(tmp_path) -> None
         build_run_fingerprints(before, prompt, model, asset).scoring_sha256
         != build_run_fingerprints(after, prompt, model, asset).scoring_sha256
     )
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (None, "PRESENT"),
+        ("  ", "PRESENT"),
+        (" affirmed ", "PRESENT"),
+        ("ABSENT", "ABSENT"),
+        (" negated ", "ABSENT"),
+        ("Family_History", "FAMILY_HISTORY"),
+    ],
+)
+def test_gold_assertions_use_one_canonical_normalizer(raw, expected) -> None:
+    normalize = data_loader.normalize_benchmark_assertion
+
+    assert normalize(raw, reject_unknown=True) == expected
+
+
+def test_unknown_explicit_gold_assertion_is_rejected() -> None:
+    normalize = data_loader.normalize_benchmark_assertion
+
+    with pytest.raises(ValueError, match="Unknown benchmark assertion"):
+        normalize("historical", reject_unknown=True)
+
+
+def test_json_gold_terms_are_normalized_for_dicts_and_tuples() -> None:
+    assert data_loader.parse_gold_terms(
+        [
+            {"id": "HP:1", "assertion": " absent "},
+            ["HP:2", "NEGATED"],
+            "HP:3",
+        ]
+    ) == [("HP:1", "ABSENT"), ("HP:2", "ABSENT"), ("HP:3", "PRESENT")]
 
 
 def test_endpoint_behavior_hash_preserves_path_and_query_without_credentials() -> None:
