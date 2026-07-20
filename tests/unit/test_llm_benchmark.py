@@ -21,7 +21,11 @@ from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 pytestmark = pytest.mark.unit
 
 
-def _test_fingerprints(test_file: Path) -> dict[str, object]:
+def _test_fingerprints(
+    test_file: Path, *, producer_source_sha256: str | None = None
+) -> dict[str, object]:
+    producer_identity = llm_cli._build_producer_identity()
+    source_sha256 = producer_source_sha256 or str(producer_identity["source_sha256"])
     fingerprints = build_run_fingerprints(
         build_dataset_identity(
             test_file,
@@ -46,11 +50,22 @@ def _test_fingerprints(test_file: Path) -> dict[str, object]:
             hpo_version="v2026-06-23",
             manifest_sha256="a" * 64,
         ),
+        scoring={
+            "schema_version": "phentrieve-scoring-contract/v2",
+            "ontology_enabled": False,
+            "ontology_semantic_floor": 0.3,
+            "ontology_similarity_formula": "hybrid",
+            "evaluation_hpo_version": "v2026-06-23",
+            "assertion_projection": llm_benchmark.describe_dataset_assertion_projection(
+                "GeneReviews"
+            ),
+        },
+        producer_source_sha256=source_sha256,
     )
     return {
         "execution_fingerprint": fingerprints.execution_sha256,
         "scoring_fingerprint": fingerprints.scoring_sha256,
-        "producer_identity": llm_cli._build_producer_identity(),
+        "producer_identity": producer_identity,
     }
 
 
@@ -2683,7 +2698,7 @@ def test_overwrite_rejects_existing_run_without_object_checkpoint(
     )
 
 
-def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) -> None:
+def test_checkpoint_resume_is_bound_to_producer_source(tmp_path, monkeypatch) -> None:
     test_file = tmp_path / "cases.json"
     test_file.write_text("[]", encoding="utf-8")
     output_dir = tmp_path / "results"
@@ -2714,11 +2729,13 @@ def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) 
         json.dumps(
             {
                 **configuration,
-                **_test_fingerprints(test_file),
+                **_test_fingerprints(test_file, producer_source_sha256="a" * 64),
                 "producer_identity": {
-                    "version": "0.27.0",
-                    "commit": "old-commit",
+                    "phentrieve_version": "0.27.0",
+                    "commit": "a" * 40,
                     "provenance_status": "resolved",
+                    "schema_version": "phentrieve-producer-source/v1",
+                    "source_sha256": "a" * 64,
                 },
                 "status": "running",
                 "prediction_records": [],
@@ -2731,9 +2748,11 @@ def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) 
         llm_cli,
         "_build_producer_identity",
         lambda: {
-            "version": "0.27.0",
-            "commit": "new-commit",
+            "phentrieve_version": "0.27.0",
+            "commit": "b" * 40,
             "provenance_status": "resolved",
+            "schema_version": "phentrieve-producer-source/v1",
+            "source_sha256": "b" * 64,
         },
     )
     monkeypatch.setattr(
@@ -2742,7 +2761,7 @@ def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) 
         lambda **_kwargs: pytest.fail("cross-producer checkpoint must not execute"),
     )
 
-    with pytest.raises(ValueError, match="configuration mismatch"):
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
         llm_cli.run_llm_benchmark_cli(
             test_file=str(test_file),
             llm_model="gemini-2.5-flash",
@@ -2864,6 +2883,34 @@ def test_producer_identity_rejects_untracked_install_inside_unrelated_repo(
     identity = llm_cli._build_producer_identity()
     assert identity["commit"] is None
     assert identity["provenance_status"] != "resolved"
+
+
+def test_runtime_source_hash_normalizes_newlines_and_ignores_bytecode(tmp_path) -> None:
+    package = tmp_path / "phentrieve"
+    package.mkdir()
+    source = package / "module.py"
+    source.write_bytes(b"print('x')\r\n")
+    first = llm_cli._hash_runtime_package(package)
+
+    source.write_bytes(b"print('x')\n")
+    cache = package / "__pycache__"
+    cache.mkdir()
+    (cache / "module.pyc").write_bytes(b"ignored")
+    second = llm_cli._hash_runtime_package(package)
+
+    assert first == second
+
+
+@pytest.mark.parametrize("length", [40, 64])
+def test_full_git_object_ids_are_accepted(length) -> None:
+    candidate = "a" * length
+
+    assert llm_cli._normalize_full_git_oid(candidate) == candidate
+
+
+@pytest.mark.parametrize("length", [39, 41, 63, 65])
+def test_abbreviated_or_invalid_git_object_ids_are_rejected(length) -> None:
+    assert llm_cli._normalize_full_git_oid("a" * length) is None
 
 
 def test_runner_rejects_provider_runtime_identity_mismatch(monkeypatch) -> None:

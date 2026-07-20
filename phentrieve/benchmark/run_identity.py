@@ -23,7 +23,8 @@ from phentrieve.llm.prompts.identity import PromptBundleIdentity
 JSONValue: TypeAlias = (
     None | bool | int | float | str | list["JSONValue"] | dict[str, "JSONValue"]
 )
-DATASET_IDENTITY_SCHEMA = "phentrieve-dataset-identity/v1"
+DATASET_IDENTITY_SCHEMA = "phentrieve-dataset-identity/v2"
+RUN_FINGERPRINT_SCHEMA = "phentrieve-run-fingerprint/v2"
 SENSITIVE_ENDPOINT_QUERY_KEYS = frozenset(
     {
         "api_key",
@@ -78,12 +79,18 @@ def build_run_fingerprints(
     prompt: PromptBundleIdentity,
     model: Mapping[str, JSONValue],
     asset: RetrievalAssetIdentity,
+    *,
+    scoring: Mapping[str, JSONValue] | None = None,
+    producer_source_sha256: str = "",
 ) -> RunFingerprints:
     """Build stable identities for execution inputs and scoring semantics."""
     model_payload = dict(model)
     _validate_json_value(model_payload, path="$")
+    scoring_config = dict(scoring or {})
+    _validate_json_value(scoring_config, path="$.scoring")
 
     execution_payload = {
+        "schema_version": RUN_FINGERPRINT_SCHEMA,
         "input_sha256": dataset.input_sha256,
         "document_ids_sha256": dataset.document_ids_sha256,
         "execution_order_sha256": dataset.execution_order_sha256,
@@ -91,8 +98,10 @@ def build_run_fingerprints(
         "model": model_payload,
         "asset": asdict(asset),
         "evaluation_hpo_version": asset.hpo_version,
+        "producer_source_sha256": producer_source_sha256,
     }
     scoring_payload = {
+        "schema_version": RUN_FINGERPRINT_SCHEMA,
         "dataset_identity_schema": dataset.schema_version,
         "gold_sha256": dataset.gold_sha256,
         "assertion_gold_sha256": dataset.assertion_gold_sha256,
@@ -100,6 +109,8 @@ def build_run_fingerprints(
         "document_ids_sha256": dataset.document_ids_sha256,
         "projection": dataset.projection,
         "projection_sha256": dataset.projection_sha256,
+        "scoring": scoring_config,
+        "producer_source_sha256": producer_source_sha256,
     }
     return RunFingerprints(
         execution_sha256=_canonical_sha256(execution_payload),

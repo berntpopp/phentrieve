@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -290,10 +291,25 @@ def run_llm_benchmark_cli(
         "timeout_seconds": llm_timeout_seconds,
         "internal_mode": llm_internal_mode,
     }
-    fingerprints = build_run_fingerprints(
-        dataset_identity, prompt_identity, model_identity, retrieval_identity
-    )
     producer_identity = _build_producer_identity()
+    scoring_identity = {
+        "schema_version": "phentrieve-scoring-contract/v2",
+        "ontology_enabled": ontology_aware_metrics,
+        "ontology_semantic_floor": ontology_semantic_floor,
+        "ontology_similarity_formula": ontology_similarity_formula,
+        "evaluation_hpo_version": resolved_evaluation_hpo,
+        "assertion_projection": llm_benchmark.describe_dataset_assertion_projection(
+            dataset
+        ),
+    }
+    fingerprints = build_run_fingerprints(
+        dataset_identity,
+        prompt_identity,
+        model_identity,
+        retrieval_identity,
+        scoring=scoring_identity,
+        producer_source_sha256=str(producer_identity["source_sha256"]),
+    )
     identities = {
         "dataset_identity": asdict(dataset_identity),
         "prompt_identity": asdict(prompt_identity),
@@ -301,6 +317,7 @@ def run_llm_benchmark_cli(
         "evaluation_hpo_version": resolved_evaluation_hpo,
         "retrieval_asset_identity": asdict(retrieval_identity),
         "producer_identity": producer_identity,
+        "scoring_identity": scoring_identity,
         "execution_fingerprint": fingerprints.execution_sha256,
         "scoring_fingerprint": fingerprints.scoring_sha256,
     }
@@ -481,12 +498,17 @@ def _build_producer_identity() -> dict[str, str | None]:
     """Return source provenance without making Git availability a runtime requirement."""
     from phentrieve import __version__
 
+    package_root = Path(__file__).resolve().parents[1]
+    source_sha256 = _hash_runtime_package(package_root)
+
     executable = shutil.which("git")
     if executable is None:
         return {
             "phentrieve_version": __version__,
             "commit": None,
             "provenance_status": "git_unavailable",
+            "schema_version": "phentrieve-producer-source/v1",
+            "source_sha256": source_sha256,
         }
     package_repository = Path(__file__).resolve().parents[2]
     try:
@@ -509,21 +531,56 @@ def _build_producer_identity() -> dict[str, str | None]:
             "phentrieve_version": __version__,
             "commit": None,
             "provenance_status": "git_unavailable",
+            "schema_version": "phentrieve-producer-source/v1",
+            "source_sha256": source_sha256,
         }
     output = completed.stdout.splitlines() if completed.returncode == 0 else []
     commit: str | None = None
     if len(output) == 3 and output[1].strip() == "true":
         top_level = Path(output[0]).resolve()
         candidate = output[2].strip()
-        if package_repository == top_level and re.fullmatch(
-            r"[0-9a-fA-F]{40}", candidate
-        ):
-            commit = candidate.lower()
+        if package_repository == top_level:
+            commit = _normalize_full_git_oid(candidate)
     return {
         "phentrieve_version": __version__,
         "commit": commit,
         "provenance_status": "resolved" if commit else "git_error",
+        "schema_version": "phentrieve-producer-source/v1",
+        "source_sha256": source_sha256,
     }
+
+
+def _normalize_full_git_oid(candidate: str) -> str | None:
+    normalized = candidate.strip().lower()
+    if (
+        len(normalized) not in {40, 64}
+        or re.fullmatch(r"[0-9a-f]+", normalized) is None
+    ):
+        return None
+    return normalized
+
+
+def _hash_runtime_package(package_root: Path) -> str:
+    """Hash runtime package files independent of checkout newline conventions."""
+    digest = hashlib.sha256()
+    text_suffixes = {".json", ".py", ".toml", ".txt", ".yaml", ".yml"}
+    files = sorted(
+        path
+        for path in package_root.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix not in {".pyc", ".pyo"}
+    )
+    for path in files:
+        relative = path.relative_to(package_root).as_posix().encode("utf-8")
+        content = path.read_bytes()
+        if path.suffix.casefold() in text_suffixes:
+            content = content.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        digest.update(len(relative).to_bytes(8, "big"))
+        digest.update(relative)
+        digest.update(len(content).to_bytes(8, "big"))
+        digest.update(content)
+    return digest.hexdigest()
 
 
 def _sanitize_persisted_base_urls(value: Any, *, key: str | None = None) -> Any:
@@ -753,11 +810,22 @@ def _checkpoint_matches_run(
     payload: dict[str, Any],
     current_run: dict[str, Any],
 ) -> bool:
-    return all(
-        payload.get(key, CHECKPOINT_DEFAULTS.get(key)) == value
-        for key, value in current_run.items()
-        if key in payload or key not in _UNVERIFIABLE_WHEN_ABSENT
-    )
+    for key, value in current_run.items():
+        if key == "producer_identity":
+            persisted = payload.get(key)
+            if not isinstance(persisted, dict) or not isinstance(value, dict):
+                return False
+            source_sha256 = value.get("source_sha256")
+            if not isinstance(source_sha256, str) or not source_sha256:
+                return False
+            if persisted.get("source_sha256") != source_sha256:
+                return False
+            continue
+        if key not in payload and key in _UNVERIFIABLE_WHEN_ABSENT:
+            continue
+        if payload.get(key, CHECKPOINT_DEFAULTS.get(key)) != value:
+            return False
+    return True
 
 
 def _manifest_metadata(

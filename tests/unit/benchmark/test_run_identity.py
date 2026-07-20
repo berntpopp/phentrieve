@@ -69,7 +69,7 @@ def test_dataset_identity_versions_and_hashes_effective_projection(tmp_path) -> 
         projection={"present": "PRESENT", "negated": "ABSENT"},
     )
 
-    assert present.schema_version == "phentrieve-dataset-identity/v1"
+    assert present.schema_version == "phentrieve-dataset-identity/v2"
     assert present.projection_sha256 != assertion_aware.projection_sha256
     _, prompt, asset, model = _fingerprint_identities()
     assert (
@@ -561,6 +561,48 @@ def test_producer_provenance_is_outside_run_fingerprints() -> None:
 
     assert first_manifest["provenance"] != second_manifest["provenance"]
     assert first_manifest["fingerprints"] == second_manifest["fingerprints"]
+
+
+def test_producer_source_changes_execution_and_scoring_fingerprints() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(
+        dataset,
+        prompt,
+        model,
+        asset,
+        producer_source_sha256="a" * 64,
+    )
+    after = build_run_fingerprints(
+        dataset,
+        prompt,
+        model,
+        asset,
+        producer_source_sha256="b" * 64,
+    )
+
+    assert before.execution_sha256 != after.execution_sha256
+    assert before.scoring_sha256 != after.scoring_sha256
+
+
+def test_ontology_scoring_configuration_changes_only_scoring_fingerprint() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(
+        dataset,
+        prompt,
+        model,
+        asset,
+        scoring={"ontology_enabled": True, "semantic_floor": 0.3},
+    )
+    after = build_run_fingerprints(
+        dataset,
+        prompt,
+        model,
+        asset,
+        scoring={"ontology_enabled": True, "semantic_floor": 0.9},
+    )
+
+    assert before.execution_sha256 == after.execution_sha256
+    assert before.scoring_sha256 != after.scoring_sha256
 
 
 def test_non_json_model_values_are_rejected_precisely() -> None:
