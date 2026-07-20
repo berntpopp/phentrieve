@@ -6,8 +6,11 @@ import json
 import logging
 import os
 import re
+import shutil
+import subprocess
 import tempfile
 import warnings
+from dataclasses import asdict
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated, Any, Literal, cast
@@ -22,14 +25,24 @@ from phentrieve.benchmark.llm_benchmark import (
     DEFAULT_LLM_BENCHMARK_MODE,
 )
 from phentrieve.benchmark.result_store import (
+    ArtifactEntry,
     create_run_layout,
+    publish_manifest_v2,
     sha256_path,
     write_json,
     write_jsonl,
     write_manifest,
 )
+from phentrieve.benchmark.run_identity import (
+    build_dataset_identity,
+    build_run_fingerprints,
+    load_retrieval_asset_identity,
+    sanitize_behavioral_base_url,
+    validate_evaluation_hpo_version,
+)
 from phentrieve.llm.config import DEFAULT_LLM_LANGUAGE, DEFAULT_OPENROUTER_BASE_URL
 from phentrieve.llm.prompts import loader as prompt_loader
+from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 from phentrieve.llm.providers.resolver import resolve_llm_provider_request
 from phentrieve.utils import setup_logging_cli
 
@@ -177,6 +190,8 @@ def run_llm_benchmark_cli(
     carbon_kg_per_kwh: float | None = None,
     currency: str | None = None,
     debug: bool = False,
+    evaluation_hpo_version: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Run the LLM benchmark and persist canonical run-layout artifacts."""
     if output_path or checkpoint_path or artifacts_dir:
@@ -246,6 +261,37 @@ def run_llm_benchmark_cli(
         llm_model=llm_model,
         llm_base_url=llm_base_url,
     )
+    effective_doc_ids = doc_ids or None
+    dataset_identity = build_dataset_identity(test_file_path, dataset, effective_doc_ids)
+    prompt_identity = build_prompt_bundle_identity(
+        llm_mode,
+        language,
+        Path(prompt_templates_dir) if prompt_templates_dir else None,
+    )
+    retrieval_identity = load_retrieval_asset_identity(_data_dir)
+    resolved_evaluation_hpo = evaluation_hpo_version or retrieval_identity.hpo_version
+    validate_evaluation_hpo_version(resolved_evaluation_hpo, retrieval_identity)
+    model_identity = {
+        "provider": resolved_provider_request.provider,
+        "model": resolved_provider_request.model,
+        "base_url": sanitize_behavioral_base_url(resolved_provider_request.base_url),
+        "seed": resolved_provider_request.seed,
+        "timeout_seconds": llm_timeout_seconds,
+        "internal_mode": llm_internal_mode,
+    }
+    fingerprints = build_run_fingerprints(
+        dataset_identity, prompt_identity, model_identity, retrieval_identity
+    )
+    identities = {
+        "dataset_identity": asdict(dataset_identity),
+        "prompt_identity": asdict(prompt_identity),
+        "model_identity": model_identity,
+        "evaluation_hpo_version": resolved_evaluation_hpo,
+        "retrieval_asset_identity": asdict(retrieval_identity),
+        "producer_identity": _build_producer_identity(),
+        "execution_fingerprint": fingerprints.execution_sha256,
+        "scoring_fingerprint": fingerprints.scoring_sha256,
+    }
     checkpoint_identity = _build_checkpoint_identity(
         test_file_path=test_file_path,
         dataset_sha256=dataset_sha256,
@@ -266,9 +312,11 @@ def run_llm_benchmark_cli(
         prompt_templates_dir=prompt_templates_dir,
         doc_ids=doc_ids,
     )
+    checkpoint_identity.update(identities)
     existing_checkpoint = _load_checkpoint_payload(
         path=canonical_checkpoint_path,
-        current_run=checkpoint_identity,
+        execution_fingerprint=fingerprints.execution_sha256,
+        scoring_fingerprint=fingerprints.scoring_sha256,
         allow_completed=True,
     )
 
@@ -282,19 +330,36 @@ def run_llm_benchmark_cli(
             run_dir=run_layout.run_dir,
             benchmark_payload=checkpoint_payload,
         )
+        partial_metadata = _manifest_metadata(
+            payload=checkpoint_payload,
+            dataset_sha256=dataset_sha256,
+            test_file_path=test_file_path,
+            status="partial",
+        )
         write_manifest(
             run_layout,
-            _manifest_metadata(
-                payload=checkpoint_payload,
-                dataset_sha256=dataset_sha256,
-                test_file_path=test_file_path,
-                status="partial",
-            ),
+            partial_metadata,
             extra_artifacts=_extra_artifacts(
                 predictions_dir=predictions_dir,
                 traces_dir=traces_dir,
                 metrics_path=metrics_path,
             ),
+        )
+        partial_inventory = [
+            ArtifactEntry(canonical_checkpoint_path, "checkpoint", "application/json")
+        ]
+        if metrics_path is not None:
+            partial_inventory.append(
+                ArtifactEntry(metrics_path, "metrics", "application/json")
+            )
+        for role, directory in (("prediction", predictions_dir), ("trace", traces_dir)):
+            if directory is not None:
+                partial_inventory.extend(
+                    ArtifactEntry(path, role, "application/json")
+                    for path in sorted(directory.rglob("*.json"))
+                )
+        publish_manifest_v2(
+            run_layout, {**partial_metadata, **identities}, partial_inventory
         )
 
     result = llm_benchmark.run_llm_benchmark(
@@ -370,6 +435,35 @@ def run_llm_benchmark_cli(
             metrics_path=metrics_path,
         ),
     )
+    inventory = [
+        ArtifactEntry(run_layout.summary_path, "summary", "application/json"),
+        ArtifactEntry(run_layout.terms_path, "term_results", "application/x-ndjson"),
+        ArtifactEntry(run_layout.cases_path, "case_results", "application/x-ndjson"),
+    ]
+    for role, path, media_type in (
+        ("metrics", metrics_path, "application/json"),
+    ):
+        if path is not None and path.is_file():
+            inventory.append(ArtifactEntry(path, role, media_type))
+    for role, directory in (("prediction", predictions_dir), ("trace", traces_dir)):
+        if directory is not None:
+            inventory.extend(
+                ArtifactEntry(path, role, "application/json")
+                for path in sorted(directory.rglob("*.json"))
+            )
+    publish_manifest_v2(
+        run_layout,
+        {
+            **_manifest_metadata(
+                payload=payload,
+                dataset_sha256=dataset_sha256,
+                test_file_path=test_file_path,
+                status=manifest_status,
+            ),
+            **identities,
+        },
+        inventory,
+    )
     _write_json_atomic(canonical_checkpoint_path, payload)
     _write_legacy_artifacts(
         payload=payload,
@@ -379,6 +473,30 @@ def run_llm_benchmark_cli(
     )
     logger.info("Saved LLM benchmark summary to %s", run_layout.summary_path)
     return payload
+
+
+def _build_producer_identity() -> dict[str, str | None]:
+    """Return source provenance without making Git availability a runtime requirement."""
+    from phentrieve import __version__
+
+    executable = shutil.which("git")
+    if executable is None:
+        return {"phentrieve_version": __version__, "commit": None, "provenance_status": "git_unavailable"}
+    try:
+        completed = subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+            [executable, "rev-parse", "HEAD"],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    except OSError:
+        return {"phentrieve_version": __version__, "commit": None, "provenance_status": "git_unavailable"}
+    commit = completed.stdout.strip() if completed.returncode == 0 else None
+    return {
+        "phentrieve_version": __version__,
+        "commit": commit,
+        "provenance_status": "resolved" if commit else "git_error",
+    }
 
 
 def _write_legacy_artifacts(
@@ -553,7 +671,9 @@ def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
 def _load_checkpoint_payload(
     *,
     path: Path,
-    current_run: dict[str, Any],
+    current_run: dict[str, Any] | None = None,
+    execution_fingerprint: str | None = None,
+    scoring_fingerprint: str | None = None,
     allow_completed: bool,
 ) -> dict[str, Any] | None:
     if not path.exists():
@@ -564,7 +684,14 @@ def _load_checkpoint_payload(
         raise ValueError(f"Checkpoint file must be valid JSON: {path}") from exc
     if not isinstance(payload, dict):
         return None
-    if not _checkpoint_matches_run(payload=payload, current_run=current_run):
+    if execution_fingerprint is not None:
+        if payload.get("execution_fingerprint") != execution_fingerprint:
+            raise ValueError(f"Checkpoint execution fingerprint mismatch: {path}")
+        if payload.get("scoring_fingerprint") != scoring_fingerprint:
+            raise ValueError(f"Checkpoint scoring fingerprint mismatch: {path}")
+    elif current_run is not None and not _checkpoint_matches_run(
+        payload=payload, current_run=current_run
+    ):
         raise ValueError(f"Checkpoint does not match current benchmark run: {path}")
     if payload.get("status") != "running" and not allow_completed:
         return None

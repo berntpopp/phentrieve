@@ -237,7 +237,8 @@ def publish_manifest_v2(
     artifacts: dict[str, dict[str, str]] = {}
     run_root = layout.run_dir.resolve()
     seen: set[Path] = set()
-    for item in inventory:
+    items = list(inventory)
+    for item in items:
         path = item.path.resolve()
         if not path.is_relative_to(run_root):
             raise ValueError("Artifact inventory paths must be inside the run directory")
@@ -254,6 +255,24 @@ def publish_manifest_v2(
             "media_type": item.media_type,
             "sha256": sha256_file(path),
         }
+    for role, compatibility_role in (
+        ("prediction", "llm_predictions"),
+        ("trace", "llm_traces"),
+    ):
+        parents = {
+            item.path.resolve().parent.relative_to(run_root).as_posix()
+            for item in items
+            if item.role == role
+        }
+        if len(parents) == 1:
+            artifacts[compatibility_role] = {
+                "role": compatibility_role,
+                "path": parents.pop(),
+                "media_type": "inode/directory",
+            }
+    metric = next((entry for entry in artifacts.values() if entry.get("role") == "metrics"), None)
+    if metric is not None:
+        artifacts["metrics"] = dict(metric)
     manifest: dict[str, Any] = {
         "schema_version": 2,
         "run_id": layout.run_id,

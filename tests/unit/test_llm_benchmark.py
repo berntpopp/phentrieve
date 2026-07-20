@@ -8,8 +8,39 @@ from pydantic import ValidationError
 
 from phentrieve.benchmark import llm_benchmark, llm_cli
 from phentrieve.benchmark.result_store import create_run_layout
+from phentrieve.benchmark.run_identity import (
+    RetrievalAssetIdentity,
+    build_dataset_identity,
+    build_run_fingerprints,
+)
+from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 
 pytestmark = pytest.mark.unit
+
+
+def _test_fingerprints(test_file: Path) -> dict[str, str]:
+    fingerprints = build_run_fingerprints(
+        build_dataset_identity(test_file, "GeneReviews"),
+        build_prompt_bundle_identity("two_phase", "en"),
+        {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "base_url": None,
+            "seed": None,
+            "timeout_seconds": None,
+            "internal_mode": "whole_document_grounded",
+        },
+        RetrievalAssetIdentity(
+            asset_type="single_vector",
+            embedding_model="BAAI/bge-m3",
+            hpo_version="v2026-06-23",
+            manifest_sha256="a" * 64,
+        ),
+    )
+    return {
+        "execution_fingerprint": fingerprints.execution_sha256,
+        "scoring_fingerprint": fingerprints.scoring_sha256,
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -18,6 +49,16 @@ def stub_grounded_chunks(monkeypatch):
         llm_benchmark,
         "_build_grounded_chunks",
         lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+    monkeypatch.setattr(
+        llm_cli,
+        "load_retrieval_asset_identity",
+        lambda _data_dir=None: RetrievalAssetIdentity(
+            asset_type="single_vector",
+            embedding_model="BAAI/bge-m3",
+            hpo_version="v2026-06-23",
+            manifest_sha256="a" * 64,
+        ),
     )
 
 
@@ -2461,6 +2502,8 @@ def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
     )
 
     assert captured_manifests[0]["status"] == "partial"
+    assert captured_manifests[0]["schema_version"] == 2
+    assert captured_manifests[0]["execution_fingerprint"] == result["execution_fingerprint"]
     assert "terms" not in captured_manifests[0]["counts"]
     assert "cases" not in captured_manifests[0]["counts"]
     run_dir = Path(result["run_dir"])
@@ -2501,13 +2544,34 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
         encoding="utf-8",
     )
 
-    with pytest.raises(ValueError, match="Checkpoint does not match"):
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
         llm_cli.run_llm_benchmark_cli(
             test_file=str(test_file),
             llm_model="gemini-2.5-flash",
             output_dir=str(output_dir),
             run_id="fixed-run",
             overwrite=True,
+        )
+
+
+def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(tmp_path) -> None:
+    path = tmp_path / "checkpoint.json"
+    path.write_text(json.dumps({"status": "running", "execution_fingerprint": "old", "scoring_fingerprint": "score"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            execution_fingerprint="new",
+            scoring_fingerprint="score",
+            allow_completed=True,
+        )
+
+    path.write_text(json.dumps({"status": "running", "execution_fingerprint": "exec", "scoring_fingerprint": "old"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="scoring fingerprint mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            execution_fingerprint="exec",
+            scoring_fingerprint="new",
+            allow_completed=True,
         )
 
 
@@ -2544,6 +2608,7 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
                 "status": "running",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",
@@ -2682,6 +2747,7 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_k
                 "status": "running",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",
@@ -2756,6 +2822,7 @@ def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_exis
                 "status": "completed",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",

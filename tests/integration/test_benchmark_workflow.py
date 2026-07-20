@@ -19,6 +19,8 @@ from pathlib import Path
 
 import pytest
 
+from phentrieve.benchmark import llm_cli
+from phentrieve.benchmark.run_identity import RetrievalAssetIdentity
 from phentrieve.benchmark.extraction_benchmark import (
     ExtractionBenchmark,
     ExtractionConfig,
@@ -33,6 +35,20 @@ from phentrieve.evaluation.statistics import (
     compare_models_with_significance,
 )
 from phentrieve.llm.types import ExtractionGroup
+
+
+@pytest.fixture(autouse=True)
+def _benchmark_asset_provenance(monkeypatch):
+    monkeypatch.setattr(
+        llm_cli,
+        "load_retrieval_asset_identity",
+        lambda _data_dir=None: RetrievalAssetIdentity(
+            asset_type="single_vector",
+            embedding_model="BAAI/bge-m3",
+            hpo_version="v2026-06-23",
+            manifest_sha256="a" * 64,
+        ),
+    )
 
 
 @pytest.fixture

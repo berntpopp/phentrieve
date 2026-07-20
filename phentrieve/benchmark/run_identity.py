@@ -10,6 +10,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, TypeAlias
+from urllib.parse import urlsplit, urlunsplit
 
 from phentrieve.benchmark.data_loader import (
     DEFAULT_SIMPLE_ASSERTION,
@@ -184,6 +185,24 @@ def validate_evaluation_hpo_version(
             f"Evaluation HPO version {evaluation_hpo_version!r} does not match "
             f"retrieval asset HPO version {asset.hpo_version!r}."
         )
+
+
+def sanitize_behavioral_base_url(value: str | None) -> str | None:
+    """Keep endpoint behavior while removing credentials, query, and fragment."""
+    if value is None or not value.strip():
+        return None
+    raw = value.strip()
+    has_scheme = "://" in raw
+    parsed = urlsplit(raw if has_scheme else f"//{raw}")
+    if parsed.hostname is None:
+        return None
+    host = parsed.hostname.lower()
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    port = f":{parsed.port}" if parsed.port is not None else ""
+    if has_scheme:
+        return urlunsplit((parsed.scheme.lower(), f"{host}{port}", parsed.path, "", ""))
+    return f"//{host}{port}{parsed.path}"
 
 
 def _canonical_sha256(value: Any) -> str:

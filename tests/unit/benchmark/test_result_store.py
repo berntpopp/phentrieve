@@ -9,6 +9,7 @@ from phentrieve.benchmark.result_store import (
     ArtifactEntry,
     create_run_layout,
     discover_artifacts,
+    publish_manifest_v2,
     safe_slug,
     sha256_file,
     sha256_path,
@@ -16,7 +17,6 @@ from phentrieve.benchmark.result_store import (
     write_json,
     write_jsonl,
     write_manifest,
-    publish_manifest_v2,
 )
 
 
