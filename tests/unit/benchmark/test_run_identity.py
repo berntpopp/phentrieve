@@ -4,15 +4,22 @@ import json
 import os
 import subprocess
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from phentrieve.benchmark.run_identity import (
+    DatasetIdentity,
     RetrievalAssetIdentity,
     build_dataset_identity,
+    build_run_fingerprints,
     load_retrieval_asset_identity,
     validate_evaluation_hpo_version,
+)
+from phentrieve.llm.prompts.identity import (
+    PromptBundleIdentity,
+    PromptComponentIdentity,
 )
 
 
@@ -241,3 +248,229 @@ def test_evaluation_hpo_must_match_asset_hpo() -> None:
         ),
     ):
         validate_evaluation_hpo_version("v2025-03-03", asset)
+
+
+def _fingerprint_identities():
+    dataset = DatasetIdentity(
+        source_sha256="0" * 64,
+        input_sha256="1" * 64,
+        gold_sha256="2" * 64,
+        document_ids_sha256="3" * 64,
+        projection="positive_hpo_present_v1",
+        excluded_document_ids=("excluded",),
+    )
+    prompt = PromptBundleIdentity(
+        schema_version="phentrieve-prompt-bundle/v1",
+        mode="two_phase",
+        language="en",
+        prompt_behavior_version="1",
+        components=(PromptComponentIdentity("extraction", "v3", "4" * 64),),
+        sha256="5" * 64,
+    )
+    asset = RetrievalAssetIdentity(
+        asset_type="multi_vector",
+        embedding_model="BAAI/bge-m3",
+        hpo_version="v2026-06-23",
+        manifest_sha256="6" * 64,
+    )
+    model = {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "temperature": 0.0,
+        "seed": 42,
+        "sampling": {"top_p": 0.9, "stop": ["END", "STOP"]},
+    }
+    return dataset, prompt, asset, model
+
+
+def test_gold_only_change_changes_scoring_not_execution() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(
+        replace(dataset, gold_sha256="a" * 64), prompt, model, asset
+    )
+
+    assert after.execution_sha256 == before.execution_sha256
+    assert after.scoring_sha256 != before.scoring_sha256
+
+
+@pytest.mark.parametrize(
+    "changed_prompt",
+    [
+        {"sha256": "a" * 64},
+        {"prompt_behavior_version": "2"},
+        {"components": (PromptComponentIdentity("extraction", "v4", "b" * 64),)},
+    ],
+)
+def test_complete_prompt_identity_changes_execution(changed_prompt) -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(
+        dataset, replace(prompt, **changed_prompt), model, asset
+    )
+
+    assert after.execution_sha256 != before.execution_sha256
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("provider", "anthropic"),
+        ("model", "claude-sonnet"),
+        ("temperature", 0.7),
+        ("seed", 7),
+        ("frequency_penalty", 0.2),
+    ],
+)
+def test_any_model_or_sampling_parameter_changes_execution(key, value) -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(dataset, prompt, {**model, key: value}, asset)
+
+    assert after.execution_sha256 != before.execution_sha256
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        {"input_sha256": "a" * 64},
+        {"document_ids_sha256": "b" * 64},
+    ],
+)
+def test_input_and_evaluated_document_ids_change_execution(replacement) -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(
+        dataset=replace(dataset, **replacement), prompt=prompt, model=model, asset=asset
+    )
+
+    assert after.execution_sha256 != before.execution_sha256
+
+
+def test_asset_manifest_identity_changes_execution() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(
+        dataset, prompt, model, replace(asset, manifest_sha256="a" * 64)
+    )
+
+    assert after.execution_sha256 != before.execution_sha256
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        {"document_ids_sha256": "a" * 64},
+        {"projection": "all_annotations_v2"},
+    ],
+)
+def test_evaluated_document_ids_and_projection_change_scoring(replacement) -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    before = build_run_fingerprints(dataset, prompt, model, asset)
+    after = build_run_fingerprints(
+        replace(dataset, **replacement), prompt, model, asset
+    )
+
+    assert after.scoring_sha256 != before.scoring_sha256
+
+
+def test_model_mapping_key_order_does_not_change_fingerprints() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    reversed_model = dict(reversed(model.items()))
+
+    assert build_run_fingerprints(
+        dataset, prompt, model, asset
+    ) == build_run_fingerprints(dataset, prompt, reversed_model, asset)
+
+
+def test_producer_provenance_is_outside_run_fingerprints() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    first_manifest = {
+        "fingerprints": build_run_fingerprints(dataset, prompt, model, asset),
+        "provenance": {"package_version": "1.0", "git_commit": "abc"},
+    }
+    second_manifest = {
+        "fingerprints": build_run_fingerprints(dataset, prompt, model, asset),
+        "provenance": {"package_version": "2.0", "git_commit": "def"},
+    }
+
+    assert first_manifest["provenance"] != second_manifest["provenance"]
+    assert first_manifest["fingerprints"] == second_manifest["fingerprints"]
+
+
+def test_non_json_model_values_are_rejected_precisely() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+
+    with pytest.raises(
+        TypeError,
+        match=r"Model configuration value at \$\.invalid must be JSON-compatible; got set",
+    ):
+        build_run_fingerprints(dataset, prompt, {**model, "invalid": {1, 2}}, asset)
+
+
+def test_non_string_model_keys_are_rejected_before_they_can_collide() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+
+    with pytest.raises(
+        TypeError, match=r"Model configuration key at \$ must be a string"
+    ):
+        build_run_fingerprints(dataset, prompt, {**model, 1: "numeric"}, asset)
+
+
+def test_tuple_model_values_are_rejected() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+
+    with pytest.raises(
+        TypeError,
+        match=r"Model configuration value at \$\.stop must be JSON-compatible; got tuple",
+    ):
+        build_run_fingerprints(dataset, prompt, {**model, "stop": ("END",)}, asset)
+
+
+def test_nested_invalid_model_values_report_json_path() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+
+    with pytest.raises(
+        TypeError,
+        match=r"Model configuration value at \$\.sampling\.items\[1\] must be JSON-compatible; got bytes",
+    ):
+        build_run_fingerprints(
+            dataset,
+            prompt,
+            {**model, "sampling": {"items": ["valid", b"invalid"]}},
+            asset,
+        )
+
+
+@pytest.mark.parametrize("non_finite", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_model_numbers_are_rejected(non_finite) -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+
+    with pytest.raises(
+        ValueError,
+        match=r"Model configuration number at \$\.sampling\.value must be finite",
+    ):
+        build_run_fingerprints(
+            dataset,
+            prompt,
+            {**model, "sampling": {"value": non_finite}},
+            asset,
+        )
+
+
+def test_nested_json_model_values_are_accepted() -> None:
+    dataset, prompt, asset, model = _fingerprint_identities()
+    nested_model = {
+        **model,
+        "options": {
+            "enabled": True,
+            "label": None,
+            "count": 2,
+            "weights": [0.25, 0.75],
+            "nested": {"names": ["first", "second"]},
+        },
+    }
+
+    fingerprints = build_run_fingerprints(dataset, prompt, nested_model, asset)
+
+    assert len(fingerprints.execution_sha256) == 64

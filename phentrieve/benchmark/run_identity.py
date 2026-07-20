@@ -4,17 +4,23 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections import Counter
-from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeAlias
 
 from phentrieve.benchmark.data_loader import (
     DEFAULT_SIMPLE_ASSERTION,
     DIRECTORY_BENCHMARK_DATASETS,
     load_benchmark_data,
     parse_gold_terms,
+)
+from phentrieve.llm.prompts.identity import PromptBundleIdentity
+
+JSONValue: TypeAlias = (
+    None | bool | int | float | str | list["JSONValue"] | dict[str, "JSONValue"]
 )
 
 
@@ -38,6 +44,43 @@ class RetrievalAssetIdentity:
     embedding_model: str
     hpo_version: str
     manifest_sha256: str
+
+
+@dataclass(frozen=True)
+class RunFingerprints:
+    """Hashes separating inference execution from scoring semantics."""
+
+    execution_sha256: str
+    scoring_sha256: str
+
+
+def build_run_fingerprints(
+    dataset: DatasetIdentity,
+    prompt: PromptBundleIdentity,
+    model: Mapping[str, JSONValue],
+    asset: RetrievalAssetIdentity,
+) -> RunFingerprints:
+    """Build stable identities for execution inputs and scoring semantics."""
+    model_payload = dict(model)
+    _validate_json_value(model_payload, path="$")
+
+    execution_payload = {
+        "input_sha256": dataset.input_sha256,
+        "document_ids_sha256": dataset.document_ids_sha256,
+        "prompt": asdict(prompt),
+        "model": model_payload,
+        "asset": asdict(asset),
+        "evaluation_hpo_version": asset.hpo_version,
+    }
+    scoring_payload = {
+        "gold_sha256": dataset.gold_sha256,
+        "document_ids_sha256": dataset.document_ids_sha256,
+        "projection": dataset.projection,
+    }
+    return RunFingerprints(
+        execution_sha256=_canonical_sha256(execution_payload),
+        scoring_sha256=_canonical_sha256(scoring_payload),
+    )
 
 
 def build_dataset_identity(
@@ -135,13 +178,52 @@ def validate_evaluation_hpo_version(
 
 
 def _canonical_sha256(value: Any) -> str:
-    encoded = json.dumps(
+    encoded = _canonical_json(value).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _canonical_json(value: Any) -> str:
+    return json.dumps(
         value,
+        allow_nan=False,
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
-    ).encode("utf-8")
-    return hashlib.sha256(encoded).hexdigest()
+    )
+
+
+def _validate_json_value(value: object, *, path: str) -> None:
+    if value is None or type(value) in (bool, str):
+        return
+    if type(value) is int:
+        return
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise ValueError(f"Model configuration number at {path} must be finite")
+        return
+    if type(value) is list:
+        for index, item in enumerate(value):
+            _validate_json_value(item, path=f"{path}[{index}]")
+        return
+    if type(value) is dict:
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError(
+                    f"Model configuration key at {path} must be a string; "
+                    f"got {type(key).__name__}"
+                )
+            _validate_json_value(item, path=_json_child_path(path, key))
+        return
+    raise TypeError(
+        f"Model configuration value at {path} must be JSON-compatible; "
+        f"got {type(value).__name__}"
+    )
+
+
+def _json_child_path(path: str, key: str) -> str:
+    if key.isidentifier():
+        return f"{path}.{key}"
+    return f"{path}[{json.dumps(key, ensure_ascii=False)}]"
 
 
 def _reject_duplicate_ids(document_ids: Sequence[str], *, source: str) -> None:
