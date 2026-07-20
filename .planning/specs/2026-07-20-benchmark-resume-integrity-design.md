@@ -134,10 +134,10 @@ Layout resolution for the LLM resume path is read-only. Checkpoint type, schema,
 fingerprints, and complete configuration are validated before `mkdir`, temporary
 files, locks, deletion, or legacy-directory creation.
 
-Each write attempt creates an immutable generation below the run directory. The
-generation contains checkpoint, summary, metrics, predictions, traces, cases,
-terms, diagnostics, and their complete hashed inventory. The existing root
-manifest remains authoritative while the generation is built.
+Each write attempt creates an immutable generation below the run directory with
+the complete artifact set available for that snapshot and its hashed inventory.
+Final generations additionally contain summary, terms, cases, and diagnostics.
+The existing root manifest remains authoritative while the generation is built.
 
 Publication writes the new manifest to a unique same-directory temporary file
 and atomically replaces only `manifest.json` as the commit point. Therefore the
@@ -147,11 +147,12 @@ artifact generation, hashing, or manifest replacement leaves the previous
 manifest and all referenced files valid. An interrupted attempt may leave an
 unreferenced generation that a later boundary-validated cleanup can remove.
 
-Root-level artifact names remain best-effort compatibility aliases refreshed
-after manifest commit. Resume resolves the active checkpoint from the manifest,
-with the old fixed `checkpoint.json` path as a legacy fallback. Old generations
-are retained until safe boundary-validated garbage collection can prove they are
-not referenced by the active manifest.
+Root-level artifact names are best-effort staging/compatibility working copies
+and may temporarily lead or lag the committed generation. They are never
+authoritative. Resume resolves the active checkpoint from the manifest, with the
+old fixed `checkpoint.json` path as a legacy fallback. Boundary-validated
+garbage collection retains the active generation plus one rollback generation
+and removes older or abandoned generations.
 
 ## Filesystem Boundaries And Discovery
 

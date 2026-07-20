@@ -33,11 +33,25 @@ together:
 
 - **LLM checkpoint reuse now fails closed.** A checkpoint must match both the
   execution/scoring fingerprints and the complete output-affecting benchmark
-  configuration, including producer version/commit provenance. Missing,
-  non-object, and pre-identity checkpoints are not resumed implicitly.
+  configuration, including the normalized runtime-package source digest.
+  Package version, Git commit, and dirty state remain descriptive provenance.
+  Missing, non-object, and pre-identity checkpoints are not resumed implicitly.
 - **LLM overwrite validation is non-destructive.** Existing artifacts are kept
   until the preserved checkpoint passes compatibility checks; incompatible
   runs must use a new run id or be removed deliberately before a fresh run.
+- **Benchmark identity contracts are runtime-faithful.** Assertion aliases are
+  canonicalized, scoring and producer-source contracts are versioned, provider
+  endpoints exclude credentials, and persisted provider failures use stable
+  public error codes instead of raw exception text.
+- **Retrieval assets are verified before LLM execution.** Required database and
+  index checksums, safe relative paths, and bundle contents are validated; the
+  manifest's pinned model revision, trust/code revision, vector mode, and index
+  path are passed directly into the runtime.
+- **LLM artifacts publish as immutable generations.** The root manifest switches
+  atomically only after a complete hashed generation exists. Discovery rejects
+  malformed, escaping, linked, or checksum-mismatched artifacts, and resume
+  prefers the checkpoint referenced by the committed manifest. Publication
+  retains the active and one rollback generation, pruning older snapshots.
 
 ### Security
 

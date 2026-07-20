@@ -76,9 +76,6 @@ execution context.
 
 ## Current Active Work
 
-- `active/2026-07-20-benchmark-identity-review-remediation-plan.md` - active
-  test-first remediation of every adversarial review finding on PR #322,
-  including runtime-faithful identities and immutable artifact publication.
 - `active/2026-07-03-extraction-contract-v2-phase-0-1-plan.md` - Phase 0
   (planning-tree cleanup, this pass) + Phase 1 (extraction benchmark
   safeguard: `normalize_for_scoring` present-only projection, seeded bootstrap
@@ -127,6 +124,10 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-07-20-benchmark-identity-review-remediation-plan.md` -
+  completed test-first remediation of every adversarial and agentic review
+  finding on PR #322, including runtime-faithful identities, verified retrieval
+  binding, safe endpoint persistence, and immutable artifact publication.
 - `completed/2026-06-14-mcp-stabilization-plan.md` - completed execution
   record for the MCP stabilization pass (PR #291, shipped v0.24.0): all 14
   findings (B1, B2, LLM-1, LLM-2, R1, R2, B3, D4, D3, D1, D2, R3, Q1, B4) as
