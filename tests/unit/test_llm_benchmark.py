@@ -2578,7 +2578,6 @@ def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
             scoring_fingerprint="score",
             allow_completed=True,
         )
-
     path.write_text(
         json.dumps(
             {
@@ -2596,6 +2595,13 @@ def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
             scoring_fingerprint="new",
             allow_completed=True,
         )
+
+
+def test_persisted_payload_sanitizes_nested_base_url_credentials() -> None:
+    sanitized = llm_cli._sanitize_persisted_base_urls(
+        {"llm_base_url": "https://user:secret@example.test:8443/api?token=x#frag"}
+    )
+    assert sanitized == {"llm_base_url": "https://example.test:8443/api"}
 
 
 def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(

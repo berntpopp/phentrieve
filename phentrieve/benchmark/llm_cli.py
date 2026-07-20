@@ -301,7 +301,9 @@ def run_llm_benchmark_cli(
         dataset=dataset,
         resolved_provider=resolved_provider_request.provider,
         resolved_model=resolved_provider_request.model,
-        resolved_base_url=resolved_provider_request.base_url,
+        resolved_base_url=sanitize_behavioral_base_url(
+            resolved_provider_request.base_url
+        ),
         llm_timeout_seconds=llm_timeout_seconds,
         llm_seed=llm_seed,
         llm_mode=llm_mode,
@@ -323,7 +325,9 @@ def run_llm_benchmark_cli(
     )
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
-        checkpoint_payload = dict(snapshot)
+        checkpoint_payload = cast(
+            dict[str, Any], _sanitize_persisted_base_urls(snapshot)
+        )
         checkpoint_payload.update(checkpoint_identity)
         checkpoint_payload["run_id"] = run_layout.run_id
         checkpoint_payload["output_dir"] = str(output_dir)
@@ -389,7 +393,7 @@ def run_llm_benchmark_cli(
         progress_callback=_persist_checkpoint,
     )
 
-    payload = dict(result)
+    payload = cast(dict[str, Any], _sanitize_persisted_base_urls(result))
     payload.update(checkpoint_identity)
     payload["run_id"] = run_layout.run_id
     payload["run_dir"] = str(run_layout.run_dir)
@@ -505,6 +509,20 @@ def _build_producer_identity() -> dict[str, str | None]:
         "commit": commit,
         "provenance_status": "resolved" if commit else "git_error",
     }
+
+
+def _sanitize_persisted_base_urls(value: Any, *, key: str | None = None) -> Any:
+    """Recursively remove credentials and incidental URL components."""
+    if isinstance(value, dict):
+        return {
+            child_key: _sanitize_persisted_base_urls(child, key=child_key)
+            for child_key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_sanitize_persisted_base_urls(child) for child in value]
+    if key is not None and key.endswith("base_url") and isinstance(value, str):
+        return sanitize_behavioral_base_url(value)
+    return value
 
 
 def _write_legacy_artifacts(
