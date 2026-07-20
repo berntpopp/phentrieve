@@ -227,6 +227,7 @@ def run_llm_benchmark_cli(
         exact_run_id=run_id is not None,
         overwrite=overwrite,
         reset_existing=False,
+        materialize=False,
     )
     canonical_checkpoint_path = run_layout.checkpoint_path
     dataset_sha256 = sha256_path(test_file_path)
@@ -752,6 +753,7 @@ def _fetch_openrouter_token_pricing(
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
     temp_path: Path | None = None
     try:
+        path.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="utf-8",
@@ -776,6 +778,9 @@ def _load_checkpoint_payload(
     scoring_fingerprint: str | None = None,
     allow_completed: bool,
 ) -> dict[str, Any] | None:
+    is_junction = getattr(path, "is_junction", None)
+    if path.is_symlink() or bool(is_junction and is_junction()):
+        raise ValueError("Benchmark checkpoint path must not be a link or junction")
     if not path.exists():
         return None
     try:

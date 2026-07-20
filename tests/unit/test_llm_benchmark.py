@@ -2357,10 +2357,13 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     assert (run_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
     assert (run_dir / "metrics" / "benchmark_two_phase.json").exists()
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["artifacts"]["llm_predictions"]["path"] == "predictions/two_phase"
-    assert manifest["artifacts"]["llm_traces"]["path"] == "traces/two_phase"
-    assert (
-        manifest["artifacts"]["metrics"]["path"] == "metrics/benchmark_two_phase.json"
+    assert manifest["artifacts"]["llm_predictions"]["path"].startswith(".generations/")
+    assert manifest["artifacts"]["llm_predictions"]["path"].endswith(
+        "predictions/two_phase"
+    )
+    assert manifest["artifacts"]["llm_traces"]["path"].endswith("traces/two_phase")
+    assert manifest["artifacts"]["metrics"]["path"].endswith(
+        "metrics/benchmark_two_phase.json"
     )
     checkpoint = run_dir / "checkpoint.json"
     checkpoint_entry = manifest["artifacts"]["checkpoint:checkpoint.json"]
@@ -2635,6 +2638,19 @@ def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
             scoring_fingerprint="new",
             allow_completed=True,
         )
+
+
+def test_checkpoint_loader_rejects_symlink(tmp_path) -> None:
+    target = tmp_path / "outside.json"
+    target.write_text('{"status":"running"}', encoding="utf-8")
+    checkpoint = tmp_path / "checkpoint.json"
+    try:
+        checkpoint.symlink_to(target)
+    except OSError as exc:
+        pytest.skip(f"file symlinks unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="link or junction"):
+        llm_cli._load_checkpoint_payload(path=checkpoint, allow_completed=True)
 
 
 def test_checkpoint_requires_matching_configuration_when_fingerprints_match(
