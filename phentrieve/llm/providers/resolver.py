@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from urllib.parse import urlsplit, urlunsplit
 
 from phentrieve.llm.config import (
     DEFAULT_OLLAMA_BASE_URL,
@@ -13,36 +12,15 @@ from phentrieve.llm.config import (
     SUPPORTED_PROVIDER_NAMES,
 )
 from phentrieve.llm.providers.anthropic import AnthropicStructuredOutputProvider
-from phentrieve.llm.providers.base import LLMProvider, ResolvedLLMProviderRequest
+from phentrieve.llm.providers.base import (
+    LLMProvider,
+    ResolvedLLMProviderRequest,
+    canonicalize_llm_base_url,
+)
 from phentrieve.llm.providers.gemini import GeminiStructuredOutputProvider
 from phentrieve.llm.providers.ollama import OllamaStructuredOutputProvider
 from phentrieve.llm.providers.openai import OpenAIStructuredOutputProvider
 from phentrieve.llm.providers.openrouter import OpenRouterStructuredOutputProvider
-
-
-def canonicalize_llm_base_url(value: str | None) -> str | None:
-    """Return one validated provider base URL representation."""
-    if value is None or not value.strip():
-        return None
-    raw = value.strip()
-    parsed = urlsplit(raw)
-    if parsed.fragment:
-        raise ValueError("LLM base URL must not contain a fragment")
-    if parsed.scheme not in {"http", "https"} or parsed.hostname is None:
-        raise ValueError("LLM base URL must be an absolute HTTP(S) URL")
-    path = parsed.path.rstrip("/")
-    host = parsed.hostname.lower()
-    if ":" in host and not host.startswith("["):
-        host = f"[{host}]"
-    netloc = host
-    if parsed.port is not None:
-        netloc = f"{netloc}:{parsed.port}"
-    if parsed.username is not None or parsed.password is not None:
-        userinfo = parsed.username or ""
-        if parsed.password is not None:
-            userinfo = f"{userinfo}:{parsed.password}"
-        netloc = f"{userinfo}@{netloc}"
-    return urlunsplit((parsed.scheme.lower(), netloc, path, parsed.query, ""))
 
 
 # Public REST/API and MCP surfaces must not call this resolver directly with

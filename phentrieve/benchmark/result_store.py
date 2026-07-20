@@ -428,7 +428,9 @@ def _verified_manifest_artifact_path(
             ),
             None,
         )
-    relative_path = artifact.get("path") if isinstance(artifact, dict) else None
+    if not isinstance(artifact, dict):
+        return None
+    relative_path = artifact.get("path")
     if not isinstance(relative_path, str):
         return None
     portable = PurePosixPath(relative_path)

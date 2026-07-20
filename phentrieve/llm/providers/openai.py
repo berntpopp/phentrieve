@@ -21,7 +21,11 @@ from phentrieve.llm.config import (
     DEFAULT_PROVIDER_TEMPERATURE,
     DEFAULT_PROVIDER_TRANSIENT_RETRIES,
 )
-from phentrieve.llm.providers.base import LLMProvider, build_response_json_schema
+from phentrieve.llm.providers.base import (
+    LLMProvider,
+    build_response_json_schema,
+    canonicalize_llm_base_url,
+)
 from phentrieve.llm.types import LLMResponse
 
 logger = logging.getLogger(__name__)
@@ -61,7 +65,7 @@ class OpenAIStructuredOutputProvider(LLMProvider):
     ) -> None:
         super().__init__()
         self.model_name = model_name
-        self.base_url = base_url
+        self.base_url = canonicalize_llm_base_url(base_url)
         self.seed = seed
         self.temperature = temperature
         self.max_tokens = max_tokens

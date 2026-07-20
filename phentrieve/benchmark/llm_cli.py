@@ -36,6 +36,7 @@ from phentrieve.benchmark.result_store import (
     write_jsonl,
 )
 from phentrieve.benchmark.run_identity import (
+    JSONValue,
     behavioral_base_url_sha256,
     build_dataset_identity,
     build_run_fingerprints,
@@ -295,16 +296,19 @@ def run_llm_benchmark_cli(
         "internal_mode": llm_internal_mode,
     }
     producer_identity = _build_producer_identity()
-    scoring_identity = {
-        "schema_version": "phentrieve-scoring-contract/v2",
-        "ontology_enabled": ontology_aware_metrics,
-        "ontology_semantic_floor": ontology_semantic_floor,
-        "ontology_similarity_formula": ontology_similarity_formula,
-        "evaluation_hpo_version": resolved_evaluation_hpo,
-        "assertion_projection": llm_benchmark.describe_dataset_assertion_projection(
-            dataset
-        ),
-    }
+    scoring_identity = cast(
+        dict[str, JSONValue],
+        {
+            "schema_version": "phentrieve-scoring-contract/v2",
+            "ontology_enabled": ontology_aware_metrics,
+            "ontology_semantic_floor": ontology_semantic_floor,
+            "ontology_similarity_formula": ontology_similarity_formula,
+            "evaluation_hpo_version": resolved_evaluation_hpo,
+            "assertion_projection": (
+                llm_benchmark.describe_dataset_assertion_projection(dataset)
+            ),
+        },
+    )
     fingerprints = build_run_fingerprints(
         dataset_identity,
         prompt_identity,
