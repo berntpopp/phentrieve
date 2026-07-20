@@ -46,6 +46,7 @@ DEFAULT_LLM_BENCHMARK_DATASET = "GeneReviews"
 DEFAULT_LLM_BENCHMARK_MODE = "two_phase"
 DEFAULT_METRIC_AVERAGING = "micro"
 DEFAULT_ID_ONLY_ASSERTION = "PRESENT"
+ASSERTION_PROJECTION_SCHEMA = "phentrieve-assertion-projection/v1"
 
 DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
     "GeneReviews": {
@@ -76,6 +77,23 @@ DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "other": None,
     },
 }
+
+
+def resolve_dataset_assertion_projection(
+    dataset: str,
+) -> dict[str, str | None] | None:
+    """Return the assertion projection used by runtime scoring."""
+    return DATASET_ASSERTION_PROJECTION.get(dataset)
+
+
+def describe_dataset_assertion_projection(dataset: str) -> dict[str, object]:
+    """Return a canonical identity payload for the runtime projection."""
+    projection = resolve_dataset_assertion_projection(dataset)
+    return {
+        "schema_version": ASSERTION_PROJECTION_SCHEMA,
+        "mode": "mapped" if projection is not None else "normalized_passthrough",
+        "mapping": dict(projection) if projection is not None else None,
+    }
 
 
 def build_ontology_credit_config(
@@ -1452,7 +1470,7 @@ def _project_assertion_for_dataset(
     dataset: str,
     assertion: str | None,
 ) -> str | None:
-    dataset_projection = DATASET_ASSERTION_PROJECTION.get(dataset)
+    dataset_projection = resolve_dataset_assertion_projection(dataset)
     raw_assertion = (
         assertion.strip().lower()
         if isinstance(assertion, str) and assertion.strip()

@@ -12,7 +12,7 @@
 
 - Do not change retrieval or extraction overwrite behavior.
 - Do not add a destructive restart flag.
-- Do not mention downstream repositories or manuscript workflows.
+- Do not mention downstream repository workflows.
 - Every behavior fix follows a red-green test cycle.
 
 ---
@@ -105,3 +105,19 @@
 - [ ] Confirm a clean intended diff and no downstream-repository references.
 - [ ] Commit the focused follow-up, push `feat/benchmark-identity-v2-main`, and
   recheck PR #322 CI.
+
+### Task 6: Close merge-readiness edge cases
+
+**Files:**
+- Modify: `phentrieve/benchmark/result_store.py`
+- Modify: `phentrieve/benchmark/llm_benchmark.py`
+- Modify: `phentrieve/benchmark/llm_cli.py`
+- Modify: `tests/unit/test_llm_benchmark.py`
+
+- [ ] Reject overwrite for a pre-existing run whose checkpoint is missing or is
+  not a JSON object, without deleting any artifact.
+- [ ] Share a versioned assertion-projection descriptor between runtime scoring
+  and dataset identity, including the normalized-passthrough fallback.
+- [ ] Bind producer version/commit provenance to complete checkpoint
+  configuration validation.
+- [ ] Run the focused identity, Result Store, CLI, prompt, and LLM suites.

@@ -21,12 +21,14 @@ from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 pytestmark = pytest.mark.unit
 
 
-def _test_fingerprints(test_file: Path) -> dict[str, str]:
+def _test_fingerprints(test_file: Path) -> dict[str, object]:
     fingerprints = build_run_fingerprints(
         build_dataset_identity(
             test_file,
             "GeneReviews",
-            projection=llm_benchmark.DATASET_ASSERTION_PROJECTION["GeneReviews"],
+            projection=llm_benchmark.describe_dataset_assertion_projection(
+                "GeneReviews"
+            ),
         ),
         build_prompt_bundle_identity("two_phase", "en"),
         {
@@ -48,6 +50,7 @@ def _test_fingerprints(test_file: Path) -> dict[str, str]:
     return {
         "execution_fingerprint": fingerprints.execution_sha256,
         "scoring_fingerprint": fingerprints.scoring_sha256,
+        "producer_identity": llm_cli._build_producer_identity(),
     }
 
 
@@ -2641,6 +2644,124 @@ def test_checkpoint_requires_matching_configuration_when_fingerprints_match(
             scoring_fingerprint="score",
             allow_completed=True,
         )
+
+
+@pytest.mark.parametrize("checkpoint_payload", [None, []])
+def test_overwrite_rejects_existing_run_without_object_checkpoint(
+    tmp_path, monkeypatch, checkpoint_payload
+) -> None:
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    run_layout.summary_path.write_text('{"original": true}\n', encoding="utf-8")
+    if checkpoint_payload is not None:
+        run_layout.checkpoint_path.write_text(
+            json.dumps(checkpoint_payload), encoding="utf-8"
+        )
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **_kwargs: pytest.fail("incompatible run must not execute"),
+    )
+
+    with pytest.raises(ValueError, match="no compatible checkpoint"):
+        llm_cli.run_llm_benchmark_cli(
+            test_file=str(test_file),
+            llm_model="gemini-2.5-flash",
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
+        )
+
+    assert run_layout.summary_path.read_text(encoding="utf-8") == (
+        '{"original": true}\n'
+    )
+
+
+def test_checkpoint_resume_is_bound_to_producer_identity(tmp_path, monkeypatch) -> None:
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    configuration = llm_cli._build_checkpoint_identity(
+        test_file_path=test_file,
+        dataset_sha256=llm_cli.sha256_path(test_file),
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(),
+        dataset="GeneReviews",
+        resolved_provider="gemini",
+        resolved_model="gemini-2.5-flash",
+        resolved_base_url=None,
+        llm_timeout_seconds=None,
+        llm_seed=None,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+        capture_phase1_debug=False,
+        ontology_aware_metrics=False,
+        ontology_semantic_floor=0.3,
+        ontology_similarity_formula="hybrid",
+        prompt_templates_dir=None,
+        doc_ids=None,
+    )
+    run_layout.checkpoint_path.write_text(
+        json.dumps(
+            {
+                **configuration,
+                **_test_fingerprints(test_file),
+                "producer_identity": {
+                    "version": "0.27.0",
+                    "commit": "old-commit",
+                    "provenance_status": "resolved",
+                },
+                "status": "running",
+                "prediction_records": [],
+                "results": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        llm_cli,
+        "_build_producer_identity",
+        lambda: {
+            "version": "0.27.0",
+            "commit": "new-commit",
+            "provenance_status": "resolved",
+        },
+    )
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **_kwargs: pytest.fail("cross-producer checkpoint must not execute"),
+    )
+
+    with pytest.raises(ValueError, match="configuration mismatch"):
+        llm_cli.run_llm_benchmark_cli(
+            test_file=str(test_file),
+            llm_model="gemini-2.5-flash",
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
+        )
+
+
+def test_assertion_projection_descriptor_matches_passthrough_runtime() -> None:
+    descriptor = llm_benchmark.describe_dataset_assertion_projection("all")
+
+    assert descriptor == {
+        "schema_version": "phentrieve-assertion-projection/v1",
+        "mode": "normalized_passthrough",
+        "mapping": None,
+    }
+    assert (
+        llm_benchmark._project_assertion_for_dataset(dataset="all", assertion="negated")
+        == "ABSENT"
+    )
 
 
 def test_persisted_payload_sanitizes_nested_base_url_credentials() -> None:

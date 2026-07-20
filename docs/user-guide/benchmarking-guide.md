@@ -111,7 +111,8 @@ LLM manifests separate identities according to what they describe:
   loading and selection.
 - the gold hashes identify positive-only, assertion-aware, and ID-only scoring
   labels independently of model input.
-- `projection_sha256` identifies the effective dataset assertion projection.
+- `projection_sha256` identifies the effective mapped assertion projection or
+  the normalized-passthrough fallback used by `all` and custom dataset names.
 - `execution_fingerprint` identifies inputs that can change inference, including
   document order, prompts, resolved provider/model settings, seed, and retrieval
   assets.
@@ -180,7 +181,9 @@ resume only when the preserved checkpoint has matching fingerprints and full
 configuration. Validation happens before existing artifacts are cleared. A
 pre-v2 or otherwise incompatible checkpoint is rejected without modifying the
 run; choose a new `--run-id` or deliberately remove the old run directory to
-start fresh. `--output-dir` (default `results`) sets the result root.
+start fresh. Missing and non-object checkpoints are also rejected for an
+existing run. Resume additionally requires matching producer version/commit
+provenance. `--output-dir` (default `results`) sets the result root.
 
 Provider seeds are best-effort because support depends on the selected provider
 and model. When supplied through `--llm-seed`, the resolved seed is included in

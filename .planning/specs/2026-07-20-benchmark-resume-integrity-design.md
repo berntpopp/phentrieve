@@ -18,6 +18,11 @@ clears any existing artifacts. An incompatible run remains byte-for-byte
 unchanged and the error tells the operator to choose a new run id or remove the
 old run deliberately.
 
+An existing run without a valid object checkpoint is not resumable and remains
+unchanged. Producer version/commit provenance is part of the validated resume
+configuration so a final manifest cannot relabel predictions restored from a
+different producer revision.
+
 Checkpoint reuse requires both layers to match:
 
 1. execution and scoring fingerprints validate the scientific identity split;
@@ -26,8 +31,9 @@ Checkpoint reuse requires both layers to match:
    prompt overrides.
 
 Dataset identities explicitly carry their schema version and a hash of the
-effective assertion projection. The CLI passes the actual dataset projection
-mapping used by the benchmark so a projection-code change changes the scoring
+effective assertion projection. Runtime and identity construction share one
+descriptor for mapped datasets and the normalized-passthrough fallback used by
+`all` and custom dataset names, so a projection-code change changes the scoring
 fingerprint.
 
 The existing optional `evaluation_hpo_version` helper parameter becomes the

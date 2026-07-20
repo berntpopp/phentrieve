@@ -100,7 +100,7 @@ def build_dataset_identity(
     dataset: str,
     document_ids: Sequence[str] | None = None,
     *,
-    projection: Mapping[str, str | None] | None = None,
+    projection: Mapping[str, Any] | None = None,
 ) -> DatasetIdentity:
     """Build semantic identities after dataset projection and document selection."""
     payload = load_benchmark_data(test_path, dataset=dataset)

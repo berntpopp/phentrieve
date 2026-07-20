@@ -33,8 +33,8 @@ together:
 
 - **LLM checkpoint reuse now fails closed.** A checkpoint must match both the
   execution/scoring fingerprints and the complete output-affecting benchmark
-  configuration. Checkpoints written before these identities existed are not
-  resumed implicitly.
+  configuration, including producer version/commit provenance. Missing,
+  non-object, and pre-identity checkpoints are not resumed implicitly.
 - **LLM overwrite validation is non-destructive.** Existing artifacts are kept
   until the preserved checkpoint passes compatibility checks; incompatible
   runs must use a new run id or be removed deliberately before a fresh run.

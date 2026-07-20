@@ -269,7 +269,7 @@ def run_llm_benchmark_cli(
         test_file_path,
         dataset,
         effective_doc_ids,
-        projection=llm_benchmark.DATASET_ASSERTION_PROJECTION.get(dataset),
+        projection=llm_benchmark.describe_dataset_assertion_projection(dataset),
     )
     prompt_identity = build_prompt_bundle_identity(
         llm_mode,
@@ -293,13 +293,14 @@ def run_llm_benchmark_cli(
     fingerprints = build_run_fingerprints(
         dataset_identity, prompt_identity, model_identity, retrieval_identity
     )
+    producer_identity = _build_producer_identity()
     identities = {
         "dataset_identity": asdict(dataset_identity),
         "prompt_identity": asdict(prompt_identity),
         "model_identity": model_identity,
         "evaluation_hpo_version": resolved_evaluation_hpo,
         "retrieval_asset_identity": asdict(retrieval_identity),
-        "producer_identity": _build_producer_identity(),
+        "producer_identity": producer_identity,
         "execution_fingerprint": fingerprints.execution_sha256,
         "scoring_fingerprint": fingerprints.scoring_sha256,
     }
@@ -325,6 +326,7 @@ def run_llm_benchmark_cli(
         prompt_templates_dir=prompt_templates_dir,
         doc_ids=effective_doc_ids,
     )
+    checkpoint_configuration["producer_identity"] = producer_identity
     checkpoint_identity = {**checkpoint_configuration, **identities}
     existing_checkpoint = _load_checkpoint_payload(
         path=canonical_checkpoint_path,
@@ -333,6 +335,11 @@ def run_llm_benchmark_cli(
         scoring_fingerprint=fingerprints.scoring_sha256,
         allow_completed=True,
     )
+    if overwrite and run_layout.preexisting and existing_checkpoint is None:
+        raise ValueError(
+            f"Existing run has no compatible checkpoint: {run_layout.run_dir}. "
+            "Use a new --run-id or remove the existing run deliberately."
+        )
     if overwrite:
         reset_run_artifacts(run_layout)
 

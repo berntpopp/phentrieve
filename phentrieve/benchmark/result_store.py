@@ -35,6 +35,7 @@ class RunLayout:
     chunks_path: Path
     checkpoint_path: Path
     legacy_dir: Path
+    preexisting: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,7 +134,8 @@ def create_run_layout(
             run_dir = parent / selected_run_id
             suffix += 1
 
-    if run_dir.exists() and overwrite and reset_existing:
+    preexisting = run_dir.exists()
+    if preexisting and overwrite and reset_existing:
         _reset_run_dir(run_dir)
 
     run_dir.mkdir(parents=True, exist_ok=overwrite)
@@ -154,6 +156,7 @@ def create_run_layout(
         chunks_path=run_dir / "diagnostics" / "chunks.jsonl",
         checkpoint_path=run_dir / CHECKPOINT_FILENAME,
         legacy_dir=legacy_dir,
+        preexisting=preexisting,
     )
 
 
