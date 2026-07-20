@@ -262,7 +262,9 @@ def run_llm_benchmark_cli(
         llm_base_url=llm_base_url,
     )
     effective_doc_ids = doc_ids or None
-    dataset_identity = build_dataset_identity(test_file_path, dataset, effective_doc_ids)
+    dataset_identity = build_dataset_identity(
+        test_file_path, dataset, effective_doc_ids
+    )
     prompt_identity = build_prompt_bundle_identity(
         llm_mode,
         language,
@@ -440,9 +442,7 @@ def run_llm_benchmark_cli(
         ArtifactEntry(run_layout.terms_path, "term_results", "application/x-ndjson"),
         ArtifactEntry(run_layout.cases_path, "case_results", "application/x-ndjson"),
     ]
-    for role, path, media_type in (
-        ("metrics", metrics_path, "application/json"),
-    ):
+    for role, path, media_type in (("metrics", metrics_path, "application/json"),):
         if path is not None and path.is_file():
             inventory.append(ArtifactEntry(path, role, media_type))
     for role, directory in (("prediction", predictions_dir), ("trace", traces_dir)):
@@ -481,7 +481,11 @@ def _build_producer_identity() -> dict[str, str | None]:
 
     executable = shutil.which("git")
     if executable is None:
-        return {"phentrieve_version": __version__, "commit": None, "provenance_status": "git_unavailable"}
+        return {
+            "phentrieve_version": __version__,
+            "commit": None,
+            "provenance_status": "git_unavailable",
+        }
     try:
         completed = subprocess.run(  # noqa: S603 - executable resolved by shutil.which
             [executable, "rev-parse", "HEAD"],
@@ -490,7 +494,11 @@ def _build_producer_identity() -> dict[str, str | None]:
             text=True,
         )
     except OSError:
-        return {"phentrieve_version": __version__, "commit": None, "provenance_status": "git_unavailable"}
+        return {
+            "phentrieve_version": __version__,
+            "commit": None,
+            "provenance_status": "git_unavailable",
+        }
     commit = completed.stdout.strip() if completed.returncode == 0 else None
     return {
         "phentrieve_version": __version__,

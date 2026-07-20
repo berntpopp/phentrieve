@@ -233,7 +233,9 @@ def test_asset_identity_reads_installed_bundle_manifest(tmp_path) -> None:
     assert len(identity.manifest_sha256) == 64
 
 
-@pytest.mark.parametrize("hpo_value", [None, "", "   ", pytest.param("missing", id="missing")])
+@pytest.mark.parametrize(
+    "hpo_value", [None, "", "   ", pytest.param("missing", id="missing")]
+)
 def test_asset_identity_requires_hpo_version_provenance(tmp_path, hpo_value) -> None:
     manifest = {
         "model": {

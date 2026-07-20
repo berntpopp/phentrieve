@@ -241,7 +241,9 @@ def publish_manifest_v2(
     for item in items:
         path = item.path.resolve()
         if not path.is_relative_to(run_root):
-            raise ValueError("Artifact inventory paths must be inside the run directory")
+            raise ValueError(
+                "Artifact inventory paths must be inside the run directory"
+            )
         if path in seen:
             raise ValueError("Artifact inventory paths must be unique")
         if not path.is_file():
@@ -270,7 +272,9 @@ def publish_manifest_v2(
                 "path": parents.pop(),
                 "media_type": "inode/directory",
             }
-    metric = next((entry for entry in artifacts.values() if entry.get("role") == "metrics"), None)
+    metric = next(
+        (entry for entry in artifacts.values() if entry.get("role") == "metrics"), None
+    )
     if metric is not None:
         artifacts["metrics"] = dict(metric)
     manifest: dict[str, Any] = {

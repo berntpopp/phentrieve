@@ -53,7 +53,10 @@ def _normalize_newlines(value: Any) -> Any:
 
 def _canonical_bytes(value: Any) -> bytes:
     return json.dumps(
-        _normalize_newlines(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        _normalize_newlines(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
     ).encode("utf-8")
 
 
@@ -71,7 +74,9 @@ def build_prompt_bundle_identity(
 
     components: list[PromptComponentIdentity] = []
     for component_name, variant in _TWO_PHASE_COMPONENTS:
-        resolved_language = language if component_name == "extraction" else DEFAULT_LLM_LANGUAGE
+        resolved_language = (
+            language if component_name == "extraction" else DEFAULT_LLM_LANGUAGE
+        )
         template = resolve_prompt_template(
             mode, resolved_language, variant=variant, prompt_dir=prompt_dir
         )

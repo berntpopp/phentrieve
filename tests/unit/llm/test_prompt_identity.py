@@ -7,7 +7,9 @@ import yaml
 from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 
 
-def _write_bundle(prompt_dir: Path, *, extraction_text: str = "Extract phenotypes.") -> None:
+def _write_bundle(
+    prompt_dir: Path, *, extraction_text: str = "Extract phenotypes."
+) -> None:
     mode_dir = prompt_dir / "two_phase"
     mode_dir.mkdir(parents=True, exist_ok=True)
     prompts = {
@@ -36,7 +38,9 @@ def _write_bundle(prompt_dir: Path, *, extraction_text: str = "Extract phenotype
         )
 
 
-def test_yaml_whitespace_and_key_order_do_not_change_component_hash(tmp_path: Path) -> None:
+def test_yaml_whitespace_and_key_order_do_not_change_component_hash(
+    tmp_path: Path,
+) -> None:
     _write_bundle(tmp_path)
     before = build_prompt_bundle_identity("two_phase", "en", tmp_path)
 
@@ -81,7 +85,9 @@ def test_behavior_version_changes_bundle_hash(monkeypatch, tmp_path: Path) -> No
     assert before.sha256 != after.sha256
 
 
-def test_unrelated_prompt_file_does_not_change_selected_bundle_hash(tmp_path: Path) -> None:
+def test_unrelated_prompt_file_does_not_change_selected_bundle_hash(
+    tmp_path: Path,
+) -> None:
     _write_bundle(tmp_path)
     before = build_prompt_bundle_identity("two_phase", "en", tmp_path)
     (tmp_path / "two_phase" / "de.yaml").write_text(
@@ -114,13 +120,18 @@ def test_non_english_bundle_uses_localized_extraction_and_runtime_english_mappin
 
     assert german.components[0].version == "de-extraction"
     assert german.components[0].sha256 != english.components[0].sha256
-    assert tuple(component.version for component in german.components[1:]) == ("v2", "v4")
+    assert tuple(component.version for component in german.components[1:]) == (
+        "v2",
+        "v4",
+    )
 
     (mode_dir / "de_mapping.yaml").write_text(
         "version: changed-again\nsystem_prompt: Andere deutsche Zuordnung\n",
         encoding="utf-8",
     )
-    after_localized_mapping_change = build_prompt_bundle_identity("two_phase", "de", tmp_path)
+    after_localized_mapping_change = build_prompt_bundle_identity(
+        "two_phase", "de", tmp_path
+    )
     assert german.components[1:] == after_localized_mapping_change.components[1:]
 
 
@@ -203,8 +214,13 @@ def test_extraction_identity_keeps_language_placeholder_literal_like_runtime(
     runtime_literal = build_prompt_bundle_identity("two_phase", "en", tmp_path)
 
     content["system_prompt"] = "Extract in en"
-    content["user_prompt_template"] = "Document: {text}; chunks: {chunk_index}; language: en"
+    content["user_prompt_template"] = (
+        "Document: {text}; chunks: {chunk_index}; language: en"
+    )
     extraction.write_text(yaml.safe_dump(content), encoding="utf-8")
     explicitly_substituted = build_prompt_bundle_identity("two_phase", "en", tmp_path)
 
-    assert runtime_literal.components[0].sha256 != explicitly_substituted.components[0].sha256
+    assert (
+        runtime_literal.components[0].sha256
+        != explicitly_substituted.components[0].sha256
+    )

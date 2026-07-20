@@ -281,7 +281,9 @@ def test_discover_artifacts_can_filter_by_benchmark_type(tmp_path) -> None:
 
 def test_publish_manifest_v2_layers_hash_inventory_onto_run_layout(tmp_path) -> None:
     layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
-    write_json(layout.summary_path, {"status": "completed", "execution_fingerprint": "d" * 64})
+    write_json(
+        layout.summary_path, {"status": "completed", "execution_fingerprint": "d" * 64}
+    )
     prediction = layout.run_dir / "predictions" / "two_phase" / "case_1.json"
     prediction.parent.mkdir(parents=True)
     prediction.write_text('{"hpo_id":"HP:0001250"}', encoding="utf-8")
@@ -295,14 +297,23 @@ def test_publish_manifest_v2_layers_hash_inventory_onto_run_layout(tmp_path) -> 
     manifest = publish_manifest_v2(
         layout,
         identities,
-        [ArtifactEntry(layout.summary_path, "summary", "application/json"), ArtifactEntry(prediction, "prediction", "application/json")],
+        [
+            ArtifactEntry(layout.summary_path, "summary", "application/json"),
+            ArtifactEntry(prediction, "prediction", "application/json"),
+        ],
     )
 
     assert manifest["schema_version"] == 2
     assert manifest["execution_fingerprint"] == "d" * 64
-    assert manifest["artifacts"]["summary"]["sha256"] == sha256_file(layout.summary_path)
-    assert manifest["artifacts"]["prediction:predictions/two_phase/case_1.json"]["sha256"] == sha256_file(prediction)
-    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [layout.summary_path]
+    assert manifest["artifacts"]["summary"]["sha256"] == sha256_file(
+        layout.summary_path
+    )
+    assert manifest["artifacts"]["prediction:predictions/two_phase/case_1.json"][
+        "sha256"
+    ] == sha256_file(prediction)
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
+        layout.summary_path
+    ]
 
 
 def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
@@ -310,4 +321,6 @@ def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
     outside = tmp_path / "outside.json"
     outside.write_text("{}", encoding="utf-8")
     with pytest.raises(ValueError, match="inside the run directory"):
-        publish_manifest_v2(layout, {}, [ArtifactEntry(outside, "prediction", "application/json")])
+        publish_manifest_v2(
+            layout, {}, [ArtifactEntry(outside, "prediction", "application/json")]
+        )

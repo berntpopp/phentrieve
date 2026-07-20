@@ -178,7 +178,10 @@ def validate_evaluation_hpo_version(
     """Reject evaluation and retrieval assets built from different HPO versions."""
     if not isinstance(asset.hpo_version, str) or not asset.hpo_version.strip():
         raise ValueError("Retrieval asset HPO version provenance must be non-empty.")
-    if not isinstance(evaluation_hpo_version, str) or not evaluation_hpo_version.strip():
+    if (
+        not isinstance(evaluation_hpo_version, str)
+        or not evaluation_hpo_version.strip()
+    ):
         raise ValueError("Evaluation HPO version must be non-empty.")
     if evaluation_hpo_version != asset.hpo_version:
         raise ValueError(

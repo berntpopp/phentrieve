@@ -2503,7 +2503,10 @@ def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
 
     assert captured_manifests[0]["status"] == "partial"
     assert captured_manifests[0]["schema_version"] == 2
-    assert captured_manifests[0]["execution_fingerprint"] == result["execution_fingerprint"]
+    assert (
+        captured_manifests[0]["execution_fingerprint"]
+        == result["execution_fingerprint"]
+    )
     assert "terms" not in captured_manifests[0]["counts"]
     assert "cases" not in captured_manifests[0]["counts"]
     run_dir = Path(result["run_dir"])
@@ -2554,9 +2557,20 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
         )
 
 
-def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(tmp_path) -> None:
+def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
+    tmp_path,
+) -> None:
     path = tmp_path / "checkpoint.json"
-    path.write_text(json.dumps({"status": "running", "execution_fingerprint": "old", "scoring_fingerprint": "score"}), encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "old",
+                "scoring_fingerprint": "score",
+            }
+        ),
+        encoding="utf-8",
+    )
     with pytest.raises(ValueError, match="execution fingerprint mismatch"):
         llm_cli._load_checkpoint_payload(
             path=path,
@@ -2565,7 +2579,16 @@ def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(tmp_pat
             allow_completed=True,
         )
 
-    path.write_text(json.dumps({"status": "running", "execution_fingerprint": "exec", "scoring_fingerprint": "old"}), encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "exec",
+                "scoring_fingerprint": "old",
+            }
+        ),
+        encoding="utf-8",
+    )
     with pytest.raises(ValueError, match="scoring fingerprint mismatch"):
         llm_cli._load_checkpoint_payload(
             path=path,

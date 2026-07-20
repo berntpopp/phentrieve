@@ -20,12 +20,12 @@ from pathlib import Path
 import pytest
 
 from phentrieve.benchmark import llm_cli
-from phentrieve.benchmark.run_identity import RetrievalAssetIdentity
 from phentrieve.benchmark.extraction_benchmark import (
     ExtractionBenchmark,
     ExtractionConfig,
 )
 from phentrieve.benchmark.llm_cli import run_llm_benchmark_cli
+from phentrieve.benchmark.run_identity import RetrievalAssetIdentity
 from phentrieve.evaluation.extraction_metrics import (
     OntologyAwareCorpusMetrics,
     OntologyMetricBlock,
