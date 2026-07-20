@@ -70,7 +70,7 @@ api = [
 # Streamable HTTP only, built on the standalone FastMCP v3 framework
 # (matches the maintainer's *-link MCP server family).
 mcp = [
-    "mcp[cli]>=1.27.0,<2.0.0",
+    "mcp[cli]>=1.28.1,<2.0.0",  # Security: first release fixing CVE-2026-52869/52870 (1.27.2) and CVE-2026-59950 (1.28.1)
     "fastmcp>=3.2.0,<4.0.0",
     "fastapi>=0.137.2",  # Security: first release CI-validated against starlette>=1.3.1
     "uvicorn[standard]>=0.32.0",

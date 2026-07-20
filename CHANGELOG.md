@@ -39,6 +39,12 @@ together:
   until the preserved checkpoint passes compatibility checks; incompatible
   runs must use a new run id or be removed deliberately before a fresh run.
 
+### Security
+
+- **Bump `mcp[cli]` floor to `>=1.28.1`.** Resolves `pip-audit` findings
+  CVE-2026-52869 and CVE-2026-52870 (fixed in 1.27.2) and CVE-2026-59950
+  (fixed in 1.28.1) in the pinned `mcp` dependency.
+
 ## [0.26.0] — 2026-07-13 (CLI 0.26.0 / API 0.17.0 / Frontend 0.17.1)
 
 Reproducible benchmark result storage. Retrieval, extraction, and LLM benchmarks
