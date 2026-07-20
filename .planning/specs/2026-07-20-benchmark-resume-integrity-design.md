@@ -1,75 +1,196 @@
-# Benchmark Resume Integrity Design
+# Benchmark Identity And Resume Integrity Design
 
 ## Context
 
-PR #322 adds separate benchmark execution and scoring fingerprints, exact
-schema-v2 artifact inventories, and stricter provenance. A merge-readiness
-review found that the live checkpoint loader validates the new fingerprints
-instead of, rather than in addition to, the established checkpoint
-configuration. It also found that `--overwrite` clears run artifacts before
-checkpoint compatibility is known.
+PR #322 adds benchmark execution and scoring fingerprints, retrieval and
+producer provenance, schema-v2 artifact inventories, and fail-closed checkpoint
+resume. An adversarial review confirmed the overall direction but found gaps
+where the published identity can diverge from runtime behavior, a compatible
+overwrite can temporarily unpublish an existing run, malformed or symlinked
+storage can escape expected boundaries, and secrets can reach persisted output.
 
-## Decision
+This revision closes every review item, including the pre-existing inconsistent
+normalization of the gold assertion value `absent`.
 
-Keep the current CLI surface and treat `--overwrite` as permission to resume an
-explicit run directory. Do not add a destructive `--restart` option. The LLM
-command must build identities and validate the preserved checkpoint before it
-clears any existing artifacts. An incompatible run remains byte-for-byte
-unchanged and the error tells the operator to choose a new run id or remove the
-old run deliberately.
+## Goals
 
-An existing run without a valid object checkpoint is not resumable and remains
-unchanged. Producer version/commit provenance is part of the validated resume
-configuration so a final manifest cannot relabel predictions restored from a
-different producer revision.
+- Bind benchmark identities to the effective inputs, scoring rules, producer
+  source, and verified retrieval content actually used at runtime.
+- Keep resume fail-closed while allowing identical installed source to resume
+  across a git checkout and a packaged installation.
+- Ensure the canonical manifest always references one complete immutable run
+  snapshot.
+- Make checkpoint rejection strictly zero-mutation and prevent failed overwrite
+  attempts from changing the active manifest or its published generation.
+- Prevent endpoint credentials and raw provider failures from reaching persisted
+  benchmark artifacts.
+- Apply one assertion normalization and projection contract to every dataset
+  format and to both gold and predicted assertions.
 
-Checkpoint reuse requires both layers to match:
+## Non-Goals
 
-1. execution and scoring fingerprints validate the scientific identity split;
-2. the complete checkpoint configuration validates output-affecting settings
-   such as trace capture, accounting, ontology metrics, dataset selection, and
-   prompt overrides.
+- Do not add a destructive restart option.
+- Do not silently migrate or resume checkpoints created under the older identity
+  schemas.
+- Do not claim that arbitrary unknown secrets embedded in URL paths can be
+  detected heuristically.
+- Do not change frontend behavior or benchmark metric formulas beyond making the
+  existing ontology configuration identity-bearing.
 
-Dataset identities explicitly carry their schema version and a hash of the
-effective assertion projection. Runtime and identity construction share one
-descriptor for mapped datasets and the normalized-passthrough fallback used by
-`all` and custom dataset names, so a projection-code change changes the scoring
-fingerprint.
+## Versioned Identity Contracts
 
-The existing optional `evaluation_hpo_version` helper parameter becomes the
-documented `--evaluation-hpo-version` CLI option. If omitted, the installed
-retrieval bundle version remains the default. If supplied, it must match the
-bundle and therefore acts as an operator assertion rather than invented
-provenance.
+The dataset, assertion-projection, run-fingerprint, and producer-source
+descriptors receive explicit new schema versions. A checkpoint using an older or
+missing schema is rejected with a migration message before filesystem mutation.
+Existing result manifests remain readable.
 
-## Publication And Compatibility
+Execution and scoring fingerprints are conservative scientific identities:
 
-Partial LLM runs publish schema v2 directly. The redundant transient schema-v1
-write is removed. Schema-v1 singleton aliases remain in the v2 artifact map for
-existing consumers; documentation states that aliases are lookup entries and
-inventory consumers must deduplicate by path.
+- the execution fingerprint includes selected inputs and order, prompt bundle,
+  resolved provider request, verified retrieval content, and producer source;
+- the scoring fingerprint includes canonical gold records, the complete
+  assertion/projection algorithm, ontology scoring configuration, evaluation HPO
+  version when ontology-aware scoring is active, and producer source.
 
-The two illustrative identity JSON files are removed because no test consumes
-them and they no longer match the implemented contracts. Executable unit tests
-remain the contract examples.
+Producer commit, dirty state, and provenance status remain descriptive metadata.
+Checkpoint matching compares the producer source digest rather than the entire
+metadata object.
 
-## Documentation
+## Provider And Endpoint Identity
 
-The benchmarking guide will document:
+The resolver owns base-URL canonicalization. It trims whitespace, treats blank as
+absent, validates the URL, rejects fragments, and removes behaviorally irrelevant
+trailing path slashes. Provider constructors consume the canonical value without
+performing a second normalization. Providers that do not support a base URL
+reject it instead of recording an unused value.
 
-- the installed retrieval-manifest prerequisite;
-- evaluation/retrieval HPO matching and the new CLI option;
-- source, input, gold, projection, execution, and scoring identities;
-- LLM manifest v2 versus retrieval/extraction manifest v1;
-- resume behavior, old-checkpoint rejection, and safe remediation;
-- v1 artifact aliases and path-based deduplication.
+One endpoint-identity function produces both the safe display and behavioral
+digest. It removes userinfo, redacts the resolved API key and percent-encoded
+forms, and redacts values of explicitly sensitive query keys. Legitimate path and
+non-secret query routing remains identity-bearing. Unknown path credentials are
+unsupported and documented as such.
 
-`CHANGELOG.md` will record the new contracts and the intentional checkpoint
-compatibility change under `Unreleased`.
+Persisted failures contain a stable public error code and safe message. Raw
+provider exception strings remain available only through exception chaining and
+runtime logging; they are never copied into checkpoints, summaries, predictions,
+manifests, or legacy JSON.
+
+## Producer Source Identity
+
+Producer identity hashes a defined inventory of runtime package files. Relative
+paths use POSIX separators, text newlines are normalized, and caches, bytecode,
+build metadata, tests, and documentation are excluded. Runtime-relevant untracked
+package files are included. The same source checkout and built installation must
+produce the same digest.
+
+Git provenance accepts complete 40-character SHA-1 and 64-character SHA-256
+object IDs. Unknown formats continue to fail closed. Git status does not decide
+compatibility; an edited source file changes the source digest directly.
+
+## Assertion And Scoring Contract
+
+All gold and predicted assertions pass through one canonical normalizer:
+
+- missing or blank -> `PRESENT`;
+- `present`, `affirmed`, and `normal` -> `PRESENT`;
+- `absent` and `negated` -> `ABSENT`;
+- `uncertain` -> `UNCERTAIN`;
+- `family_history` -> `FAMILY_HISTORY`.
+
+Input normalization uses `strip().casefold()`. Unknown explicit gold assertions
+raise instead of silently becoming `PRESENT`. JSON document dictionaries,
+tuple/list annotations, directory datasets, and ID-only JSON lists follow the
+same rules.
+
+Projection occurs once after normalization and uses the effective source dataset
+for both gold and predictions. The aggregate `all` descriptor contains the
+per-source projection table for CSC, GSC, GeneReviews, GSC_plus, and ID_68. The
+unreachable `positive_hpo_present_v1` fallback is removed; callers must use the
+shared effective projection descriptor.
+
+The scoring descriptor records ontology enabled state, semantic floor,
+similarity formula, resolved evaluation HPO version, mapping precedence,
+normalization mode, fallback behavior, and default ID-only assertion. Inactive
+ontology tuning values are retained conservatively so checkpoint configuration
+changes never collapse to one identity.
+
+## Retrieval Content And Runtime Binding
+
+The installed bundle is verified before identity construction. Verification is
+fail-closed for missing database or index inventory, empty or incomplete checksum
+maps, missing files or directories, absolute or parent-traversing keys, escaping
+symlinks, and checksum mismatches. Directory hashing uses sorted POSIX-relative
+paths and contents so Windows and POSIX produce the same digest.
+
+The retrieval identity uses a canonical verified-content digest rather than only
+the raw manifest bytes. Runtime receives the same manifest model name, revision,
+code revision, trust-remote-code setting, single/multi-vector mode, and explicit
+index directory. Floating `DEFAULT_MODEL`, default data paths, and the default
+`multi_vector=True` setting cannot override the published identity.
+
+## Immutable Artifact Publication
+
+Layout resolution for the LLM resume path is read-only. Checkpoint type, schema,
+fingerprints, and complete configuration are validated before `mkdir`, temporary
+files, locks, deletion, or legacy-directory creation.
+
+Each write attempt creates an immutable generation below the run directory. The
+generation contains checkpoint, summary, metrics, predictions, traces, cases,
+terms, diagnostics, and their complete hashed inventory. The existing root
+manifest remains authoritative while the generation is built.
+
+Publication writes the new manifest to a unique same-directory temporary file
+and atomically replaces only `manifest.json` as the commit point. Therefore the
+canonical manifest always references either the previous complete generation or
+the new complete generation. Failed provider construction, warmup, inference,
+artifact generation, hashing, or manifest replacement leaves the previous
+manifest and all referenced files valid. An interrupted attempt may leave an
+unreferenced generation that a later boundary-validated cleanup can remove.
+
+Root-level artifact names remain best-effort compatibility aliases refreshed
+after manifest commit. Resume resolves the active checkpoint from the manifest,
+with the old fixed `checkpoint.json` path as a legacy fallback. Old generations
+are retained until safe boundary-validated garbage collection can prove they are
+not referenced by the active manifest.
+
+## Filesystem Boundaries And Discovery
+
+Before any creation or mutation, the resolved run path must remain below the
+resolved results root. A final run directory or parent component that is a
+symlink, Windows junction, or other reparse point is rejected. The boundary is
+revalidated immediately before mutation.
+
+Artifact discovery validates that the parsed manifest root and `artifacts` value
+are mappings. A malformed manifest is skipped independently and cannot abort
+discovery of other valid runs.
+
+## Compatibility
+
+- Old identity checkpoints are intentionally not resumable and remain unchanged.
+- Existing schema-v1 and fixed-root schema-v2 result layouts remain discoverable.
+- Manifest role aliases remain lookup entries; consumers deduplicate by path.
+- Direct-path consumers continue to receive root compatibility aliases, while
+  the manifest and immutable generation are authoritative.
+- The documented migration is to choose a new run ID or deliberately remove the
+  incompatible run.
 
 ## Verification
 
-Regression tests must first fail on the current branch for complete checkpoint
-validation and non-destructive mismatch handling. Focused unit suites, `make
-check`, `make typecheck-fast`, and `make test` must pass before the PR is
-updated.
+Each defect is reproduced by a failing test before implementation. Focused tests
+cover URL canonicalization and secret canaries, scoring and projection identity,
+gold normalization across formats, aggregate per-source projection, retrieval
+inventory validation and runtime configuration, producer hashing across dirty
+and installed sources, malformed manifests, symlink/junction boundaries,
+zero-mutation rejection, and failure injection before manifest publication.
+
+Required completion checks are:
+
+- `make check`
+- `make typecheck-fast`
+- `make test`
+- `make ci-python-quality`
+- `make ci-python-compat PYTHON=3.12`
+- `make ci-python-compat PYTHON=3.13`
+
+Frontend parity checks are not required because this remediation changes only
+Python benchmark, retrieval, storage, and documentation code.

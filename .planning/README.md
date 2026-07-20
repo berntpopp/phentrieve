@@ -85,6 +85,10 @@ execution context.
 
 ## Current Specs
 
+- `specs/2026-07-20-benchmark-resume-integrity-design.md` - design for closing
+  the adversarial PR #322 review: versioned execution/scoring/source identities,
+  verified retrieval-runtime binding, canonical assertion projection, safe
+  endpoint persistence, and immutable crash-safe benchmark publication.
 - `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md` -
   design for making the LLM-emitted `assertion`/`experiencer` axes
   load-bearing, surfacing family-history findings and "X without Y" excluded
