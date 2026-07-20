@@ -76,6 +76,9 @@ execution context.
 
 ## Current Active Work
 
+- `active/2026-07-20-benchmark-identity-review-remediation-plan.md` - active
+  test-first remediation of every adversarial review finding on PR #322,
+  including runtime-faithful identities and immutable artifact publication.
 - `active/2026-07-03-extraction-contract-v2-phase-0-1-plan.md` - Phase 0
   (planning-tree cleanup, this pass) + Phase 1 (extraction benchmark
   safeguard: `normalize_for_scoring` present-only projection, seeded bootstrap
