@@ -125,10 +125,12 @@ def _build_search_paths(
     mode_dir: str,
     language: str,
     variant: str | None,
+    prompt_dir: Path | None = None,
 ) -> list[tuple[Path, str]]:
     filename = f"{language}_{variant}.yaml" if variant else f"{language}.yaml"
+    user_templates_dir = prompt_dir if prompt_dir is not None else USER_TEMPLATES_DIR
     paths: list[tuple[Path, str]] = [
-        (USER_TEMPLATES_DIR / mode_dir / filename, language),
+        (user_templates_dir / mode_dir / filename, language),
         (PACKAGE_TEMPLATES_DIR / mode_dir / filename, language),
     ]
 
@@ -141,7 +143,7 @@ def _build_search_paths(
         paths.extend(
             [
                 (
-                    USER_TEMPLATES_DIR / mode_dir / fallback_filename,
+                    user_templates_dir / mode_dir / fallback_filename,
                     DEFAULT_LLM_LANGUAGE,
                 ),
                 (
@@ -158,6 +160,16 @@ def load_prompt_template(
     mode: AnnotationMode | PostProcessingStep | str,
     language: str = DEFAULT_LLM_LANGUAGE,
     variant: str | None = None,
+    prompt_dir: Path | None = None,
+) -> PromptTemplate:
+    return resolve_prompt_template(mode, language, variant, prompt_dir)
+
+
+def resolve_prompt_template(
+    mode: AnnotationMode | PostProcessingStep | str,
+    language: str = DEFAULT_LLM_LANGUAGE,
+    variant: str | None = None,
+    prompt_dir: Path | None = None,
 ) -> PromptTemplate:
     if variant is None and isinstance(mode, PostProcessingStep):
         variant = mode.value
@@ -167,6 +179,7 @@ def load_prompt_template(
         mode_dir=mode_dir,
         language=language,
         variant=variant,
+        prompt_dir=prompt_dir,
     )
 
     for path, resolved_language in search_paths:
