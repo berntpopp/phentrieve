@@ -459,7 +459,9 @@ def run_llm_benchmark(
         pipeline_kwargs: dict[str, Any] = {"provider": provider}
         if tool_executor is not None:
             pipeline_kwargs["tool_executor"] = tool_executor
-        pipeline = TwoPhaseLLMPipeline(**pipeline_kwargs)
+        pipeline = TwoPhaseLLMPipeline(
+            **_build_provider_factory_kwargs(TwoPhaseLLMPipeline, **pipeline_kwargs)
+        )
         config = LLMPipelineConfig(
             provider=resolved_provider_name,
             model=resolved_model_name,
