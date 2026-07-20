@@ -34,6 +34,7 @@ from phentrieve.benchmark.result_store import (
     write_manifest,
 )
 from phentrieve.benchmark.run_identity import (
+    behavioral_base_url_sha256,
     build_dataset_identity,
     build_run_fingerprints,
     load_retrieval_asset_identity,
@@ -277,6 +278,9 @@ def run_llm_benchmark_cli(
         "provider": resolved_provider_request.provider,
         "model": resolved_provider_request.model,
         "base_url": sanitize_behavioral_base_url(resolved_provider_request.base_url),
+        "base_url_behavior_sha256": behavioral_base_url_sha256(
+            resolved_provider_request.base_url
+        ),
         "seed": resolved_provider_request.seed,
         "timeout_seconds": llm_timeout_seconds,
         "internal_mode": llm_internal_mode,
@@ -314,7 +318,7 @@ def run_llm_benchmark_cli(
         ontology_semantic_floor=ontology_semantic_floor,
         ontology_similarity_formula=ontology_similarity_formula,
         prompt_templates_dir=prompt_templates_dir,
-        doc_ids=doc_ids,
+        doc_ids=effective_doc_ids,
     )
     checkpoint_identity.update(identities)
     existing_checkpoint = _load_checkpoint_payload(
@@ -370,15 +374,15 @@ def run_llm_benchmark_cli(
 
     result = llm_benchmark.run_llm_benchmark(
         test_file=test_file,
-        llm_provider=llm_provider,
-        llm_model=llm_model,
-        llm_base_url=llm_base_url,
+        llm_provider=resolved_provider_request.provider,
+        llm_model=resolved_provider_request.model,
+        llm_base_url=resolved_provider_request.base_url,
         llm_timeout_seconds=llm_timeout_seconds,
         llm_seed=llm_seed,
         llm_mode=llm_mode,
         llm_internal_mode=llm_internal_mode,
         dataset=dataset,
-        doc_ids=doc_ids,
+        doc_ids=effective_doc_ids,
         language=language,
         prompt_templates_dir=prompt_templates_dir,
         input_cost_per_1m_tokens=input_cost_per_1m_tokens,
@@ -391,6 +395,7 @@ def run_llm_benchmark_cli(
         accounting_config=accounting_config,
         checkpoint_state=existing_checkpoint,
         progress_callback=_persist_checkpoint,
+        _resolved_provider_request=resolved_provider_request,
     )
 
     payload = cast(dict[str, Any], _sanitize_persisted_base_urls(result))
@@ -427,22 +432,10 @@ def run_llm_benchmark_cli(
         if result.get("status") == "failed"
         else _derive_run_status(case_records)
     )
-    write_manifest(
-        run_layout,
-        _manifest_metadata(
-            payload=payload,
-            dataset_sha256=dataset_sha256,
-            test_file_path=test_file_path,
-            status=manifest_status,
-        ),
-        extra_artifacts=_extra_artifacts(
-            predictions_dir=predictions_dir,
-            traces_dir=traces_dir,
-            metrics_path=metrics_path,
-        ),
-    )
+    _write_json_atomic(canonical_checkpoint_path, payload)
     inventory = [
         ArtifactEntry(run_layout.summary_path, "summary", "application/json"),
+        ArtifactEntry(canonical_checkpoint_path, "checkpoint", "application/json"),
         ArtifactEntry(run_layout.terms_path, "term_results", "application/x-ndjson"),
         ArtifactEntry(run_layout.cases_path, "case_results", "application/x-ndjson"),
     ]
@@ -468,7 +461,6 @@ def run_llm_benchmark_cli(
         },
         inventory,
     )
-    _write_json_atomic(canonical_checkpoint_path, payload)
     _write_legacy_artifacts(
         payload=payload,
         output_path=output_path,
@@ -490,9 +482,18 @@ def _build_producer_identity() -> dict[str, str | None]:
             "commit": None,
             "provenance_status": "git_unavailable",
         }
+    package_repository = Path(__file__).resolve().parents[2]
     try:
         completed = subprocess.run(  # noqa: S603 - executable resolved by shutil.which
-            [executable, "rev-parse", "HEAD"],
+            [
+                executable,
+                "-C",
+                str(package_repository),
+                "rev-parse",
+                "--show-toplevel",
+                "--is-inside-work-tree",
+                "HEAD",
+            ],
             capture_output=True,
             check=False,
             text=True,
@@ -503,7 +504,15 @@ def _build_producer_identity() -> dict[str, str | None]:
             "commit": None,
             "provenance_status": "git_unavailable",
         }
-    commit = completed.stdout.strip() if completed.returncode == 0 else None
+    output = completed.stdout.splitlines() if completed.returncode == 0 else []
+    commit: str | None = None
+    if len(output) == 3 and output[1].strip() == "true":
+        top_level = Path(output[0]).resolve()
+        candidate = output[2].strip()
+        if package_repository.is_relative_to(top_level) and re.fullmatch(
+            r"[0-9a-fA-F]{40}", candidate
+        ):
+            commit = candidate.lower()
     return {
         "phentrieve_version": __version__,
         "commit": commit,

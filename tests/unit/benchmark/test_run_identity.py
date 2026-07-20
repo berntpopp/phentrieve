@@ -12,6 +12,7 @@ import pytest
 from phentrieve.benchmark.run_identity import (
     DatasetIdentity,
     RetrievalAssetIdentity,
+    behavioral_base_url_sha256,
     build_dataset_identity,
     build_run_fingerprints,
     load_retrieval_asset_identity,
@@ -88,6 +89,7 @@ def test_document_order_does_not_change_canonical_hashes(tmp_path) -> None:
     assert after.input_sha256 == before.input_sha256
     assert after.gold_sha256 == before.gold_sha256
     assert after.document_ids_sha256 == before.document_ids_sha256
+    assert after.execution_order_sha256 != before.execution_order_sha256
 
 
 def test_gold_annotation_duplicates_and_order_do_not_change_gold_hash(tmp_path) -> None:
@@ -98,6 +100,54 @@ def test_gold_annotation_duplicates_and_order_do_not_change_gold_hash(tmp_path) 
     after = build_dataset_identity(path, dataset="all")
 
     assert after.gold_sha256 == before.gold_sha256
+
+
+def test_requested_document_order_changes_execution_identity(tmp_path) -> None:
+    path = tmp_path / "dataset.json"
+    _write_dataset(
+        path,
+        [_document("case-a", "Alpha", ["HP:1"]), _document("case-b", "Beta", ["HP:2"])],
+    )
+    first = build_dataset_identity(
+        path, dataset="all", document_ids=["case-a", "case-b"]
+    )
+    second = build_dataset_identity(
+        path, dataset="all", document_ids=["case-b", "case-a"]
+    )
+    assert first.input_sha256 == second.input_sha256
+    assert first.execution_order_sha256 != second.execution_order_sha256
+    _, prompt, asset, model = _fingerprint_identities()
+    assert (
+        build_run_fingerprints(first, prompt, model, asset).execution_sha256
+        != build_run_fingerprints(second, prompt, model, asset).execution_sha256
+    )
+
+
+def test_non_present_assertion_change_changes_scoring_identity(tmp_path) -> None:
+    path = tmp_path / "dataset.json"
+    document = _document("case-a", "Alpha", ["HP:1"])
+    document["gold_hpo_terms"] = [{"id": "HP:1", "assertion": "NEGATED"}]
+    _write_dataset(path, [document])
+    before = build_dataset_identity(path, dataset="all")
+    document["gold_hpo_terms"] = [{"id": "HP:1", "assertion": "FAMILY"}]
+    _write_dataset(path, [document])
+    after = build_dataset_identity(path, dataset="all")
+    assert before.gold_sha256 == after.gold_sha256
+    assert before.assertion_gold_sha256 != after.assertion_gold_sha256
+    _, prompt, asset, model = _fingerprint_identities()
+    assert (
+        build_run_fingerprints(before, prompt, model, asset).scoring_sha256
+        != build_run_fingerprints(after, prompt, model, asset).scoring_sha256
+    )
+
+
+def test_endpoint_behavior_hash_preserves_path_and_query_without_credentials() -> None:
+    base = behavioral_base_url_sha256("https://user:one@example.test/api?v=1")
+    assert base == behavioral_base_url_sha256("https://other:two@example.test/api?v=1")
+    assert base != behavioral_base_url_sha256(
+        "https://user:one@example.test/api/v2?v=1"
+    )
+    assert base != behavioral_base_url_sha256("https://user:one@example.test/api?v=2")
 
 
 def test_dataset_identity_does_not_import_chromadb(tmp_path) -> None:

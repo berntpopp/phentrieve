@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import shutil
+from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -234,10 +235,35 @@ def publish_manifest_v2(
     stale files in a resumed directory out of the manifest without weakening
     the established run-layout and discovery contracts.
     """
+    reserved = {
+        "schema_version",
+        "run_id",
+        "benchmark_type",
+        "dataset_name",
+        "model",
+        "artifacts",
+    }
+    conflicts = reserved.intersection(identities)
+    if conflicts:
+        raise ValueError(
+            f"Metadata contains reserved manifest keys: {sorted(conflicts)}"
+        )
     artifacts: dict[str, dict[str, str]] = {}
     run_root = layout.run_dir.resolve()
     seen: set[Path] = set()
     items = list(inventory)
+    singleton_roles = {
+        "summary",
+        "checkpoint",
+        "metrics",
+        "term_results",
+        "case_results",
+        "chunk_diagnostics",
+    }
+    role_counts = Counter(item.role for item in items)
+    duplicate_roles = sorted(role for role in singleton_roles if role_counts[role] > 1)
+    if duplicate_roles:
+        raise ValueError(f"Duplicate singleton artifact role: {duplicate_roles}")
     for item in items:
         path = item.path.resolve()
         if not path.is_relative_to(run_root):

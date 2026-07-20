@@ -35,6 +35,9 @@ class DatasetIdentity:
     document_ids_sha256: str
     projection: str
     excluded_document_ids: tuple[str, ...]
+    execution_order_sha256: str = ""
+    assertion_gold_sha256: str = ""
+    id_only_gold_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -68,6 +71,7 @@ def build_run_fingerprints(
     execution_payload = {
         "input_sha256": dataset.input_sha256,
         "document_ids_sha256": dataset.document_ids_sha256,
+        "execution_order_sha256": dataset.execution_order_sha256,
         "prompt": asdict(prompt),
         "model": model_payload,
         "asset": asdict(asset),
@@ -75,6 +79,8 @@ def build_run_fingerprints(
     }
     scoring_payload = {
         "gold_sha256": dataset.gold_sha256,
+        "assertion_gold_sha256": dataset.assertion_gold_sha256,
+        "id_only_gold_sha256": dataset.id_only_gold_sha256,
         "document_ids_sha256": dataset.document_ids_sha256,
         "projection": dataset.projection,
     }
@@ -107,14 +113,18 @@ def build_dataset_identity(
             missing = ", ".join(sorted(unknown_ids))
             raise ValueError(f"Unknown requested document IDs: {missing}")
 
-    selected_documents = [
-        document for document in documents if str(document["id"]) in selected_ids
-    ]
+    documents_by_id = {str(document["id"]): document for document in documents}
+    ordered_ids = loaded_id_list if document_ids is None else requested_id_list
+    selected_documents = [documents_by_id[document_id] for document_id in ordered_ids]
     input_records: list[dict[str, str]] = [
         {"id": str(document["id"]), "text": str(document["text"])}
         for document in selected_documents
     ]
     input_records.sort(key=lambda record: record["id"])
+    execution_records = [
+        {"id": str(document["id"]), "text": str(document["text"])}
+        for document in selected_documents
+    ]
     gold_records: list[dict[str, Any]] = [
         {
             "id": str(document["id"]),
@@ -131,6 +141,26 @@ def build_dataset_identity(
         for document in selected_documents
     ]
     gold_records.sort(key=lambda record: str(record["id"]))
+    assertion_gold_records: list[dict[str, Any]] = []
+    id_only_gold_records: list[dict[str, Any]] = []
+    for document in selected_documents:
+        parsed_terms = parse_gold_terms(document.get("gold_hpo_terms", []))
+        assertion_gold_records.append(
+            {
+                "id": str(document["id"]),
+                "terms": sorted(
+                    {(hpo_id, assertion) for hpo_id, assertion in parsed_terms}
+                ),
+            }
+        )
+        id_only_gold_records.append(
+            {
+                "id": str(document["id"]),
+                "hpo_ids": sorted({hpo_id for hpo_id, _ in parsed_terms}),
+            }
+        )
+    assertion_gold_records.sort(key=lambda record: str(record["id"]))
+    id_only_gold_records.sort(key=lambda record: str(record["id"]))
     evaluated_ids = sorted(selected_ids)
 
     return DatasetIdentity(
@@ -140,6 +170,9 @@ def build_dataset_identity(
         document_ids_sha256=_canonical_sha256(evaluated_ids),
         projection="positive_hpo_present_v1",
         excluded_document_ids=tuple(sorted(available_ids - selected_ids)),
+        execution_order_sha256=_canonical_sha256(execution_records),
+        assertion_gold_sha256=_canonical_sha256(assertion_gold_records),
+        id_only_gold_sha256=_canonical_sha256(id_only_gold_records),
     )
 
 
@@ -206,6 +239,31 @@ def sanitize_behavioral_base_url(value: str | None) -> str | None:
     if has_scheme:
         return urlunsplit((parsed.scheme.lower(), f"{host}{port}", parsed.path, "", ""))
     return f"//{host}{port}{parsed.path}"
+
+
+def behavioral_base_url_sha256(value: str | None) -> str | None:
+    """Hash endpoint-affecting URL parts without exposing credentials."""
+    if value is None or not value.strip():
+        return None
+    raw = value.strip()
+    has_scheme = "://" in raw
+    parsed = urlsplit(raw if has_scheme else f"//{raw}")
+    if parsed.hostname is None:
+        return None
+    host = parsed.hostname.lower()
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    port = f":{parsed.port}" if parsed.port is not None else ""
+    behavioral = urlunsplit(
+        (
+            parsed.scheme.lower() if has_scheme else "",
+            f"{host}{port}",
+            parsed.path,
+            parsed.query,
+            "",
+        )
+    )
+    return hashlib.sha256(behavioral.encode("utf-8")).hexdigest()
 
 
 def _canonical_sha256(value: Any) -> str:

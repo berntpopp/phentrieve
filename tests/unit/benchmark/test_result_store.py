@@ -324,3 +324,39 @@ def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
         publish_manifest_v2(
             layout, {}, [ArtifactEntry(outside, "prediction", "application/json")]
         )
+
+
+@pytest.mark.parametrize(
+    "reserved",
+    [
+        "schema_version",
+        "run_id",
+        "benchmark_type",
+        "dataset_name",
+        "model",
+        "artifacts",
+    ],
+)
+def test_publish_manifest_v2_rejects_reserved_top_level_metadata(
+    tmp_path, reserved
+) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    with pytest.raises(ValueError, match="reserved manifest keys"):
+        publish_manifest_v2(layout, {reserved: "override"}, [])
+
+
+def test_publish_manifest_v2_rejects_duplicate_singleton_roles(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    first = layout.run_dir / "first.json"
+    second = layout.run_dir / "second.json"
+    first.write_text("{}", encoding="utf-8")
+    second.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="Duplicate singleton artifact role"):
+        publish_manifest_v2(
+            layout,
+            {},
+            [
+                ArtifactEntry(first, "summary", "application/json"),
+                ArtifactEntry(second, "summary", "application/json"),
+            ],
+        )

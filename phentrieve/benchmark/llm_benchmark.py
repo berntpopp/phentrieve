@@ -37,6 +37,7 @@ from phentrieve.llm.preprocessing import (
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
 from phentrieve.llm.types import AnnotationMode, GroundedChunk, LLMPipelineConfig
 
 logger = logging.getLogger(__name__)
@@ -269,6 +270,7 @@ def run_llm_benchmark(
     accounting_config: BenchmarkAccountingConfig | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    _resolved_provider_request: ResolvedLLMProviderRequest | None = None,
 ) -> dict[str, Any]:
     """Run the LLM benchmark directly against the configured provider."""
     if llm_mode != DEFAULT_LLM_BENCHMARK_MODE:
@@ -328,13 +330,22 @@ def run_llm_benchmark(
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
         cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
     )
+    resolved_request = _resolved_provider_request
+    if resolved_request is not None and (
+        resolved_request.provider != llm_provider
+        or resolved_request.model != llm_model
+        or resolved_request.base_url != llm_base_url
+        or resolved_request.seed != llm_seed
+    ):
+        raise ValueError("Resolved provider request does not match benchmark arguments")
     provider_factory_kwargs = _build_provider_factory_kwargs(
         get_llm_provider,
-        llm_model=llm_model,
-        llm_provider=llm_provider,
-        llm_base_url=llm_base_url,
+        llm_model=resolved_request.model if resolved_request else llm_model,
+        llm_provider=resolved_request.provider if resolved_request else llm_provider,
+        llm_base_url=resolved_request.base_url if resolved_request else llm_base_url,
+        api_key=resolved_request.api_key if resolved_request else None,
         timeout_seconds=llm_timeout_seconds,
-        seed=llm_seed,
+        seed=resolved_request.seed if resolved_request else llm_seed,
     )
     provider = get_llm_provider(**provider_factory_kwargs)
     resolved_provider_name = getattr(
@@ -344,6 +355,12 @@ def run_llm_benchmark(
     resolved_base_url = getattr(provider, "base_url", None)
     if not isinstance(resolved_base_url, str) or not resolved_base_url:
         resolved_base_url = llm_base_url
+    if resolved_request is not None and (
+        resolved_provider_name != resolved_request.provider
+        or resolved_model_name != resolved_request.model
+        or resolved_base_url != resolved_request.base_url
+    ):
+        raise ValueError("Provider runtime identity mismatch with resolved request")
     logger.debug(
         "Initialized benchmark pipeline for model=%s mode=%s",
         llm_model,

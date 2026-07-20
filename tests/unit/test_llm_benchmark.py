@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -26,6 +29,7 @@ def _test_fingerprints(test_file: Path) -> dict[str, str]:
             "provider": "gemini",
             "model": "gemini-2.5-flash",
             "base_url": None,
+            "base_url_behavior_sha256": None,
             "seed": None,
             "timeout_seconds": None,
             "internal_mode": "whole_document_grounded",
@@ -2334,6 +2338,13 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     assert (
         manifest["artifacts"]["metrics"]["path"] == "metrics/benchmark_two_phase.json"
     )
+    checkpoint = run_dir / "checkpoint.json"
+    checkpoint_entry = manifest["artifacts"]["checkpoint:checkpoint.json"]
+    assert (
+        checkpoint_entry["sha256"]
+        == hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+    )
+    assert json.loads(checkpoint.read_text(encoding="utf-8"))["status"] == "completed"
 
 
 def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkeypatch):
@@ -2602,6 +2613,54 @@ def test_persisted_payload_sanitizes_nested_base_url_credentials() -> None:
         {"llm_base_url": "https://user:secret@example.test:8443/api?token=x#frag"}
     )
     assert sanitized == {"llm_base_url": "https://example.test:8443/api"}
+
+
+def test_producer_identity_is_anchored_to_package_repository(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    identity = llm_cli._build_producer_identity()
+    repository = Path(llm_cli.__file__).resolve().parents[2]
+    git_executable = shutil.which("git")
+    assert git_executable is not None
+    expected = subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "-C", str(repository), "rev-parse", "HEAD"],
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout.strip()
+    assert identity["commit"] == expected
+    assert identity["provenance_status"] == "resolved"
+
+
+def test_runner_rejects_provider_runtime_identity_mismatch(monkeypatch) -> None:
+    from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+
+    monkeypatch.setattr(
+        llm_benchmark,
+        "load_benchmark_data",
+        lambda *args, **kwargs: {"metadata": {}, "documents": []},
+    )
+    provider = type(
+        "Provider",
+        (),
+        {
+            "provider_name": "openai",
+            "model_name": "different",
+            "base_url": "https://example.test/v1",
+        },
+    )()
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda **kwargs: provider)
+    with pytest.raises(ValueError, match="runtime identity mismatch"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="unused.json",
+            llm_provider="openai",
+            llm_model="expected",
+            llm_base_url="https://example.test/v1",
+            _resolved_provider_request=ResolvedLLMProviderRequest(
+                provider="openai", model="expected", base_url="https://example.test/v1"
+            ),
+        )
 
 
 def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
