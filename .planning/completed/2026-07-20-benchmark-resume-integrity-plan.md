@@ -8,6 +8,11 @@
 
 **Tech Stack:** Python 3.11, Typer, pytest, Ruff, mypy, Markdown.
 
+**Status:** Completed on 2026-07-20. The checklists below preserve the approved
+execution recipe. Final verification: `make check`, `make typecheck-fast`, and
+`make test` (`2150 passed, 48 skipped`). Independent merge-readiness review
+found no remaining Critical or Important issues.
+
 ## Global Constraints
 
 - Do not change retrieval or extraction overwrite behavior.
