@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 from phentrieve.benchmark.result_store import (
+    ArtifactEntry,
     create_run_layout,
     discover_artifacts,
     safe_slug,
@@ -15,6 +16,7 @@ from phentrieve.benchmark.result_store import (
     write_json,
     write_jsonl,
     write_manifest,
+    publish_manifest_v2,
 )
 
 
@@ -275,3 +277,37 @@ def test_discover_artifacts_can_filter_by_benchmark_type(tmp_path) -> None:
     assert json.loads(retrieval_only[0].read_text(encoding="utf-8")) == {
         "benchmark_type": "retrieval"
     }
+
+
+def test_publish_manifest_v2_layers_hash_inventory_onto_run_layout(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.summary_path, {"status": "completed", "execution_fingerprint": "d" * 64})
+    prediction = layout.run_dir / "predictions" / "two_phase" / "case_1.json"
+    prediction.parent.mkdir(parents=True)
+    prediction.write_text('{"hpo_id":"HP:0001250"}', encoding="utf-8")
+    identities = {
+        "dataset_identity": {"input_sha256": "a" * 64},
+        "prompt_identity": {"sha256": "b" * 64},
+        "execution_fingerprint": "d" * 64,
+        "scoring_fingerprint": "e" * 64,
+    }
+
+    manifest = publish_manifest_v2(
+        layout,
+        identities,
+        [ArtifactEntry(layout.summary_path, "summary", "application/json"), ArtifactEntry(prediction, "prediction", "application/json")],
+    )
+
+    assert manifest["schema_version"] == 2
+    assert manifest["execution_fingerprint"] == "d" * 64
+    assert manifest["artifacts"]["summary"]["sha256"] == sha256_file(layout.summary_path)
+    assert manifest["artifacts"]["prediction:predictions/two_phase/case_1.json"]["sha256"] == sha256_file(prediction)
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [layout.summary_path]
+
+
+def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
+    layout = create_run_layout(tmp_path / "runs", "llm", "CSC", "model", run_id="run")
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="inside the run directory"):
+        publish_manifest_v2(layout, {}, [ArtifactEntry(outside, "prediction", "application/json")])

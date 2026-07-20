@@ -36,6 +36,15 @@ class RunLayout:
     legacy_dir: Path
 
 
+@dataclass(frozen=True, slots=True)
+class ArtifactEntry:
+    """One explicitly owned file in a schema-v2 run inventory."""
+
+    path: Path
+    role: str
+    media_type: str
+
+
 def safe_slug(value: str) -> str:
     """Return a stable lowercase path component."""
     slug = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
@@ -214,6 +223,50 @@ def write_manifest(
     return manifest
 
 
+def publish_manifest_v2(
+    layout: RunLayout,
+    identities: Mapping[str, Any],
+    inventory: Iterable[ArtifactEntry],
+) -> dict[str, Any]:
+    """Atomically publish an integrity-checked manifest for an existing run.
+
+    The caller supplies the exact files produced by this execution. This keeps
+    stale files in a resumed directory out of the manifest without weakening
+    the established run-layout and discovery contracts.
+    """
+    artifacts: dict[str, dict[str, str]] = {}
+    run_root = layout.run_dir.resolve()
+    seen: set[Path] = set()
+    for item in inventory:
+        path = item.path.resolve()
+        if not path.is_relative_to(run_root):
+            raise ValueError("Artifact inventory paths must be inside the run directory")
+        if path in seen:
+            raise ValueError("Artifact inventory paths must be unique")
+        if not path.is_file():
+            raise ValueError(f"Artifact inventory path is not a file: {path}")
+        seen.add(path)
+        relative = path.relative_to(run_root).as_posix()
+        key = item.role if item.role == "summary" else f"{item.role}:{relative}"
+        artifacts[key] = {
+            "role": item.role,
+            "path": relative,
+            "media_type": item.media_type,
+            "sha256": sha256_file(path),
+        }
+    manifest: dict[str, Any] = {
+        "schema_version": 2,
+        "run_id": layout.run_id,
+        "benchmark_type": layout.benchmark_type,
+        "dataset_name": layout.dataset,
+        "model": layout.model,
+        **dict(identities),
+        "artifacts": artifacts,
+    }
+    write_json(layout.manifest_path, manifest)
+    return manifest
+
+
 def discover_artifacts(
     root: Path,
     role: str,
@@ -239,6 +292,15 @@ def discover_artifacts(
             ):
                 continue
             artifact = manifest.get("artifacts", {}).get(role)
+            if not isinstance(artifact, dict):
+                artifact = next(
+                    (
+                        entry
+                        for entry in manifest.get("artifacts", {}).values()
+                        if isinstance(entry, dict) and entry.get("role") == role
+                    ),
+                    None,
+                )
             relative_path = artifact.get("path") if isinstance(artifact, dict) else None
             if not isinstance(relative_path, str):
                 continue
