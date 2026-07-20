@@ -23,6 +23,7 @@ from phentrieve.llm.prompts.identity import PromptBundleIdentity
 JSONValue: TypeAlias = (
     None | bool | int | float | str | list["JSONValue"] | dict[str, "JSONValue"]
 )
+DATASET_IDENTITY_SCHEMA = "phentrieve-dataset-identity/v1"
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,8 @@ class DatasetIdentity:
     execution_order_sha256: str = ""
     assertion_gold_sha256: str = ""
     id_only_gold_sha256: str = ""
+    schema_version: str = DATASET_IDENTITY_SCHEMA
+    projection_sha256: str = ""
 
 
 @dataclass(frozen=True)
@@ -78,11 +81,13 @@ def build_run_fingerprints(
         "evaluation_hpo_version": asset.hpo_version,
     }
     scoring_payload = {
+        "dataset_identity_schema": dataset.schema_version,
         "gold_sha256": dataset.gold_sha256,
         "assertion_gold_sha256": dataset.assertion_gold_sha256,
         "id_only_gold_sha256": dataset.id_only_gold_sha256,
         "document_ids_sha256": dataset.document_ids_sha256,
         "projection": dataset.projection,
+        "projection_sha256": dataset.projection_sha256,
     }
     return RunFingerprints(
         execution_sha256=_canonical_sha256(execution_payload),
@@ -94,6 +99,8 @@ def build_dataset_identity(
     test_path: Path,
     dataset: str,
     document_ids: Sequence[str] | None = None,
+    *,
+    projection: Mapping[str, str | None] | None = None,
 ) -> DatasetIdentity:
     """Build semantic identities after dataset projection and document selection."""
     payload = load_benchmark_data(test_path, dataset=dataset)
@@ -163,16 +170,26 @@ def build_dataset_identity(
     id_only_gold_records.sort(key=lambda record: str(record["id"]))
     evaluated_ids = sorted(selected_ids)
 
+    projection_name = (
+        "dataset_assertion_projection_v1"
+        if projection is not None
+        else "positive_hpo_present_v1"
+    )
+    projection_payload: Mapping[str, Any] = (
+        projection if projection is not None else {"name": projection_name}
+    )
+
     return DatasetIdentity(
         source_sha256=_source_sha256(test_path, dataset),
         input_sha256=_canonical_sha256(input_records),
         gold_sha256=_canonical_sha256(gold_records),
         document_ids_sha256=_canonical_sha256(evaluated_ids),
-        projection="positive_hpo_present_v1",
+        projection=projection_name,
         excluded_document_ids=tuple(sorted(available_ids - selected_ids)),
         execution_order_sha256=_canonical_sha256(execution_records),
         assertion_gold_sha256=_canonical_sha256(assertion_gold_records),
         id_only_gold_sha256=_canonical_sha256(id_only_gold_records),
+        projection_sha256=_canonical_sha256(projection_payload),
     )
 
 

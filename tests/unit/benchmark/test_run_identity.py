@@ -53,6 +53,30 @@ def test_json_formatting_only_changes_source_hash(tmp_path) -> None:
     assert after.document_ids_sha256 == before.document_ids_sha256
 
 
+def test_dataset_identity_versions_and_hashes_effective_projection(tmp_path) -> None:
+    path = tmp_path / "dataset.json"
+    _write_dataset(path, [_document("case-1", "Short stature", ["HP:0004322"])])
+
+    present = build_dataset_identity(
+        path,
+        dataset="all",
+        projection={"present": "PRESENT", "negated": None},
+    )
+    assertion_aware = build_dataset_identity(
+        path,
+        dataset="all",
+        projection={"present": "PRESENT", "negated": "ABSENT"},
+    )
+
+    assert present.schema_version == "phentrieve-dataset-identity/v1"
+    assert present.projection_sha256 != assertion_aware.projection_sha256
+    _, prompt, asset, model = _fingerprint_identities()
+    assert (
+        build_run_fingerprints(present, prompt, model, asset).scoring_sha256
+        != build_run_fingerprints(assertion_aware, prompt, model, asset).scoring_sha256
+    )
+
+
 def test_text_change_changes_only_input_hash(tmp_path) -> None:
     path = tmp_path / "dataset.json"
     _write_dataset(path, [_document("case-1", "Short stature", ["HP:0004322"])])

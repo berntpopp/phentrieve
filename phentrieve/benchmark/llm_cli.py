@@ -28,10 +28,10 @@ from phentrieve.benchmark.result_store import (
     ArtifactEntry,
     create_run_layout,
     publish_manifest_v2,
+    reset_run_artifacts,
     sha256_path,
     write_json,
     write_jsonl,
-    write_manifest,
 )
 from phentrieve.benchmark.run_identity import (
     behavioral_base_url_sha256,
@@ -225,6 +225,7 @@ def run_llm_benchmark_cli(
         run_id=run_id,
         exact_run_id=run_id is not None,
         overwrite=overwrite,
+        reset_existing=False,
     )
     canonical_checkpoint_path = run_layout.checkpoint_path
     dataset_sha256 = sha256_path(test_file_path)
@@ -265,7 +266,10 @@ def run_llm_benchmark_cli(
     )
     effective_doc_ids = doc_ids or None
     dataset_identity = build_dataset_identity(
-        test_file_path, dataset, effective_doc_ids
+        test_file_path,
+        dataset,
+        effective_doc_ids,
+        projection=llm_benchmark.DATASET_ASSERTION_PROJECTION.get(dataset),
     )
     prompt_identity = build_prompt_bundle_identity(
         llm_mode,
@@ -299,7 +303,7 @@ def run_llm_benchmark_cli(
         "execution_fingerprint": fingerprints.execution_sha256,
         "scoring_fingerprint": fingerprints.scoring_sha256,
     }
-    checkpoint_identity = _build_checkpoint_identity(
+    checkpoint_configuration = _build_checkpoint_identity(
         test_file_path=test_file_path,
         dataset_sha256=dataset_sha256,
         accounting_config=accounting_config,
@@ -321,13 +325,16 @@ def run_llm_benchmark_cli(
         prompt_templates_dir=prompt_templates_dir,
         doc_ids=effective_doc_ids,
     )
-    checkpoint_identity.update(identities)
+    checkpoint_identity = {**checkpoint_configuration, **identities}
     existing_checkpoint = _load_checkpoint_payload(
         path=canonical_checkpoint_path,
+        current_run=checkpoint_configuration,
         execution_fingerprint=fingerprints.execution_sha256,
         scoring_fingerprint=fingerprints.scoring_sha256,
         allow_completed=True,
     )
+    if overwrite:
+        reset_run_artifacts(run_layout)
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
         checkpoint_payload = cast(
@@ -346,15 +353,6 @@ def run_llm_benchmark_cli(
             dataset_sha256=dataset_sha256,
             test_file_path=test_file_path,
             status="partial",
-        )
-        write_manifest(
-            run_layout,
-            partial_metadata,
-            extra_artifacts=_extra_artifacts(
-                predictions_dir=predictions_dir,
-                traces_dir=traces_dir,
-                metrics_path=metrics_path,
-            ),
         )
         partial_inventory = [
             ArtifactEntry(canonical_checkpoint_path, "checkpoint", "application/json")
@@ -722,13 +720,22 @@ def _load_checkpoint_payload(
         return None
     if execution_fingerprint is not None:
         if payload.get("execution_fingerprint") != execution_fingerprint:
-            raise ValueError(f"Checkpoint execution fingerprint mismatch: {path}")
+            raise ValueError(
+                f"Checkpoint execution fingerprint mismatch: {path}. "
+                "Use a new --run-id or remove the existing run deliberately."
+            )
         if payload.get("scoring_fingerprint") != scoring_fingerprint:
-            raise ValueError(f"Checkpoint scoring fingerprint mismatch: {path}")
-    elif current_run is not None and not _checkpoint_matches_run(
+            raise ValueError(
+                f"Checkpoint scoring fingerprint mismatch: {path}. "
+                "Use a new --run-id or remove the existing run deliberately."
+            )
+    if current_run is not None and not _checkpoint_matches_run(
         payload=payload, current_run=current_run
     ):
-        raise ValueError(f"Checkpoint does not match current benchmark run: {path}")
+        raise ValueError(
+            f"Checkpoint configuration mismatch: {path}. "
+            "Use a new --run-id or remove the existing run deliberately."
+        )
     if payload.get("status") != "running" and not allow_completed:
         return None
     return payload
@@ -744,22 +751,6 @@ def _checkpoint_matches_run(
         for key, value in current_run.items()
         if key in payload or key not in _UNVERIFIABLE_WHEN_ABSENT
     )
-
-
-def _extra_artifacts(
-    *,
-    predictions_dir: Path | None,
-    traces_dir: Path | None,
-    metrics_path: Path | None,
-) -> dict[str, tuple[Path, str]]:
-    extra: dict[str, tuple[Path, str]] = {}
-    if predictions_dir is not None:
-        extra["llm_predictions"] = (predictions_dir, "inode/directory")
-    if traces_dir is not None:
-        extra["llm_traces"] = (traces_dir, "inode/directory")
-    if metrics_path is not None:
-        extra["metrics"] = (metrics_path, "application/json")
-    return extra
 
 
 def _manifest_metadata(
@@ -949,7 +940,10 @@ def benchmark_llm(
         bool,
         typer.Option(
             "--overwrite",
-            help="Allow reuse of an existing explicit run directory.",
+            help=(
+                "Resume an existing explicit run only when its checkpoint is "
+                "compatible."
+            ),
         ),
     ] = False,
     output_path: Annotated[
@@ -973,6 +967,16 @@ def benchmark_llm(
         typer.Option(
             "--prompt-templates-dir",
             help="Override the user prompt template directory for this benchmark run.",
+        ),
+    ] = None,
+    evaluation_hpo_version: Annotated[
+        str | None,
+        typer.Option(
+            "--evaluation-hpo-version",
+            help=(
+                "Expected evaluation HPO version; must match the installed "
+                "retrieval bundle."
+            ),
         ),
     ] = None,
     pricing_config: Annotated[
@@ -1092,6 +1096,7 @@ def benchmark_llm(
             artifacts_dir=artifacts_dir,
             language=language,
             prompt_templates_dir=prompt_templates_dir,
+            evaluation_hpo_version=evaluation_hpo_version,
             pricing_config=pricing_config,
             input_cost_per_1m_tokens=input_cost_per_1m_tokens,
             output_cost_per_1m_tokens=output_cost_per_1m_tokens,

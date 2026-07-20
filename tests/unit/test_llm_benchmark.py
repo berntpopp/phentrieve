@@ -23,7 +23,11 @@ pytestmark = pytest.mark.unit
 
 def _test_fingerprints(test_file: Path) -> dict[str, str]:
     fingerprints = build_run_fingerprints(
-        build_dataset_identity(test_file, "GeneReviews"),
+        build_dataset_identity(
+            test_file,
+            "GeneReviews",
+            projection=llm_benchmark.DATASET_ASSERTION_PROJECTION["GeneReviews"],
+        ),
         build_prompt_bundle_identity("two_phase", "en"),
         {
             "provider": "gemini",
@@ -2557,6 +2561,7 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
         ),
         encoding="utf-8",
     )
+    run_layout.summary_path.write_text('{"original": true}\n', encoding="utf-8")
 
     with pytest.raises(ValueError, match="execution fingerprint mismatch"):
         llm_cli.run_llm_benchmark_cli(
@@ -2566,6 +2571,10 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
             run_id="fixed-run",
             overwrite=True,
         )
+
+    assert run_layout.summary_path.read_text(encoding="utf-8") == (
+        '{"original": true}\n'
+    )
 
 
 def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
@@ -2604,6 +2613,32 @@ def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
             path=path,
             execution_fingerprint="exec",
             scoring_fingerprint="new",
+            allow_completed=True,
+        )
+
+
+def test_checkpoint_requires_matching_configuration_when_fingerprints_match(
+    tmp_path,
+) -> None:
+    path = tmp_path / "checkpoint.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "exec",
+                "scoring_fingerprint": "score",
+                "capture_phase1_debug": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="configuration mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            current_run={"capture_phase1_debug": True},
+            execution_fingerprint="exec",
+            scoring_fingerprint="score",
             allow_completed=True,
         )
 

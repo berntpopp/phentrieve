@@ -18,6 +18,27 @@ together:
 
 ## [Unreleased]
 
+### Added
+
+- **Reproducible LLM benchmark identities and manifest schema v2.** LLM runs now
+  record separate source, semantic input, gold-label, assertion-projection,
+  prompt-bundle, resolved model/provider, retrieval-asset, execution, and
+  scoring identities. Schema-v2 manifests inventory every owned file with its
+  SHA-256 digest while retaining direct schema-v1 role aliases.
+- **`--llm-seed` and `--evaluation-hpo-version` benchmark declarations.** The
+  resolved seed is bound to execution and the expected evaluation HPO version
+  must match the installed retrieval bundle.
+
+### Changed
+
+- **LLM checkpoint reuse now fails closed.** A checkpoint must match both the
+  execution/scoring fingerprints and the complete output-affecting benchmark
+  configuration. Checkpoints written before these identities existed are not
+  resumed implicitly.
+- **LLM overwrite validation is non-destructive.** Existing artifacts are kept
+  until the preserved checkpoint passes compatibility checks; incompatible
+  runs must use a new run id or be removed deliberately before a fresh run.
+
 ## [0.26.0] — 2026-07-13 (CLI 0.26.0 / API 0.17.0 / Frontend 0.17.1)
 
 Reproducible benchmark result storage. Retrieval, extraction, and LLM benchmarks

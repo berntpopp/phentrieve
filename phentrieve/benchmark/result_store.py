@@ -109,8 +109,13 @@ def create_run_layout(
     run_id: str | None = None,
     exact_run_id: bool = False,
     overwrite: bool = False,
+    reset_existing: bool = True,
 ) -> RunLayout:
-    """Create a unique run directory below a result root."""
+    """Create a unique run directory below a result root.
+
+    ``reset_existing=False`` lets callers validate a preserved checkpoint before
+    explicitly clearing artifacts with :func:`reset_run_artifacts`.
+    """
     requested_run_id = (
         re.sub(r"[^A-Za-z0-9_-]+", "_", run_id).strip("_") if run_id else utc_run_id()
     )
@@ -128,7 +133,7 @@ def create_run_layout(
             run_dir = parent / selected_run_id
             suffix += 1
 
-    if run_dir.exists() and overwrite:
+    if run_dir.exists() and overwrite and reset_existing:
         _reset_run_dir(run_dir)
 
     run_dir.mkdir(parents=True, exist_ok=overwrite)
@@ -150,6 +155,12 @@ def create_run_layout(
         checkpoint_path=run_dir / CHECKPOINT_FILENAME,
         legacy_dir=legacy_dir,
     )
+
+
+def reset_run_artifacts(layout: RunLayout) -> None:
+    """Clear a validated reusable run while preserving its checkpoint."""
+    _reset_run_dir(layout.run_dir)
+    layout.legacy_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _atomic_text_write(path: Path, content: str) -> None:
