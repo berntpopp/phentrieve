@@ -410,6 +410,77 @@ def publish_manifest_v2(
     return manifest
 
 
+def _verified_manifest_artifact_path(
+    manifest_path: Path,
+    manifest: Mapping[str, Any],
+    role: str,
+) -> Path | None:
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    artifact = artifacts.get(role)
+    if not isinstance(artifact, dict):
+        artifact = next(
+            (
+                entry
+                for entry in artifacts.values()
+                if isinstance(entry, dict) and entry.get("role") == role
+            ),
+            None,
+        )
+    relative_path = artifact.get("path") if isinstance(artifact, dict) else None
+    if not isinstance(relative_path, str):
+        return None
+    portable = PurePosixPath(relative_path)
+    if (
+        "\\" in relative_path
+        or portable.is_absolute()
+        or any(part in {"", ".", ".."} for part in portable.parts)
+    ):
+        return None
+    run_dir = manifest_path.parent.resolve()
+    lexical_artifact = manifest_path.parent.joinpath(*portable.parts)
+    _assert_no_links_below(manifest_path.parent, lexical_artifact)
+    artifact_path = lexical_artifact.resolve()
+    if not artifact_path.is_relative_to(run_dir) or not artifact_path.is_file():
+        return None
+    if manifest.get("schema_version") == 2:
+        expected_sha256 = artifact.get("sha256")
+        if (
+            not isinstance(expected_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256)
+            or sha256_file(artifact_path) != expected_sha256
+        ):
+            return None
+    return artifact_path
+
+
+def active_checkpoint_path(layout: RunLayout) -> Path:
+    """Resolve the committed checkpoint, with fixed-root legacy fallback."""
+    if not layout.manifest_path.exists():
+        return layout.checkpoint_path
+    _assert_no_links_below(layout.results_root, layout.manifest_path)
+    try:
+        manifest = json.loads(layout.manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError("Existing benchmark manifest is not valid JSON") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError("Existing benchmark manifest must be a JSON object")
+    schema_version = manifest.get("schema_version")
+    if schema_version == 1:
+        return layout.checkpoint_path
+    if schema_version != 2:
+        raise ValueError("Existing benchmark manifest has an unsupported schema")
+    checkpoint = _verified_manifest_artifact_path(
+        layout.manifest_path, manifest, "checkpoint"
+    )
+    if checkpoint is None:
+        raise ValueError(
+            "Existing benchmark manifest has no valid committed checkpoint"
+        )
+    return checkpoint
+
+
 def discover_artifacts(
     root: Path,
     role: str,
@@ -444,44 +515,11 @@ def discover_artifacts(
                 and manifest.get("benchmark_type") != benchmark_type
             ):
                 continue
-            artifacts = manifest.get("artifacts")
-            if not isinstance(artifacts, dict):
-                continue
-            artifact = artifacts.get(role)
-            if not isinstance(artifact, dict):
-                artifact = next(
-                    (
-                        entry
-                        for entry in artifacts.values()
-                        if isinstance(entry, dict) and entry.get("role") == role
-                    ),
-                    None,
-                )
-            relative_path = artifact.get("path") if isinstance(artifact, dict) else None
-            if not isinstance(relative_path, str):
-                continue
-            portable = PurePosixPath(relative_path)
-            if (
-                "\\" in relative_path
-                or portable.is_absolute()
-                or any(part in {"", ".", ".."} for part in portable.parts)
-            ):
-                continue
-            run_dir = manifest_path.parent.resolve()
-            lexical_artifact = manifest_path.parent.joinpath(*portable.parts)
-            _assert_no_links_below(manifest_path.parent, lexical_artifact)
-            artifact_path = lexical_artifact.resolve()
-            if not artifact_path.is_relative_to(run_dir) or not artifact_path.is_file():
-                continue
-            if schema_version == 2:
-                expected_sha256 = artifact.get("sha256")
-                if (
-                    not isinstance(expected_sha256, str)
-                    or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256)
-                    or sha256_file(artifact_path) != expected_sha256
-                ):
-                    continue
-            canonical.append(artifact_path)
+            artifact_path = _verified_manifest_artifact_path(
+                manifest_path, manifest, role
+            )
+            if artifact_path is not None:
+                canonical.append(artifact_path)
         except (OSError, ValueError, TypeError):
             continue
     if canonical:

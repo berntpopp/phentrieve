@@ -27,6 +27,7 @@ from phentrieve.benchmark.llm_benchmark import (
 )
 from phentrieve.benchmark.result_store import (
     ArtifactEntry,
+    active_checkpoint_path,
     create_run_layout,
     publish_manifest_v2,
     reset_run_artifacts,
@@ -230,6 +231,7 @@ def run_llm_benchmark_cli(
         materialize=False,
     )
     canonical_checkpoint_path = run_layout.checkpoint_path
+    resume_checkpoint_path = active_checkpoint_path(run_layout)
     dataset_sha256 = sha256_path(test_file_path)
     logger.info(
         "Benchmark CLI input: test_file=%s model=%s mode=%s dataset=%s run_dir=%s",
@@ -347,7 +349,7 @@ def run_llm_benchmark_cli(
     checkpoint_configuration["producer_identity"] = producer_identity
     checkpoint_identity = {**checkpoint_configuration, **identities}
     existing_checkpoint = _load_checkpoint_payload(
-        path=canonical_checkpoint_path,
+        path=resume_checkpoint_path,
         current_run=checkpoint_configuration,
         execution_fingerprint=fingerprints.execution_sha256,
         scoring_fingerprint=fingerprints.scoring_sha256,

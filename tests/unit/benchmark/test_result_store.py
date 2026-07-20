@@ -7,6 +7,7 @@ import pytest
 
 from phentrieve.benchmark.result_store import (
     ArtifactEntry,
+    active_checkpoint_path,
     create_run_layout,
     discover_artifacts,
     publish_manifest_v2,
@@ -375,6 +376,23 @@ def test_publish_manifest_v2_keeps_previous_generation_immutable(tmp_path) -> No
     assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
         second_path
     ]
+
+
+def test_active_checkpoint_prefers_committed_generation(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.checkpoint_path, {"generation": 1})
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.checkpoint_path, "checkpoint", "application/json")],
+    )
+    committed = layout.run_dir / manifest["artifacts"]["checkpoint"]["path"]
+    write_json(layout.checkpoint_path, {"generation": 2})
+
+    assert active_checkpoint_path(layout) == committed
+    assert json.loads(active_checkpoint_path(layout).read_text(encoding="utf-8")) == {
+        "generation": 1
+    }
 
 
 def test_failed_generation_publish_preserves_current_manifest(tmp_path) -> None:
