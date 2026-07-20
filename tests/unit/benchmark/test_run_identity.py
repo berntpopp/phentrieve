@@ -58,9 +58,9 @@ def _write_installed_bundle(tmp_path: Path) -> Path:
                     "slug": "bge-m3",
                     "dimension": 1024,
                     "multi_vector": True,
-                    "revision": "model-commit",
+                    "revision": "a" * 40,
                     "trust_remote_code": True,
-                    "code_revision": "code-commit",
+                    "code_revision": "b" * 40,
                 },
                 "checksums": {
                     "hpo_data.db": compute_file_checksum(database),
@@ -265,7 +265,42 @@ def test_sanitized_endpoint_does_not_persist_query_credentials() -> None:
         "https://user:password@example.test/v1?token=secret&api-version=1"
     )
 
-    assert sanitized == "https://example.test/v1?api-version=1&token=REDACTED"
+    assert sanitized is not None
+    assert sanitized.startswith("https://example.test/PATH_SHA256_")
+    assert "api-version=VALUE_SHA256_" in sanitized
+    assert "token=REDACTED" in sanitized
+    assert "password" not in sanitized
+
+
+@pytest.mark.parametrize(
+    "key", ["access_token", "x-api-key", "credential", "client_secret"]
+)
+def test_sanitized_endpoint_redacts_extended_credential_keys(key) -> None:
+    from phentrieve.benchmark.run_identity import sanitize_behavioral_base_url
+
+    sanitized = sanitize_behavioral_base_url(f"https://example.test/v1?{key}=canary")
+
+    assert sanitized is not None
+    assert f"{key}=REDACTED" in sanitized
+    assert "canary" not in sanitized
+
+
+def test_sanitized_endpoint_redacts_known_raw_and_encoded_path_secrets() -> None:
+    from phentrieve.benchmark.run_identity import sanitize_behavioral_base_url
+
+    raw = sanitize_behavioral_base_url(
+        "https://example.test/proxy/Bearer secret/v1",
+        secrets=("Bearer secret",),
+    )
+    encoded = sanitize_behavioral_base_url(
+        "https://example.test/proxy/Bearer%20secret/v1",
+        secrets=("Bearer secret",),
+    )
+
+    assert raw is not None and "Bearer secret" not in raw
+    assert encoded is not None and "Bearer%20secret" not in encoded
+    assert "/PATH_SHA256_" in raw
+    assert "/PATH_SHA256_" in encoded
 
 
 def test_dataset_identity_does_not_import_chromadb(tmp_path) -> None:
@@ -323,7 +358,7 @@ def test_selected_document_ids_filter_and_identify_dataset(tmp_path) -> None:
     assert first.input_sha256 != second.input_sha256
     assert first.gold_sha256 != second.gold_sha256
     assert first.document_ids_sha256 != second.document_ids_sha256
-    assert first.projection == "positive_hpo_present_v1"
+    assert first.projection == "positive_hpo_present_v2"
     assert first.excluded_document_ids == ("case-b",)
     with pytest.raises(ValueError, match="Unknown requested document IDs: missing"):
         build_dataset_identity(path, dataset="all", document_ids=["missing"])
@@ -387,9 +422,59 @@ def test_asset_identity_reads_installed_bundle_manifest(tmp_path) -> None:
     assert identity.hpo_version == "v2026-06-23"
     assert len(identity.manifest_sha256) == 64
     assert len(identity.content_sha256) == 64
-    assert identity.model_revision == "model-commit"
+    assert identity.model_revision == "a" * 40
     assert identity.trust_remote_code is True
-    assert identity.code_revision == "code-commit"
+    assert identity.code_revision == "b" * 40
+
+
+@pytest.mark.parametrize("revision", ["", "main", "a" * 39, "g" * 40])
+def test_asset_identity_requires_immutable_model_revision(tmp_path, revision) -> None:
+    _write_installed_bundle(tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["model"]["revision"] = revision
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="immutable model revision"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def test_asset_identity_requires_code_revision_for_remote_code(tmp_path) -> None:
+    _write_installed_bundle(tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["model"]["code_revision"] = None
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="immutable code revision"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def test_asset_identity_rejects_mutable_optional_code_revision(tmp_path) -> None:
+    _write_installed_bundle(tmp_path)
+    manifest_path = tmp_path / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["model"]["trust_remote_code"] = False
+    manifest["model"]["code_revision"] = "main"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="immutable code revision"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def test_sanitized_endpoint_normalizes_encoded_secret_percent_case() -> None:
+    from phentrieve.benchmark.run_identity import sanitize_behavioral_base_url
+
+    upper = sanitize_behavioral_base_url(
+        "https://example.test/proxy/canary%2Fsecret/v1",
+        secrets=("canary/secret",),
+    )
+    lower = sanitize_behavioral_base_url(
+        "https://example.test/proxy/canary%2fsecret/v1",
+        secrets=("canary/secret",),
+    )
+
+    assert upper == lower
 
 
 def test_asset_identity_rejects_incomplete_bundle_inventory(tmp_path) -> None:
@@ -476,7 +561,7 @@ def _fingerprint_identities():
         input_sha256="1" * 64,
         gold_sha256="2" * 64,
         document_ids_sha256="3" * 64,
-        projection="positive_hpo_present_v1",
+        projection="positive_hpo_present_v2",
         excluded_document_ids=("excluded",),
     )
     prompt = PromptBundleIdentity(

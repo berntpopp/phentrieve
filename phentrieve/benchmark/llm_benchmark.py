@@ -16,7 +16,6 @@ from pydantic import BaseModel, Field, field_validator
 from phentrieve.benchmark import energy
 from phentrieve.benchmark.data_loader import (
     CANONICAL_ASSERTION_MAP,
-    LLM_ASSERTION_TO_BENCHMARK,
     load_benchmark_data,
     normalize_benchmark_assertion,
     parse_gold_terms,
@@ -1164,14 +1163,6 @@ def _build_benchmark_payload(
     return payload
 
 
-def _normalize_assertion(assertion: str | None) -> str:
-    if assertion is None:
-        return DEFAULT_ID_ONLY_ASSERTION
-    return LLM_ASSERTION_TO_BENCHMARK.get(
-        assertion.strip().lower(), DEFAULT_ID_ONLY_ASSERTION
-    )
-
-
 def _serialize_corpus_metrics(metrics: Any) -> dict[str, Any]:
     return {
         "micro": metrics.micro,
@@ -1272,7 +1263,9 @@ def _build_prediction_record(
         "projected_predictions": list(predicted_terms),
         "projection": {
             "dataset": dataset,
-            "assertion_projection": DATASET_ASSERTION_PROJECTION.get(dataset),
+            "assertion_projection": resolve_dataset_assertion_projection(
+                dataset, document.get("source_dataset")
+            ),
         },
     }
 

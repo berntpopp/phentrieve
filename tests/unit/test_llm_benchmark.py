@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -2824,11 +2825,35 @@ def test_all_projection_uses_document_source_for_predictions() -> None:
     )
 
 
-def test_persisted_payload_sanitizes_nested_base_url_credentials() -> None:
+def test_persisted_payload_sanitizes_nested_base_url_credentials(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "Bearer secret")
     sanitized = llm_cli._sanitize_persisted_base_urls(
-        {"llm_base_url": "https://user:secret@example.test:8443/api?token=x#frag"}
+        {
+            "llm_base_url": (
+                "https://user:secret@example.test:8443/proxy/"
+                "Bearer%20secret/api?access_token=Bearer+secret#frag"
+            )
+        }
     )
-    assert sanitized == {"llm_base_url": "https://example.test:8443/api?token=REDACTED"}
+    serialized = json.dumps(sanitized)
+    assert "Bearer secret" not in serialized
+    assert "Bearer%20secret" not in serialized
+    assert "user:secret" not in serialized
+    assert serialized.count("REDACTED") == 1
+    assert "PATH_SHA256_" in serialized
+
+
+def test_persisted_endpoint_identity_excludes_chatgpt_api_key(monkeypatch) -> None:
+    monkeypatch.setenv("CHATGPT_API_KEY", "first-chatgpt-secret")
+    first = llm_cli._sanitize_persisted_base_urls(
+        {"llm_base_url": "https://example.test/proxy/first-chatgpt-secret/v1"}
+    )
+    monkeypatch.setenv("CHATGPT_API_KEY", "second-chatgpt-secret")
+    second = llm_cli._sanitize_persisted_base_urls(
+        {"llm_base_url": "https://example.test/proxy/second-chatgpt-secret/v1"}
+    )
+
+    assert first == second
 
 
 def test_public_pipeline_error_never_returns_raw_provider_exception() -> None:
@@ -2862,6 +2887,7 @@ def test_producer_identity_is_anchored_to_package_repository(
         text=True,
     ).stdout.strip()
     assert identity["commit"] == expected
+    assert identity["dirty"] in {"true", "false"}
     assert identity["provenance_status"] == "resolved"
 
 
@@ -2915,6 +2941,34 @@ def test_runtime_source_hash_normalizes_newlines_and_ignores_bytecode(tmp_path) 
     second = llm_cli._hash_runtime_package(package)
 
     assert first == second
+
+
+def test_runtime_source_hash_matches_built_wheel(tmp_path) -> None:
+    repository = Path(llm_cli.__file__).resolve().parents[2]
+    uv_executable = shutil.which("uv")
+    assert uv_executable is not None
+    wheel_dir = tmp_path / "wheel"
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [
+            uv_executable,
+            "build",
+            "--wheel",
+            "--out-dir",
+            str(wheel_dir),
+            str(repository),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    wheel_path = next(wheel_dir.glob("*.whl"))
+    installed_root = tmp_path / "installed"
+    with zipfile.ZipFile(wheel_path) as wheel:
+        wheel.extractall(installed_root)
+
+    assert llm_cli._hash_runtime_package(repository / "phentrieve") == (
+        llm_cli._hash_runtime_package(installed_root / "phentrieve")
+    )
 
 
 @pytest.mark.parametrize("length", [40, 64])

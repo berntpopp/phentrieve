@@ -14,8 +14,10 @@ See: https://github.com/berntpopp/phentrieve/issues/117
 from __future__ import annotations
 
 import logging
+import os
 import re
 import shutil
+import stat
 import tarfile
 import tempfile
 from collections.abc import Iterator
@@ -546,9 +548,18 @@ def _reject_symlink_components(target_dir: Path, target: Path) -> None:
     current = target_dir
     for part in target.relative_to(target_dir).parts:
         current = current / part
-        if current.is_symlink():
+        is_junction = getattr(current, "is_junction", None)
+        try:
+            attributes = getattr(os.lstat(current), "st_file_attributes", 0)
+        except OSError:
+            attributes = 0
+        if (
+            current.is_symlink()
+            or bool(is_junction and is_junction())
+            or bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+        ):
             raise ValueError(
-                f"Bundle checksum path must not contain symlinks: {target}"
+                f"Bundle checksum path must not contain links or junctions: {target}"
             )
 
 
@@ -579,6 +590,9 @@ def _verify_bundle_checksums(
         portable = normalized.rstrip("/")
         target = root.joinpath(*PurePosixPath(portable).parts)
         _reject_symlink_components(root, target)
+        resolved_target = target.resolve()
+        if not resolved_target.is_relative_to(root):
+            raise ValueError(f"Bundle checksum path escapes data root: {filename}")
         if not isinstance(expected_hash, str) or not re.fullmatch(
             r"[0-9a-fA-F]{64}", expected_hash
         ):
@@ -586,12 +600,19 @@ def _verify_bundle_checksums(
 
         if is_directory:
             # Directory checksum
-            if target.is_dir():
-                if any(path.is_symlink() for path in target.rglob("*")):
+            if resolved_target.is_dir():
+                descendants = list(resolved_target.rglob("*"))
+                for path in descendants:
+                    _reject_symlink_components(root, path)
+                    if not path.resolve().is_relative_to(root):
+                        raise ValueError(
+                            f"Bundle checksum path escapes data root: {filename}"
+                        )
+                if any(path.is_symlink() for path in descendants):
                     raise ValueError(
                         f"Bundle checksum directory must not contain symlinks: {filename}"
                     )
-                actual_hash = compute_directory_checksum(target)
+                actual_hash = compute_directory_checksum(resolved_target)
                 if actual_hash != expected_hash:
                     failed.append(filename)
                 else:
@@ -600,8 +621,8 @@ def _verify_bundle_checksums(
                 failed.append(f"{filename} (missing)")
         else:
             # File checksum
-            if target.is_file():
-                actual_hash = compute_file_checksum(target)
+            if resolved_target.is_file():
+                actual_hash = compute_file_checksum(resolved_target)
                 if actual_hash != expected_hash:
                     failed.append(filename)
                 else:

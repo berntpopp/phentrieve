@@ -6,6 +6,8 @@ Follows best practices with clear Arrange-Act-Assert structure.
 Issue #117: Pre-built data distribution system.
 """
 
+import os
+import subprocess
 import tarfile
 from unittest.mock import MagicMock, patch
 
@@ -306,6 +308,33 @@ class TestVerifyBundleChecksums:
 
         with pytest.raises(ValueError, match="indexes/.*missing"):
             _verify_bundle_checksums(manifest, tmp_path)
+
+    @pytest.mark.skipif(os.name != "nt", reason="Windows junction behavior")
+    def test_rejects_junction_inside_checksum_directory(self, tmp_path):
+        indexes = tmp_path / "indexes"
+        indexes.mkdir()
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        (outside / "sentinel.bin").write_bytes(b"outside")
+        junction = indexes / "linked"
+        cmd_executable = os.environ.get("COMSPEC")
+        if not cmd_executable:
+            pytest.skip("COMSPEC is unavailable")
+        created = subprocess.run(  # noqa: S603 - resolved Windows interpreter
+            [cmd_executable, "/c", "mklink", "/J", str(junction), str(outside)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if created.returncode != 0:
+            pytest.skip(f"junction creation unavailable: {created.stderr}")
+        try:
+            manifest = BundleManifest(checksums={"indexes/": "0" * 64})
+            with pytest.raises(ValueError, match="links or junctions"):
+                _verify_bundle_checksums(manifest, tmp_path)
+            assert (outside / "sentinel.bin").read_bytes() == b"outside"
+        finally:
+            junction.rmdir()
 
 
 # =============================================================================

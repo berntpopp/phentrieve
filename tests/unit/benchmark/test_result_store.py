@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -170,6 +173,40 @@ def test_create_run_layout_rejects_symlinked_run_directory(tmp_path) -> None:
         )
 
     assert marker.read_text(encoding="utf-8") == "keep"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction behavior")
+def test_create_run_layout_rejects_junctioned_run_directory(tmp_path) -> None:
+    target = tmp_path / "outside"
+    target.mkdir()
+    marker = target / "keep.txt"
+    marker.write_text("keep", encoding="utf-8")
+    run_dir = tmp_path / "results" / "llm" / "genereviews" / "model" / "run"
+    run_dir.parent.mkdir(parents=True)
+    cmd_executable = os.environ.get("COMSPEC")
+    if not cmd_executable:
+        pytest.skip("COMSPEC is unavailable")
+    created = subprocess.run(  # noqa: S603 - resolved Windows command interpreter
+        [cmd_executable, "/c", "mklink", "/J", str(run_dir), str(target)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if created.returncode != 0:
+        pytest.skip(f"junction creation unavailable: {created.stderr}")
+    try:
+        with pytest.raises(ValueError, match="link or junction"):
+            create_run_layout(
+                tmp_path / "results",
+                "llm",
+                "GeneReviews",
+                "model",
+                run_id="run",
+                overwrite=True,
+            )
+        assert marker.read_text(encoding="utf-8") == "keep"
+    finally:
+        run_dir.rmdir()
 
 
 def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) -> None:
@@ -377,6 +414,47 @@ def test_publish_manifest_v2_keeps_previous_generation_immutable(tmp_path) -> No
         second_path
     ]
 
+    write_json(layout.summary_path, {"generation": 3})
+    third = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    third_path = layout.run_dir / third["artifacts"]["summary"]["path"]
+    generation_dirs = [
+        path for path in (layout.run_dir / ".generations").iterdir() if path.is_dir()
+    ]
+
+    assert not first_path.exists()
+    assert second_path.exists()
+    assert third_path.exists()
+    assert len(generation_dirs) == 2
+
+
+def test_publish_manifest_v2_supports_relative_results_root(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    layout = create_run_layout(Path("results"), "llm", "CSC", "model", run_id="run")
+    prediction = layout.run_dir / "predictions" / "two_phase" / "case.json"
+    trace = layout.run_dir / "traces" / "two_phase" / "case.json"
+    write_json(prediction, {"kind": "prediction"})
+    write_json(trace, {"kind": "trace"})
+
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [
+            ArtifactEntry(prediction, "prediction", "application/json"),
+            ArtifactEntry(trace, "trace", "application/json"),
+        ],
+    )
+
+    assert manifest["artifacts"]["llm_predictions"]["path"].endswith(
+        "predictions/two_phase"
+    )
+    assert manifest["artifacts"]["llm_traces"]["path"].endswith("traces/two_phase")
+
 
 def test_active_checkpoint_prefers_committed_generation(tmp_path) -> None:
     layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
@@ -510,6 +588,45 @@ def test_discover_artifacts_ignores_malformed_and_tampered_manifests(tmp_path) -
     published.write_text('{"status":"tampered"}\n', encoding="utf-8")
 
     assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == []
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    [
+        "{",
+        "null",
+        "42",
+        json.dumps({"schema_version": 2, "artifacts": None}),
+        json.dumps({"schema_version": 2, "artifacts": []}),
+        json.dumps(
+            {
+                "schema_version": 2,
+                "artifacts": {"summary": "not-an-object"},
+            }
+        ),
+        json.dumps(
+            {
+                "schema_version": 2,
+                "artifacts": {
+                    "summary": {"role": "summary", "path": "../outside.json"}
+                },
+            }
+        ),
+    ],
+)
+def test_discovery_skips_each_malformed_manifest_but_keeps_valid_sibling(
+    tmp_path, malformed
+) -> None:
+    invalid_manifest = tmp_path / "invalid" / "manifest.json"
+    invalid_manifest.parent.mkdir()
+    invalid_manifest.write_text(malformed, encoding="utf-8")
+    valid = create_run_layout(tmp_path, "llm", "GeneReviews", "model", run_id="valid")
+    write_json(valid.summary_path, {"valid": True})
+    write_manifest(valid, {"status": "complete"})
+
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
+        valid.summary_path.resolve()
+    ]
 
 
 def test_discover_artifacts_rejects_absolute_and_parent_paths(tmp_path) -> None:

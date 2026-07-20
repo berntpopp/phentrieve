@@ -27,6 +27,7 @@ from phentrieve.benchmark.llm_benchmark import (
 )
 from phentrieve.benchmark.result_store import (
     ArtifactEntry,
+    _path_is_link,
     active_checkpoint_path,
     create_run_layout,
     publish_manifest_v2,
@@ -59,6 +60,19 @@ CHECKPOINT_DEFAULTS: dict[str, Any] = {
     "ontology_semantic_floor": 0.30,
     "ontology_similarity_formula": "hybrid",
 }
+_ENDPOINT_SECRET_ENV_NAMES = (
+    "PHENTRIEVE_OPENAI_API_KEY",
+    "OPENAI_API_KEY",
+    "CHATGPT_API_KEY",
+    "PHENTRIEVE_OPENROUTER_API_KEY",
+    "OPENROUTER_API_KEY",
+    "PHENTRIEVE_ANTHROPIC_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "CLAUDE_API_KEY",
+    "PHENTRIEVE_GEMINI_API_KEY",
+    "GEMINI_API_KEY",
+    "GOOGLE_API_KEY",
+)
 
 # Identity keys with no meaningful historical default: a checkpoint written
 # before the key existed carries no evidence either way, so it is resumed under
@@ -102,6 +116,14 @@ def _derive_run_status(case_records: list[dict[str, Any]]) -> str:
     if failed == 0:
         return "complete"
     return "failed" if failed == len(case_records) else "partial"
+
+
+def _endpoint_secrets() -> tuple[str, ...]:
+    return tuple(
+        value
+        for name in _ENDPOINT_SECRET_ENV_NAMES
+        if (value := os.getenv(name)) is not None and value
+    )
 
 
 def _build_checkpoint_identity(
@@ -284,12 +306,15 @@ def run_llm_benchmark_cli(
     retrieval_identity = load_retrieval_asset_identity(_data_dir)
     resolved_evaluation_hpo = evaluation_hpo_version or retrieval_identity.hpo_version
     validate_evaluation_hpo_version(resolved_evaluation_hpo, retrieval_identity)
+    endpoint_secrets = _endpoint_secrets()
     model_identity = {
         "provider": resolved_provider_request.provider,
         "model": resolved_provider_request.model,
-        "base_url": sanitize_behavioral_base_url(resolved_provider_request.base_url),
+        "base_url": sanitize_behavioral_base_url(
+            resolved_provider_request.base_url, secrets=endpoint_secrets
+        ),
         "base_url_behavior_sha256": behavioral_base_url_sha256(
-            resolved_provider_request.base_url
+            resolved_provider_request.base_url, secrets=endpoint_secrets
         ),
         "seed": resolved_provider_request.seed,
         "timeout_seconds": llm_timeout_seconds,
@@ -336,7 +361,7 @@ def run_llm_benchmark_cli(
         resolved_provider=resolved_provider_request.provider,
         resolved_model=resolved_provider_request.model,
         resolved_base_url=sanitize_behavioral_base_url(
-            resolved_provider_request.base_url
+            resolved_provider_request.base_url, secrets=endpoint_secrets
         ),
         llm_timeout_seconds=llm_timeout_seconds,
         llm_seed=llm_seed,
@@ -515,6 +540,7 @@ def _build_producer_identity() -> dict[str, str | None]:
         return {
             "phentrieve_version": __version__,
             "commit": None,
+            "dirty": None,
             "provenance_status": "git_unavailable",
             "schema_version": "phentrieve-producer-source/v1",
             "source_sha256": source_sha256,
@@ -539,20 +565,44 @@ def _build_producer_identity() -> dict[str, str | None]:
         return {
             "phentrieve_version": __version__,
             "commit": None,
+            "dirty": None,
             "provenance_status": "git_unavailable",
             "schema_version": "phentrieve-producer-source/v1",
             "source_sha256": source_sha256,
         }
     output = completed.stdout.splitlines() if completed.returncode == 0 else []
     commit: str | None = None
+    dirty: str | None = None
     if len(output) == 3 and output[1].strip() == "true":
         top_level = Path(output[0]).resolve()
         candidate = output[2].strip()
         if package_repository == top_level:
             commit = _normalize_full_git_oid(candidate)
+            if commit is not None:
+                try:
+                    status = subprocess.run(  # noqa: S603 - resolved git executable
+                        [
+                            executable,
+                            "-C",
+                            str(package_repository),
+                            "status",
+                            "--porcelain",
+                            "--untracked-files=normal",
+                            "--",
+                            "phentrieve",
+                        ],
+                        capture_output=True,
+                        check=False,
+                        text=True,
+                    )
+                    if status.returncode == 0:
+                        dirty = "true" if status.stdout.strip() else "false"
+                except OSError:
+                    dirty = None
     return {
         "phentrieve_version": __version__,
         "commit": commit,
+        "dirty": dirty,
         "provenance_status": "resolved" if commit else "git_error",
         "schema_version": "phentrieve-producer-source/v1",
         "source_sha256": source_sha256,
@@ -573,12 +623,20 @@ def _hash_runtime_package(package_root: Path) -> str:
     """Hash runtime package files independent of checkout newline conventions."""
     digest = hashlib.sha256()
     text_suffixes = {".json", ".py", ".toml", ".txt", ".yaml", ".yml"}
+    excluded_subtrees = {
+        ("benchmark", "pricing_examples"),
+        ("llm", "prompts", "templates", "agentic_judge"),
+    }
     files = sorted(
         path
         for path in package_root.rglob("*")
         if path.is_file()
         and "__pycache__" not in path.parts
         and path.suffix not in {".pyc", ".pyo"}
+        and not any(
+            path.relative_to(package_root).parts[: len(subtree)] == subtree
+            for subtree in excluded_subtrees
+        )
     )
     for path in files:
         relative = path.relative_to(package_root).as_posix().encode("utf-8")
@@ -602,7 +660,7 @@ def _sanitize_persisted_base_urls(value: Any, *, key: str | None = None) -> Any:
     if isinstance(value, list):
         return [_sanitize_persisted_base_urls(child) for child in value]
     if key is not None and key.endswith("base_url") and isinstance(value, str):
-        return sanitize_behavioral_base_url(value)
+        return sanitize_behavioral_base_url(value, secrets=_endpoint_secrets())
     return value
 
 
@@ -784,8 +842,7 @@ def _load_checkpoint_payload(
     scoring_fingerprint: str | None = None,
     allow_completed: bool,
 ) -> dict[str, Any] | None:
-    is_junction = getattr(path, "is_junction", None)
-    if path.is_symlink() or bool(is_junction and is_junction()):
+    if _path_is_link(path):
         raise ValueError("Benchmark checkpoint path must not be a link or junction")
     if not path.exists():
         return None

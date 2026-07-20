@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import os
 import re
 import shutil
+import stat
 import uuid
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -17,6 +20,7 @@ from typing import Any, Literal
 BenchmarkType = Literal["retrieval", "extraction", "llm"]
 
 CHECKPOINT_FILENAME = "checkpoint.json"
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,7 +90,13 @@ def sha256_path(path: Path) -> str:
 
 def _path_is_link(path: Path) -> bool:
     is_junction = getattr(path, "is_junction", None)
-    return path.is_symlink() or bool(is_junction and is_junction())
+    if path.is_symlink() or bool(is_junction and is_junction()):
+        return True
+    try:
+        attributes = getattr(os.lstat(path), "st_file_attributes", 0)
+    except OSError:
+        return False
+    return bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
 
 
 def _assert_no_links_below(root: Path, path: Path) -> None:
@@ -118,6 +128,7 @@ def _reset_run_dir(run_dir: Path, *, results_root: Path) -> None:
     validated separately before any of it is trusted.
     """
     _assert_no_links_below(results_root, run_dir)
+    run_root = run_dir.resolve()
     for item in run_dir.iterdir():
         if item.name in {CHECKPOINT_FILENAME, "manifest.json", ".generations"}:
             continue
@@ -125,6 +136,8 @@ def _reset_run_dir(run_dir: Path, *, results_root: Path) -> None:
             raise ValueError(
                 f"Benchmark run contents must not be links or junctions: {item}"
             )
+        if not item.resolve().is_relative_to(run_root):
+            raise ValueError(f"Benchmark run content escapes run directory: {item}")
         if item.is_dir():
             shutil.rmtree(item)
         else:
@@ -204,9 +217,67 @@ def reset_run_artifacts(layout: RunLayout) -> None:
 
 def _atomic_text_write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_text(content, encoding="utf-8")
-    temporary.replace(path)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        temporary.write_text(content, encoding="utf-8")
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _active_generation_id(manifest_path: Path) -> str | None:
+    if not manifest_path.is_file() or _path_is_link(manifest_path):
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != 2:
+        return None
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    for artifact in artifacts.values():
+        if not isinstance(artifact, dict):
+            continue
+        artifact_path = artifact.get("path")
+        if not isinstance(artifact_path, str):
+            continue
+        parts = PurePosixPath(artifact_path).parts
+        if len(parts) >= 3 and parts[0] == ".generations":
+            return parts[1]
+    return None
+
+
+def _prune_generations(layout: RunLayout, keep: set[str]) -> None:
+    generations_root = layout.run_dir / ".generations"
+    if not generations_root.is_dir():
+        return
+    _assert_no_links_below(layout.run_dir, generations_root)
+    generations_resolved = generations_root.resolve()
+    for candidate in generations_root.iterdir():
+        if candidate.name in keep:
+            continue
+        if _path_is_link(candidate):
+            logger.warning(
+                "Refusing to prune linked benchmark generation: %s", candidate
+            )
+            continue
+        resolved = candidate.resolve()
+        if not resolved.is_relative_to(generations_resolved):
+            logger.warning(
+                "Refusing to prune escaped benchmark generation: %s", candidate
+            )
+            continue
+        try:
+            if candidate.is_dir():
+                shutil.rmtree(candidate)
+            else:
+                candidate.unlink()
+        except OSError as exc:
+            logger.warning(
+                "Could not prune benchmark generation %s: %s", candidate, exc
+            )
 
 
 def write_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -336,6 +407,7 @@ def publish_manifest_v2(
         relative = lexical_path.relative_to(layout.run_dir.absolute()).as_posix()
         validated.append((item, path, relative))
 
+    previous_generation_id = _active_generation_id(layout.manifest_path)
     generation_id = f"{utc_run_id()}-{uuid.uuid4().hex[:8]}"
     generations_root = layout.run_dir / ".generations"
     _assert_no_links_below(layout.run_dir, generations_root)
@@ -374,9 +446,9 @@ def publish_manifest_v2(
         ("trace", "llm_traces"),
     ):
         parents = {
-            (layout.run_dir / artifacts[f"{item.role}:{source_relative}"]["path"])
-            .parent.relative_to(run_root)
-            .as_posix()
+            PurePosixPath(
+                artifacts[f"{item.role}:{source_relative}"]["path"]
+            ).parent.as_posix()
             for item, _source, source_relative in validated
             if item.role == role
         }
@@ -407,6 +479,10 @@ def publish_manifest_v2(
         "artifacts": artifacts,
     }
     write_json(layout.manifest_path, manifest)
+    keep_generations = {generation_id}
+    if previous_generation_id is not None:
+        keep_generations.add(previous_generation_id)
+    _prune_generations(layout, keep_generations)
     return manifest
 
 

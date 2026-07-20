@@ -5,12 +5,13 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, TypeAlias
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 from phentrieve.benchmark.data_loader import (
     DEFAULT_SIMPLE_ASSERTION,
@@ -29,14 +30,19 @@ SENSITIVE_ENDPOINT_QUERY_KEYS = frozenset(
     {
         "api_key",
         "apikey",
+        "access_token",
         "authorization",
+        "client_secret",
+        "credential",
         "key",
         "secret",
         "signature",
         "sig",
         "token",
+        "x-api-key",
     }
 )
+PUBLIC_ENDPOINT_QUERY_KEYS = frozenset({"api-version", "v", "version"})
 
 
 @dataclass(frozen=True)
@@ -198,12 +204,18 @@ def build_dataset_identity(
     evaluated_ids = sorted(selected_ids)
 
     projection_name = (
-        "dataset_assertion_projection_v1"
+        "dataset_assertion_projection_v2"
         if projection is not None
-        else "positive_hpo_present_v1"
+        else "positive_hpo_present_v2"
     )
     projection_payload: Mapping[str, Any] = (
-        projection if projection is not None else {"name": projection_name}
+        projection
+        if projection is not None
+        else {
+            "schema_version": "phentrieve-assertion-projection/v2",
+            "name": projection_name,
+            "mapping": {"PRESENT": "PRESENT"},
+        }
     )
 
     return DatasetIdentity(
@@ -239,6 +251,27 @@ def load_retrieval_asset_identity(
             "Installed retrieval bundle manifest has no valid HPO version provenance: "
             "expected non-empty 'hpo_version'."
         )
+    model_revision = manifest.model.revision.strip().lower()
+    if re.fullmatch(r"[0-9a-f]{40}", model_revision) is None:
+        raise ValueError(
+            "Installed retrieval bundle manifest has no immutable model revision."
+        )
+    code_revision = (
+        manifest.model.code_revision.strip().lower()
+        if isinstance(manifest.model.code_revision, str)
+        else None
+    )
+    if (
+        code_revision is not None
+        and re.fullmatch(r"[0-9a-f]{40}", code_revision) is None
+    ):
+        raise ValueError(
+            "Installed retrieval bundle manifest has no immutable code revision."
+        )
+    if manifest.model.trust_remote_code and code_revision is None:
+        raise ValueError(
+            "Installed retrieval bundle manifest has no immutable code revision."
+        )
 
     bundle_dir = data_dir or _default_data_dir()
     required_checksums = {"hpo_data.db", "indexes/"}
@@ -263,9 +296,9 @@ def load_retrieval_asset_identity(
         hpo_version=manifest.hpo_version,
         manifest_sha256=_sha256_file(manifest_path),
         content_sha256=content_sha256,
-        model_revision=manifest.model.revision,
+        model_revision=model_revision,
         trust_remote_code=manifest.model.trust_remote_code,
-        code_revision=manifest.model.code_revision,
+        code_revision=code_revision,
     )
 
 
@@ -288,7 +321,25 @@ def validate_evaluation_hpo_version(
         )
 
 
-def sanitize_behavioral_base_url(value: str | None) -> str | None:
+def _redact_known_secrets(value: str, secrets: Sequence[str]) -> str:
+    redacted = re.sub(r"%[0-9a-fA-F]{2}", lambda match: match.group(0).upper(), value)
+    for secret in secrets:
+        if not secret:
+            continue
+        variants = {secret, quote(secret, safe=""), quote(secret, safe="/")}
+        for variant in sorted(variants, key=len, reverse=True):
+            redacted = redacted.replace(variant, "REDACTED")
+    return redacted
+
+
+def _opaque_endpoint_component(prefix: str, value: str) -> str:
+    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()
+    return f"{prefix}_SHA256_{digest}"
+
+
+def sanitize_behavioral_base_url(
+    value: str | None, *, secrets: Sequence[str] = ()
+) -> str | None:
     """Keep public endpoint behavior while redacting credential-bearing parts."""
     if value is None or not value.strip():
         return None
@@ -301,26 +352,39 @@ def sanitize_behavioral_base_url(value: str | None) -> str | None:
     if ":" in host and not host.startswith("["):
         host = f"[{host}]"
     port = f":{parsed.port}" if parsed.port is not None else ""
-    query_pairs = [
-        (
-            key,
-            "REDACTED"
-            if key.strip().casefold() in SENSITIVE_ENDPOINT_QUERY_KEYS
-            else query_value,
-        )
-        for key, query_value in parse_qsl(parsed.query, keep_blank_values=True)
-    ]
+    query_pairs = []
+    for key, query_value in parse_qsl(parsed.query, keep_blank_values=True):
+        normalized_key = key.strip().casefold()
+        if normalized_key in SENSITIVE_ENDPOINT_QUERY_KEYS:
+            sanitized_key = normalized_key
+            sanitized_value = "REDACTED"
+        else:
+            sanitized_key = (
+                normalized_key
+                if normalized_key in PUBLIC_ENDPOINT_QUERY_KEYS
+                else _opaque_endpoint_component("PARAM", normalized_key)
+            )
+            sanitized_value = _opaque_endpoint_component(
+                "VALUE", _redact_known_secrets(query_value, secrets)
+            )
+        query_pairs.append((sanitized_key, sanitized_value))
     query = urlencode(sorted(query_pairs))
+    redacted_path = _redact_known_secrets(parsed.path, secrets)
+    path = (
+        ""
+        if redacted_path in {"", "/"}
+        else f"/{_opaque_endpoint_component('PATH', redacted_path)}"
+    )
     if has_scheme:
-        return urlunsplit(
-            (parsed.scheme.lower(), f"{host}{port}", parsed.path, query, "")
-        )
-    return urlunsplit(("", f"{host}{port}", parsed.path, query, ""))
+        return urlunsplit((parsed.scheme.lower(), f"{host}{port}", path, query, ""))
+    return urlunsplit(("", f"{host}{port}", path, query, ""))
 
 
-def behavioral_base_url_sha256(value: str | None) -> str | None:
+def behavioral_base_url_sha256(
+    value: str | None, *, secrets: Sequence[str] = ()
+) -> str | None:
     """Hash endpoint-affecting URL parts without exposing credentials."""
-    behavioral = sanitize_behavioral_base_url(value)
+    behavioral = sanitize_behavioral_base_url(value, secrets=secrets)
     if behavioral is None:
         return None
     return hashlib.sha256(behavioral.encode("utf-8")).hexdigest()
