@@ -10,7 +10,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, TypeAlias
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from phentrieve.benchmark.data_loader import (
     DEFAULT_SIMPLE_ASSERTION,
@@ -24,6 +24,18 @@ JSONValue: TypeAlias = (
     None | bool | int | float | str | list["JSONValue"] | dict[str, "JSONValue"]
 )
 DATASET_IDENTITY_SCHEMA = "phentrieve-dataset-identity/v1"
+SENSITIVE_ENDPOINT_QUERY_KEYS = frozenset(
+    {
+        "api_key",
+        "apikey",
+        "authorization",
+        "key",
+        "secret",
+        "signature",
+        "sig",
+        "token",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -241,7 +253,7 @@ def validate_evaluation_hpo_version(
 
 
 def sanitize_behavioral_base_url(value: str | None) -> str | None:
-    """Keep endpoint behavior while removing credentials, query, and fragment."""
+    """Keep public endpoint behavior while redacting credential-bearing parts."""
     if value is None or not value.strip():
         return None
     raw = value.strip()
@@ -253,33 +265,28 @@ def sanitize_behavioral_base_url(value: str | None) -> str | None:
     if ":" in host and not host.startswith("["):
         host = f"[{host}]"
     port = f":{parsed.port}" if parsed.port is not None else ""
+    query_pairs = [
+        (
+            key,
+            "REDACTED"
+            if key.strip().casefold() in SENSITIVE_ENDPOINT_QUERY_KEYS
+            else query_value,
+        )
+        for key, query_value in parse_qsl(parsed.query, keep_blank_values=True)
+    ]
+    query = urlencode(sorted(query_pairs))
     if has_scheme:
-        return urlunsplit((parsed.scheme.lower(), f"{host}{port}", parsed.path, "", ""))
-    return f"//{host}{port}{parsed.path}"
+        return urlunsplit(
+            (parsed.scheme.lower(), f"{host}{port}", parsed.path, query, "")
+        )
+    return urlunsplit(("", f"{host}{port}", parsed.path, query, ""))
 
 
 def behavioral_base_url_sha256(value: str | None) -> str | None:
     """Hash endpoint-affecting URL parts without exposing credentials."""
-    if value is None or not value.strip():
+    behavioral = sanitize_behavioral_base_url(value)
+    if behavioral is None:
         return None
-    raw = value.strip()
-    has_scheme = "://" in raw
-    parsed = urlsplit(raw if has_scheme else f"//{raw}")
-    if parsed.hostname is None:
-        return None
-    host = parsed.hostname.lower()
-    if ":" in host and not host.startswith("["):
-        host = f"[{host}]"
-    port = f":{parsed.port}" if parsed.port is not None else ""
-    behavioral = urlunsplit(
-        (
-            parsed.scheme.lower() if has_scheme else "",
-            f"{host}{port}",
-            parsed.path,
-            parsed.query,
-            "",
-        )
-    )
     return hashlib.sha256(behavioral.encode("utf-8")).hexdigest()
 
 

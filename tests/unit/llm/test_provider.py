@@ -268,6 +268,34 @@ def test_resolve_openrouter_request_keeps_slash_model_slug() -> None:
     assert request.base_url == "https://openrouter.ai/api/v1"
 
 
+def test_resolver_canonicalizes_base_url_before_provider_construction() -> None:
+    request = resolve_llm_provider_request(
+        llm_provider="openai",
+        llm_model="gpt-5.4-mini",
+        llm_base_url="  https://proxy.example/v1///  ",
+    )
+
+    assert request.base_url == "https://proxy.example/v1"
+
+
+def test_resolver_rejects_fragment_bearing_base_url() -> None:
+    with pytest.raises(ValueError, match="fragment"):
+        resolve_llm_provider_request(
+            llm_provider="openai",
+            llm_model="gpt-5.4-mini",
+            llm_base_url="https://proxy.example/v1#secret",
+        )
+
+
+def test_resolver_rejects_unused_gemini_base_url() -> None:
+    with pytest.raises(ValueError, match="does not support a base URL"):
+        resolve_llm_provider_request(
+            llm_provider="gemini",
+            llm_model="gemini-2.5-flash",
+            llm_base_url="https://proxy.example/v1",
+        )
+
+
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
     monkeypatch,
 ) -> None:

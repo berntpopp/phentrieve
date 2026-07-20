@@ -141,6 +141,12 @@ def validate_hpo_graph_available() -> None:
     validate()
 
 
+def _public_pipeline_error(exc: LLMPipelinePhaseError) -> tuple[str, str]:
+    """Return stable persisted failure details without provider exception text."""
+    phase = exc.phase if exc.phase in {"phase1", "phase2a", "phase2b"} else "pipeline"
+    return f"{phase}_error", f"Benchmark phase {phase} failed"
+
+
 class TokenPricingConfig(BaseModel):
     input_cost_per_1m_tokens: float | None = None
     output_cost_per_1m_tokens: float | None = None
@@ -564,13 +570,15 @@ def run_llm_benchmark(
                     doc_id,
                     exc.phase,
                 )
+                error_code, error_message = _public_pipeline_error(exc)
                 result_record = {
                     "case_index": index,
                     "doc_id": document["id"],
                     "source_dataset": document.get("source_dataset"),
                     "status": "failed",
                     "error_phase": exc.phase,
-                    "error_message": str(exc),
+                    "error_code": error_code,
+                    "error_message": error_message,
                 }
                 results.append(result_record)
                 prediction_records.append(
@@ -579,7 +587,8 @@ def run_llm_benchmark(
                         "doc_id": document["id"],
                         "status": "failed",
                         "error_phase": exc.phase,
-                        "error_message": str(exc),
+                        "error_code": error_code,
+                        "error_message": error_message,
                     }
                 )
                 assertion_results.append(

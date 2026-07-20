@@ -43,7 +43,7 @@ class OllamaStructuredOutputProvider(LLMProvider):
     ) -> None:
         super().__init__()
         self.model_name = model_name
-        self.base_url = base_url.rstrip("/")
+        self.base_url = base_url
         self.seed = seed
         self.temperature = temperature
         self.max_tokens = DEFAULT_PROVIDER_MAX_TOKENS

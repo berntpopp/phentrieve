@@ -1658,7 +1658,8 @@ def test_run_llm_benchmark_records_failed_documents(monkeypatch):
 
     assert result["results"][0]["status"] == "failed"
     assert result["results"][0]["error_phase"] == "phase1"
-    assert result["results"][0]["error_message"] == "Structured extraction failed"
+    assert result["results"][0]["error_code"] == "phase1_error"
+    assert result["results"][0]["error_message"] == "Benchmark phase phase1 failed"
 
 
 def test_run_llm_benchmark_treats_grounded_preprocessing_failures_as_document_failures(
@@ -1718,7 +1719,8 @@ def test_run_llm_benchmark_treats_grounded_preprocessing_failures_as_document_fa
     assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
     assert result["results"][0]["status"] == "failed"
     assert result["results"][0]["error_phase"] == "phase1"
-    assert result["results"][0]["error_message"] == "Grounded preprocessing failed"
+    assert result["results"][0]["error_code"] == "phase1_error"
+    assert result["results"][0]["error_message"] == "Benchmark phase phase1 failed"
     assert "error_phase" not in result["results"][1]
     assert "error_message" not in result["results"][1]
 
@@ -2791,7 +2793,23 @@ def test_persisted_payload_sanitizes_nested_base_url_credentials() -> None:
     sanitized = llm_cli._sanitize_persisted_base_urls(
         {"llm_base_url": "https://user:secret@example.test:8443/api?token=x#frag"}
     )
-    assert sanitized == {"llm_base_url": "https://example.test:8443/api"}
+    assert sanitized == {"llm_base_url": "https://example.test:8443/api?token=REDACTED"}
+
+
+def test_public_pipeline_error_never_returns_raw_provider_exception() -> None:
+    secret = "https://user:password@example.test/v1?api_key=canary"
+    cause = RuntimeError(f"request failed at {secret} Authorization: Bearer canary")
+    error = llm_benchmark.LLMPipelinePhaseError(
+        "phase1", f"Phase 1 grouped setup failed: {cause}"
+    )
+    error.__cause__ = cause
+
+    code, message = llm_benchmark._public_pipeline_error(error)
+
+    assert code == "phase1_error"
+    assert message == "Benchmark phase phase1 failed"
+    assert "canary" not in message
+    assert "password" not in message
 
 
 def test_producer_identity_is_anchored_to_package_repository(

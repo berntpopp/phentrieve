@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from urllib.parse import urlsplit, urlunsplit
 
 from phentrieve.llm.config import (
     DEFAULT_OLLAMA_BASE_URL,
@@ -17,6 +18,31 @@ from phentrieve.llm.providers.gemini import GeminiStructuredOutputProvider
 from phentrieve.llm.providers.ollama import OllamaStructuredOutputProvider
 from phentrieve.llm.providers.openai import OpenAIStructuredOutputProvider
 from phentrieve.llm.providers.openrouter import OpenRouterStructuredOutputProvider
+
+
+def canonicalize_llm_base_url(value: str | None) -> str | None:
+    """Return one validated provider base URL representation."""
+    if value is None or not value.strip():
+        return None
+    raw = value.strip()
+    parsed = urlsplit(raw)
+    if parsed.fragment:
+        raise ValueError("LLM base URL must not contain a fragment")
+    if parsed.scheme not in {"http", "https"} or parsed.hostname is None:
+        raise ValueError("LLM base URL must be an absolute HTTP(S) URL")
+    path = parsed.path.rstrip("/")
+    host = parsed.hostname.lower()
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    netloc = host
+    if parsed.port is not None:
+        netloc = f"{netloc}:{parsed.port}"
+    if parsed.username is not None or parsed.password is not None:
+        userinfo = parsed.username or ""
+        if parsed.password is not None:
+            userinfo = f"{userinfo}:{parsed.password}"
+        netloc = f"{userinfo}@{netloc}"
+    return urlunsplit((parsed.scheme.lower(), netloc, path, parsed.query, ""))
 
 
 # Public REST/API and MCP surfaces must not call this resolver directly with
@@ -146,12 +172,15 @@ def resolve_llm_provider_request(
             f"{inferred_provider!r}."
         )
 
-    resolved_base_url = (
+    raw_base_url = (
         llm_base_url
         or os.getenv("PHENTRIEVE_LLM_BASE_URL")
         or (DEFAULT_OLLAMA_BASE_URL if resolved_provider == "ollama" else None)
         or (DEFAULT_OPENROUTER_BASE_URL if resolved_provider == "openrouter" else None)
     )
+    resolved_base_url = canonicalize_llm_base_url(raw_base_url)
+    if resolved_provider == "gemini" and resolved_base_url is not None:
+        raise ValueError("Provider 'gemini' does not support a base URL")
 
     return ResolvedLLMProviderRequest(
         provider=resolved_provider,

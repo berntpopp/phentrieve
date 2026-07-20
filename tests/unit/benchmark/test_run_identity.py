@@ -209,6 +209,31 @@ def test_endpoint_behavior_hash_preserves_path_and_query_without_credentials() -
     assert base != behavioral_base_url_sha256("https://user:one@example.test/api?v=2")
 
 
+def test_endpoint_behavior_hash_redacts_sensitive_query_values() -> None:
+    first = behavioral_base_url_sha256(
+        "https://example.test/v1?api_key=short&api-version=2026-01-01"
+    )
+    second = behavioral_base_url_sha256(
+        "https://example.test/v1?api_key=different&api-version=2026-01-01"
+    )
+    changed_behavior = behavioral_base_url_sha256(
+        "https://example.test/v1?api_key=short&api-version=2027-01-01"
+    )
+
+    assert first == second
+    assert first != changed_behavior
+
+
+def test_sanitized_endpoint_does_not_persist_query_credentials() -> None:
+    from phentrieve.benchmark.run_identity import sanitize_behavioral_base_url
+
+    sanitized = sanitize_behavioral_base_url(
+        "https://user:password@example.test/v1?token=secret&api-version=1"
+    )
+
+    assert sanitized == "https://example.test/v1?api-version=1&token=REDACTED"
+
+
 def test_dataset_identity_does_not_import_chromadb(tmp_path) -> None:
     path = tmp_path / "dataset.json"
     _write_dataset(path, [_document("case-a", "Alpha", ["HP:1"])])
