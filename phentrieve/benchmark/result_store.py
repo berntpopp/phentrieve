@@ -303,6 +303,12 @@ def publish_manifest_v2(
     )
     if metric is not None:
         artifacts["metrics"] = dict(metric)
+    for role in singleton_roles - {"summary", "metrics"}:
+        entry = next(
+            (item for item in artifacts.values() if item.get("role") == role), None
+        )
+        if entry is not None:
+            artifacts[role] = dict(entry)
     manifest: dict[str, Any] = {
         "schema_version": 2,
         "run_id": layout.run_id,

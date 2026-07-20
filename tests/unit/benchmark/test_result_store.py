@@ -316,6 +316,33 @@ def test_publish_manifest_v2_layers_hash_inventory_onto_run_layout(tmp_path) -> 
     ]
 
 
+def test_publish_manifest_v2_retains_v1_singleton_role_aliases(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    files = {
+        "checkpoint": layout.checkpoint_path,
+        "term_results": layout.terms_path,
+        "case_results": layout.cases_path,
+        "chunk_diagnostics": layout.chunks_path,
+    }
+    for path in files.values():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}\n", encoding="utf-8")
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(path, role, "application/json") for role, path in files.items()],
+    )
+    for role, path in files.items():
+        assert (
+            manifest["artifacts"][role]["path"]
+            == path.relative_to(layout.run_dir).as_posix()
+        )
+        assert manifest["artifacts"][role]["sha256"] == sha256_file(path)
+        assert manifest["artifacts"][
+            f"{role}:{path.relative_to(layout.run_dir).as_posix()}"
+        ]["sha256"] == sha256_file(path)
+
+
 def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
     layout = create_run_layout(tmp_path / "runs", "llm", "CSC", "model", run_id="run")
     outside = tmp_path / "outside.json"

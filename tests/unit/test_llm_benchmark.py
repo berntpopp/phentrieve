@@ -2633,6 +2633,42 @@ def test_producer_identity_is_anchored_to_package_repository(
     assert identity["provenance_status"] == "resolved"
 
 
+def test_producer_identity_rejects_untracked_install_inside_unrelated_repo(
+    tmp_path, monkeypatch
+) -> None:
+    git_executable = shutil.which("git")
+    assert git_executable is not None
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "init"], cwd=tmp_path, check=True, capture_output=True
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "config", "user.email", "test@example.test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "config", "user.name", "Test"], cwd=tmp_path, check=True
+    )
+    tracked = tmp_path / "tracked.txt"
+    tracked.write_text("tracked", encoding="utf-8")
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "add", "tracked.txt"], cwd=tmp_path, check=True
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "commit", "-m", "initial"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    installed = tmp_path / "site-packages" / "phentrieve" / "benchmark" / "llm_cli.py"
+    installed.parent.mkdir(parents=True)
+    installed.write_text("# installed", encoding="utf-8")
+    monkeypatch.setattr(llm_cli, "__file__", str(installed))
+    identity = llm_cli._build_producer_identity()
+    assert identity["commit"] is None
+    assert identity["provenance_status"] != "resolved"
+
+
 def test_runner_rejects_provider_runtime_identity_mismatch(monkeypatch) -> None:
     from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
 
@@ -2661,6 +2697,50 @@ def test_runner_rejects_provider_runtime_identity_mismatch(monkeypatch) -> None:
                 provider="openai", model="expected", base_url="https://example.test/v1"
             ),
         )
+
+
+def test_cli_seed_is_bound_to_resolved_request_and_runtime(
+    tmp_path, monkeypatch
+) -> None:
+    from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def resolve(**kwargs):
+        captured["resolver_seed"] = kwargs["seed"]
+        return ResolvedLLMProviderRequest(
+            provider="gemini", model="gemini-2.5-flash", seed=kwargs["seed"]
+        )
+
+    def run(**kwargs):
+        captured["runtime_seed"] = kwargs["llm_seed"]
+        captured["request_seed"] = kwargs["_resolved_provider_request"].seed
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {},
+            "metrics": {},
+            "prediction_records": [],
+            "results": [],
+            "term_records": [],
+            "case_records": [],
+        }
+
+    monkeypatch.setattr(llm_cli, "resolve_llm_provider_request", resolve)
+    monkeypatch.setattr(llm_cli.llm_benchmark, "run_llm_benchmark", run)
+    result = llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        llm_seed=73,
+        output_dir=str(tmp_path / "results"),
+    )
+    assert captured == {"resolver_seed": 73, "runtime_seed": 73, "request_seed": 73}
+    assert result["model_identity"]["seed"] == 73
 
 
 def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(

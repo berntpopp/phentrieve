@@ -261,6 +261,7 @@ def run_llm_benchmark_cli(
         llm_provider=llm_provider,
         llm_model=llm_model,
         llm_base_url=llm_base_url,
+        seed=llm_seed,
     )
     effective_doc_ids = doc_ids or None
     dataset_identity = build_dataset_identity(
@@ -509,7 +510,7 @@ def _build_producer_identity() -> dict[str, str | None]:
     if len(output) == 3 and output[1].strip() == "true":
         top_level = Path(output[0]).resolve()
         candidate = output[2].strip()
-        if package_repository.is_relative_to(top_level) and re.fullmatch(
+        if package_repository == top_level and re.fullmatch(
             r"[0-9a-fA-F]{40}", candidate
         ):
             commit = candidate.lower()
