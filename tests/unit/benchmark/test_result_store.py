@@ -209,6 +209,25 @@ def test_create_run_layout_rejects_junctioned_run_directory(tmp_path) -> None:
         run_dir.rmdir()
 
 
+def test_create_run_layout_allows_symlinked_results_root(tmp_path) -> None:
+    # A results root that is itself a symlink/junction (e.g. redirected onto a
+    # larger volume) must be accepted; only links *inside* the root are rejected.
+    backing = tmp_path / "backing"
+    backing.mkdir()
+    results_root = tmp_path / "results"
+    try:
+        results_root.symlink_to(backing, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+
+    layout = create_run_layout(
+        results_root, "llm", "GeneReviews", "model", run_id="run"
+    )
+
+    assert layout.run_dir.is_dir()
+    assert layout.run_dir.name == "run"
+
+
 def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) -> None:
     layout = create_run_layout(tmp_path, "llm", "GeneReviews", "model", run_id="run")
     predictions_dir = layout.run_dir / "predictions" / "two_phase"

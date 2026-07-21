@@ -297,6 +297,19 @@ def test_resolver_rejects_unused_gemini_base_url() -> None:
         )
 
 
+def test_resolver_ignores_ambient_base_url_for_gemini(monkeypatch) -> None:
+    # A globally-set PHENTRIEVE_LLM_BASE_URL (intended for another provider) must
+    # not abort gemini runs; only an explicit --llm-base-url does.
+    monkeypatch.setenv("PHENTRIEVE_LLM_BASE_URL", "https://proxy.example/v1")
+    request = resolve_llm_provider_request(
+        llm_provider="gemini",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert request.provider == "gemini"
+    assert request.base_url is None
+
+
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
     monkeypatch,
 ) -> None:

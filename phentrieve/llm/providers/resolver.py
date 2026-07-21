@@ -150,15 +150,25 @@ def resolve_llm_provider_request(
             f"{inferred_provider!r}."
         )
 
-    raw_base_url = (
-        llm_base_url
-        or os.getenv("PHENTRIEVE_LLM_BASE_URL")
-        or (DEFAULT_OLLAMA_BASE_URL if resolved_provider == "ollama" else None)
-        or (DEFAULT_OPENROUTER_BASE_URL if resolved_provider == "openrouter" else None)
-    )
-    resolved_base_url = canonicalize_llm_base_url(raw_base_url)
-    if resolved_provider == "gemini" and resolved_base_url is not None:
-        raise ValueError("Provider 'gemini' does not support a base URL")
+    if resolved_provider == "gemini":
+        # Gemini has no configurable endpoint. Reject only an explicit override so
+        # a wrong invocation is surfaced, but ignore ambient sources (a global
+        # PHENTRIEVE_LLM_BASE_URL set for another provider) instead of aborting.
+        if llm_base_url and llm_base_url.strip():
+            raise ValueError("Provider 'gemini' does not support a base URL")
+        resolved_base_url = None
+    else:
+        raw_base_url = (
+            llm_base_url
+            or os.getenv("PHENTRIEVE_LLM_BASE_URL")
+            or (DEFAULT_OLLAMA_BASE_URL if resolved_provider == "ollama" else None)
+            or (
+                DEFAULT_OPENROUTER_BASE_URL
+                if resolved_provider == "openrouter"
+                else None
+            )
+        )
+        resolved_base_url = canonicalize_llm_base_url(raw_base_url)
 
     return ResolvedLLMProviderRequest(
         provider=resolved_provider,

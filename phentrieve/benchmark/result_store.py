@@ -5,10 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
 import re
 import shutil
-import stat
 import uuid
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -16,6 +14,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any, Literal
+
+from phentrieve.utils import path_is_link as _path_is_link
 
 BenchmarkType = Literal["retrieval", "extraction", "llm"]
 
@@ -88,28 +88,18 @@ def sha256_path(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _path_is_link(path: Path) -> bool:
-    is_junction = getattr(path, "is_junction", None)
-    if path.is_symlink() or bool(is_junction and is_junction()):
-        return True
-    try:
-        attributes = getattr(os.lstat(path), "st_file_attributes", 0)
-    except OSError:
-        return False
-    return bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
-
-
 def _assert_no_links_below(root: Path, path: Path) -> None:
-    """Reject symlink or junction components at and below a storage root."""
+    """Reject symlink or junction components strictly below a storage root.
+
+    The root itself may legitimately be a symlink or junction (e.g. a results
+    directory redirected onto a larger volume). Only components created *inside*
+    the root can redirect a write outside it, so those are what we reject.
+    """
     root_absolute = root.absolute()
     path_absolute = path.absolute()
     if not path_absolute.is_relative_to(root_absolute):
         raise ValueError("Benchmark storage path escapes the configured results root")
     current = root_absolute
-    if _path_is_link(current):
-        raise ValueError(
-            f"Benchmark storage path must not be a link or junction: {current}"
-        )
     for part in path_absolute.relative_to(root_absolute).parts:
         current = current / part
         if _path_is_link(current):

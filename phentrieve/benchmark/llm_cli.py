@@ -393,6 +393,10 @@ def run_llm_benchmark_cli(
         reset_run_artifacts(run_layout)
 
     def _persist_checkpoint(snapshot: dict[str, Any]) -> None:
+        # Commit only the checkpoint on each per-document progress tick. The full
+        # prediction/trace set is derivable from the checkpoint and is
+        # materialized once at completion; re-copying and re-hashing the growing
+        # artifact set into a fresh generation on every tick would be O(N^2).
         checkpoint_payload = cast(
             dict[str, Any], _sanitize_persisted_base_urls(snapshot)
         )
@@ -400,10 +404,6 @@ def run_llm_benchmark_cli(
         checkpoint_payload["run_id"] = run_layout.run_id
         checkpoint_payload["output_dir"] = str(output_dir)
         _write_json_atomic(canonical_checkpoint_path, checkpoint_payload)
-        predictions_dir, traces_dir, metrics_path = _write_benchmark_artifacts(
-            run_dir=run_layout.run_dir,
-            benchmark_payload=checkpoint_payload,
-        )
         partial_metadata = _manifest_metadata(
             payload=checkpoint_payload,
             dataset_sha256=dataset_sha256,
@@ -413,16 +413,6 @@ def run_llm_benchmark_cli(
         partial_inventory = [
             ArtifactEntry(canonical_checkpoint_path, "checkpoint", "application/json")
         ]
-        if metrics_path is not None:
-            partial_inventory.append(
-                ArtifactEntry(metrics_path, "metrics", "application/json")
-            )
-        for role, directory in (("prediction", predictions_dir), ("trace", traces_dir)):
-            if directory is not None:
-                partial_inventory.extend(
-                    ArtifactEntry(path, role, "application/json")
-                    for path in sorted(directory.rglob("*.json"))
-                )
         publish_manifest_v2(
             run_layout, {**partial_metadata, **identities}, partial_inventory
         )

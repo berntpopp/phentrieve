@@ -43,6 +43,31 @@ SENSITIVE_ENDPOINT_QUERY_KEYS = frozenset(
     }
 )
 PUBLIC_ENDPOINT_QUERY_KEYS = frozenset({"api-version", "v", "version"})
+# Separator-insensitive forms of the sensitive keys, so that 'api-key',
+# 'api_key' and 'apikey' are all recognized as credential-bearing.
+_SENSITIVE_ENDPOINT_KEY_FORMS = frozenset(
+    re.sub(r"[^a-z0-9]", "", key) for key in SENSITIVE_ENDPOINT_QUERY_KEYS
+)
+# Substrings that mark a query key as credential-bearing regardless of the exact
+# name, covering vendor-specific variants (e.g. 'x-goog-api-key').
+_SENSITIVE_ENDPOINT_KEY_MARKERS = (
+    "key",
+    "token",
+    "secret",
+    "auth",
+    "credential",
+    "password",
+    "passwd",
+    "pwd",
+)
+
+
+def _is_sensitive_endpoint_query_key(normalized_key: str) -> bool:
+    """Report whether a query key should have its value redacted, not hashed."""
+    compact = re.sub(r"[^a-z0-9]", "", normalized_key)
+    if compact in _SENSITIVE_ENDPOINT_KEY_FORMS:
+        return True
+    return any(marker in compact for marker in _SENSITIVE_ENDPOINT_KEY_MARKERS)
 
 
 @dataclass(frozen=True)
@@ -355,7 +380,7 @@ def sanitize_behavioral_base_url(
     query_pairs = []
     for key, query_value in parse_qsl(parsed.query, keep_blank_values=True):
         normalized_key = key.strip().casefold()
-        if normalized_key in SENSITIVE_ENDPOINT_QUERY_KEYS:
+        if _is_sensitive_endpoint_query_key(normalized_key):
             sanitized_key = normalized_key
             sanitized_value = "REDACTED"
         else:

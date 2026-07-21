@@ -14,10 +14,8 @@ See: https://github.com/berntpopp/phentrieve/issues/117
 from __future__ import annotations
 
 import logging
-import os
 import re
 import shutil
-import stat
 import tarfile
 import tempfile
 from collections.abc import Iterator
@@ -38,7 +36,11 @@ from phentrieve.data_processing.bundle_manifest import (
     get_model_slug,
 )
 from phentrieve.data_processing.release_contract import DataReleaseSpec
-from phentrieve.utils import generate_collection_name, get_default_data_dir
+from phentrieve.utils import (
+    generate_collection_name,
+    get_default_data_dir,
+    path_is_link,
+)
 
 if TYPE_CHECKING:
     pass
@@ -548,16 +550,7 @@ def _reject_symlink_components(target_dir: Path, target: Path) -> None:
     current = target_dir
     for part in target.relative_to(target_dir).parts:
         current = current / part
-        is_junction = getattr(current, "is_junction", None)
-        try:
-            attributes = getattr(os.lstat(current), "st_file_attributes", 0)
-        except OSError:
-            attributes = 0
-        if (
-            current.is_symlink()
-            or bool(is_junction and is_junction())
-            or bool(attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
-        ):
+        if path_is_link(current):
             raise ValueError(
                 f"Bundle checksum path must not contain links or junctions: {target}"
             )

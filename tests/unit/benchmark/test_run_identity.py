@@ -272,6 +272,25 @@ def test_sanitized_endpoint_does_not_persist_query_credentials() -> None:
     assert "password" not in sanitized
 
 
+def test_endpoint_behavior_hash_redacts_separator_and_vendor_credential_keys() -> None:
+    from phentrieve.benchmark.run_identity import sanitize_behavioral_base_url
+
+    # Credential keys that are not spelled exactly like the allowlist entries
+    # ('api-key' with a hyphen, vendor 'x-goog-api-key') must still be redacted,
+    # so rotating the secret does not change the behavioral fingerprint.
+    for key in ("api-key", "x-goog-api-key", "Authorization"):
+        first = behavioral_base_url_sha256(f"https://example.test/v1?{key}=SECRET1")
+        second = behavioral_base_url_sha256(f"https://example.test/v1?{key}=SECRET2")
+        assert first == second, key
+
+        sanitized = sanitize_behavioral_base_url(
+            f"https://example.test/v1?{key}=SECRET1"
+        )
+        assert sanitized is not None
+        assert "REDACTED" in sanitized
+        assert "SECRET1" not in sanitized
+
+
 @pytest.mark.parametrize(
     "key", ["access_token", "x-api-key", "credential", "client_secret"]
 )
