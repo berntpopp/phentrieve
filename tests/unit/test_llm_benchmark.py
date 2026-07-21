@@ -2548,6 +2548,11 @@ def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
     )
     assert "terms" not in captured_manifests[0]["counts"]
     assert "cases" not in captured_manifests[0]["counts"]
+    # A per-tick checkpoint commits only the checkpoint; it must not re-copy the
+    # growing prediction/trace set into a generation (guards the O(N) behavior).
+    partial_artifacts = captured_manifests[0]["artifacts"]
+    assert isinstance(partial_artifacts, dict)
+    assert {entry["role"] for entry in partial_artifacts.values()} == {"checkpoint"}
     run_dir = Path(result["run_dir"])
     checkpoint_path = run_dir / "checkpoint.json"
     assert checkpoint_path.exists()
