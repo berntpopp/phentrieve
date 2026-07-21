@@ -96,6 +96,7 @@ Thumbs.db
 output/
 results/
 .runs/
+.benchmarks/runs/
 
 # MkDocs build output
 site/

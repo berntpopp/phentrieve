@@ -4,6 +4,7 @@ import inspect
 import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from threading import Barrier
 from types import ModuleType, SimpleNamespace
 from typing import Any
@@ -266,6 +267,47 @@ def test_resolve_openrouter_request_keeps_slash_model_slug() -> None:
     assert request.provider == "openrouter"
     assert request.model == "meta-llama/llama-3.1-70b-instruct"
     assert request.base_url == "https://openrouter.ai/api/v1"
+
+
+def test_resolver_canonicalizes_base_url_before_provider_construction() -> None:
+    request = resolve_llm_provider_request(
+        llm_provider="openai",
+        llm_model="gpt-5.4-mini",
+        llm_base_url="  https://proxy.example/v1///  ",
+    )
+
+    assert request.base_url == "https://proxy.example/v1"
+
+
+def test_resolver_rejects_fragment_bearing_base_url() -> None:
+    with pytest.raises(ValueError, match="fragment"):
+        resolve_llm_provider_request(
+            llm_provider="openai",
+            llm_model="gpt-5.4-mini",
+            llm_base_url="https://proxy.example/v1#secret",
+        )
+
+
+def test_resolver_rejects_unused_gemini_base_url() -> None:
+    with pytest.raises(ValueError, match="does not support a base URL"):
+        resolve_llm_provider_request(
+            llm_provider="gemini",
+            llm_model="gemini-2.5-flash",
+            llm_base_url="https://proxy.example/v1",
+        )
+
+
+def test_resolver_ignores_ambient_base_url_for_gemini(monkeypatch) -> None:
+    # A globally-set PHENTRIEVE_LLM_BASE_URL (intended for another provider) must
+    # not abort gemini runs; only an explicit --llm-base-url does.
+    monkeypatch.setenv("PHENTRIEVE_LLM_BASE_URL", "https://proxy.example/v1")
+    request = resolve_llm_provider_request(
+        llm_provider="gemini",
+        llm_model="gemini-2.5-flash",
+    )
+
+    assert request.provider == "gemini"
+    assert request.base_url is None
 
 
 def test_get_llm_provider_accepts_bare_gemini_model_for_backwards_compat(
@@ -877,6 +919,55 @@ def test_tool_executor_uses_multi_vector_queries_when_enabled() -> None:
             ],
         },
     ]
+
+
+def test_tool_executor_threads_manifest_model_and_index_configuration(
+    monkeypatch, tmp_path
+) -> None:
+    loaded: dict[str, Any] = {}
+    embedding_model = object()
+    retriever = FakeRetriever()
+
+    def fake_load_embedding_model(model_name, **kwargs):
+        loaded["embedding"] = (model_name, kwargs)
+        return embedding_model
+
+    def fake_from_model_name(**kwargs):
+        loaded["retriever"] = kwargs
+        return retriever
+
+    monkeypatch.setattr(
+        "phentrieve.embeddings.load_embedding_model", fake_load_embedding_model
+    )
+    monkeypatch.setattr(
+        "phentrieve.retrieval.dense_retriever.DenseRetriever.from_model_name",
+        fake_from_model_name,
+    )
+
+    executor = ToolExecutor(
+        model_name="org/pinned-model",
+        model_revision="model-commit",
+        trust_remote_code=True,
+        code_revision="code-commit",
+        index_dir=tmp_path / "indexes",
+        multi_vector=False,
+    )
+    executor._get_phentrieve_components("en")
+
+    assert loaded["embedding"] == (
+        "org/pinned-model",
+        {
+            "trust_remote_code": True,
+            "revision": "model-commit",
+            "code_revision": "code-commit",
+        },
+    )
+    assert loaded["retriever"] == {
+        "model": embedding_model,
+        "model_name": "org/pinned-model",
+        "index_dir": Path(tmp_path / "indexes"),
+        "multi_vector": False,
+    }
 
 
 def test_process_clinical_text_defaults_come_from_config(monkeypatch) -> None:

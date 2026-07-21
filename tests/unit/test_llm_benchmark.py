@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
+import subprocess
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -8,8 +12,62 @@ from pydantic import ValidationError
 
 from phentrieve.benchmark import llm_benchmark, llm_cli
 from phentrieve.benchmark.result_store import create_run_layout
+from phentrieve.benchmark.run_identity import (
+    RetrievalAssetIdentity,
+    build_dataset_identity,
+    build_run_fingerprints,
+)
+from phentrieve.llm.prompts.identity import build_prompt_bundle_identity
 
 pytestmark = pytest.mark.unit
+
+
+def _test_fingerprints(
+    test_file: Path, *, producer_source_sha256: str | None = None
+) -> dict[str, object]:
+    producer_identity = llm_cli._build_producer_identity()
+    source_sha256 = producer_source_sha256 or str(producer_identity["source_sha256"])
+    fingerprints = build_run_fingerprints(
+        build_dataset_identity(
+            test_file,
+            "GeneReviews",
+            projection=llm_benchmark.describe_dataset_assertion_projection(
+                "GeneReviews"
+            ),
+        ),
+        build_prompt_bundle_identity("two_phase", "en"),
+        {
+            "provider": "gemini",
+            "model": "gemini-2.5-flash",
+            "base_url": None,
+            "base_url_behavior_sha256": None,
+            "seed": None,
+            "timeout_seconds": None,
+            "internal_mode": "whole_document_grounded",
+        },
+        RetrievalAssetIdentity(
+            asset_type="single_vector",
+            embedding_model="BAAI/bge-m3",
+            hpo_version="v2026-06-23",
+            manifest_sha256="a" * 64,
+        ),
+        scoring={
+            "schema_version": "phentrieve-scoring-contract/v2",
+            "ontology_enabled": False,
+            "ontology_semantic_floor": 0.3,
+            "ontology_similarity_formula": "hybrid",
+            "evaluation_hpo_version": "v2026-06-23",
+            "assertion_projection": llm_benchmark.describe_dataset_assertion_projection(
+                "GeneReviews"
+            ),
+        },
+        producer_source_sha256=source_sha256,
+    )
+    return {
+        "execution_fingerprint": fingerprints.execution_sha256,
+        "scoring_fingerprint": fingerprints.scoring_sha256,
+        "producer_identity": producer_identity,
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -18,6 +76,16 @@ def stub_grounded_chunks(monkeypatch):
         llm_benchmark,
         "_build_grounded_chunks",
         lambda **kwargs: [{"chunk_id": 1, "text": kwargs["text"]}],
+    )
+    monkeypatch.setattr(
+        llm_cli,
+        "load_retrieval_asset_identity",
+        lambda _data_dir=None: RetrievalAssetIdentity(
+            asset_type="single_vector",
+            embedding_model="BAAI/bge-m3",
+            hpo_version="v2026-06-23",
+            manifest_sha256="a" * 64,
+        ),
     )
 
 
@@ -1606,7 +1674,8 @@ def test_run_llm_benchmark_records_failed_documents(monkeypatch):
 
     assert result["results"][0]["status"] == "failed"
     assert result["results"][0]["error_phase"] == "phase1"
-    assert result["results"][0]["error_message"] == "Structured extraction failed"
+    assert result["results"][0]["error_code"] == "phase1_error"
+    assert result["results"][0]["error_message"] == "Benchmark phase phase1 failed"
 
 
 def test_run_llm_benchmark_treats_grounded_preprocessing_failures_as_document_failures(
@@ -1666,7 +1735,8 @@ def test_run_llm_benchmark_treats_grounded_preprocessing_failures_as_document_fa
     assert [record["doc_id"] for record in result["results"]] == ["doc-1", "doc-2"]
     assert result["results"][0]["status"] == "failed"
     assert result["results"][0]["error_phase"] == "phase1"
-    assert result["results"][0]["error_message"] == "Grounded preprocessing failed"
+    assert result["results"][0]["error_code"] == "phase1_error"
+    assert result["results"][0]["error_message"] == "Benchmark phase phase1 failed"
     assert "error_phase" not in result["results"][1]
     assert "error_message" not in result["results"][1]
 
@@ -2288,11 +2358,21 @@ def test_run_llm_benchmark_cli_writes_prediction_and_metrics_artifacts(
     assert (run_dir / "traces" / "two_phase" / "case_doc-1.json").exists()
     assert (run_dir / "metrics" / "benchmark_two_phase.json").exists()
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["artifacts"]["llm_predictions"]["path"] == "predictions/two_phase"
-    assert manifest["artifacts"]["llm_traces"]["path"] == "traces/two_phase"
-    assert (
-        manifest["artifacts"]["metrics"]["path"] == "metrics/benchmark_two_phase.json"
+    assert manifest["artifacts"]["llm_predictions"]["path"].startswith(".generations/")
+    assert manifest["artifacts"]["llm_predictions"]["path"].endswith(
+        "predictions/two_phase"
     )
+    assert manifest["artifacts"]["llm_traces"]["path"].endswith("traces/two_phase")
+    assert manifest["artifacts"]["metrics"]["path"].endswith(
+        "metrics/benchmark_two_phase.json"
+    )
+    checkpoint = run_dir / "checkpoint.json"
+    checkpoint_entry = manifest["artifacts"]["checkpoint:checkpoint.json"]
+    assert (
+        checkpoint_entry["sha256"]
+        == hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+    )
+    assert json.loads(checkpoint.read_text(encoding="utf-8"))["status"] == "completed"
 
 
 def test_run_llm_benchmark_cli_writes_ontology_metrics_artifact(tmp_path, monkeypatch):
@@ -2461,8 +2541,18 @@ def test_run_llm_benchmark_cli_writes_partial_manifest_during_checkpoints(
     )
 
     assert captured_manifests[0]["status"] == "partial"
+    assert captured_manifests[0]["schema_version"] == 2
+    assert (
+        captured_manifests[0]["execution_fingerprint"]
+        == result["execution_fingerprint"]
+    )
     assert "terms" not in captured_manifests[0]["counts"]
     assert "cases" not in captured_manifests[0]["counts"]
+    # A per-tick checkpoint commits only the checkpoint; it must not re-copy the
+    # growing prediction/trace set into a generation (guards the O(N) behavior).
+    partial_artifacts = captured_manifests[0]["artifacts"]
+    assert isinstance(partial_artifacts, dict)
+    assert {entry["role"] for entry in partial_artifacts.values()} == {"checkpoint"}
     run_dir = Path(result["run_dir"])
     checkpoint_path = run_dir / "checkpoint.json"
     assert checkpoint_path.exists()
@@ -2500,8 +2590,9 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
         ),
         encoding="utf-8",
     )
+    run_layout.summary_path.write_text('{"original": true}\n', encoding="utf-8")
 
-    with pytest.raises(ValueError, match="Checkpoint does not match"):
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
         llm_cli.run_llm_benchmark_cli(
             test_file=str(test_file),
             llm_model="gemini-2.5-flash",
@@ -2509,6 +2600,466 @@ def test_run_llm_benchmark_cli_rejects_mismatched_checkpoint(tmp_path) -> None:
             run_id="fixed-run",
             overwrite=True,
         )
+
+    assert run_layout.summary_path.read_text(encoding="utf-8") == (
+        '{"original": true}\n'
+    )
+
+
+def test_checkpoint_requires_matching_execution_and_scoring_fingerprints(
+    tmp_path,
+) -> None:
+    path = tmp_path / "checkpoint.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "old",
+                "scoring_fingerprint": "score",
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            execution_fingerprint="new",
+            scoring_fingerprint="score",
+            allow_completed=True,
+        )
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "exec",
+                "scoring_fingerprint": "old",
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="scoring fingerprint mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            execution_fingerprint="exec",
+            scoring_fingerprint="new",
+            allow_completed=True,
+        )
+
+
+def test_checkpoint_loader_rejects_symlink(tmp_path) -> None:
+    target = tmp_path / "outside.json"
+    target.write_text('{"status":"running"}', encoding="utf-8")
+    checkpoint = tmp_path / "checkpoint.json"
+    try:
+        checkpoint.symlink_to(target)
+    except OSError as exc:
+        pytest.skip(f"file symlinks unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="link or junction"):
+        llm_cli._load_checkpoint_payload(path=checkpoint, allow_completed=True)
+
+
+def test_checkpoint_requires_matching_configuration_when_fingerprints_match(
+    tmp_path,
+) -> None:
+    path = tmp_path / "checkpoint.json"
+    path.write_text(
+        json.dumps(
+            {
+                "status": "running",
+                "execution_fingerprint": "exec",
+                "scoring_fingerprint": "score",
+                "capture_phase1_debug": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="configuration mismatch"):
+        llm_cli._load_checkpoint_payload(
+            path=path,
+            current_run={"capture_phase1_debug": True},
+            execution_fingerprint="exec",
+            scoring_fingerprint="score",
+            allow_completed=True,
+        )
+
+
+@pytest.mark.parametrize("checkpoint_payload", [None, []])
+def test_overwrite_rejects_existing_run_without_object_checkpoint(
+    tmp_path, monkeypatch, checkpoint_payload
+) -> None:
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    run_layout.summary_path.write_text('{"original": true}\n', encoding="utf-8")
+    if checkpoint_payload is not None:
+        run_layout.checkpoint_path.write_text(
+            json.dumps(checkpoint_payload), encoding="utf-8"
+        )
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **_kwargs: pytest.fail("incompatible run must not execute"),
+    )
+
+    with pytest.raises(ValueError, match="no compatible checkpoint"):
+        llm_cli.run_llm_benchmark_cli(
+            test_file=str(test_file),
+            llm_model="gemini-2.5-flash",
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
+        )
+
+    assert run_layout.summary_path.read_text(encoding="utf-8") == (
+        '{"original": true}\n'
+    )
+
+
+def test_checkpoint_resume_is_bound_to_producer_source(tmp_path, monkeypatch) -> None:
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    output_dir = tmp_path / "results"
+    run_layout = create_run_layout(
+        output_dir, "llm", "cases", "gemini-2.5-flash", run_id="fixed-run"
+    )
+    configuration = llm_cli._build_checkpoint_identity(
+        test_file_path=test_file,
+        dataset_sha256=llm_cli.sha256_path(test_file),
+        accounting_config=llm_benchmark.BenchmarkAccountingConfig(),
+        dataset="GeneReviews",
+        resolved_provider="gemini",
+        resolved_model="gemini-2.5-flash",
+        resolved_base_url=None,
+        llm_timeout_seconds=None,
+        llm_seed=None,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        language="en",
+        capture_phase1_debug=False,
+        ontology_aware_metrics=False,
+        ontology_semantic_floor=0.3,
+        ontology_similarity_formula="hybrid",
+        prompt_templates_dir=None,
+        doc_ids=None,
+    )
+    run_layout.checkpoint_path.write_text(
+        json.dumps(
+            {
+                **configuration,
+                **_test_fingerprints(test_file, producer_source_sha256="a" * 64),
+                "producer_identity": {
+                    "phentrieve_version": "0.27.0",
+                    "commit": "a" * 40,
+                    "provenance_status": "resolved",
+                    "schema_version": "phentrieve-producer-source/v1",
+                    "source_sha256": "a" * 64,
+                },
+                "status": "running",
+                "prediction_records": [],
+                "results": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        llm_cli,
+        "_build_producer_identity",
+        lambda: {
+            "phentrieve_version": "0.27.0",
+            "commit": "b" * 40,
+            "provenance_status": "resolved",
+            "schema_version": "phentrieve-producer-source/v1",
+            "source_sha256": "b" * 64,
+        },
+    )
+    monkeypatch.setattr(
+        llm_cli.llm_benchmark,
+        "run_llm_benchmark",
+        lambda **_kwargs: pytest.fail("cross-producer checkpoint must not execute"),
+    )
+
+    with pytest.raises(ValueError, match="execution fingerprint mismatch"):
+        llm_cli.run_llm_benchmark_cli(
+            test_file=str(test_file),
+            llm_model="gemini-2.5-flash",
+            output_dir=str(output_dir),
+            run_id="fixed-run",
+            overwrite=True,
+        )
+
+
+def test_assertion_projection_descriptor_matches_passthrough_runtime() -> None:
+    descriptor = llm_benchmark.describe_dataset_assertion_projection("all")
+
+    assert descriptor["schema_version"] == "phentrieve-assertion-projection/v2"
+    assert descriptor["mode"] == "source_mapped"
+    assert descriptor["mapping"] is None
+    assert descriptor["normalization"]["unknown_gold"] == "reject"
+    assert (
+        llm_benchmark._project_assertion_for_dataset(dataset="all", assertion="negated")
+        == "ABSENT"
+    )
+
+
+def test_all_projection_descriptor_binds_source_specific_runtime_rules() -> None:
+    descriptor = llm_benchmark.describe_dataset_assertion_projection("all")
+
+    assert descriptor["schema_version"] == "phentrieve-assertion-projection/v2"
+    assert descriptor["source_mappings"]["CSC"]["ABSENT"] is None
+    assert descriptor["source_mappings"]["GSC"]["UNCERTAIN"] is None
+    assert descriptor["source_mappings"]["GSC_plus"] is None
+
+
+def test_all_projection_uses_document_source_for_predictions() -> None:
+    assert (
+        llm_benchmark._project_assertion_for_dataset(
+            dataset="all", source_dataset="CSC", assertion="absent"
+        )
+        is None
+    )
+    assert (
+        llm_benchmark._project_assertion_for_dataset(
+            dataset="all", source_dataset="GSC_plus", assertion="absent"
+        )
+        == "ABSENT"
+    )
+
+
+def test_persisted_payload_sanitizes_nested_base_url_credentials(monkeypatch) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "Bearer secret")
+    sanitized = llm_cli._sanitize_persisted_base_urls(
+        {
+            "llm_base_url": (
+                "https://user:secret@example.test:8443/proxy/"
+                "Bearer%20secret/api?access_token=Bearer+secret#frag"
+            )
+        }
+    )
+    serialized = json.dumps(sanitized)
+    assert "Bearer secret" not in serialized
+    assert "Bearer%20secret" not in serialized
+    assert "user:secret" not in serialized
+    assert serialized.count("REDACTED") == 1
+    assert "PATH_SHA256_" in serialized
+
+
+def test_persisted_endpoint_identity_excludes_chatgpt_api_key(monkeypatch) -> None:
+    monkeypatch.setenv("CHATGPT_API_KEY", "first-chatgpt-secret")
+    first = llm_cli._sanitize_persisted_base_urls(
+        {"llm_base_url": "https://example.test/proxy/first-chatgpt-secret/v1"}
+    )
+    monkeypatch.setenv("CHATGPT_API_KEY", "second-chatgpt-secret")
+    second = llm_cli._sanitize_persisted_base_urls(
+        {"llm_base_url": "https://example.test/proxy/second-chatgpt-secret/v1"}
+    )
+
+    assert first == second
+
+
+def test_public_pipeline_error_never_returns_raw_provider_exception() -> None:
+    secret = "https://user:password@example.test/v1?api_key=canary"
+    cause = RuntimeError(f"request failed at {secret} Authorization: Bearer canary")
+    error = llm_benchmark.LLMPipelinePhaseError(
+        "phase1", f"Phase 1 grouped setup failed: {cause}"
+    )
+    error.__cause__ = cause
+
+    code, message = llm_benchmark._public_pipeline_error(error)
+
+    assert code == "phase1_error"
+    assert message == "Benchmark phase phase1 failed"
+    assert "canary" not in message
+    assert "password" not in message
+
+
+def test_producer_identity_is_anchored_to_package_repository(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    identity = llm_cli._build_producer_identity()
+    repository = Path(llm_cli.__file__).resolve().parents[2]
+    git_executable = shutil.which("git")
+    assert git_executable is not None
+    expected = subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "-C", str(repository), "rev-parse", "HEAD"],
+        capture_output=True,
+        check=True,
+        text=True,
+    ).stdout.strip()
+    assert identity["commit"] == expected
+    assert identity["dirty"] in {"true", "false"}
+    assert identity["provenance_status"] == "resolved"
+
+
+def test_producer_identity_rejects_untracked_install_inside_unrelated_repo(
+    tmp_path, monkeypatch
+) -> None:
+    git_executable = shutil.which("git")
+    assert git_executable is not None
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "init"], cwd=tmp_path, check=True, capture_output=True
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "config", "user.email", "test@example.test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "config", "user.name", "Test"], cwd=tmp_path, check=True
+    )
+    tracked = tmp_path / "tracked.txt"
+    tracked.write_text("tracked", encoding="utf-8")
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "add", "tracked.txt"], cwd=tmp_path, check=True
+    )
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [git_executable, "commit", "-m", "initial"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    installed = tmp_path / "site-packages" / "phentrieve" / "benchmark" / "llm_cli.py"
+    installed.parent.mkdir(parents=True)
+    installed.write_text("# installed", encoding="utf-8")
+    monkeypatch.setattr(llm_cli, "__file__", str(installed))
+    identity = llm_cli._build_producer_identity()
+    assert identity["commit"] is None
+    assert identity["provenance_status"] != "resolved"
+
+
+def test_runtime_source_hash_normalizes_newlines_and_ignores_bytecode(tmp_path) -> None:
+    package = tmp_path / "phentrieve"
+    package.mkdir()
+    source = package / "module.py"
+    source.write_bytes(b"print('x')\r\n")
+    first = llm_cli._hash_runtime_package(package)
+
+    source.write_bytes(b"print('x')\n")
+    cache = package / "__pycache__"
+    cache.mkdir()
+    (cache / "module.pyc").write_bytes(b"ignored")
+    second = llm_cli._hash_runtime_package(package)
+
+    assert first == second
+
+
+def test_runtime_source_hash_matches_built_wheel(tmp_path) -> None:
+    repository = Path(llm_cli.__file__).resolve().parents[2]
+    uv_executable = shutil.which("uv")
+    assert uv_executable is not None
+    wheel_dir = tmp_path / "wheel"
+    subprocess.run(  # noqa: S603 - executable resolved by shutil.which
+        [
+            uv_executable,
+            "build",
+            "--wheel",
+            "--out-dir",
+            str(wheel_dir),
+            str(repository),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    wheel_path = next(wheel_dir.glob("*.whl"))
+    installed_root = tmp_path / "installed"
+    with zipfile.ZipFile(wheel_path) as wheel:
+        wheel.extractall(installed_root)
+
+    assert llm_cli._hash_runtime_package(repository / "phentrieve") == (
+        llm_cli._hash_runtime_package(installed_root / "phentrieve")
+    )
+
+
+@pytest.mark.parametrize("length", [40, 64])
+def test_full_git_object_ids_are_accepted(length) -> None:
+    candidate = "a" * length
+
+    assert llm_cli._normalize_full_git_oid(candidate) == candidate
+
+
+@pytest.mark.parametrize("length", [39, 41, 63, 65])
+def test_abbreviated_or_invalid_git_object_ids_are_rejected(length) -> None:
+    assert llm_cli._normalize_full_git_oid("a" * length) is None
+
+
+def test_runner_rejects_provider_runtime_identity_mismatch(monkeypatch) -> None:
+    from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+
+    monkeypatch.setattr(
+        llm_benchmark,
+        "load_benchmark_data",
+        lambda *args, **kwargs: {"metadata": {}, "documents": []},
+    )
+    provider = type(
+        "Provider",
+        (),
+        {
+            "provider_name": "openai",
+            "model_name": "different",
+            "base_url": "https://example.test/v1",
+        },
+    )()
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda **kwargs: provider)
+    with pytest.raises(ValueError, match="runtime identity mismatch"):
+        llm_benchmark.run_llm_benchmark(
+            test_file="unused.json",
+            llm_provider="openai",
+            llm_model="expected",
+            llm_base_url="https://example.test/v1",
+            _resolved_provider_request=ResolvedLLMProviderRequest(
+                provider="openai", model="expected", base_url="https://example.test/v1"
+            ),
+        )
+
+
+def test_cli_seed_is_bound_to_resolved_request_and_runtime(
+    tmp_path, monkeypatch
+) -> None:
+    from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+
+    test_file = tmp_path / "cases.json"
+    test_file.write_text("[]", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    def resolve(**kwargs):
+        captured["resolver_seed"] = kwargs["seed"]
+        return ResolvedLLMProviderRequest(
+            provider="gemini", model="gemini-2.5-flash", seed=kwargs["seed"]
+        )
+
+    def run(**kwargs):
+        captured["runtime_seed"] = kwargs["llm_seed"]
+        captured["request_seed"] = kwargs["_resolved_provider_request"].seed
+        return {
+            "status": "completed",
+            "cases": 0,
+            "llm_model": kwargs["llm_model"],
+            "llm_mode": kwargs["llm_mode"],
+            "dataset": kwargs["dataset"],
+            "dataset_metadata": {},
+            "metrics": {},
+            "prediction_records": [],
+            "results": [],
+            "term_records": [],
+            "case_records": [],
+        }
+
+    monkeypatch.setattr(llm_cli, "resolve_llm_provider_request", resolve)
+    monkeypatch.setattr(llm_cli.llm_benchmark, "run_llm_benchmark", run)
+    result = llm_cli.run_llm_benchmark_cli(
+        test_file=str(test_file),
+        llm_model="gemini-2.5-flash",
+        llm_seed=73,
+        output_dir=str(tmp_path / "results"),
+    )
+    assert captured == {"resolver_seed": 73, "runtime_seed": 73, "request_seed": 73}
+    assert result["model_identity"]["seed"] == 73
 
 
 def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
@@ -2544,6 +3095,7 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_without_ontology_keys(
                 "status": "running",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",
@@ -2682,6 +3234,7 @@ def test_run_llm_benchmark_cli_resumes_checkpoint_missing_capture_phase1_debug_k
                 "status": "running",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",
@@ -2756,6 +3309,7 @@ def test_run_llm_benchmark_cli_reuses_completed_checkpoint_when_overwriting_exis
                 "status": "completed",
                 "prediction_records": [],
                 "results": [],
+                **_test_fingerprints(test_file),
             }
         ),
         encoding="utf-8",

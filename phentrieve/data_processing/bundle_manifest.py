@@ -320,7 +320,7 @@ def compute_directory_checksum(
         if file_path.is_file() and file_path.name not in exclude:
             # Include relative path in hash for structure awareness
             rel_path = file_path.relative_to(dir_path)
-            hasher.update(str(rel_path).encode())
+            hasher.update(rel_path.as_posix().encode("utf-8"))
             hasher.update(compute_file_checksum(file_path, algorithm).encode())
 
     return hasher.hexdigest()

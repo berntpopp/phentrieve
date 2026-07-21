@@ -96,6 +96,44 @@ The important files are:
   LLM runs only. Traces are always written; `--capture-phase1-debug` adds the
   phase-1 retrieval detail to them rather than enabling them.
 
+Retrieval and extraction currently publish manifest schema v1. LLM runs publish
+schema v2, whose canonical inventory contains the SHA-256 digest of every
+artifact in the active generation. Authoritative LLM artifacts live in immutable
+`.generations/<generation-id>/` directories. A generation becomes current only
+when the root `manifest.json` is atomically replaced; interrupted publication
+therefore leaves the previous manifest and generation usable. Fixed-root files
+and the direct `summary`, `checkpoint`, `metrics`, `term_results`,
+`case_results`, `llm_predictions`, and `llm_traces` keys are compatibility
+working copies or aliases. Consumers must follow the paths in `manifest.json`
+and verify their hashes rather than treating fixed-root files as authoritative.
+Code that iterates every v2 artifact entry must deduplicate by `path`; aliases
+are lookup entries, not additional files.
+
+LLM manifests separate identities according to what they describe:
+
+- `source_sha256` hashes the selected source files exactly as stored.
+- `input_sha256` hashes the model-visible document identifiers and text after
+  loading and selection.
+- the gold hashes identify positive-only, assertion-aware, and ID-only scoring
+  labels independently of model input.
+- `projection_sha256` identifies the effective mapped assertion projection or
+  the normalized-passthrough fallback used by `all` and custom dataset names.
+- `execution_fingerprint` identifies inputs that can change inference, including
+  document order, prompts, resolved provider/model settings, seed, and retrieval
+  assets. Provider endpoint credentials are redacted and excluded; URL path and
+  query behavior remain identity-bearing through opaque hashes rather than raw
+  persisted values. Known environment-provided secrets are also removed before
+  hashing.
+- `scoring_fingerprint` identifies gold labels, selected documents, and scoring
+  projection. Both fingerprints include the normalized runtime-package source
+  digest, while package version and Git provenance remain descriptive metadata.
+
+Gold assertions are normalized once to the canonical `PRESENT`, `ABSENT`,
+`UNCERTAIN`, and `FAMILY_HISTORY` vocabulary. Known aliases such as `affirmed`
+and `negated` are accepted; an unknown explicit gold assertion is rejected
+instead of silently becoming present. Aggregate `all` runs preserve each
+document's source-dataset projection.
+
 Comparison and visualization commands discover structured runs recursively and
 still accept old flat summary directories. Both compare dense retrieval metrics,
 so they only ever load `retrieval` runs; pointing them at a results root that
@@ -116,11 +154,30 @@ The primary LLM benchmark workflow uses the converted PhenoBERT full-text
 corpus under `tests/data/en/phenobert/`. The benchmark instantiates the LLM
 pipeline directly and does not go through the FastAPI quota layer.
 
+An LLM benchmark requires an installed retrieval bundle with a valid
+`manifest.json`, embedding-model identity, HPO version, and checksum entries for
+`hpo_data.db` and `indexes/`. Every declared bundle path and checksum is verified
+before execution. The benchmark then loads the exact model name, model revision,
+remote-code trust policy, code revision, vector mode, and index directory from
+that verified bundle; changing bundle bytes or runtime metadata changes the
+execution identity. Install a published bundle and inspect it before starting a
+run:
+
+```bash
+phentrieve data download --model bge-m3 --hpo-version v2026-06-23
+phentrieve data status
+```
+
+Use the bundle appropriate for the experiment. To assert the expected ontology
+explicitly, pass `--evaluation-hpo-version`; the command rejects a value that
+does not match the installed retrieval bundle:
+
 ```bash
 phentrieve benchmark llm \
   --test-file tests/data/en/phenobert \
   --dataset GeneReviews \
-  --llm-model gemini-2.5-flash
+  --llm-model gemini-2.5-flash \
+  --evaluation-hpo-version v2026-06-23
 ```
 
 The converted corpus contains these dataset subsets:
@@ -139,8 +196,27 @@ Like retrieval and extraction runs, each invocation writes to its own
 [Run Artifacts](#run-artifacts)): `manifest.json`, `summary.json`,
 `terms.jsonl`, `cases.jsonl`, plus the LLM-specific `predictions/`, `traces/`,
 and `metrics/` artifacts. Use `--run-id` for a stable name; reusing that name
-requires the explicit `--overwrite` option, matching the retrieval and
-extraction commands. `--output-dir` (default `results`) sets the result root.
+requires the explicit `--overwrite` option. For LLM runs, `--overwrite` means
+resume only when the preserved checkpoint has matching fingerprints and full
+configuration. Validation happens before existing artifacts are cleared. A
+pre-v2 or otherwise incompatible checkpoint is rejected without modifying the
+run; choose a new `--run-id` or deliberately remove the old run directory to
+start fresh. Missing and non-object checkpoints are also rejected for an
+existing run. Resume additionally requires the same normalized runtime-package
+source digest; package version, Git commit, and dirty state are descriptive
+provenance. `--output-dir` (default `results`) sets the result root.
+Only one process may publish a given explicit `--run-id` at a time; concurrent
+writers must use distinct run IDs.
+
+Provider base URLs must be absolute HTTP(S) endpoints. Fragments are rejected;
+userinfo, raw paths, and raw query values are never persisted. Sensitive query
+keys are explicitly redacted, while other path/query behavior is represented by
+opaque SHA-256 values. Provider failures are stored as stable public error
+codes/messages, while raw exception details remain log-only.
+
+Provider seeds are best-effort because support depends on the selected provider
+and model. When supplied through `--llm-seed`, the resolved seed is included in
+the execution fingerprint and passed to the runtime provider.
 
 ## Corpus Acquisition And Conversion
 

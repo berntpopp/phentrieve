@@ -1404,7 +1404,9 @@ def test_non_regroupable_group_failure_raises_instead_of_succeeding(caplog) -> N
                 "request_count": 1,
             },
             {
-                "exception": RuntimeError("backend exploded"),
+                "exception": RuntimeError(
+                    "backend exploded Authorization: Bearer GROUP_SECRET_CANARY"
+                ),
                 "request_count": 1,
             },
         ]
@@ -1478,10 +1480,12 @@ def test_non_regroupable_group_failure_raises_instead_of_succeeding(caplog) -> N
     assert phase1_groups[1]["group_id"] == 2
     assert phase1_groups[1]["chunk_ids"] == [3]
     assert phase1_groups[1]["status"] == "failed"
-    assert phase1_groups[1]["error"] == "Structured extraction failed"
-    assert phase1_groups[1]["error_type"] == "LLMPipelinePhaseError"
+    assert phase1_groups[1]["error"] == "Grouped phase 1 extraction failed"
+    assert phase1_groups[1]["error_code"] == "phase1_group_error"
+    assert phase1_groups[1]["error_type"] == "pipeline_phase_error"
     assert phase1_groups[1]["extracted_count"] == 0
     assert phase1_groups[1]["extracted"] == []
+    assert "GROUP_SECRET_CANARY" not in json.dumps(phase1_groups)
     assert "Continuing after grouped phase 1 failure" in caplog.text
 
 
