@@ -45,6 +45,11 @@ from phentrieve.config import DEFAULT_BIOLORD_MODEL
 # Configure logger
 logger = logging.getLogger(__name__)
 
+# Models whose config.json declares a reduced dtype that must not be honoured.
+# Index building and querying have to agree numerically, and every published index
+# was built in float32.
+_FORCE_FLOAT32_MODELS = frozenset({"Alibaba-NLP/gte-multilingual-base"})
+
 # Catch and log NVML warning nicely
 with warnings.catch_warnings(record=True) as caught_warnings:
     warnings.simplefilter("always")
@@ -186,9 +191,19 @@ def load_embedding_model(
         logging.info(f"Loading embedding model: {model_name} on {device}")
 
         try:
-            model_kwargs: dict[str, object] = {"revision": revision} if revision else {}
+            model_kwargs: dict[str, Any] = {"revision": revision} if revision else {}
+            inner_kwargs: dict[str, Any] = {}
             if code_revision:
-                model_kwargs["model_kwargs"] = {"code_revision": code_revision}
+                inner_kwargs["code_revision"] = code_revision
+            if model_name in _FORCE_FLOAT32_MODELS:
+                # Transformers 5 defaults dtype="auto", which honours the dtype declared
+                # in config.json. GTE declares float16, so it would silently load at half
+                # precision -- unlike the Transformers 4.x stack that built the published
+                # indexes, which always loaded float32. Pin float32 so query vectors stay
+                # numerically comparable with the vectors already in those indexes.
+                inner_kwargs["dtype"] = torch.float32
+            if inner_kwargs:
+                model_kwargs["model_kwargs"] = inner_kwargs
             if trust_remote_code:
                 logging.info(
                     f"Loading model '{model_name}' with trust_remote_code=True on {device}"
@@ -212,7 +227,7 @@ def load_embedding_model(
                 f"Successfully loaded and cached model {model_name} on {device}"
             )
 
-            return cast(SentenceTransformer, model)
+            return model
 
         except Exception as e:
             error_msg = f"Error loading SentenceTransformer model '{model_name}': {e}"
