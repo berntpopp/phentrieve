@@ -168,7 +168,7 @@ docker build -t phentrieve-api ./api
 
 # Or specify a different bundle
 docker build \
-  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-06-23-r1/phentrieve-data-v2026-06-23-biolord-multivec.tar.gz" \
+  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-06-23-r2/phentrieve-data-v2026-06-23-biolord-multivec.tar.gz" \
   -t phentrieve-api ./api
 ```
 

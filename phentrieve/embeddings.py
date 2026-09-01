@@ -224,17 +224,70 @@ def load_embedding_model(
 def _repair_gte_multilingual_position_ids(
     model_name: str, model: SentenceTransformer
 ) -> None:
-    """Initialize the uninitialized position buffer in GTE's pinned custom code."""
+    """Re-initialize the non-persistent buffers in GTE's pinned custom code.
+
+    GTE's remote implementation registers ``position_ids`` and its rotary
+    ``inv_freq`` / ``cos_cached`` / ``sin_cached`` with ``persistent=False``, so none
+    of them appear in the checkpoint. Transformers materializes the model without
+    re-running the module ``__init__`` that computes them, which leaves every one of
+    those buffers pointing at uninitialized memory.
+
+    The symptom is silent and allocation-dependent: whatever the process happened to
+    leave on those pages becomes the rotary tables. Loading GTE first tends to yield
+    zeroed pages, which produces an all-zero cosine table (finite, but a no-op
+    rotation and therefore wrong embeddings); loading it after any other model tends
+    to yield reused pages, which produces NaN embeddings and fails indexing outright.
+
+    Rebuilding the rotary module from the config re-runs the real ``__init__`` and
+    restores all three rotary buffers, including the NTK scaling applied on top.
+    """
     if model_name != "Alibaba-NLP/gte-multilingual-base":
         return
     transformer = cast(Any, model[0])
-    embeddings = transformer.auto_model.embeddings
+    auto_model = transformer.auto_model
+    embeddings = auto_model.embeddings
+
     position_ids = cast(torch.Tensor, embeddings.position_ids)
     embeddings.position_ids = torch.arange(
         position_ids.numel(),
         dtype=position_ids.dtype,
         device=position_ids.device,
     )
+
+    if getattr(embeddings, "position_embedding_type", None) != "rope":
+        return
+    init_rope = getattr(embeddings, "_init_rope", None)
+    if init_rope is None:  # pragma: no cover - defensive, pinned code defines it
+        logging.warning(
+            "GTE embeddings expose no _init_rope; rotary buffers unrepaired"
+        )
+        return
+
+    device = next(auto_model.parameters()).device
+    init_rope(auto_model.config)
+    embeddings.rotary_emb.to(device)
+    _verify_gte_rotary_buffers(embeddings.rotary_emb)
+
+
+def _verify_gte_rotary_buffers(rotary: Any) -> None:
+    """Fail loudly if the rebuilt rotary tables are still not usable.
+
+    An all-zero or non-finite cosine table silently corrupts every embedding this
+    model produces, so it must never reach an index build.
+    """
+    cos = cast(torch.Tensor, rotary.cos_cached).float()
+    sin = cast(torch.Tensor, rotary.sin_cached).float()
+    if not (torch.isfinite(cos).all() and torch.isfinite(sin).all()):
+        raise ValueError(
+            "GTE rotary cache contains non-finite values after re-initialization"
+        )
+    # cos over a full rotary table must reach ~1.0; an all-zero table means the
+    # buffer was never computed.
+    if cos.abs().max() < 0.5:
+        raise ValueError(
+            "GTE rotary cosine cache is degenerate after re-initialization "
+            f"(max |cos| = {cos.abs().max().item():.4g}); embeddings would be invalid"
+        )
 
 
 def clear_model_registry() -> None:
