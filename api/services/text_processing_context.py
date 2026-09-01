@@ -159,11 +159,14 @@ async def prepare_standard_text_processing_context(
     assertion_cfg["preference"] = request.assertion_preference
     assertion_cfg["language"] = actual_language
 
+    # Log the request-derived values directly rather than reading them back out of
+    # assertion_cfg: the dict carries user-controlled entries, so every subscript of
+    # it is treated as tainted regardless of which key is read.
     logger.info(
         "API: Using assertion configuration: disable=%s preference=%s language=%s",
-        assertion_cfg["disable"],
-        _sanitize(assertion_cfg["preference"]),
-        _sanitize(assertion_cfg["language"]),
+        bool(request.no_assertion_detection),
+        _sanitize(request.assertion_preference),
+        _sanitize(actual_language),
     )
 
     text_pipeline = TextProcessingPipeline(
