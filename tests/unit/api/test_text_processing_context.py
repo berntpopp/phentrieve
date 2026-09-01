@@ -96,6 +96,59 @@ async def test_prepare_standard_context_loads_policy_resolved_dependencies(
 
 
 @pytest.mark.asyncio
+async def test_assertion_config_log_record_is_crlf_sanitized(
+    monkeypatch, caplog
+) -> None:
+    """Request-controlled assertion fields must not be able to forge log lines.
+
+    The values are also logged straight from the request rather than read back out
+    of ``assertion_cfg``: that dict holds user-controlled entries, so a subscript of
+    it is tainted no matter which key is read (CodeQL py/log-injection).
+    """
+    import logging
+
+    from api.services import text_processing_context
+
+    monkeypatch.setattr(
+        text_processing_context,
+        "get_sbert_model_dependency",
+        AsyncMock(return_value=MagicMock()),
+    )
+    monkeypatch.setattr(
+        text_processing_context,
+        "get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock()),
+    )
+    monkeypatch.setattr(
+        text_processing_context,
+        "TextProcessingPipeline",
+        MagicMock(return_value=MagicMock()),
+    )
+
+    request = TextProcessingRequest(
+        text="Patient has seizures.",
+        language="en",
+        retrieval_model_name=DEFAULT_MODEL,
+        semantic_model_name=None,
+        assertion_preference="dependency\r\nINFO:root:forged-entry",
+    )
+
+    with caplog.at_level(logging.INFO, logger=text_processing_context.__name__):
+        await text_processing_context.prepare_standard_text_processing_context(request)
+
+    records = [
+        record
+        for record in caplog.records
+        if "Using assertion configuration" in record.getMessage()
+    ]
+    assert len(records) == 1
+    message = records[0].getMessage()
+    assert "\r" not in message and "\n" not in message
+    assert "forged-entry" in message  # neutralised, not dropped
+    assert "preference=dependencyINFO:root:forged-entry" in message
+
+
+@pytest.mark.asyncio
 async def test_execute_llm_ignores_client_llm_target_overrides(monkeypatch) -> None:
     from api.services import text_processing_execution
 
