@@ -452,7 +452,7 @@
         "questions": {
           "performance": {
             "question": "¿Qué rendimiento puedo esperar?",
-            "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"
+            "answer": "<p>Nuestros resultados de referencia muestran:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>El rendimiento puede variar según la complejidad y especificidad del texto de entrada.</p>"
           },
           "similarityScore": {
             "question": "¿Qué significan las puntuaciones de similitud?",

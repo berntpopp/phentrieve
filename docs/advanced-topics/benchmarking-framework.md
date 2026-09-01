@@ -98,17 +98,7 @@ The framework now includes comprehensive metrics aligned with industry standards
 - **MAP@1**: 0.3333, **MAP@3**: 0.6111, **MAP@5**: 0.7222, **MAP@10**: 0.8611
 - **MaxOntSim@1**: 0.8, **MaxOntSim@3**: 0.9, **MaxOntSim@5**: 0.95, **MaxOntSim@10**: 1.0
 
-### Jina-v2-base-de (German-specific Model)
-
-- **MRR**: 0.3708
-- **HR@1**: 0.2222, **HR@3**: 0.4444, **HR@5**: 0.5556, **HR@10**: 0.7778
-- **NDCG@1**: 0.2222, **NDCG@3**: 0.4074, **NDCG@5**: 0.4815, **NDCG@10**: 0.6296
-- **Recall@1**: 0.1111, **Recall@3**: 0.3333, **Recall@5**: 0.4444, **Recall@10**: 0.7778
-- **Precision@1**: 1.0000, **Precision@3**: 1.0000, **Precision@5**: 1.0000, **Precision@10**: 0.8889
-- **MAP@1**: 0.2222, **MAP@3**: 0.4074, **MAP@5**: 0.4815, **MAP@10**: 0.6296
-- **MaxOntSim@1**: 0.7, **MaxOntSim@3**: 0.8, **MaxOntSim@5**: 0.85, **MaxOntSim@10**: 0.95
-
-These results demonstrate that domain-specific models (BioLORD) consistently outperform language-specific models for medical terminology retrieval. The new metrics provide more nuanced evaluation of ranking quality and retrieval effectiveness.
+These results show that the domain-specific BioLORD model is the strongest default for medical terminology retrieval. The full metric set provides a more nuanced evaluation of ranking quality and retrieval effectiveness across the benchmark model matrix.
 
 ## Visualizing Results
 

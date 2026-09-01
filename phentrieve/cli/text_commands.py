@@ -557,7 +557,7 @@ def process_text_for_hpo_command(
     Example usage:
     - Process direct text input: phentrieve text process "Patient has severe headaches"
     - Process from file with semantic chunking: phentrieve text process -s semantic -i clinical_note.txt
-    - Process German text with specialized model: phentrieve text process -l de -m "Jina-v2-base-de" -i german_note.txt
+    - Process German text with a cross-lingual model: phentrieve text process -l de -m "T-Systems-onsite/cross-en-de-roberta-sentence-transformer" -i german_note.txt
     """
     import time
 

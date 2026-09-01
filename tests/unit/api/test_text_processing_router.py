@@ -1032,7 +1032,7 @@ class TestTextProcessingModelValidation:
     def test_release_model_policy_allows_pinned_custom_code(self):
         """Pinned release models explicitly declare their custom-code requirement."""
         assert (
-            _get_trust_remote_code_for_model("jinaai/jina-embeddings-v2-base-de")
+            _get_trust_remote_code_for_model("Alibaba-NLP/gte-multilingual-base")
             is True
         )
 

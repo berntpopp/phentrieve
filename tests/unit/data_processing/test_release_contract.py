@@ -43,7 +43,7 @@ def test_hpo_v2026_06_23_release_contract_has_complete_matrix():
 
     assert spec.hpo_version == "v2026-06-23"
     assert spec.hpo_sha256 == HPO_SHA256
-    assert len(spec.models) == 9
+    assert len(spec.models) == 8
     assert spec.expected_document_count("single_vector") == 19836
     assert spec.expected_document_count("multi_vector") == 63428
     assert [model.slug for model in spec.models] == [
@@ -53,19 +53,16 @@ def test_hpo_v2026_06_23_release_contract_has_complete_matrix():
         "mpnet-multi",
         "minilm-multi",
         "gte-multi",
-        "jina-de",
         "tsystems-ende",
         "distiluse-multi",
     ]
     assert {model.slug for model in spec.models if model.trust_remote_code} == {
         "gte-multi",
-        "jina-de",
     }
     assert {
         model.slug: model.code_revision for model in spec.models if model.code_revision
     } == {
         "gte-multi": "40ced75c3017eb27626c9d4ea981bde21a2662f4",
-        "jina-de": "f3ec4cf7de7e561007f27c9efc7148b0bd713f81",
     }
 
 

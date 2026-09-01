@@ -41,7 +41,6 @@ def test_biolord_like_name_does_not_imply_trust_remote_code(monkeypatch) -> None
     ("model_name", "trust_remote_code"),
     [
         ("Alibaba-NLP/gte-multilingual-base", True),
-        ("jinaai/jina-embeddings-v2-base-de", True),
         ("sentence-transformers/LaBSE", False),
     ],
 )

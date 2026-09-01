@@ -16,7 +16,8 @@ def known_profiles():
         **BUILTIN_PROFILES,
         "fast_query": Profile(command="query", num_results=5, similarity_threshold=0.5),
         "shared_german": Profile(
-            language="de", semantic_chunker_model="jinaai/jina-embeddings-v2-base-de"
+            language="de",
+            semantic_chunker_model="T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
         ),
     }
 

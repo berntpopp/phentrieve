@@ -86,7 +86,7 @@ profiles:
   shared_german:
     # No command: field - applies to any command.
     language: de
-    semantic_chunker_model: jinaai/jina-embeddings-v2-base-de
+    semantic_chunker_model: T-Systems-onsite/cross-en-de-roberta-sentence-transformer
 ```
 
 ## Config Inspection Commands
