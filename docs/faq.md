@@ -32,7 +32,7 @@ Yes, once you've downloaded the necessary HPO data and built the vector indexes,
 
 ### How do I choose the best embedding model?
 
-For most medical text processing use cases, the BioLORD model (`FremyCompany/BioLORD-2023-M`) is recommended as it consistently outperforms other models in HPO term mapping tasks. If you're working specifically with German text, the Jina model (`jinaai/jina-embeddings-v2-base-de`) may also be worth considering.
+For most medical text processing use cases, the BioLORD model (`FremyCompany/BioLORD-2023-M`) is recommended as it consistently outperforms other models in HPO term mapping tasks. If you're working specifically with German text, the cross-lingual `T-Systems-onsite/cross-en-de-roberta-sentence-transformer` model may also be worth considering.
 
 For the most accurate decision, run a benchmark on a representative sample of your data using the `phentrieve benchmark run` command with different models.
 

@@ -159,7 +159,12 @@ async def prepare_standard_text_processing_context(
     assertion_cfg["preference"] = request.assertion_preference
     assertion_cfg["language"] = actual_language
 
-    logger.info("API: Using assertion configuration: %s", assertion_cfg)
+    logger.info(
+        "API: Using assertion configuration: disable=%s preference=%s language=%s",
+        assertion_cfg["disable"],
+        _sanitize(assertion_cfg["preference"]),
+        _sanitize(assertion_cfg["language"]),
+    )
 
     text_pipeline = TextProcessingPipeline(
         language=actual_language,

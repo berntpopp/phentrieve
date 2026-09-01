@@ -32,7 +32,6 @@ async def test_prepare_standard_context_rejects_unsupported_retrieval_model() ->
         "Unsupported retrieval_model_name: not-allowlisted-model. "
         "Unsupported retrieval model: not-allowlisted-model. "
         "Allowed values: FremyCompany/BioLORD-2023-M, "
-        "jinaai/jina-embeddings-v2-base-de, "
         "T-Systems-onsite/cross-en-de-roberta-sentence-transformer, "
         "sentence-transformers/paraphrase-multilingual-mpnet-base-v2, "
         "sentence-transformers/distiluse-base-multilingual-cased-v2, "

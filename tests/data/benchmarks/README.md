@@ -116,7 +116,7 @@ phentrieve benchmark run \
 # Medium-scale evaluation
 phentrieve benchmark run \
   --test-file german/70cases_gemini_v1.json \
-  --model-name jinaai/jina-embeddings-v2-base-de
+  --model-name T-Systems-onsite/cross-en-de-roberta-sentence-transformer
 
 # Comprehensive benchmark with all models
 phentrieve benchmark run \

@@ -85,12 +85,13 @@ def test_dependency_review_gate_allowlists_accepted_chromadb_vulnerability() -> 
     assert "GHSA-f4j7-r4q5-qw2c" in ci_workflow
 
 
-def test_transformers_vulnerability_exceptions_are_narrow_and_documented() -> None:
-    """The JinaBert runtime blocks a compatible Transformers 5.x upgrade.
+def test_transformers_uses_the_patched_5x_major() -> None:
+    """Transformers 5.x carries the fixes for the remote-code-execution advisories.
 
-    These exceptions are temporary: the remote Jina implementation is pinned to an
-    immutable commit and must be migrated to a patched Transformers release before
-    they can be removed.
+    The upgrade was blocked by the JinaBert model, whose pinned remote implementation
+    imports ``transformers.pytorch_utils.find_pruneable_heads_and_indices`` -- a symbol
+    removed in Transformers 5.x. Dropping that model unblocked the patched major, so the
+    matching pip-audit and Dependency Review exceptions were removed with it.
     """
     security_workflow = (
         REPO_ROOT / ".github" / "workflows" / "security.yml"
@@ -99,20 +100,67 @@ def test_transformers_vulnerability_exceptions_are_narrow_and_documented() -> No
         encoding="utf-8"
     )
     dependencies = _pyproject()["project"]["dependencies"]
+    packages = _uv_packages()
 
     assert any(
-        "transformers>=4.41.0,<5.0.0" in dependency for dependency in dependencies
+        "transformers>=5.5.0,<6.0.0" in dependency for dependency in dependencies
     )
-    assert "JinaBert" in security_workflow
+    # GHSA-29pf-2h5f-8g72 is fixed in 5.3.0 and GHSA-fgcw-684q-jj6r in 5.5.0.
+    assert Version("5.5.0") <= packages["transformers"] < Version("6.0.0")
+
     for advisory in (
         "PYSEC-2025-217",
         "PYSEC-2026-2288",
         "PYSEC-2026-2289",
         "PYSEC-2026-2290",
     ):
-        assert f"--ignore-vuln {advisory}" in security_workflow
+        assert f"--ignore-vuln {advisory}" not in security_workflow
     for advisory in ("GHSA-29pf-2h5f-8g72", "GHSA-fgcw-684q-jj6r"):
-        assert advisory in ci_workflow
+        assert advisory not in ci_workflow
+
+
+def test_jinabert_model_is_not_reintroduced() -> None:
+    """JinaBert's pinned remote code cannot load under Transformers 5.x.
+
+    Re-adding the model would force a downgrade to the vulnerable 4.x major, so the
+    release contract and the bundle slug map must both stay free of it.
+    """
+    contract = (
+        REPO_ROOT / "phentrieve" / "data_processing" / "release_contract.py"
+    ).read_text(encoding="utf-8")
+    manifest = (
+        REPO_ROOT / "phentrieve" / "data_processing" / "bundle_manifest.py"
+    ).read_text(encoding="utf-8")
+
+    assert "jina" not in contract.lower()
+    assert "jina" not in manifest.lower()
+
+
+def test_mcp_uses_the_patched_transport_release() -> None:
+    """GHSA-hvrp-rf83-w775 / GHSA-jpw9-pfvf-9f58 are fixed in 1.27.2 and
+    GHSA-vj7q-gjh5-988w in 1.28.1."""
+    optional = _pyproject()["project"]["optional-dependencies"]
+    packages = _uv_packages()
+
+    assert any("mcp[cli]>=1.28.1" in dependency for dependency in optional["mcp"])
+    assert packages["mcp"] >= Version("1.28.1")
+
+
+def test_transitive_security_floors_are_pinned_in_constraints() -> None:
+    """Advisory floors for transitive dependencies must survive a future `uv lock`."""
+    constraints = _pyproject()["tool"]["uv"]["constraint-dependencies"]
+    packages = _uv_packages()
+
+    expected = {
+        "cryptography": Version("50.0.0"),  # GHSA-g6cj-pr64-35w5
+        "pyasn1": Version("0.6.4"),  # GHSA-m4p7-r5rc-7g4j and friends
+        "pymdown-extensions": Version("11.0.1"),  # GHSA-gm37-52c6-37mw
+    }
+    for name, floor in expected.items():
+        assert any(
+            constraint.startswith(f"{name}>={floor}") for constraint in constraints
+        ), f"missing constraint floor for {name}"
+        assert packages[name] >= floor
 
 
 def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:

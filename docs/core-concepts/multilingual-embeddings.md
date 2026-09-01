@@ -21,10 +21,6 @@ Phentrieve supports several multilingual embedding models, each with different s
 
 - **FremyCompany/BioLORD-2023-M**: Specialized for biomedical terminology, this model shows the strongest performance for HPO term mapping across languages.
 
-### Language-Specific Models
-
-- **jinaai/jina-embeddings-v2-base-de**: Optimized for German language understanding, this model performs well for German phenotype text but lacks the cross-lingual capabilities of other models.
-
 ### General Multilingual Models
 
 - **sentence-transformers/paraphrase-multilingual-mpnet-base-v2**: A general-purpose multilingual model that performs reasonably well across many languages.
@@ -42,14 +38,6 @@ Based on our memories, GPU-accelerated benchmarking shows significant performanc
   - HR@5: 0.7778
   - HR@10: 1.0
   - Recall: 1.0
-
-- **Jina-v2-base-de** (German language-specific model):
-  - MRR: 0.3708
-  - HR@1: 0.2222
-  - HR@3: 0.4444
-  - HR@5: 0.5556
-  - HR@10: 0.7778
-  - Recall: 0.7778
 
 These results demonstrate that domain-specific models (BioLORD) consistently outperform language-specific models for medical terminology retrieval, highlighting the importance of domain expertise over language specialization.
 

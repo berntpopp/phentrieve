@@ -50,7 +50,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -70,19 +70,21 @@ jobs:
           #   REQUIRED to read the published multi-vector data bundles (0.6.x cannot); 1.5.9 is
           #   the latest release and no patched 1.x exists yet. Accepted risk. Remove once a
           #   patched chromadb >1.5.9 ships.
-          # - PYSEC-2025-217, PYSEC-2026-2288, PYSEC-2026-2289, and PYSEC-2026-2290:
-          #   JinaBert's pinned remote implementation is incompatible with Transformers 5.x,
-          #   the fixed major release. Its exact model and code commits are validated by the
-          #   data-release contract, and only that trusted code path is enabled. Remove these
-          #   exceptions once JinaBert supports a patched Transformers release, before the next
-          #   HPO data release.
+          # - CVE-2026-45830, CVE-2026-45831, CVE-2026-45833: all three require the ChromaDB
+          #   HTTP server (/api/v2 endpoints, multi-tenant authz, SimpleRBACAuthorizationProvider).
+          #   Phentrieve only ever constructs chromadb.PersistentClient against a local directory
+          #   and never runs the server or an auth provider, so none of them are reachable here.
+          #   No patched 1.x release exists. Remove once a patched chromadb >1.5.9 ships.
+          # The Transformers exceptions (PYSEC-2025-217, PYSEC-2026-2288/2289/2290) were
+          # removed together with the JinaBert model: its pinned remote implementation imports
+          # transformers.pytorch_utils.find_pruneable_heads_and_indices, which no longer exists
+          # in Transformers 5.x. Dropping that model unblocked the patched 5.x major.
           uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi \
             --ignore-vuln CVE-2025-3000 \
             --ignore-vuln GHSA-f4j7-r4q5-qw2c \
-            --ignore-vuln PYSEC-2025-217 \
-            --ignore-vuln PYSEC-2026-2288 \
-            --ignore-vuln PYSEC-2026-2289 \
-            --ignore-vuln PYSEC-2026-2290
+            --ignore-vuln CVE-2026-45830 \
+            --ignore-vuln CVE-2026-45831 \
+            --ignore-vuln CVE-2026-45833
 
   # Python SAST with Bandit (run directly with uv for proper pyproject.toml support)
   bandit:
@@ -105,7 +107,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -138,7 +140,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20.19'
           cache: 'npm'

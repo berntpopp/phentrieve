@@ -93,12 +93,6 @@ Phentrieve supports several multilingual embedding models optimized for differen
   - Excellent performance on clinical terminology
   - Multilingual support
 
-### Language-Specific Models
-
-- **`jinaai/jina-embeddings-v2-base-de`**
-  - German language specialization
-  - High precision for German phenotype text
-
 ### General Multilingual Models
 
 - **`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`**

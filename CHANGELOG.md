@@ -18,6 +18,56 @@ together:
 
 ## [Unreleased]
 
+### Removed
+
+- **`jinaai/jina-embeddings-v2-base-de` is no longer a supported embedding model.**
+  Its pinned remote implementation imports
+  `transformers.pytorch_utils.find_pruneable_heads_and_indices`, a symbol removed in
+  Transformers 5.x, so the model could not load on any release carrying the fixes for
+  GHSA-29pf-2h5f-8g72 and GHSA-fgcw-684q-jj6r. It was never the default, ranked below
+  the default BioLORD model on the German benchmark (HR@1 0.222 vs 0.333), and was the
+  only remaining blocker for the patched Transformers major. The data-release contract
+  now declares eight models; `Alibaba-NLP/gte-multilingual-base` remains the only
+  `trust_remote_code` model and is fully compatible with Transformers 5.x. Existing
+  bundles are unaffected, but new HPO data releases no longer ship a `jina-de` index.
+  German text is best served by the default BioLORD model or
+  `T-Systems-onsite/cross-en-de-roberta-sentence-transformer`.
+
+### Security
+
+- **Transformers upgraded to the patched 5.x major** (4.57.6 -> 5.16.1), resolving
+  GHSA-29pf-2h5f-8g72, GHSA-fgcw-684q-jj6r, GHSA-69w3-r845-3855, and the matching
+  PYSEC advisories. The four `pip-audit --ignore-vuln` suppressions and two
+  Dependency Review allowlist entries they required were removed.
+- **MCP SDK floor raised to 1.28.1**, resolving GHSA-hvrp-rf83-w775 and
+  GHSA-jpw9-pfvf-9f58 (1.27.2) and GHSA-vj7q-gjh5-988w (1.28.1).
+- **New transitive security floors** pinned in `[tool.uv] constraint-dependencies`:
+  `cryptography>=50.0.0` (GHSA-g6cj-pr64-35w5), `pyasn1>=0.6.4` (GHSA-m4p7-r5rc-7g4j,
+  GHSA-8ppf-4f7h-5ppj, GHSA-hm4w-wwcw-mr6r), `pymdown-extensions>=11.0.1`
+  (GHSA-gm37-52c6-37mw, GHSA-9xwg-3r6f-jcx2), and `pip>=26.2` (PYSEC-2026-3721).
+- **Frontend advisories cleared** (`npm audit`: 0 vulnerabilities): `nanoid`
+  (GHSA-2v37-7h3g-55p8, GHSA-28wg-ghj8-5hjv), `js-yaml` (GHSA-5p4m-2wfm-xmqj),
+  `postcss` (GHSA-fxqj-rqcc-2cmp), and `brace-expansion` (GHSA-3jxr-9vmj-r5cp and
+  follow-ups).
+- **Code scanning**: fixed a log-injection sink in
+  `api/services/text_processing_context.py` where the request-controlled assertion
+  `preference` and `language` reached a log record unsanitized, and removed a dead
+  `_INDEX_DOCUMENT_COUNTS` global in `phentrieve/data_processing/release_contract.py`.
+- The three open chromadb advisories (GHSA-36p7-vc44-83pf, GHSA-2wm9-hf6c-p5cr,
+  GHSA-xph7-9rjv-w5fr) all require the ChromaDB HTTP server, multi-tenant
+  authorization, or `SimpleRBACAuthorizationProvider`. Phentrieve only constructs an
+  embedded `chromadb.PersistentClient`, so they are documented as not applicable
+  rather than silently ignored.
+
+### Changed
+
+- Dependency ceilings widened to match upstream majors: `sentence-transformers<7.0.0`,
+  `anthropic<2.0.0`, `openai<4.0.0`, `mcp<3.0.0`.
+- Frontend dependencies updated, including `pinia` 3 -> 4, `vite` 8.1.4 -> 8.2.2,
+  `vuetify` 3.12.9 -> 3.13.2, `vue` 3.5.39 -> 3.5.42, and `eslint` 10.7 -> 10.9.
+- GitHub Actions bumped: `actions/setup-python` v6 -> v7, `actions/setup-node`
+  v6 -> v7, `hadolint/hadolint-action` v3.3.0 -> v3.4.0.
+
 ## [0.26.0] — 2026-07-13 (CLI 0.26.0 / API 0.17.0 / Frontend 0.17.1)
 
 Reproducible benchmark result storage. Retrieval, extraction, and LLM benchmarks

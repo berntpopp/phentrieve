@@ -13,10 +13,6 @@ _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 _MODEL_SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _RELEASE_TAG_PATTERN = re.compile(r"^hpo-v(\d{4}-\d{2}-\d{2})-r([1-9]\d*)$")
-_INDEX_DOCUMENT_COUNTS = {
-    "single_vector": 19836,
-    "multi_vector": 63428,
-}
 
 
 @dataclass(frozen=True)
@@ -78,13 +74,6 @@ DATA_RELEASE_MODELS: tuple[ModelReleaseSpec, ...] = (
         revision="9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
         trust_remote_code=True,
         code_revision="40ced75c3017eb27626c9d4ea981bde21a2662f4",
-    ),
-    ModelReleaseSpec(
-        name="jinaai/jina-embeddings-v2-base-de",
-        slug="jina-de",
-        revision="3f9eede875721714945b6a99a3198299243cf2be",
-        trust_remote_code=True,
-        code_revision="f3ec4cf7de7e561007f27c9efc7148b0bd713f81",
     ),
     ModelReleaseSpec(
         name="T-Systems-onsite/cross-en-de-roberta-sentence-transformer",
