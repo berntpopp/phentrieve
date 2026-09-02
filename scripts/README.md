@@ -13,8 +13,8 @@ runs one retrieval query per model/vector-mode archive.
 
 ```bash
 uv run python scripts/verify_data_release.py \
-  --spec releases/hpo-v2026-06-23-r1.json \
-  --bundle-dir dist/hpo-v2026-06-23-r1 \
+  --spec releases/hpo-v2026-06-23-r2.json \
+  --bundle-dir dist/hpo-v2026-06-23-r2 \
   --smoke-test
 ```
 
@@ -26,9 +26,9 @@ then builds every declared model in single-vector and multi-vector modes.
 
 ```bash
 uv run python scripts/build_data_release.py \
-  --spec releases/hpo-v2026-06-23-r1.json \
-  --data-dir .runs/hpo-v2026-06-23-r1/data \
-  --output-dir dist/hpo-v2026-06-23-r1 \
+  --spec releases/hpo-v2026-06-23-r2.json \
+  --data-dir .runs/hpo-v2026-06-23-r2/data \
+  --output-dir dist/hpo-v2026-06-23-r2 \
   --device cuda
 ```
 

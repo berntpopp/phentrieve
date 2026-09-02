@@ -18,6 +18,13 @@ together:
 
 ## [Unreleased]
 
+## [0.28.0] — 2026-09-02 (CLI 0.28.0 / API 0.18.0 / Frontend 0.18.0)
+
+Dependency consolidation, the Transformers 5.x migration, and reproducible
+benchmark identities. Removing the JinaBert model unblocked the patched
+Transformers major and, in the process, surfaced a silent embedding-corruption
+bug in the GTE model. Ships alongside HPO data release `hpo-v2026-06-23-r2`.
+
 ### Added
 
 - **Reproducible LLM benchmark identities and manifest schema v2.** LLM runs now
