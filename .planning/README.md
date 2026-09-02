@@ -29,6 +29,15 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-09-02-setuptools-floor-drift-and-base-image-audit.md` - root cause
+  of the single open Trivy alert (setuptools 82.0.1, CVE-2026-59890). The
+  `pyproject.toml` build-system floor was disproved as the source: `pip install .`
+  resolves it inside pip's isolated build env. The real cause was a non-binding
+  `--upgrade` floor in `api/Dockerfile` whose `RUN` string never changed, so the
+  registry build cache replayed the layer and froze its original resolution. All
+  three floors are now pinned to 83.0.0 and test-tied. Also records a
+  confirm-and-document base image audit: Node 20 and Alpine 3.20 are both past
+  end-of-life, no base image was bumped, recommendations listed.
 - `analysis/2026-06-14-mcp-stabilization-verification.md` - 2026-07-03 deep
   re-verification confirming all 14 findings from the MCP stabilization pass
   (PR #291) shipped and are test-pinned in v0.24.0/0.24.1, correcting two
