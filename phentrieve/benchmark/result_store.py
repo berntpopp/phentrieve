@@ -4,17 +4,23 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import shutil
+import uuid
+from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Literal
+
+from phentrieve.utils import path_is_link as _path_is_link
 
 BenchmarkType = Literal["retrieval", "extraction", "llm"]
 
 CHECKPOINT_FILENAME = "checkpoint.json"
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +40,16 @@ class RunLayout:
     chunks_path: Path
     checkpoint_path: Path
     legacy_dir: Path
+    preexisting: bool
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactEntry:
+    """One explicitly owned file in a schema-v2 run inventory."""
+
+    path: Path
+    role: str
+    media_type: str
 
 
 def safe_slug(value: str) -> str:
@@ -72,7 +88,27 @@ def sha256_path(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _reset_run_dir(run_dir: Path) -> None:
+def _assert_no_links_below(root: Path, path: Path) -> None:
+    """Reject symlink or junction components strictly below a storage root.
+
+    The root itself may legitimately be a symlink or junction (e.g. a results
+    directory redirected onto a larger volume). Only components created *inside*
+    the root can redirect a write outside it, so those are what we reject.
+    """
+    root_absolute = root.absolute()
+    path_absolute = path.absolute()
+    if not path_absolute.is_relative_to(root_absolute):
+        raise ValueError("Benchmark storage path escapes the configured results root")
+    current = root_absolute
+    for part in path_absolute.relative_to(root_absolute).parts:
+        current = current / part
+        if _path_is_link(current):
+            raise ValueError(
+                f"Benchmark storage path must not be a link or junction: {current}"
+            )
+
+
+def _reset_run_dir(run_dir: Path, *, results_root: Path) -> None:
     """Delete a previous run's artifacts while keeping its resume checkpoint.
 
     Without this, an overwritten run inherits files it never produced and
@@ -81,10 +117,18 @@ def _reset_run_dir(run_dir: Path) -> None:
     an existing run directory precisely to resume from it; its identity is
     validated separately before any of it is trusted.
     """
+    _assert_no_links_below(results_root, run_dir)
+    run_root = run_dir.resolve()
     for item in run_dir.iterdir():
-        if item.name == CHECKPOINT_FILENAME:
+        if item.name in {CHECKPOINT_FILENAME, "manifest.json", ".generations"}:
             continue
-        if item.is_dir() and not item.is_symlink():
+        if _path_is_link(item):
+            raise ValueError(
+                f"Benchmark run contents must not be links or junctions: {item}"
+            )
+        if not item.resolve().is_relative_to(run_root):
+            raise ValueError(f"Benchmark run content escapes run directory: {item}")
+        if item.is_dir():
             shutil.rmtree(item)
         else:
             item.unlink()
@@ -99,8 +143,14 @@ def create_run_layout(
     run_id: str | None = None,
     exact_run_id: bool = False,
     overwrite: bool = False,
+    reset_existing: bool = True,
+    materialize: bool = True,
 ) -> RunLayout:
-    """Create a unique run directory below a result root."""
+    """Create a unique run directory below a result root.
+
+    ``reset_existing=False`` lets callers validate a preserved checkpoint before
+    explicitly clearing artifacts with :func:`reset_run_artifacts`.
+    """
     requested_run_id = (
         re.sub(r"[^A-Za-z0-9_-]+", "_", run_id).strip("_") if run_id else utc_run_id()
     )
@@ -108,6 +158,7 @@ def create_run_layout(
     parent = results_root / benchmark_type / safe_slug(dataset) / safe_slug(model)
     selected_run_id = requested_run_id
     run_dir = parent / selected_run_id
+    _assert_no_links_below(results_root, run_dir)
 
     if run_dir.exists() and not overwrite:
         if exact_run_id:
@@ -118,12 +169,15 @@ def create_run_layout(
             run_dir = parent / selected_run_id
             suffix += 1
 
-    if run_dir.exists() and overwrite:
-        _reset_run_dir(run_dir)
+    preexisting = run_dir.exists()
+    if preexisting and overwrite and reset_existing:
+        _reset_run_dir(run_dir, results_root=results_root)
 
-    run_dir.mkdir(parents=True, exist_ok=overwrite)
+    if materialize:
+        run_dir.mkdir(parents=True, exist_ok=overwrite)
     legacy_dir = run_dir / "legacy"
-    legacy_dir.mkdir(parents=True, exist_ok=True)
+    if materialize:
+        legacy_dir.mkdir(parents=True, exist_ok=True)
 
     return RunLayout(
         results_root=results_root,
@@ -139,14 +193,81 @@ def create_run_layout(
         chunks_path=run_dir / "diagnostics" / "chunks.jsonl",
         checkpoint_path=run_dir / CHECKPOINT_FILENAME,
         legacy_dir=legacy_dir,
+        preexisting=preexisting,
     )
+
+
+def reset_run_artifacts(layout: RunLayout) -> None:
+    """Clear a validated reusable run while preserving its checkpoint."""
+    if not layout.run_dir.exists():
+        return
+    _reset_run_dir(layout.run_dir, results_root=layout.results_root)
+    layout.legacy_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _atomic_text_write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_text(content, encoding="utf-8")
-    temporary.replace(path)
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        temporary.write_text(content, encoding="utf-8")
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _active_generation_id(manifest_path: Path) -> str | None:
+    if not manifest_path.is_file() or _path_is_link(manifest_path):
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(manifest, dict) or manifest.get("schema_version") != 2:
+        return None
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    for artifact in artifacts.values():
+        if not isinstance(artifact, dict):
+            continue
+        artifact_path = artifact.get("path")
+        if not isinstance(artifact_path, str):
+            continue
+        parts = PurePosixPath(artifact_path).parts
+        if len(parts) >= 3 and parts[0] == ".generations":
+            return parts[1]
+    return None
+
+
+def _prune_generations(layout: RunLayout, keep: set[str]) -> None:
+    generations_root = layout.run_dir / ".generations"
+    if not generations_root.is_dir():
+        return
+    _assert_no_links_below(layout.run_dir, generations_root)
+    generations_resolved = generations_root.resolve()
+    for candidate in generations_root.iterdir():
+        if candidate.name in keep:
+            continue
+        if _path_is_link(candidate):
+            logger.warning(
+                "Refusing to prune linked benchmark generation: %s", candidate
+            )
+            continue
+        resolved = candidate.resolve()
+        if not resolved.is_relative_to(generations_resolved):
+            logger.warning(
+                "Refusing to prune escaped benchmark generation: %s", candidate
+            )
+            continue
+        try:
+            if candidate.is_dir():
+                shutil.rmtree(candidate)
+            else:
+                candidate.unlink()
+        except OSError as exc:
+            logger.warning(
+                "Could not prune benchmark generation %s: %s", candidate, exc
+            )
 
 
 def write_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -214,6 +335,220 @@ def write_manifest(
     return manifest
 
 
+def publish_manifest_v2(
+    layout: RunLayout,
+    identities: Mapping[str, Any],
+    inventory: Iterable[ArtifactEntry],
+) -> dict[str, Any]:
+    """Atomically publish an integrity-checked manifest for an existing run.
+
+    The caller supplies the exact files produced by this execution. This keeps
+    stale files in a resumed directory out of the manifest without weakening
+    the established run-layout and discovery contracts.
+    """
+    reserved = {
+        "schema_version",
+        "run_id",
+        "benchmark_type",
+        "dataset_name",
+        "model",
+        "artifacts",
+    }
+    conflicts = reserved.intersection(identities)
+    if conflicts:
+        raise ValueError(
+            f"Metadata contains reserved manifest keys: {sorted(conflicts)}"
+        )
+    artifacts: dict[str, dict[str, str]] = {}
+    _assert_no_links_below(layout.results_root, layout.run_dir)
+    run_root = layout.run_dir.resolve()
+    seen: set[Path] = set()
+    items = list(inventory)
+    singleton_roles = {
+        "summary",
+        "checkpoint",
+        "metrics",
+        "term_results",
+        "case_results",
+        "chunk_diagnostics",
+    }
+    role_counts = Counter(item.role for item in items)
+    duplicate_roles = sorted(role for role in singleton_roles if role_counts[role] > 1)
+    if duplicate_roles:
+        raise ValueError(f"Duplicate singleton artifact role: {duplicate_roles}")
+    validated: list[tuple[ArtifactEntry, Path, str]] = []
+    for item in items:
+        lexical_path = item.path.absolute()
+        if not lexical_path.is_relative_to(layout.run_dir.absolute()):
+            raise ValueError(
+                "Artifact inventory paths must be inside the run directory"
+            )
+        _assert_no_links_below(layout.run_dir, lexical_path)
+        path = lexical_path.resolve()
+        if not path.is_relative_to(run_root):
+            raise ValueError(
+                "Artifact inventory paths must be inside the run directory"
+            )
+        if path in seen:
+            raise ValueError("Artifact inventory paths must be unique")
+        if not path.is_file():
+            raise ValueError(f"Artifact inventory path is not a file: {path}")
+        seen.add(path)
+        relative = lexical_path.relative_to(layout.run_dir.absolute()).as_posix()
+        validated.append((item, path, relative))
+
+    previous_generation_id = _active_generation_id(layout.manifest_path)
+    generation_id = f"{utc_run_id()}-{uuid.uuid4().hex[:8]}"
+    generations_root = layout.run_dir / ".generations"
+    _assert_no_links_below(layout.run_dir, generations_root)
+    if _path_is_link(layout.manifest_path):
+        raise ValueError("Benchmark manifest path must not be a link or junction")
+    staging_dir = generations_root / f".{generation_id}.tmp"
+    generation_dir = generations_root / generation_id
+    try:
+        staging_dir.mkdir(parents=True)
+        for _item, source, relative in validated:
+            destination = staging_dir.joinpath(*PurePosixPath(relative).parts)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+        staging_dir.replace(generation_dir)
+    except Exception:
+        if (
+            staging_dir.exists()
+            and staging_dir.is_dir()
+            and not _path_is_link(staging_dir)
+        ):
+            shutil.rmtree(staging_dir)
+        raise
+
+    for item, _source, source_relative in validated:
+        relative = (Path(".generations") / generation_id / source_relative).as_posix()
+        path = layout.run_dir / relative
+        key = item.role if item.role == "summary" else f"{item.role}:{source_relative}"
+        artifacts[key] = {
+            "role": item.role,
+            "path": relative,
+            "media_type": item.media_type,
+            "sha256": sha256_file(path),
+        }
+    for role, compatibility_role in (
+        ("prediction", "llm_predictions"),
+        ("trace", "llm_traces"),
+    ):
+        parents = {
+            PurePosixPath(
+                artifacts[f"{item.role}:{source_relative}"]["path"]
+            ).parent.as_posix()
+            for item, _source, source_relative in validated
+            if item.role == role
+        }
+        if len(parents) == 1:
+            artifacts[compatibility_role] = {
+                "role": compatibility_role,
+                "path": parents.pop(),
+                "media_type": "inode/directory",
+            }
+    metric = next(
+        (entry for entry in artifacts.values() if entry.get("role") == "metrics"), None
+    )
+    if metric is not None:
+        artifacts["metrics"] = dict(metric)
+    for role in singleton_roles - {"summary", "metrics"}:
+        entry = next(
+            (item for item in artifacts.values() if item.get("role") == role), None
+        )
+        if entry is not None:
+            artifacts[role] = dict(entry)
+    manifest: dict[str, Any] = {
+        "schema_version": 2,
+        "run_id": layout.run_id,
+        "benchmark_type": layout.benchmark_type,
+        "dataset_name": layout.dataset,
+        "model": layout.model,
+        **dict(identities),
+        "artifacts": artifacts,
+    }
+    write_json(layout.manifest_path, manifest)
+    keep_generations = {generation_id}
+    if previous_generation_id is not None:
+        keep_generations.add(previous_generation_id)
+    _prune_generations(layout, keep_generations)
+    return manifest
+
+
+def _verified_manifest_artifact_path(
+    manifest_path: Path,
+    manifest: Mapping[str, Any],
+    role: str,
+) -> Path | None:
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict):
+        return None
+    artifact = artifacts.get(role)
+    if not isinstance(artifact, dict):
+        artifact = next(
+            (
+                entry
+                for entry in artifacts.values()
+                if isinstance(entry, dict) and entry.get("role") == role
+            ),
+            None,
+        )
+    if not isinstance(artifact, dict):
+        return None
+    relative_path = artifact.get("path")
+    if not isinstance(relative_path, str):
+        return None
+    portable = PurePosixPath(relative_path)
+    if (
+        "\\" in relative_path
+        or portable.is_absolute()
+        or any(part in {"", ".", ".."} for part in portable.parts)
+    ):
+        return None
+    run_dir = manifest_path.parent.resolve()
+    lexical_artifact = manifest_path.parent.joinpath(*portable.parts)
+    _assert_no_links_below(manifest_path.parent, lexical_artifact)
+    artifact_path = lexical_artifact.resolve()
+    if not artifact_path.is_relative_to(run_dir) or not artifact_path.is_file():
+        return None
+    if manifest.get("schema_version") == 2:
+        expected_sha256 = artifact.get("sha256")
+        if (
+            not isinstance(expected_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256)
+            or sha256_file(artifact_path) != expected_sha256
+        ):
+            return None
+    return artifact_path
+
+
+def active_checkpoint_path(layout: RunLayout) -> Path:
+    """Resolve the committed checkpoint, with fixed-root legacy fallback."""
+    if not layout.manifest_path.exists():
+        return layout.checkpoint_path
+    _assert_no_links_below(layout.results_root, layout.manifest_path)
+    try:
+        manifest = json.loads(layout.manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError("Existing benchmark manifest is not valid JSON") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError("Existing benchmark manifest must be a JSON object")
+    schema_version = manifest.get("schema_version")
+    if schema_version == 1:
+        return layout.checkpoint_path
+    if schema_version != 2:
+        raise ValueError("Existing benchmark manifest has an unsupported schema")
+    checkpoint = _verified_manifest_artifact_path(
+        layout.manifest_path, manifest, "checkpoint"
+    )
+    if checkpoint is None:
+        raise ValueError(
+            "Existing benchmark manifest has no valid committed checkpoint"
+        )
+    return checkpoint
+
+
 def discover_artifacts(
     root: Path,
     role: str,
@@ -230,26 +565,42 @@ def discover_artifacts(
     summaries.
     """
     canonical: list[Path] = []
+    root_resolved = root.resolve()
     for manifest_path in sorted(root.rglob("manifest.json")):
         try:
+            _assert_no_links_below(root, manifest_path)
+            resolved_manifest = manifest_path.resolve()
+            if not resolved_manifest.is_relative_to(root_resolved):
+                continue
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict):
+                continue
+            schema_version = manifest.get("schema_version")
+            if schema_version not in {1, 2}:
+                continue
             if (
                 benchmark_type is not None
                 and manifest.get("benchmark_type") != benchmark_type
             ):
                 continue
-            artifact = manifest.get("artifacts", {}).get(role)
-            relative_path = artifact.get("path") if isinstance(artifact, dict) else None
-            if not isinstance(relative_path, str):
-                continue
-            run_dir = manifest_path.parent.resolve()
-            artifact_path = (run_dir / relative_path).resolve()
-            if artifact_path.is_relative_to(run_dir) and artifact_path.is_file():
+            artifact_path = _verified_manifest_artifact_path(
+                manifest_path, manifest, role
+            )
+            if artifact_path is not None:
                 canonical.append(artifact_path)
         except (OSError, ValueError, TypeError):
             continue
     if canonical:
         return canonical
     if role == "summary":
-        return sorted(path.resolve() for path in root.rglob("*_summary.json"))
+        legacy: list[Path] = []
+        for path in root.rglob("*_summary.json"):
+            try:
+                _assert_no_links_below(root, path)
+                resolved = path.resolve()
+                if resolved.is_relative_to(root_resolved) and resolved.is_file():
+                    legacy.append(resolved)
+            except (OSError, ValueError):
+                continue
+        return sorted(legacy)
     return []

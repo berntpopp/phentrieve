@@ -15,10 +15,12 @@ from pydantic import BaseModel, Field, field_validator
 
 from phentrieve.benchmark import energy
 from phentrieve.benchmark.data_loader import (
-    LLM_ASSERTION_TO_BENCHMARK,
+    CANONICAL_ASSERTION_MAP,
     load_benchmark_data,
+    normalize_benchmark_assertion,
     parse_gold_terms,
 )
+from phentrieve.benchmark.run_identity import RetrievalAssetIdentity
 from phentrieve.evaluation.extraction_metrics import (
     CorpusExtractionMetrics,
     ExtractionResult,
@@ -37,6 +39,8 @@ from phentrieve.llm.preprocessing import (
 from phentrieve.llm.prompts import loader as prompt_loader
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.providers.base import ResolvedLLMProviderRequest
+from phentrieve.llm.tools import ToolExecutor
 from phentrieve.llm.types import AnnotationMode, GroundedChunk, LLMPipelineConfig
 
 logger = logging.getLogger(__name__)
@@ -45,36 +49,74 @@ DEFAULT_LLM_BENCHMARK_DATASET = "GeneReviews"
 DEFAULT_LLM_BENCHMARK_MODE = "two_phase"
 DEFAULT_METRIC_AVERAGING = "micro"
 DEFAULT_ID_ONLY_ASSERTION = "PRESENT"
+ASSERTION_PROJECTION_SCHEMA = "phentrieve-assertion-projection/v2"
 
 DATASET_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
     "GeneReviews": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": "PRESENT",
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": "PRESENT",
+        "FAMILY_HISTORY": None,
     },
     "CSC": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": None,
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
     },
     "GSC": {
-        "present": "PRESENT",
-        "affirmed": "PRESENT",
-        "uncertain": None,
-        "negated": None,
-        "absent": None,
-        "family_history": None,
-        "other": None,
+        "PRESENT": "PRESENT",
+        "ABSENT": None,
+        "UNCERTAIN": None,
+        "FAMILY_HISTORY": None,
     },
 }
+
+
+def resolve_dataset_assertion_projection(
+    dataset: str, source_dataset: str | None = None
+) -> dict[str, str | None] | None:
+    """Return the assertion projection used by runtime scoring."""
+    effective_dataset = (
+        source_dataset if dataset == "all" and source_dataset else dataset
+    )
+    return DATASET_ASSERTION_PROJECTION.get(effective_dataset)
+
+
+def describe_dataset_assertion_projection(dataset: str) -> dict[str, object]:
+    """Return a canonical identity payload for the runtime projection."""
+    projection = resolve_dataset_assertion_projection(dataset)
+    source_mappings = (
+        {
+            name: (
+                dict(DATASET_ASSERTION_PROJECTION[name])
+                if name in DATASET_ASSERTION_PROJECTION
+                else None
+            )
+            for name in ("CSC", "GSC", "GeneReviews", "GSC_plus", "ID_68")
+        }
+        if dataset == "all"
+        else None
+    )
+    return {
+        "schema_version": ASSERTION_PROJECTION_SCHEMA,
+        "mode": (
+            "source_mapped"
+            if source_mappings is not None
+            else "mapped"
+            if projection is not None
+            else "normalized_passthrough"
+        ),
+        "mapping": dict(projection) if projection is not None else None,
+        "source_mappings": source_mappings,
+        "normalization": {
+            "algorithm": "strip_casefold_lookup_default_v1",
+            "mapping": dict(CANONICAL_ASSERTION_MAP),
+            "unknown_prediction": DEFAULT_ID_ONLY_ASSERTION,
+            "other_prediction": "drop_when_mapped",
+            "unknown_gold": "reject",
+        },
+    }
 
 
 def build_ontology_credit_config(
@@ -98,6 +140,12 @@ def validate_hpo_graph_available() -> None:
     )
 
     validate()
+
+
+def _public_pipeline_error(exc: LLMPipelinePhaseError) -> tuple[str, str]:
+    """Return stable persisted failure details without provider exception text."""
+    phase = exc.phase if exc.phase in {"phase1", "phase2a", "phase2b"} else "pipeline"
+    return f"{phase}_error", f"Benchmark phase {phase} failed"
 
 
 class TokenPricingConfig(BaseModel):
@@ -269,6 +317,9 @@ def run_llm_benchmark(
     accounting_config: BenchmarkAccountingConfig | None = None,
     checkpoint_state: dict[str, Any] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    _resolved_provider_request: ResolvedLLMProviderRequest | None = None,
+    _retrieval_asset_identity: RetrievalAssetIdentity | None = None,
+    _retrieval_index_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Run the LLM benchmark directly against the configured provider."""
     if llm_mode != DEFAULT_LLM_BENCHMARK_MODE:
@@ -328,13 +379,22 @@ def run_llm_benchmark(
         output_cost_per_1m_tokens=output_cost_per_1m_tokens,
         cached_input_cost_per_1m_tokens=cached_input_cost_per_1m_tokens,
     )
+    resolved_request = _resolved_provider_request
+    if resolved_request is not None and (
+        resolved_request.provider != llm_provider
+        or resolved_request.model != llm_model
+        or resolved_request.base_url != llm_base_url
+        or resolved_request.seed != llm_seed
+    ):
+        raise ValueError("Resolved provider request does not match benchmark arguments")
     provider_factory_kwargs = _build_provider_factory_kwargs(
         get_llm_provider,
-        llm_model=llm_model,
-        llm_provider=llm_provider,
-        llm_base_url=llm_base_url,
+        llm_model=resolved_request.model if resolved_request else llm_model,
+        llm_provider=resolved_request.provider if resolved_request else llm_provider,
+        llm_base_url=resolved_request.base_url if resolved_request else llm_base_url,
+        api_key=resolved_request.api_key if resolved_request else None,
         timeout_seconds=llm_timeout_seconds,
-        seed=llm_seed,
+        seed=resolved_request.seed if resolved_request else llm_seed,
     )
     provider = get_llm_provider(**provider_factory_kwargs)
     resolved_provider_name = getattr(
@@ -344,6 +404,12 @@ def run_llm_benchmark(
     resolved_base_url = getattr(provider, "base_url", None)
     if not isinstance(resolved_base_url, str) or not resolved_base_url:
         resolved_base_url = llm_base_url
+    if resolved_request is not None and (
+        resolved_provider_name != resolved_request.provider
+        or resolved_model_name != resolved_request.model
+        or resolved_base_url != resolved_request.base_url
+    ):
+        raise ValueError("Provider runtime identity mismatch with resolved request")
     logger.debug(
         "Initialized benchmark pipeline for model=%s mode=%s",
         llm_model,
@@ -379,7 +445,22 @@ def run_llm_benchmark(
     evaluator = CorpusExtractionMetrics(averaging=DEFAULT_METRIC_AVERAGING)
 
     with _temporary_prompt_templates_dir(prompt_templates_dir):
-        pipeline = TwoPhaseLLMPipeline(provider=provider)
+        tool_executor = None
+        if _retrieval_asset_identity is not None:
+            tool_executor = ToolExecutor(
+                model_name=_retrieval_asset_identity.embedding_model,
+                model_revision=_retrieval_asset_identity.model_revision or None,
+                trust_remote_code=_retrieval_asset_identity.trust_remote_code,
+                code_revision=_retrieval_asset_identity.code_revision,
+                index_dir=_retrieval_index_dir,
+                multi_vector=_retrieval_asset_identity.asset_type == "multi_vector",
+            )
+        pipeline_kwargs: dict[str, Any] = {"provider": provider}
+        if tool_executor is not None:
+            pipeline_kwargs["tool_executor"] = tool_executor
+        pipeline = TwoPhaseLLMPipeline(
+            **_build_provider_factory_kwargs(TwoPhaseLLMPipeline, **pipeline_kwargs)
+        )
         config = LLMPipelineConfig(
             provider=resolved_provider_name,
             model=resolved_model_name,
@@ -507,13 +588,15 @@ def run_llm_benchmark(
                     doc_id,
                     exc.phase,
                 )
+                error_code, error_message = _public_pipeline_error(exc)
                 result_record = {
                     "case_index": index,
                     "doc_id": document["id"],
                     "source_dataset": document.get("source_dataset"),
                     "status": "failed",
                     "error_phase": exc.phase,
-                    "error_message": str(exc),
+                    "error_code": error_code,
+                    "error_message": error_message,
                 }
                 results.append(result_record)
                 prediction_records.append(
@@ -522,7 +605,8 @@ def run_llm_benchmark(
                         "doc_id": document["id"],
                         "status": "failed",
                         "error_phase": exc.phase,
-                        "error_message": str(exc),
+                        "error_code": error_code,
+                        "error_message": error_message,
                     }
                 )
                 assertion_results.append(
@@ -562,6 +646,7 @@ def run_llm_benchmark(
             predicted_terms = _serialize_predicted_terms(
                 pipeline_result,
                 dataset=dataset,
+                source_dataset=document.get("source_dataset"),
             )
             predicted_with_assertions = sorted(
                 _prediction_tuples_with_assertions(predicted_terms)
@@ -1078,14 +1163,6 @@ def _build_benchmark_payload(
     return payload
 
 
-def _normalize_assertion(assertion: str | None) -> str:
-    if assertion is None:
-        return DEFAULT_ID_ONLY_ASSERTION
-    return LLM_ASSERTION_TO_BENCHMARK.get(
-        assertion.strip().lower(), DEFAULT_ID_ONLY_ASSERTION
-    )
-
-
 def _serialize_corpus_metrics(metrics: Any) -> dict[str, Any]:
     return {
         "micro": metrics.micro,
@@ -1186,7 +1263,9 @@ def _build_prediction_record(
         "projected_predictions": list(predicted_terms),
         "projection": {
             "dataset": dataset,
-            "assertion_projection": DATASET_ASSERTION_PROJECTION.get(dataset),
+            "assertion_projection": resolve_dataset_assertion_projection(
+                dataset, document.get("source_dataset")
+            ),
         },
     }
 
@@ -1211,7 +1290,9 @@ def _build_prediction_record(
         # were produced per RAW assertion and how many the dataset's present-only
         # projection drops from scoring. Does not change any metric.
         "assertion_distribution": _assertion_distribution(
-            pipeline_result, dataset=dataset
+            pipeline_result,
+            dataset=dataset,
+            source_dataset=document.get("source_dataset"),
         ),
         "metadata": {
             "llm_provider": pipeline_result.meta.llm_provider,
@@ -1252,11 +1333,13 @@ def _serialize_predicted_terms(
     pipeline_result: Any,
     *,
     dataset: str,
+    source_dataset: str | None = None,
 ) -> list[dict[str, str | None]]:
     predicted_terms: list[dict[str, str | None]] = []
     for term in pipeline_result.terms:
         projected_assertion = _project_assertion_for_dataset(
             dataset=dataset,
+            source_dataset=source_dataset,
             assertion=getattr(term, "assertion", None),
         )
         if projected_assertion is None:
@@ -1274,7 +1357,9 @@ def _serialize_predicted_terms(
     return predicted_terms
 
 
-def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, Any]:
+def _assertion_distribution(
+    pipeline_result: Any, *, dataset: str, source_dataset: str | None = None
+) -> dict[str, Any]:
     """Count predicted findings by RAW assertion (pre-projection).
 
     The LLM benchmark scores a dataset-specific present-only projection (see
@@ -1292,7 +1377,9 @@ def _assertion_distribution(pipeline_result: Any, *, dataset: str) -> dict[str, 
         by_assertion[raw] = by_assertion.get(raw, 0) + 1
         if (
             _project_assertion_for_dataset(
-                dataset=dataset, assertion=getattr(term, "assertion", None)
+                dataset=dataset,
+                source_dataset=source_dataset,
+                assertion=getattr(term, "assertion", None),
             )
             is None
         ):
@@ -1433,21 +1520,19 @@ def _build_observability_counts(
 def _project_assertion_for_dataset(
     *,
     dataset: str,
+    source_dataset: str | None = None,
     assertion: str | None,
 ) -> str | None:
-    dataset_projection = DATASET_ASSERTION_PROJECTION.get(dataset)
-    raw_assertion = (
-        assertion.strip().lower()
-        if isinstance(assertion, str) and assertion.strip()
-        else None
+    dataset_projection = resolve_dataset_assertion_projection(dataset, source_dataset)
+    raw_assertion = assertion.strip().casefold() if assertion else ""
+    if dataset_projection is not None and raw_assertion == "other":
+        return None
+    normalized_assertion = normalize_benchmark_assertion(
+        assertion, reject_unknown=False
     )
     if dataset_projection is None:
-        return _normalize_assertion(assertion)
-    if raw_assertion is None:
-        return DEFAULT_ID_ONLY_ASSERTION
-    if raw_assertion in dataset_projection:
-        return dataset_projection[raw_assertion]
-    return _normalize_assertion(assertion)
+        return normalized_assertion
+    return dataset_projection.get(normalized_assertion, DEFAULT_ID_ONLY_ASSERTION)
 
 
 def _prediction_tuples_with_assertions(

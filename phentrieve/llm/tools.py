@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
 
 from phentrieve.config import DEFAULT_MODEL
@@ -23,6 +24,11 @@ class ToolExecutor:
         text_processor: Any | None = None,
         max_num_results: int = DEFAULT_TOOL_QUERY_RESULTS,
         retrieval_batch_size: int = DEFAULT_LLM_RETRIEVAL_BATCH_SIZE,
+        model_name: str = DEFAULT_MODEL,
+        model_revision: str | None = None,
+        trust_remote_code: bool = False,
+        code_revision: str | None = None,
+        index_dir: str | Path | None = None,
         multi_vector: bool = True,
         multi_vector_aggregation_strategy: str = (
             DEFAULT_LLM_MULTI_VECTOR_AGGREGATION_STRATEGY
@@ -32,6 +38,11 @@ class ToolExecutor:
         self._text_processor = text_processor
         self.max_num_results = max_num_results
         self.retrieval_batch_size = retrieval_batch_size
+        self.model_name = model_name
+        self.model_revision = model_revision
+        self.trust_remote_code = trust_remote_code
+        self.code_revision = code_revision
+        self.index_dir = Path(index_dir) if index_dir is not None else None
         self.multi_vector = multi_vector
         self.multi_vector_aggregation_strategy = multi_vector_aggregation_strategy
         self._cached_embedding_model: Any | None = None
@@ -274,7 +285,12 @@ class ToolExecutor:
             self._cached_retriever = self._retriever
 
         if self._cached_embedding_model is None:
-            self._cached_embedding_model = load_embedding_model(DEFAULT_MODEL)
+            self._cached_embedding_model = load_embedding_model(
+                self.model_name,
+                trust_remote_code=self.trust_remote_code,
+                revision=self.model_revision,
+                code_revision=self.code_revision,
+            )
 
         if language_key not in self._cached_pipelines:
             self._cached_pipelines[language_key] = TextProcessingPipeline(
@@ -287,7 +303,8 @@ class ToolExecutor:
         if self._cached_retriever is None:
             self._cached_retriever = DenseRetriever.from_model_name(
                 model=self._cached_embedding_model,
-                model_name=DEFAULT_MODEL,
+                model_name=self.model_name,
+                index_dir=self.index_dir,
                 multi_vector=self.multi_vector,
             )
 

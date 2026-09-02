@@ -25,6 +25,7 @@ from phentrieve.llm.providers.base import (
     LLMProvider,
     _render_messages,
     build_response_json_schema,
+    canonicalize_llm_base_url,
 )
 from phentrieve.llm.types import LLMResponse
 
@@ -62,7 +63,7 @@ class AnthropicStructuredOutputProvider(LLMProvider):
     ) -> None:
         super().__init__()
         self.model_name = model_name
-        self.base_url = base_url.rstrip("/") if isinstance(base_url, str) else None
+        self.base_url = canonicalize_llm_base_url(base_url)
         self.seed = seed
         self.temperature = temperature
         self.max_tokens = max_tokens

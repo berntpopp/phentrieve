@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import stat
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -24,6 +25,42 @@ except ImportError:
     LANGDETECT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+# Reparse tags that redirect path traversal and must be treated as links.
+# Other reparse points (OneDrive Files-On-Demand cloud placeholders, Windows
+# Data Deduplication stubs, etc.) also set FILE_ATTRIBUTE_REPARSE_POINT but are
+# ordinary files and must NOT be rejected as links.
+_LINK_REPARSE_TAGS = frozenset(
+    tag
+    for tag in (
+        getattr(stat, "IO_REPARSE_TAG_SYMLINK", None),
+        getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", None),
+    )
+    if tag is not None
+)
+
+
+def path_is_link(path: Path) -> bool:
+    """Return True if *path* is a symlink, junction, or mount-point reparse point.
+
+    Only symlinks and mount points (junctions/volume mounts) redirect traversal
+    outside a directory tree, so those are what path-safety checks reject. Benign
+    Windows reparse points such as OneDrive Files-On-Demand placeholders and Data
+    Deduplication stubs set the reparse attribute without redirecting and are not
+    treated as links.
+    """
+    is_junction = getattr(path, "is_junction", None)
+    if path.is_symlink() or bool(is_junction and is_junction()):
+        return True
+    try:
+        lstat_result = os.lstat(path)
+    except OSError:
+        return False
+    attributes = getattr(lstat_result, "st_file_attributes", 0)
+    if not attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0):
+        return False
+    reparse_tag = getattr(lstat_result, "st_reparse_tag", 0)
+    return bool(reparse_tag) and reparse_tag in _LINK_REPARSE_TAGS
 
 
 def sanitize_log_value(value: object, max_length: int = 500) -> str:

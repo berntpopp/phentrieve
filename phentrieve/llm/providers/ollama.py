@@ -21,7 +21,11 @@ from phentrieve.llm.config import (
     DEFAULT_PROVIDER_TEMPERATURE,
     DEFAULT_PROVIDER_TRANSIENT_RETRIES,
 )
-from phentrieve.llm.providers.base import LLMProvider, build_response_json_schema
+from phentrieve.llm.providers.base import (
+    LLMProvider,
+    build_response_json_schema,
+    canonicalize_llm_base_url,
+)
 from phentrieve.llm.types import LLMResponse
 
 logger = logging.getLogger(__name__)
@@ -43,7 +47,10 @@ class OllamaStructuredOutputProvider(LLMProvider):
     ) -> None:
         super().__init__()
         self.model_name = model_name
-        self.base_url = base_url.rstrip("/")
+        canonical_base_url = canonicalize_llm_base_url(base_url)
+        if canonical_base_url is None:
+            raise ValueError("Ollama base URL must be non-empty")
+        self.base_url = canonical_base_url
         self.seed = seed
         self.temperature = temperature
         self.max_tokens = DEFAULT_PROVIDER_MAX_TOKENS

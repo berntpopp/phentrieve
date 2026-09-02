@@ -9,21 +9,18 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-ASSERTION_STATUS_MAP: dict[str, str] = {
+CANONICAL_ASSERTION_MAP: dict[str, str] = {
+    "present": "PRESENT",
     "affirmed": "PRESENT",
+    "absent": "ABSENT",
     "negated": "ABSENT",
     "uncertain": "UNCERTAIN",
     "normal": "PRESENT",
     "family_history": "FAMILY_HISTORY",
 }
 
-LLM_ASSERTION_TO_BENCHMARK: dict[str, str] = {
-    "present": "PRESENT",
-    "affirmed": "PRESENT",
-    "absent": "ABSENT",
-    "negated": "ABSENT",
-    "uncertain": "UNCERTAIN",
-}
+ASSERTION_STATUS_MAP = CANONICAL_ASSERTION_MAP
+LLM_ASSERTION_TO_BENCHMARK = CANONICAL_ASSERTION_MAP
 
 PHENOBERT_DATASETS: tuple[str, ...] = ("GSC_plus", "ID_68", "GeneReviews")
 RAG_HPO_PAPER_DATASETS: tuple[str, ...] = ("CSC", "GSC")
@@ -52,6 +49,18 @@ DATASET_GOLD_ASSERTION_PROJECTION: dict[str, dict[str, str | None]] = {
         "FAMILY_HISTORY": None,
     },
 }
+
+
+def normalize_benchmark_assertion(value: object | None, *, reject_unknown: bool) -> str:
+    """Normalize assertions shared by dataset loading and runtime scoring."""
+    if value is None or not str(value).strip():
+        return DEFAULT_SIMPLE_ASSERTION
+    normalized = str(value).strip().casefold()
+    if normalized in CANONICAL_ASSERTION_MAP:
+        return CANONICAL_ASSERTION_MAP[normalized]
+    if reject_unknown:
+        raise ValueError(f"Unknown benchmark assertion: {value!r}")
+    return DEFAULT_SIMPLE_ASSERTION
 
 
 def load_benchmark_data(
@@ -191,9 +200,12 @@ def parse_gold_terms(gold_hpo_terms: list[Any]) -> list[tuple[str, str]]:
     for term in gold_hpo_terms:
         if isinstance(term, dict):
             hpo_id = str(term.get("id") or term.get("hpo_id") or "")
-            assertion = str(term.get("assertion") or DEFAULT_SIMPLE_ASSERTION)
+            assertion = normalize_benchmark_assertion(
+                term.get("assertion"), reject_unknown=True
+            )
         elif isinstance(term, (list, tuple)) and len(term) >= 2:
-            hpo_id, assertion = str(term[0]), str(term[1])
+            hpo_id = str(term[0])
+            assertion = normalize_benchmark_assertion(term[1], reject_unknown=True)
         else:
             hpo_id = str(term)
             assertion = DEFAULT_SIMPLE_ASSERTION
@@ -211,9 +223,8 @@ def _convert_phenobert_annotations(
     if dataset_name is not None:
         projection = DATASET_GOLD_ASSERTION_PROJECTION.get(dataset_name)
     for annotation in annotations:
-        assertion = ASSERTION_STATUS_MAP.get(
-            str(annotation.get("assertion_status", "affirmed")),
-            DEFAULT_SIMPLE_ASSERTION,
+        assertion = normalize_benchmark_assertion(
+            annotation.get("assertion_status", "affirmed"), reject_unknown=True
         )
         if projection is not None:
             projected_assertion = projection.get(assertion)

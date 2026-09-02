@@ -6,6 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from threading import local
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel
 
@@ -17,6 +18,31 @@ from phentrieve.llm.config import (
 from phentrieve.llm.types import LLMResponse
 
 logger = logging.getLogger(__name__)
+
+
+def canonicalize_llm_base_url(value: str | None) -> str | None:
+    """Return one validated provider base URL representation."""
+    if value is None or not value.strip():
+        return None
+    raw = value.strip()
+    parsed = urlsplit(raw)
+    if parsed.fragment:
+        raise ValueError("LLM base URL must not contain a fragment")
+    if parsed.scheme not in {"http", "https"} or parsed.hostname is None:
+        raise ValueError("LLM base URL must be an absolute HTTP(S) URL")
+    path = parsed.path.rstrip("/")
+    host = parsed.hostname.lower()
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    netloc = host
+    if parsed.port is not None:
+        netloc = f"{netloc}:{parsed.port}"
+    if parsed.username is not None or parsed.password is not None:
+        userinfo = parsed.username or ""
+        if parsed.password is not None:
+            userinfo = f"{userinfo}:{parsed.password}"
+        netloc = f"{userinfo}@{netloc}"
+    return urlunsplit((parsed.scheme.lower(), netloc, path, parsed.query, ""))
 
 
 class LLMProvider(ABC):

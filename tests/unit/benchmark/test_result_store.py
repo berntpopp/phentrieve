@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
 from phentrieve.benchmark.result_store import (
+    ArtifactEntry,
+    active_checkpoint_path,
     create_run_layout,
     discover_artifacts,
+    publish_manifest_v2,
     safe_slug,
     sha256_file,
     sha256_path,
@@ -133,6 +139,93 @@ def test_create_run_layout_accepts_llm_benchmark_type(tmp_path) -> None:
 
     assert layout.benchmark_type == "llm"
     assert layout.run_dir == (tmp_path / "llm" / "genereviews" / "org_model" / "run")
+
+
+def test_create_run_layout_can_validate_without_materializing(tmp_path) -> None:
+    layout = create_run_layout(
+        tmp_path, "llm", "GeneReviews", "Org/Model", run_id="run", materialize=False
+    )
+
+    assert not layout.run_dir.exists()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_create_run_layout_rejects_symlinked_run_directory(tmp_path) -> None:
+    target = tmp_path / "outside"
+    target.mkdir()
+    marker = target / "keep.txt"
+    marker.write_text("keep", encoding="utf-8")
+    run_dir = tmp_path / "results" / "llm" / "genereviews" / "model" / "run"
+    run_dir.parent.mkdir(parents=True)
+    try:
+        run_dir.symlink_to(target, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+
+    with pytest.raises(ValueError, match="link or junction"):
+        create_run_layout(
+            tmp_path / "results",
+            "llm",
+            "GeneReviews",
+            "model",
+            run_id="run",
+            overwrite=True,
+        )
+
+    assert marker.read_text(encoding="utf-8") == "keep"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction behavior")
+def test_create_run_layout_rejects_junctioned_run_directory(tmp_path) -> None:
+    target = tmp_path / "outside"
+    target.mkdir()
+    marker = target / "keep.txt"
+    marker.write_text("keep", encoding="utf-8")
+    run_dir = tmp_path / "results" / "llm" / "genereviews" / "model" / "run"
+    run_dir.parent.mkdir(parents=True)
+    cmd_executable = os.environ.get("COMSPEC")
+    if not cmd_executable:
+        pytest.skip("COMSPEC is unavailable")
+    created = subprocess.run(  # noqa: S603 - resolved Windows command interpreter
+        [cmd_executable, "/c", "mklink", "/J", str(run_dir), str(target)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if created.returncode != 0:
+        pytest.skip(f"junction creation unavailable: {created.stderr}")
+    try:
+        with pytest.raises(ValueError, match="link or junction"):
+            create_run_layout(
+                tmp_path / "results",
+                "llm",
+                "GeneReviews",
+                "model",
+                run_id="run",
+                overwrite=True,
+            )
+        assert marker.read_text(encoding="utf-8") == "keep"
+    finally:
+        run_dir.rmdir()
+
+
+def test_create_run_layout_allows_symlinked_results_root(tmp_path) -> None:
+    # A results root that is itself a symlink/junction (e.g. redirected onto a
+    # larger volume) must be accepted; only links *inside* the root are rejected.
+    backing = tmp_path / "backing"
+    backing.mkdir()
+    results_root = tmp_path / "results"
+    try:
+        results_root.symlink_to(backing, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks unavailable: {exc}")
+
+    layout = create_run_layout(
+        results_root, "llm", "GeneReviews", "model", run_id="run"
+    )
+
+    assert layout.run_dir.is_dir()
+    assert layout.run_dir.name == "run"
 
 
 def test_write_manifest_registers_extra_artifacts_only_when_present(tmp_path) -> None:
@@ -275,3 +368,307 @@ def test_discover_artifacts_can_filter_by_benchmark_type(tmp_path) -> None:
     assert json.loads(retrieval_only[0].read_text(encoding="utf-8")) == {
         "benchmark_type": "retrieval"
     }
+
+
+def test_publish_manifest_v2_layers_hash_inventory_onto_run_layout(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(
+        layout.summary_path, {"status": "completed", "execution_fingerprint": "d" * 64}
+    )
+    prediction = layout.run_dir / "predictions" / "two_phase" / "case_1.json"
+    prediction.parent.mkdir(parents=True)
+    prediction.write_text('{"hpo_id":"HP:0001250"}', encoding="utf-8")
+    identities = {
+        "dataset_identity": {"input_sha256": "a" * 64},
+        "prompt_identity": {"sha256": "b" * 64},
+        "execution_fingerprint": "d" * 64,
+        "scoring_fingerprint": "e" * 64,
+    }
+
+    manifest = publish_manifest_v2(
+        layout,
+        identities,
+        [
+            ArtifactEntry(layout.summary_path, "summary", "application/json"),
+            ArtifactEntry(prediction, "prediction", "application/json"),
+        ],
+    )
+
+    assert manifest["schema_version"] == 2
+    assert manifest["execution_fingerprint"] == "d" * 64
+    published_summary = layout.run_dir / manifest["artifacts"]["summary"]["path"]
+    assert published_summary.is_file()
+    assert manifest["artifacts"]["summary"]["path"].startswith(".generations/")
+    assert manifest["artifacts"]["summary"]["sha256"] == sha256_file(published_summary)
+    assert manifest["artifacts"]["prediction:predictions/two_phase/case_1.json"][
+        "sha256"
+    ] == sha256_file(prediction)
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
+        published_summary
+    ]
+
+
+def test_publish_manifest_v2_keeps_previous_generation_immutable(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.summary_path, {"generation": 1})
+    first = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    first_path = layout.run_dir / first["artifacts"]["summary"]["path"]
+
+    write_json(layout.summary_path, {"generation": 2})
+    second = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    second_path = layout.run_dir / second["artifacts"]["summary"]["path"]
+
+    assert first_path != second_path
+    assert json.loads(first_path.read_text(encoding="utf-8")) == {"generation": 1}
+    assert json.loads(second_path.read_text(encoding="utf-8")) == {"generation": 2}
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
+        second_path
+    ]
+
+    write_json(layout.summary_path, {"generation": 3})
+    third = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    third_path = layout.run_dir / third["artifacts"]["summary"]["path"]
+    generation_dirs = [
+        path for path in (layout.run_dir / ".generations").iterdir() if path.is_dir()
+    ]
+
+    assert not first_path.exists()
+    assert second_path.exists()
+    assert third_path.exists()
+    assert len(generation_dirs) == 2
+
+
+def test_publish_manifest_v2_supports_relative_results_root(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    layout = create_run_layout(Path("results"), "llm", "CSC", "model", run_id="run")
+    prediction = layout.run_dir / "predictions" / "two_phase" / "case.json"
+    trace = layout.run_dir / "traces" / "two_phase" / "case.json"
+    write_json(prediction, {"kind": "prediction"})
+    write_json(trace, {"kind": "trace"})
+
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [
+            ArtifactEntry(prediction, "prediction", "application/json"),
+            ArtifactEntry(trace, "trace", "application/json"),
+        ],
+    )
+
+    assert manifest["artifacts"]["llm_predictions"]["path"].endswith(
+        "predictions/two_phase"
+    )
+    assert manifest["artifacts"]["llm_traces"]["path"].endswith("traces/two_phase")
+
+
+def test_active_checkpoint_prefers_committed_generation(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.checkpoint_path, {"generation": 1})
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.checkpoint_path, "checkpoint", "application/json")],
+    )
+    committed = layout.run_dir / manifest["artifacts"]["checkpoint"]["path"]
+    write_json(layout.checkpoint_path, {"generation": 2})
+
+    assert active_checkpoint_path(layout) == committed
+    assert json.loads(active_checkpoint_path(layout).read_text(encoding="utf-8")) == {
+        "generation": 1
+    }
+
+
+def test_failed_generation_publish_preserves_current_manifest(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.summary_path, {"generation": 1})
+    publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    before = layout.manifest_path.read_bytes()
+
+    with pytest.raises(ValueError, match="not a file"):
+        publish_manifest_v2(
+            layout,
+            {},
+            [
+                ArtifactEntry(
+                    layout.run_dir / "missing.json", "summary", "application/json"
+                )
+            ],
+        )
+
+    assert layout.manifest_path.read_bytes() == before
+
+
+def test_publish_manifest_v2_retains_v1_singleton_role_aliases(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    files = {
+        "checkpoint": layout.checkpoint_path,
+        "term_results": layout.terms_path,
+        "case_results": layout.cases_path,
+        "chunk_diagnostics": layout.chunks_path,
+    }
+    for path in files.values():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}\n", encoding="utf-8")
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(path, role, "application/json") for role, path in files.items()],
+    )
+    for role, path in files.items():
+        assert manifest["artifacts"][role]["path"].startswith(".generations/")
+        assert manifest["artifacts"][role]["path"].endswith(
+            path.relative_to(layout.run_dir).as_posix()
+        )
+        assert manifest["artifacts"][role]["sha256"] == sha256_file(
+            layout.run_dir / manifest["artifacts"][role]["path"]
+        )
+        assert manifest["artifacts"][
+            f"{role}:{path.relative_to(layout.run_dir).as_posix()}"
+        ]["sha256"] == sha256_file(path)
+
+
+def test_publish_manifest_v2_rejects_inventory_outside_run(tmp_path) -> None:
+    layout = create_run_layout(tmp_path / "runs", "llm", "CSC", "model", run_id="run")
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="inside the run directory"):
+        publish_manifest_v2(
+            layout, {}, [ArtifactEntry(outside, "prediction", "application/json")]
+        )
+
+
+@pytest.mark.parametrize(
+    "reserved",
+    [
+        "schema_version",
+        "run_id",
+        "benchmark_type",
+        "dataset_name",
+        "model",
+        "artifacts",
+    ],
+)
+def test_publish_manifest_v2_rejects_reserved_top_level_metadata(
+    tmp_path, reserved
+) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    with pytest.raises(ValueError, match="reserved manifest keys"):
+        publish_manifest_v2(layout, {reserved: "override"}, [])
+
+
+def test_publish_manifest_v2_rejects_duplicate_singleton_roles(tmp_path) -> None:
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    first = layout.run_dir / "first.json"
+    second = layout.run_dir / "second.json"
+    first.write_text("{}", encoding="utf-8")
+    second.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="Duplicate singleton artifact role"):
+        publish_manifest_v2(
+            layout,
+            {},
+            [
+                ArtifactEntry(first, "summary", "application/json"),
+                ArtifactEntry(second, "summary", "application/json"),
+            ],
+        )
+
+
+def test_discover_artifacts_ignores_malformed_and_tampered_manifests(tmp_path) -> None:
+    malformed = tmp_path / "malformed" / "manifest.json"
+    malformed.parent.mkdir(parents=True)
+    malformed.write_text("[]", encoding="utf-8")
+
+    layout = create_run_layout(tmp_path, "llm", "CSC", "model", run_id="run")
+    write_json(layout.summary_path, {"status": "complete"})
+    manifest = publish_manifest_v2(
+        layout,
+        {},
+        [ArtifactEntry(layout.summary_path, "summary", "application/json")],
+    )
+    published = layout.run_dir / manifest["artifacts"]["summary"]["path"]
+    published.write_text('{"status":"tampered"}\n', encoding="utf-8")
+
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == []
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    [
+        "{",
+        "null",
+        "42",
+        json.dumps({"schema_version": 2, "artifacts": None}),
+        json.dumps({"schema_version": 2, "artifacts": []}),
+        json.dumps(
+            {
+                "schema_version": 2,
+                "artifacts": {"summary": "not-an-object"},
+            }
+        ),
+        json.dumps(
+            {
+                "schema_version": 2,
+                "artifacts": {
+                    "summary": {"role": "summary", "path": "../outside.json"}
+                },
+            }
+        ),
+    ],
+)
+def test_discovery_skips_each_malformed_manifest_but_keeps_valid_sibling(
+    tmp_path, malformed
+) -> None:
+    invalid_manifest = tmp_path / "invalid" / "manifest.json"
+    invalid_manifest.parent.mkdir()
+    invalid_manifest.write_text(malformed, encoding="utf-8")
+    valid = create_run_layout(tmp_path, "llm", "GeneReviews", "model", run_id="valid")
+    write_json(valid.summary_path, {"valid": True})
+    write_manifest(valid, {"status": "complete"})
+
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == [
+        valid.summary_path.resolve()
+    ]
+
+
+def test_discover_artifacts_rejects_absolute_and_parent_paths(tmp_path) -> None:
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}", encoding="utf-8")
+    for index, artifact_path in enumerate((str(outside.resolve()), "../outside.json")):
+        run = tmp_path / f"run-{index}"
+        run.mkdir()
+        (run / "manifest.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": 2,
+                    "benchmark_type": "llm",
+                    "artifacts": {
+                        "summary": {
+                            "role": "summary",
+                            "path": artifact_path,
+                            "sha256": sha256_file(outside),
+                        }
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    assert discover_artifacts(tmp_path, "summary", benchmark_type="llm") == []
