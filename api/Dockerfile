@@ -125,12 +125,24 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel to patched versions
+# - setuptools >= 83.0.0 fixes CVE-2026-59890 / PYSEC-2026-3447 (MANIFEST.in exclusion
+#   bypass in sdist via Unicode normalization collision)
 # - setuptools >= 78.1.1 fixes CVE-2025-47273 (path traversal/arbitrary file write)
 # - setuptools >= 70.0.0 fixes CVE-2024-6345 (path traversal) and CVE-2022-40897 (RCE)
 # - pip >= 24.1 fixes symbolic link extraction vulnerability
+#
+# The floor MUST name the patched release rather than an older one. `--upgrade` against
+# a low floor resolves to whatever is newest when BuildKit first materialises this layer,
+# and the registry build cache (`cache-from: type=registry,...:buildcache` in
+# docker-publish.yml) then replays that same layer verbatim on every later build. The
+# published API image rebuilt on 2026-09-02 still shipped setuptools 82.0.1 (released
+# 2026-03-09) for exactly this reason, while a fresh layer resolves 84.0.0. Naming the
+# patched floor makes the constraint binding, and editing this line busts the cached
+# layer. Keep it identical to the build-system and dev-group floors in pyproject.toml
+# (enforced by tests/unit/test_dependency_security_policy.py).
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade "pip>=24.1" "setuptools>=78.1.1" wheel
+    pip install --upgrade "pip>=24.1" "setuptools>=83.0.0" wheel
 
 WORKDIR /build
 

@@ -1,7 +1,9 @@
 """Policy checks for dependency vulnerability remediations."""
 
 import json
+import re
 import tomllib
+from collections.abc import Iterable
 from pathlib import Path
 
 import pytest
@@ -30,6 +32,27 @@ def _frontend_packages() -> dict[str, dict[str, object]]:
         (REPO_ROOT / "frontend" / "package-lock.json").read_text(encoding="utf-8")
     )
     return package_lock["packages"]
+
+
+_SETUPTOOLS_FLOOR = re.compile(r"setuptools>=(\d+(?:\.\d+)*)")
+
+
+def _setuptools_floor(requirements: Iterable[str]) -> Version:
+    """Lowest setuptools version accepted by the single pin in *requirements*."""
+    floors = [
+        Version(match.group(1))
+        for requirement in requirements
+        if (match := _SETUPTOOLS_FLOOR.search(requirement))
+    ]
+    assert len(floors) == 1, f"expected exactly one setuptools pin, found {floors}"
+    return floors[0]
+
+
+def _dockerfile_setuptools_floor() -> Version:
+    dockerfile = (REPO_ROOT / "api" / "Dockerfile").read_text(encoding="utf-8")
+    return _setuptools_floor(
+        line for line in dockerfile.splitlines() if "pip install" in line
+    )
 
 
 def test_chromadb_pinned_to_1x_for_bundle_compatibility() -> None:
@@ -192,3 +215,31 @@ def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:
         dependency.startswith("setuptools>=83.0.0") for dependency in dev_dependencies
     )
     assert packages["setuptools"] >= Version("83.0.0")
+
+
+def test_setuptools_floors_stay_aligned_across_build_backend_and_api_image() -> None:
+    """Every setuptools floor must match the patched dev-group floor.
+
+    CVE-2026-59890 (PYSEC-2026-3447 / GHSA-h35f-9h28-mq5c) is fixed in 83.0.0, and a
+    floor below that is not merely cosmetic. ``pip install --upgrade "setuptools>=..."``
+    in api/Dockerfile resolves to whatever release is newest when BuildKit materialises
+    that layer, and the registry build cache (``cache-from: type=registry,...:buildcache``
+    in docker-publish.yml) then replays the layer unchanged for months. A non-binding
+    floor therefore freezes whichever setuptools happened to be current into the
+    published image. Keeping the three floors identical makes the constraint binding,
+    and makes any future bump edit the Dockerfile line, which busts the cached layer.
+    """
+    patched = Version("83.0.0")
+    dev_floor = _setuptools_floor(_pyproject()["dependency-groups"]["dev"])
+    build_backend_floor = _setuptools_floor(_pyproject()["build-system"]["requires"])
+    api_image_floor = _dockerfile_setuptools_floor()
+
+    assert dev_floor >= patched, f"dev group floor {dev_floor} predates {patched}"
+    assert build_backend_floor == dev_floor, (
+        f"pyproject build-system floor {build_backend_floor} has drifted from the "
+        f"dev group floor {dev_floor}"
+    )
+    assert api_image_floor == dev_floor, (
+        f"api/Dockerfile floor {api_image_floor} has drifted from the dev group "
+        f"floor {dev_floor}"
+    )

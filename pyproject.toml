@@ -1,7 +1,10 @@
 # Initial pyproject.toml for Phentrieve
 
 [build-system]
-requires = ["setuptools>=82.0.1", "wheel"]
+# setuptools >= 83.0.0 is the CVE-2026-59890 / PYSEC-2026-3447 fixed release.
+# Keep this floor identical to the dev-group floor and the api/Dockerfile floor;
+# tests/unit/test_dependency_security_policy.py fails if they drift apart.
+requires = ["setuptools>=83.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
