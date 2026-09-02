@@ -49,22 +49,27 @@ def _docker_node_version() -> tuple[int, int, int] | None:
     return _parse_version(match.group(1))
 
 
-def test_frontend_package_specs_target_vite_8_and_vue_router_5_1() -> None:
+def test_frontend_package_specs_target_vite_8_and_vue_router_5() -> None:
+    """Both are pinned to a major line; minor updates flow via Dependabot."""
     package_json = _read_frontend_package_json()
     dependencies = package_json["dependencies"]
     dev_dependencies = package_json["devDependencies"]
 
-    assert dependencies["vue-router"].startswith("^5.1.")
+    assert dependencies["vue-router"].startswith("^5.")
     assert dev_dependencies["vite"].startswith("^8.")
 
 
-def test_frontend_lockfile_resolves_vite_8_and_vue_router_5_1() -> None:
+def test_frontend_lockfile_resolves_vite_8_and_vue_router_5() -> None:
     package_lock = _read_frontend_package_lock()
     packages = package_lock["packages"]
 
-    assert packages[""]["dependencies"]["vue-router"].startswith("^5.1.")
+    assert packages[""]["dependencies"]["vue-router"].startswith("^5.")
     assert packages[""]["devDependencies"]["vite"].startswith("^8.")
-    assert _parse_version(packages["node_modules/vue-router"]["version"]) >= (5, 1, 0)
+    assert (
+        (5, 1, 0)
+        <= _parse_version(packages["node_modules/vue-router"]["version"])
+        < (6, 0, 0)
+    )
     assert _parse_version(packages["node_modules/vite"]["version"]) >= (8, 0, 0)
     assert _parse_version(packages["node_modules/vite"]["version"]) < (9, 0, 0)
 

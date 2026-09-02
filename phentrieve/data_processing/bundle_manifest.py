@@ -31,7 +31,6 @@ MANIFEST_VERSION = "1.0.0"
 # Model slug mapping for shorter filenames
 MODEL_SLUGS: dict[str, str] = {
     "FremyCompany/BioLORD-2023-M": "biolord",
-    "jinaai/jina-embeddings-v2-base-de": "jina-de",
     "T-Systems-onsite/cross-en-de-roberta-sentence-transformer": "tsystems-ende",
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2": "mpnet-multi",
     "sentence-transformers/distiluse-base-multilingual-cased-v2": "distiluse-multi",

@@ -83,7 +83,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -136,7 +136,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -157,7 +157,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20.19'
           cache: 'npm'
@@ -301,12 +301,12 @@ jobs:
           #   fails with KeyError '_type'); 1.5.9 is the latest release and the
           #   advisory has no patched fix yet (see security.yml and the
           #   test_dependency_security_policy.py policy tests).
-          # - GHSA-29pf-2h5f-8g72 and GHSA-fgcw-684q-jj6r: Transformers 5.x
-          #   contains the fixes, but JinaBert's immutable remote implementation
-          #   cannot load under that major version. The data-release contract pins
-          #   both model and code commits. Remove before the next HPO data release
-          #   once JinaBert supports a patched Transformers release.
-          jq --argjson allowed_advisories '["GHSA-f4j7-r4q5-qw2c", "GHSA-29pf-2h5f-8g72", "GHSA-fgcw-684q-jj6r"]' '
+          # - GHSA-36p7-vc44-83pf, GHSA-2wm9-hf6c-p5cr, GHSA-xph7-9rjv-w5fr: chromadb
+          #   server-only advisories (HTTP /api/v2 endpoints, cross-tenant authz, and the
+          #   SimpleRBACAuthorizationProvider). Phentrieve uses the embedded
+          #   chromadb.PersistentClient exclusively and never starts the server, so none are
+          #   reachable. No patched 1.x release exists yet.
+          jq --argjson allowed_advisories '["GHSA-f4j7-r4q5-qw2c", "GHSA-36p7-vc44-83pf", "GHSA-2wm9-hf6c-p5cr", "GHSA-xph7-9rjv-w5fr"]' '
             [
               .[]
               | select(.change_type != "removed")

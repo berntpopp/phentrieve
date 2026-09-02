@@ -452,7 +452,7 @@
         "questions": {
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",
-            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li><li>Jina-v2-base-de: HR{'@'}1=0.2222, HR{'@'}3=0.4444, HR{'@'}5=0.5556</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
           },
           "similarityScore": {
             "question": "Was bedeuten die Ähnlichkeitswerte?",

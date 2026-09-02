@@ -96,9 +96,6 @@ async def get_phentrieve_info():
                 if "BioLORD" in model_id
                 else "Multilingual embedding model"
             )
-            if "jina" in model_id.lower():
-                description = "Language-specific embedding model (German)"
-
             embedding_models.append(
                 ModelInfo(
                     id=model_id,

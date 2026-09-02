@@ -384,7 +384,7 @@ def test_compare_models_basic_structure(mock_results_model_a, mock_results_model
         mock_results_model_a,
         mock_results_model_b,
         model_a_name="BioLORD",
-        model_b_name="Jina",
+        model_b_name="LaBSE",
         k_values=(1,),
         n_bootstrap=100,
     )
@@ -395,7 +395,7 @@ def test_compare_models_basic_structure(mock_results_model_a, mock_results_model
     assert "comparisons" in comparison
 
     assert comparison["model_a"] == "BioLORD"
-    assert comparison["model_b"] == "Jina"
+    assert comparison["model_b"] == "LaBSE"
 
 
 def test_compare_models_significance_detection(

@@ -127,7 +127,6 @@ Given a query $q$ and HPO term documents $D = \{d_1, d_2, ..., d_m\}$:
 
 **Models Used:**
 - `FremyCompany/BioLORD-2023-M` - Biomedical domain (default)
-- `jinaai/jina-embeddings-v2-base-de` - German specialized
 - `BAAI/bge-m3` - Multilingual general purpose
 
 **Usage in Phentrieve:**

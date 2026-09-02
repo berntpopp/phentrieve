@@ -114,7 +114,7 @@ PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
   {
     "available_embedding_models": [
       {"id": "FremyCompany/BioLORD-2023-M", "description": "Domain-specific biomedical model", "is_default": true},
-      {"id": "jinaai/jina-embeddings-v2-base-de", "description": "Language-specific embedding model (German)", "is_default": false}
+      {"id": "BAAI/bge-m3", "description": "Multilingual embedding model", "is_default": false}
     ],
     "default_embedding_model": "FremyCompany/BioLORD-2023-M",
     "default_parameters": {
