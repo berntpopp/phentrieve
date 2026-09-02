@@ -18,6 +18,40 @@ together:
 
 ## [Unreleased]
 
+## [0.28.1] — 2026-09-02 (CLI 0.28.1 / API 0.18.1 / Frontend 0.18.0)
+
+Security patch closing the last open Trivy code-scanning alert on the published
+API image. The frontend is unchanged.
+
+### Fixed
+
+- **setuptools floors pinned to the CVE-2026-59890 patched release (83.0.0).**
+  The published API image kept shipping setuptools 82.0.1 even when rebuilt,
+  because the `api/Dockerfile` `pip install --upgrade "setuptools>=78.1.1"`
+  floor was non-binding. It resolves to whatever release is newest when
+  BuildKit materialises that layer, and because the `RUN` string never changed,
+  the registry build cache replayed the layer verbatim and froze the original
+  resolution. The `pyproject.toml` `[build-system]` floor was ruled out as the
+  source: `pip install .` resolves it inside pip's isolated build environment
+  and never touches `/opt/venv`. CVE-2026-59890, PYSEC-2026-3447 and
+  GHSA-h35f-9h28-mq5c are aliases of a single advisory, so the dev-group floor
+  was already correct. All three floors now sit at `83.0.0`.
+
+### Added
+
+- **Floor-alignment policy test** in
+  `tests/unit/test_dependency_security_policy.py` ties the build-system floor
+  and the `api/Dockerfile` floor to the dev-group floor. They cannot drift
+  apart again, and any future bump must edit the Dockerfile line, which busts
+  the cached layer.
+- **Container base image audit** recorded in
+  `.planning/analysis/2026-09-02-setuptools-floor-drift-and-base-image-audit.md`.
+  No base image was bumped. The audit notes that Node 20 (end-of-life
+  2026-04-30) and Alpine 3.20 (end-of-life 2026-04-01) both back the frontend
+  build, that bumping Node would not change the scanner result because both
+  tags carry identical npm-bundled findings, and that both published images
+  currently scan clean because the Dockerfiles patch at build time.
+
 ## [0.28.0] — 2026-09-02 (CLI 0.28.0 / API 0.18.0 / Frontend 0.18.0)
 
 Dependency consolidation, the Transformers 5.x migration, and reproducible
