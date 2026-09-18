@@ -94,6 +94,10 @@ execution context.
 
 ## Current Specs
 
+- `specs/2026-09-18-hpo-v2026-09-01-r1-data-release-design.md` -
+  design specification for HPO `v2026-09-01-r1` data release, including exact
+  upstream SHA-256, active term (19,894) and multi-vector document (63,586)
+  counts, 8-model matrix, and RTX 5090 CUDA batch size 256 execution.
 - `specs/2026-07-20-benchmark-resume-integrity-design.md` - design for closing
   the adversarial PR #322 review: versioned execution/scoring/source identities,
   verified retrieval-runtime binding, canonical assertion projection, safe
@@ -133,6 +137,11 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-09-18-hpo-v2026-09-01-r1-data-release-plan.md` -
+  completed computation, verification, and publication plan for HPO
+  `v2026-09-01-r1` data release across all 8 retrieval models (17 bundles)
+  accelerated by the NVIDIA RTX 5090 GPU, and downstream integration into
+  Phentrieve.
 - `completed/2026-09-18-consolidated-dependabot-updates-plan.md` -
   consolidated dependency update closing Dependabot PRs #351 through #358
   and security alert #132 (CVE-2026-73295), resolving Vitest 5 peer dependency

@@ -66,6 +66,32 @@ def test_hpo_v2026_06_23_release_contract_has_complete_matrix():
     }
 
 
+def test_hpo_v2026_09_01_release_contract_has_complete_matrix():
+    """The v2026-09-01 release contract fixes updated counts and source digest."""
+    spec = make_spec(
+        release_tag="hpo-v2026-09-01-r1",
+        hpo_version="v2026-09-01",
+        hpo_release_date="2026-09-01",
+        hpo_source_url=(
+            "https://github.com/obophenotype/human-phenotype-ontology/"
+            "releases/download/v2026-09-01/hp.json"
+        ),
+        hpo_sha256="a7b3a012e7b4007a35a7cf8da35f2373b54cc16907f80d13d62470d31f833501",
+        phentrieve_version="0.28.2",
+        active_terms=19894,
+        multivector_documents=63586,
+    )
+
+    assert spec.hpo_version == "v2026-09-01"
+    assert (
+        spec.hpo_sha256
+        == "a7b3a012e7b4007a35a7cf8da35f2373b54cc16907f80d13d62470d31f833501"
+    )
+    assert len(spec.models) == 8
+    assert spec.expected_document_count("single_vector") == 19894
+    assert spec.expected_document_count("multi_vector") == 63586
+
+
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
