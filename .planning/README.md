@@ -133,6 +133,10 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-09-18-consolidated-dependabot-updates-plan.md` -
+  consolidated dependency update closing Dependabot PRs #351 through #358
+  and security alert #132 (CVE-2026-73295), resolving Vitest 5 peer dependency
+  deadlocks, Vite 8.3 native loader imports, and pip-audit security floors.
 - `completed/2026-07-20-benchmark-identity-review-remediation-plan.md` -
   completed test-first remediation of every adversarial and agentic review
   finding on PR #322, including runtime-faithful identities, verified retrieval

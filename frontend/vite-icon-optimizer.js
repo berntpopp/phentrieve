@@ -1,4 +1,4 @@
-import { usedIcons } from './src/plugins/icons';
+import { usedIcons } from './src/plugins/icons.js';
 
 export default function iconOptimizer() {
   return {
