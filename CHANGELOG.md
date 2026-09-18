@@ -18,6 +18,38 @@ together:
 
 ## [Unreleased]
 
+## [0.28.2] — 2026-09-18 (CLI 0.28.2 / API 0.18.2 / Frontend 0.18.1)
+
+Consolidated dependency and security updates across frontend, backend, and
+GitHub Actions tooling.
+
+### Fixed
+
+- **Vite 8.3 native config loader warnings:** Added explicit `.js` extensions to
+  local config imports in `frontend/vite.config.js` and `frontend/vite-icon-optimizer.js`.
+- **Security vulnerabilities in Python dependencies:**
+  - Bumped `mkdocs-material` from 9.7.6 to >=9.7.7, resolving CVE-2026-73295
+    (Dependabot alert #132).
+  - Pinned constraint `anyio>=4.14.2` in `tool.uv.constraint-dependencies` and
+    enforced via `tests/unit/test_dependency_security_policy.py`, resolving
+    CVE-2026-63374 / CVE-2026-64847.
+  - Added `types-cachetools>=5.5.0` to dev dependencies to satisfy type checking.
+
+### Changed
+
+- **Frontend & Dev Dependencies:**
+  - Upgraded `vitest`, `@vitest/coverage-v8`, and `@vitest/ui` to 5.0.1 in tandem,
+    resolving peer dependency deadlocks across split Dependabot PRs (#351, #352, #353).
+  - Configured `vitest-updates` group in `.github/dependabot.yml` to bundle future
+    Vitest ecosystem updates into a single PR.
+  - Upgraded `vite` to 8.3.0 (#356) and `vuetify` to 3.13.4 (#357).
+  - Upgraded minor/patch frontend dependencies (#358): `libphonenumber-js` (^1.13.13),
+    `vue-router` (^5.3.1), `autoprefixer` (^10.5.6), `eslint` (^10.10.0),
+    `eslint-plugin-vue` (^10.11.0), `happy-dom` (^20.14.3), `postcss` (^8.5.28).
+- **Backend & CI Tooling:**
+  - Expanded `fastmcp` requirement from `<4.0.0,>=3.2.0` to `>=3.2.0,<5.0.0` (#354).
+  - Updated `hadolint/hadolint-action` from 3.4.0 to 3.5.0 in `.github/workflows/docker-publish.yml` (#355).
+
 ## [0.28.1] — 2026-09-02 (CLI 0.28.1 / API 0.18.1 / Frontend 0.18.0)
 
 Security patch closing the last open Trivy code-scanning alert on the published
