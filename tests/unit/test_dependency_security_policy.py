@@ -178,6 +178,7 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "cryptography": Version("50.0.0"),  # GHSA-g6cj-pr64-35w5
         "pyasn1": Version("0.6.4"),  # GHSA-m4p7-r5rc-7g4j and friends
         "pymdown-extensions": Version("11.0.1"),  # GHSA-gm37-52c6-37mw
+        "anyio": Version("4.14.2"),  # CVE-2026-63374, CVE-2026-64847
     }
     for name, floor in expected.items():
         assert any(

@@ -7,7 +7,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 // vite-plugin-imagemin removed due to unmaintained status and 29+ security vulnerabilities
 // Images are served as-is; consider vite-imagetools for future optimization needs
-import iconOptimizer from './vite-icon-optimizer'
+import iconOptimizer from './vite-icon-optimizer.js'
 
 // Read version from package.json at build time
 const packageJson = JSON.parse(

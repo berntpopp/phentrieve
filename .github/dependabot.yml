@@ -72,6 +72,12 @@ updates:
           - "vue"
           - "vuetify"
           - "vite"
+          - "vitest*"
+          - "@vitest/*"
+      vitest-updates:
+        patterns:
+          - "vitest*"
+          - "@vitest/*"
     ignore:
       # Monitor but don't auto-update major framework versions
       - dependency-name: "vue"
