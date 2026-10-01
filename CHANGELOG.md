@@ -18,6 +18,39 @@ together:
 
 ## [Unreleased]
 
+## [0.28.3] — 2026-10-01 (CLI 0.28.3 / API 0.18.3 / Frontend 0.18.2)
+
+Consolidated Dependabot version updates and security fixes. No functional
+changes.
+
+### Fixed
+
+- **Security vulnerabilities in Python dependencies (Dependabot alerts #142-#163):**
+  - Raised the direct `urllib3` floor from 2.7.0 to `>=2.8.0`, resolving
+    GHSA-8988-9cw3-xx77, GHSA-vxq7-64xx-v4gw and GHSA-gh4c-6fx4-qh6g.
+  - Upgraded transitive `pyjwt` 2.13.0 -> 2.15.1 (via `mcp[crypto]`), resolving
+    GHSA-ffc3-869f-jxw9 (critical), GHSA-42vr-xj54-vc7v, GHSA-gvp8-978c-rx2q and
+    the remaining 2.14.0-fixed advisories.
+  - Upgraded transitive `oauthlib` 3.3.1 -> 4.0.0 (via `chromadb` ->
+    `kubernetes`), resolving GHSA-xpv3-w29h-x7cv and GHSA-hj66-6f7g-4r5v.
+  - Upgraded transitive dev-only `virtualenv` 21.3.3 -> 21.14.2 (via
+    `pre-commit`), resolving GHSA-p58f-9548-mpm2, GHSA-x78j-v8h9-3j2q,
+    GHSA-94p9-xgh2-xp45 and GHSA-9h9j-4vrj-gf7g.
+  - Pinned `pyjwt>=2.15.0`, `oauthlib>=4.0.0` and `virtualenv>=21.7.13` in
+    `tool.uv.constraint-dependencies` and enforced all four floors in
+    `tests/unit/test_dependency_security_policy.py`.
+- **Security vulnerabilities in frontend dev dependencies (Dependabot alerts
+  #139-#141):** upgraded transitive `brace-expansion` to 1.1.21, 2.1.7 and
+  5.0.12, resolving GHSA-q2hr-2g5m-vwhr.
+
+### Changed
+
+- **Frontend dependencies:** `vue` 3.5.43 (#362), `vite` 8.3.1 (#364),
+  `vuetify` 3.13.5 (#365), and the minor/patch group (#366):
+  `google-protobuf` (^4.0.3), `libphonenumber-js` (^1.13.14), `vue-i18n`
+  (^11.4.12), `@vitejs/plugin-vue` (^6.0.9), `@vue/test-utils` (^2.5.1),
+  `eslint` (^10.11.0), `eslint-plugin-vue` (^10.11.1), `prettier` (^3.9.9).
+
 ## [0.28.2] — 2026-09-18 (CLI 0.28.2 / API 0.18.2 / Frontend 0.18.1)
 
 Consolidated dependency and security updates across frontend, backend, and
