@@ -179,12 +179,23 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "pyasn1": Version("0.6.4"),  # GHSA-m4p7-r5rc-7g4j and friends
         "pymdown-extensions": Version("11.0.1"),  # GHSA-gm37-52c6-37mw
         "anyio": Version("4.14.2"),  # CVE-2026-63374, CVE-2026-64847
+        "pyjwt": Version("2.15.0"),  # GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v
+        "oauthlib": Version("4.0.0"),  # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v
+        "virtualenv": Version("21.7.13"),  # GHSA-p58f-9548-mpm2 and friends
     }
     for name, floor in expected.items():
         assert any(
             constraint.startswith(f"{name}>={floor}") for constraint in constraints
         ), f"missing constraint floor for {name}"
         assert packages[name] >= floor
+
+
+def test_urllib3_uses_the_patched_2_8_release() -> None:
+    """GHSA-8988-9cw3-xx77, GHSA-vxq7-64xx-v4gw and GHSA-gh4c-6fx4-qh6g are fixed in 2.8.0."""
+    dependencies = _pyproject()["project"]["dependencies"]
+
+    assert any(dependency.startswith("urllib3>=2.8.0") for dependency in dependencies)
+    assert _uv_packages()["urllib3"] >= Version("2.8.0")
 
 
 def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:

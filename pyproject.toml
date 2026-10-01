@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.28.2"
+version = "0.28.3"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -37,7 +37,7 @@ dependencies = [
     "transformers>=5.5.0,<6.0.0",           # Security: GHSA-29pf-2h5f-8g72 (5.3.0), GHSA-fgcw-684q-jj6r (5.5.0)
     "chromadb>=1.5.9,<2.0.0",               # 1.x required to read the published multi-vector data bundles (0.6.x cannot)
     "requests>=2.31.0",
-    "urllib3>=2.7.0",                        # Security: CVE fixes (GHSA-48p4-8xcf-vxj5, GHSA-pq67-6m6q-mj2v, PYSEC-2026-141, PYSEC-2026-142)
+    "urllib3>=2.8.0",                        # Security: CVE fixes (GHSA-8988-9cw3-xx77, GHSA-vxq7-64xx-v4gw, GHSA-gh4c-6fx4-qh6g)
     "pysbd>=0.3.4",
     "tqdm>=4.66.1",
     "pandas>=2.0.0",
@@ -117,6 +117,9 @@ constraint-dependencies = [
     "pymdown-extensions>=11.0.1",  # ReDoS (GHSA-gm37-52c6-37mw) + b64 path traversal (GHSA-9xwg-3r6f-jcx2)
     "pip>=26.2",                 # PYSEC-2026-3721; pulled in transitively by pip-audit
     "anyio>=4.14.2",             # CVE-2026-63374 / CVE-2026-64847 fixed release
+    "pyjwt>=2.15.0",             # alg/claim-verification bypasses (GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v, GHSA-gvp8-978c-rx2q); via mcp[crypto]
+    "oauthlib>=4.0.0",           # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v; via chromadb -> kubernetes
+    "virtualenv>=21.7.13",       # GHSA-p58f-9548-mpm2, GHSA-x78j-v8h9-3j2q, GHSA-94p9-xgh2-xp45; via pre-commit
 ]
 
 [tool.setuptools]
