@@ -29,6 +29,13 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-07-12-llm-benchmark-csc-gsc-f1-regression-check.md` -
+  investigated a suspected F1 regression after running `benchmark llm`
+  end-to-end on CSC/GSC (Llama 3.1 70B, Gemini 3.1 Flash Lite via
+  OpenRouter). No regression found: the recalled "~0.8" is the RAG-HPO
+  paper's own external number, and the one real prior baseline (Gemini/CSC
+  F1 0.724, 2026-05-25) is closely matched by the new run (F1 0.713).
+  Baseline for prompt `v3.1.0`.
 - `analysis/2026-09-02-setuptools-floor-drift-and-base-image-audit.md` - root cause
   of the single open Trivy alert (setuptools 82.0.1, CVE-2026-59890). The
   `pyproject.toml` build-system floor was disproved as the source: `pip install .`
