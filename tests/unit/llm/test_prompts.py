@@ -219,10 +219,61 @@ def test_grounded_phase1_prompt_uses_chunk_index_without_repeating_full_text() -
 
     assert "UNTRUSTED_CHUNK_INDEX_BEGIN" in rendered
     assert "UNTRUSTED_CHUNK_INDEX_END" in rendered
-    assert "UNTRUSTED_CLINICAL_TEXT_BEGIN" in rendered
-    assert "UNTRUSTED_CLINICAL_TEXT_END" in rendered
     assert "chunk_id=1" in rendered
     assert "FULL NOTE SENTINEL" not in rendered
+    # The chunk index is the note; an empty clinical-text block would tell the
+    # model the note is missing.
+    assert "UNTRUSTED_CLINICAL_TEXT_BEGIN" not in rendered
+    assert "UNTRUSTED_CLINICAL_TEXT_END" not in rendered
+
+
+def test_grouped_phase1_prompt_uses_group_chunk_index_only() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+
+    rendered = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="FULL NOTE SENTINEL",
+        grounded_chunks=[{"chunk_id": 2, "text": "no skeletal anomalies"}],
+        chunk_index_text="- chunk_id=2: no skeletal anomalies",
+    )
+
+    assert "UNTRUSTED_CHUNK_INDEX_BEGIN" in rendered
+    assert "chunk_id=2" in rendered
+    assert "FULL NOTE SENTINEL" not in rendered
+    assert "UNTRUSTED_CLINICAL_TEXT_BEGIN" not in rendered
+
+
+def test_two_phase_extraction_system_prompt_names_chunk_index_as_note_source() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+    system_prompt = template.render_system_prompt()
+
+    assert "full note" not in system_prompt.lower()
+    assert "chunk index" in system_prompt.lower()
+
+
+def test_grounded_user_prompt_falls_back_to_user_template_without_text() -> None:
+    template = loader.PromptTemplate(
+        system_prompt="system",
+        user_prompt_template="Chunks:\n{chunk_index}\nText:\n{text}",
+        mode="two_phase",
+    )
+
+    rendered = template.render_grounded_user_prompt(chunk_index="- chunk_id=1: x")
+
+    assert rendered == "Chunks:\n- chunk_id=1: x\nText:\n"
+
+
+def test_grounded_user_prompt_uses_dedicated_template_when_present() -> None:
+    template = loader.PromptTemplate(
+        system_prompt="system",
+        user_prompt_template="Chunks:\n{chunk_index}\nText:\n{text}",
+        grounded_user_prompt_template="Chunks only:\n{chunk_index}",
+        mode="two_phase",
+    )
+
+    rendered = template.render_grounded_user_prompt(chunk_index="- chunk_id=1: x")
+
+    assert rendered == "Chunks only:\n- chunk_id=1: x"
 
 
 def test_legacy_phase1_prompt_keeps_full_text_when_no_grounding() -> None:
