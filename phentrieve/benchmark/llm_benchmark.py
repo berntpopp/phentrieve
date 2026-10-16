@@ -251,6 +251,7 @@ def _build_grounded_chunks(
             "start_char": chunk.start_char,
             "end_char": chunk.end_char,
             "status": chunk.status,
+            "prompt_text": chunk.prompt_text,
         }
         for chunk in build_grounded_chunks_from_text_pipeline(
             text=text,
@@ -527,6 +528,7 @@ def run_llm_benchmark(
                                     start_char=chunk.get("start_char"),
                                     end_char=chunk.get("end_char"),
                                     status=str(chunk.get("status", "unknown")),
+                                    prompt_text=chunk.get("prompt_text"),
                                 )
                                 for chunk in grounded_chunks
                             ]

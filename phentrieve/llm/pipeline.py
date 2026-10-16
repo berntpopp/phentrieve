@@ -47,6 +47,9 @@ from phentrieve.llm.pipeline_phase1 import (
     normalized_evidence_text as _normalized_evidence_text,
 )
 from phentrieve.llm.pipeline_phase1 import (
+    phase1_chunk_text as _phase1_chunk_text,
+)
+from phentrieve.llm.pipeline_phase1 import (
     phase1_extraction_dedup_key as _phase1_extraction_dedup_key,
 )
 from phentrieve.llm.pipeline_phase1 import (
@@ -850,7 +853,7 @@ class TwoPhaseLLMPipeline:
         if not grounded_chunks:
             return "[]"
         return "\n".join(
-            f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+            f"- chunk_id={chunk['chunk_id']}: {_phase1_chunk_text(chunk)}"
             for chunk in grounded_chunks
         )
 
@@ -1409,6 +1412,7 @@ class TwoPhaseLLMPipeline:
                 start_char=chunk.get("start_char"),
                 end_char=chunk.get("end_char"),
                 status=str(chunk.get("status", "unknown")),
+                prompt_text=chunk.get("prompt_text"),
             )
             for chunk in grounded_chunks
         ]
