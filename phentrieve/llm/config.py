@@ -38,6 +38,14 @@ DEFAULT_QUERY_RESULTS_PER_PHRASE = 50
 DEFAULT_LLM_RETRIEVAL_BATCH_SIZE = 25
 DEFAULT_PHASE1_MAX_OUTPUT_TOKENS = DEFAULT_PROVIDER_MAX_TOKENS
 DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS = 65536
+# Grounded phase-1 output budget scales with the number of chunks in a request:
+# max(MIN, BASE + PER_CHUNK * chunks), capped at the MAX above. Completed
+# grounded phase-1 responses used at most ~112 output tokens per chunk and
+# ~5.3k tokens in total, so this leaves ample headroom while bounding the cost
+# of degenerate (runaway) generations that would otherwise run to the ceiling.
+DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS = 8192
+DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS = 1024
+DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK = 256
 DEFAULT_PHASE1_MAX_PHENOTYPES = 128
 DEFAULT_SIMILARITY_THRESHOLD = 0.35
 DEFAULT_MIN_UNIQUE_CANDIDATES = 5

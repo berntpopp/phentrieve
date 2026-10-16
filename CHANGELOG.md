@@ -20,6 +20,16 @@ together:
 
 ### Fixed
 
+- **Runaway phase-1 generations no longer burn the full output budget repeatedly**
+  ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate
+  response (e.g. a repeated `\n` escape inside `evidence_text`) previously ran to
+  the fixed 65,536-token ceiling, was retried identically and then re-sent as a
+  single large group, costing four maximal requests before small groups ran.
+  Grounded phase-1 requests now get a chunk-proportional output budget
+  (`max(8192, 1024 + 256 × chunks)`, capped at 65,536). Structured retries are
+  skipped when a response was truncated at a budget the retry cannot raise.
+  After such a truncation, `grouped_large` is skipped when it would resend all
+  chunks as one group, and extraction falls back directly to `grouped_small`.
 - **Grounded Phase-1 prompt no longer sends an empty clinical-text block.** In
   grounded and grouped extraction the chunk index is the note, but the user
   prompt still rendered an empty `UNTRUSTED_CLINICAL_TEXT` block while the system
