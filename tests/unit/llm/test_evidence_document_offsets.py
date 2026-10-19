@@ -102,6 +102,47 @@ def test_pipeline_replaces_model_counted_offsets_with_document_offsets():
     assert item["offset_basis"] == "evidence_in_chunk"
 
 
+def test_evidence_may_quote_the_text_cleanup_dropped_before_a_chunk():
+    # Chunk cleanup strips "Ein"; the phase-1 index shows it again (prompt_text),
+    # so the model quotes it.
+    document = "Vorstellung zur Routinekontrolle. Ein Asthma liegt nicht vor."
+    first = document.index("Vorstellung zur Routinekontrolle")
+    second = document.index("Asthma liegt nicht vor")
+    grounded_chunks = [
+        {
+            "chunk_id": 1,
+            "text": "Vorstellung zur Routinekontrolle",
+            "start_char": first,
+            "end_char": first + 32,
+            "prompt_text": None,
+        },
+        {
+            "chunk_id": 2,
+            "text": "Asthma liegt nicht vor",
+            "start_char": second,
+            "end_char": second + 22,
+            "prompt_text": "Ein Asthma liegt nicht vor",
+        },
+    ]
+    extracted = [
+        {
+            "phrase": "Asthma",
+            "evidence_text": "Ein Asthma liegt nicht vor",
+            "chunk_ids": [2],
+        }
+    ]
+
+    pipeline_module.TwoPhaseLLMPipeline._attach_document_offsets(
+        extracted, text=document, grounded_chunks=grounded_chunks
+    )
+
+    item = extracted[0]
+    assert (
+        document[item["start_char"] : item["end_char"]] == "Ein Asthma liegt nicht vor"
+    )
+    assert item["offset_basis"] == "evidence_in_chunk"
+
+
 def test_evidence_record_carries_the_offset_basis():
     item = {
         "phrase": "Bauchschmerzen",

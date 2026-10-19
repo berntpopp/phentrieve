@@ -1753,12 +1753,25 @@ class TwoPhaseLLMPipeline:
         text: str,
         grounded_chunks: list[dict[str, Any]],
     ) -> None:
-        """Replace model-reported offsets with document offsets of the evidence."""
-        chunk_spans = {
-            int(chunk["chunk_id"]): (int(chunk["start_char"]), int(chunk["end_char"]))
-            for chunk in grounded_chunks
-            if chunk.get("start_char") is not None and chunk.get("end_char") is not None
-        }
+        """Replace model-reported offsets with document offsets of the evidence.
+
+        A chunk whose phase-1 rendering carries the text that cleanup dropped
+        before it (``prompt_text``) is searched from the end of the previous
+        chunk, because the model may quote that text.
+        """
+        chunk_spans: dict[int, tuple[int, int]] = {}
+        previous_end = 0
+        for chunk in grounded_chunks:
+            start, end = chunk.get("start_char"), chunk.get("end_char")
+            if start is None or end is None:
+                continue
+            region_start = (
+                min(previous_end, int(start))
+                if chunk.get("prompt_text")
+                else int(start)
+            )
+            chunk_spans[int(chunk["chunk_id"])] = (region_start, int(end))
+            previous_end = max(previous_end, int(end))
         for item in extracted:
             located = locate_evidence(
                 text,
