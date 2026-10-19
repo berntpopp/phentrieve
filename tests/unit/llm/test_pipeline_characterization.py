@@ -119,6 +119,8 @@ def test_phase1_extraction_shape_preserves_grounding_fields() -> None:
             "start_char": 8,
             "end_char": 26,
             "experiencer": "proband",
+            # Not emitted by the model, so threaded as None like assertion.
+            "temporality": None,
             # The wire payload omitted assertion, so the parsed shape threads
             # None (unset) rather than the schema default "present"; the category
             # fallback re-engages downstream (B1).

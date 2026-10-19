@@ -342,6 +342,7 @@ def phenotype_from_candidate(
         evidence=item["phrase"],
         assertion=resolved_assertion,
         experiencer=resolved_experiencer,
+        temporality=item.get("temporality") or "unknown",
         negated_qualifier=(item.get("negated_qualifier") or None),
         # Derived-compat: store the category projected from the resolved axes,
         # not the raw legacy value (D3).
@@ -408,9 +409,9 @@ def select_candidate_ids(
 
 
 def deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
-    deduplicated: dict[tuple[str, str, str], LLMPhenotype] = {}
+    deduplicated: dict[tuple[str, str, str, str], LLMPhenotype] = {}
     for term in terms:
-        key = (term.term_id, term.experiencer, term.assertion)
+        key = (term.term_id, term.experiencer, term.assertion, term.temporality)
         if key not in deduplicated:
             deduplicated[key] = term
             continue

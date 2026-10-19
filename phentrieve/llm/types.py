@@ -61,8 +61,8 @@ class LLMPhenotype(BaseModel):
     # (LLM-1). Kept distinct from ``assertion`` so a proband finding and a
     # relative's mention of the same HPO id never collapse into one term.
     experiencer: str = "proband"
-    # When the finding applies: current | historical | unknown. Not produced
-    # by the current prompts, so it stays ``unknown``.
+    # When the finding applies: current | historical | unknown (``unknown``
+    # when the phase-1 model did not state it).
     temporality: str = "unknown"
     # The negated portion of an "X without Y" phrase (LLM-2): X is present and
     # only the qualifier Y is absent. None when the phrase is not partially
@@ -98,6 +98,10 @@ _ASSERTION_DESCRIPTION = (
     "word, a new clause or the end of the sentence; in 'X without Y', X is "
     "present and only Y is absent."
 )
+_TEMPORALITY_DESCRIPTION = (
+    "When the phenotype applies: 'current' (now or in the reported episode), "
+    "'historical' (only in the past and no longer present), or 'unknown'."
+)
 _NEGATED_QUALIFIER_DESCRIPTION = (
     "For an 'X without Y' phrase where X is present and only the qualifier Y is "
     "absent, the negated qualifier Y; otherwise null."
@@ -116,6 +120,9 @@ class LLMExtractedPhenotype(BaseModel):
     )
     assertion: Literal["present", "absent", "uncertain"] = Field(
         default="present", description=_ASSERTION_DESCRIPTION
+    )
+    temporality: Literal["current", "historical", "unknown"] = Field(
+        default="unknown", description=_TEMPORALITY_DESCRIPTION
     )
     negated_qualifier: str | None = Field(
         default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
@@ -145,6 +152,9 @@ class LLMGroundedExtractedPhenotype(BaseModel):
     )
     assertion: Literal["present", "absent", "uncertain"] = Field(
         default="present", description=_ASSERTION_DESCRIPTION
+    )
+    temporality: Literal["current", "historical", "unknown"] = Field(
+        default="unknown", description=_TEMPORALITY_DESCRIPTION
     )
     negated_qualifier: str | None = Field(
         default=None, description=_NEGATED_QUALIFIER_DESCRIPTION

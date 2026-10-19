@@ -964,6 +964,11 @@ class TwoPhaseLLMPipeline:
                     "start_char": getattr(phenotype, "start_char", None),
                     "end_char": getattr(phenotype, "end_char", None),
                     "experiencer": getattr(phenotype, "experiencer", None),
+                    "temporality": (
+                        phenotype.temporality
+                        if "temporality" in phenotype.model_fields_set
+                        else None
+                    ),
                     # Thread the model's assertion ONLY when the model actually
                     # emitted it. The wire schema declares assertion with a
                     # default of "present", so a category-only finding (e.g.
@@ -1658,6 +1663,7 @@ class TwoPhaseLLMPipeline:
             shared_result["offset_basis"] = item.get("offset_basis")
             shared_result["experiencer"] = item.get("experiencer")
             shared_result["assertion"] = item.get("assertion")
+            shared_result["temporality"] = item.get("temporality")
             shared_result["grounded_context"] = self._build_grounded_context(
                 item=item,
                 grounded_chunks=grounded_chunks,
@@ -1734,7 +1740,7 @@ class TwoPhaseLLMPipeline:
         # refuse the merge before any span/evidence heuristics run. This runs
         # BEFORE the B2 family partition, so collapsing here would silently drop
         # a co-located family or opposite-polarity mention.
-        for axis in ("experiencer", "assertion"):
+        for axis in ("experiencer", "assertion", "temporality"):
             if (
                 str(existing.get(axis) or "").strip().lower()
                 != str(incoming.get(axis) or "").strip().lower()

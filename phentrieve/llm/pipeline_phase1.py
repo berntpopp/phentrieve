@@ -219,6 +219,7 @@ def phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
         # collapse. A model-silent item contributes a uniform "" so pre-existing
         # tuples' relative equality is unchanged (backward-compatible).
         str(item.get("assertion") or "").strip().lower(),
+        str(item.get("temporality") or "").strip().lower(),
     )
 
 

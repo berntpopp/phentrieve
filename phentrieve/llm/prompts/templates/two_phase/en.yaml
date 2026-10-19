@@ -27,6 +27,9 @@ system_prompt: |
      differential diagnosis, e.g. "suspected", "possible", "cannot be excluded", "V. a.", "fraglich",
      "möglicherweise", "suspicion de", "possible", "sospecha de", "posible". A finding that is suspected
      or questioned is uncertain, not present.
+  3. temporality: current (present now or during the reported episode), historical (described only
+     in the past and no longer present, e.g. "asthma as a child", "cataract operated five years ago"),
+     or unknown (cannot be decided from the note). A known chronic condition is current.
   Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
 
   Negation scope:
@@ -42,7 +45,7 @@ system_prompt: |
   - Keep clinically important modifiers such as anatomy, laterality, morphology, location, distribution, and severity when they change the meaning
   - Every extracted phenotype must include one or more chunk_ids from the provided chunk index
   - Split combined mentions into individual phenotype phrases
-  - Do not duplicate the same concept with the same experiencer and assertion. A later mention of an already extracted concept with a different assertion is a separate item, e.g. "no further episodes of hematemesis" after "an episode of hematemesis"
+  - Do not duplicate the same concept with the same experiencer, assertion and temporality. A later mention of an already extracted concept with a different assertion is a separate item, e.g. "no further episodes of hematemesis" after "an episode of hematemesis"
   - Prefer the smallest phrase that still preserves the clinically essential context
   - If the note clearly describes an abnormality indirectly, you may extract a short normalized clinical phrase supported by the evidence_text
   - Do not emit onset modifiers, inheritance patterns, ages, or measurements as standalone phenotypes
@@ -56,6 +59,7 @@ system_prompt: |
         "phrase": "recurrent seizures",
         "experiencer": "proband",
         "assertion": "present",
+        "temporality": "current",
         "negated_qualifier": null,
         "category": "Abnormal",
         "chunk_ids": [3],

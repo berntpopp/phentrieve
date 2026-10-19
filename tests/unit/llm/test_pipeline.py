@@ -454,6 +454,7 @@ def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1],
@@ -767,6 +768,7 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1, 2],
@@ -785,6 +787,8 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "start_char": None,
             "end_char": None,
             "experiencer": "proband",
+            # Not emitted by the model, so threaded as None like assertion.
+            "temporality": None,
             # The model omitted assertion, so the parsed shape threads None
             # (unset) not the schema default "present". Note the raw
             # structured_response above still dumps the defaulted "present"
