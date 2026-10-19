@@ -92,13 +92,34 @@ def test_grounded_chunks_keep_cleaned_text_and_offsets(monkeypatch) -> None:
 def test_grounded_chunks_restore_stripped_leading_context(monkeypatch) -> None:
     chunks = _build(monkeypatch)
 
+    # Leading words that cleanup dropped, and the punctuation that follows a
+    # chunk in the source, so a coordinated list stays recognisable.
     assert [chunk.prompt_text for chunk in chunks] == [
-        "On examination",
+        "On examination,",
         "there were no plantar",
-        "or palmar pits",
+        "or palmar pits,",
         None,
-        "or macrocephaly",
-        "There was no hepatosplenomegaly",
+        "or macrocephaly.",
+        "There was no hepatosplenomegaly.",
+    ]
+
+
+def test_prompt_text_keeps_the_commas_of_a_negated_list() -> None:
+    from phentrieve.llm.preprocessing import _prompt_texts
+
+    text = "Kein Hinweis auf Asthma, Hypothyreose, Katarakt oder Kleinwuchs."
+    pieces = ["Asthma", "Hypothyreose", "Katarakt", "oder Kleinwuchs"]
+    chunks, position = [], 0
+    for piece in pieces:
+        start = text.index(piece, position)
+        position = start + len(piece)
+        chunks.append({"text": piece, "start_char": start, "end_char": position})
+
+    assert _prompt_texts(text, chunks) == [
+        "Kein Hinweis auf Asthma,",
+        "Hypothyreose,",
+        None,
+        "oder Kleinwuchs.",
     ]
 
 

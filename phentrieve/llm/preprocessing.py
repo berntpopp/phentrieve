@@ -57,23 +57,40 @@ def _render_group_text(chunks: list[GroundedChunk]) -> str:
     )
 
 
-def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
-    """Prefix each chunk with the source text dropped since the previous chunk.
+_SEPARATORS = " \t\r\n.,;:!?)]"
 
-    Chunk cleanup strips leading words such as "no"; the extraction prompt must
-    still show them. Separators at the start of the gap are not repeated.
+
+def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
+    """Render each chunk with the source text that cleanup removed around it.
+
+    Chunk cleanup strips leading words such as "no" and the separators between
+    chunks; the extraction prompt must still show them. A chunk is prefixed with
+    the words dropped since the previous chunk and followed by the punctuation
+    that follows it in the source, so a coordinated list split into several
+    chunks ("no A," / "B," / "or C.") stays recognisable (#375). Separators
+    are shown once, after the chunk they follow. ``None`` when nothing differs
+    from the cleaned chunk text.
     """
-    prompt_texts: list[str | None] = []
+    positioned = [
+        (index, chunk["start_char"], chunk["end_char"])
+        for index, chunk in enumerate(chunks)
+        if isinstance(chunk.get("start_char"), int)
+        and isinstance(chunk.get("end_char"), int)
+    ]
+    prompt_texts: list[str | None] = [None] * len(chunks)
     previous_end = 0
-    for chunk in chunks:
-        start_char = chunk.get("start_char")
-        end_char = chunk.get("end_char")
-        if not isinstance(start_char, int) or not isinstance(end_char, int):
-            prompt_texts.append(None)
-            continue
-        gap = text[min(previous_end, start_char) : start_char]
-        gap = gap.lstrip(" \t\r\n.,;:!?)]")
-        prompt_texts.append(f"{gap}{chunk.get('text', '')}" if gap else None)
+    for position, (index, start_char, end_char) in enumerate(positioned):
+        gap = text[min(previous_end, start_char) : start_char].lstrip(_SEPARATORS)
+        next_start = (
+            positioned[position + 1][1] if position + 1 < len(positioned) else len(text)
+        )
+        following = text[end_char : max(end_char, next_start)]
+        trailing = following[: len(following) - len(following.lstrip(_SEPARATORS))]
+        trailing = "".join(
+            character for character in trailing if not character.isspace()
+        )
+        if gap or trailing:
+            prompt_texts[index] = f"{gap}{chunks[index].get('text', '')}{trailing}"
         previous_end = max(previous_end, end_char)
     return prompt_texts
 

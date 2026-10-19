@@ -1796,26 +1796,38 @@ class TwoPhaseLLMPipeline:
     ) -> None:
         """Replace model-reported offsets with document offsets of the evidence.
 
-        A chunk whose phase-1 rendering carries the text that cleanup dropped
-        before it (``prompt_text``) is searched from the end of the previous
-        chunk, because the model may quote that text.
+        A chunk whose phase-1 rendering (``prompt_text``) carries the text that
+        cleanup dropped around it is searched from the end of the previous chunk
+        to the start of the next one, because the model may quote that text.
         """
+        positioned = [
+            (
+                int(chunk["chunk_id"]),
+                int(chunk["start_char"]),
+                int(chunk["end_char"]),
+                bool(chunk.get("prompt_text")),
+            )
+            for chunk in grounded_chunks
+            if chunk.get("start_char") is not None and chunk.get("end_char") is not None
+        ]
         chunk_spans: dict[int, tuple[int, int]] = {}
         search_spans: dict[int, tuple[int, int]] = {}
         previous_end = 0
-        for chunk in grounded_chunks:
-            start, end = chunk.get("start_char"), chunk.get("end_char")
-            if start is None or end is None:
-                continue
-            chunk_id = int(chunk["chunk_id"])
-            chunk_spans[chunk_id] = (int(start), int(end))
-            region_start = (
-                min(previous_end, int(start))
-                if chunk.get("prompt_text")
-                else int(start)
+        for position, (chunk_id, start, end, rendered) in enumerate(positioned):
+            chunk_spans[chunk_id] = (start, end)
+            next_start = (
+                positioned[position + 1][1]
+                if position + 1 < len(positioned)
+                else len(text)
             )
-            search_spans[chunk_id] = (region_start, int(end))
-            previous_end = max(previous_end, int(end))
+            # A rendered chunk also shows the text dropped before it and the
+            # punctuation after it, so its search region spans both gaps.
+            search_spans[chunk_id] = (
+                (min(previous_end, start), max(end, next_start))
+                if rendered
+                else (start, end)
+            )
+            previous_end = max(previous_end, end)
         for item in extracted:
             located = locate_evidence(
                 text,
