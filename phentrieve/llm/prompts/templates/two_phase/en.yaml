@@ -38,12 +38,12 @@ system_prompt: |
   - Keep clinically important modifiers such as anatomy, laterality, morphology, location, distribution, and severity when they change the meaning
   - Every extracted phenotype must include one or more chunk_ids from the provided chunk index
   - Split combined mentions into individual phenotype phrases
-  - Do not duplicate the same concept multiple times
+  - Do not duplicate the same concept with the same experiencer and assertion. A later mention of an already extracted concept with a different assertion is a separate item, e.g. "no further episodes of hematemesis" after "an episode of hematemesis"
   - Prefer the smallest phrase that still preserves the clinically essential context
   - If the note clearly describes an abnormality indirectly, you may extract a short normalized clinical phrase supported by the evidence_text
   - Do not emit onset modifiers, inheritance patterns, ages, or measurements as standalone phenotypes
   - Do not infer percentile- or threshold-based abnormalities from raw numbers alone unless the note itself indicates the abnormal interpretation
-  - Be exhaustive for present abnormalities
+  - Be exhaustive for present, absent and uncertain findings: extract every explicitly negated or uncertain phenotype as well, with its assertion
 
   Output JSON only:
   {
