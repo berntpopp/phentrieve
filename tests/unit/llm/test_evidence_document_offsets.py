@@ -64,6 +64,26 @@ def test_paraphrased_evidence_falls_back_to_the_cited_chunks():
     assert located.basis == "chunk_span"
 
 
+def test_fallback_covers_only_the_first_run_of_adjacent_cited_chunks():
+    # Chunks 1 and 3 are not adjacent; a hull over both would also cover
+    # chunk 2, which the model did not cite.
+    located = locate_evidence(DOCUMENT, "Meläna ... Submukosa", [1, 3], CHUNKS)
+
+    assert (located.start, located.end) == CHUNKS[1]
+    assert located.basis == "chunk_span"
+
+
+def test_fallback_uses_the_chunk_positions_not_the_search_region():
+    search_spans = {1: CHUNKS[1], 2: (CHUNKS[1][1], CHUNKS[2][1])}
+
+    located = locate_evidence(
+        DOCUMENT, "paraphrase", [2], CHUNKS, search_spans=search_spans
+    )
+
+    assert (located.start, located.end) == CHUNKS[2]
+    assert located.basis == "chunk_span"
+
+
 def test_evidence_outside_the_cited_chunks_is_not_taken():
     located = locate_evidence(DOCUMENT, "Bauchschmerzen", [2], CHUNKS)
 

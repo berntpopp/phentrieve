@@ -85,23 +85,34 @@ def locate_evidence(
     evidence_text: str | None,
     chunk_ids: Sequence[int],
     chunk_spans: Mapping[int, tuple[int, int]],
+    *,
+    search_spans: Mapping[int, tuple[int, int]] | None = None,
 ) -> EvidenceSpan:
     """Document span of one piece of evidence.
 
     Tried in order: the evidence inside one cited chunk (first in chunk-id
     order), inside the hull of all cited chunks (evidence that crosses chunk
-    borders), and finally the hull of the cited chunks themselves.
+    borders), and finally the first run of adjacent cited chunks themselves.
+    ``search_spans`` may widen a chunk's search region (for example by text
+    that cleanup dropped before it); the fallback always uses ``chunk_spans``.
     """
-    cited = [chunk_spans[c] for c in sorted(set(chunk_ids)) if c in chunk_spans]
-    if not cited:
+    search_spans = search_spans or chunk_spans
+    ids = [c for c in sorted(set(chunk_ids)) if c in chunk_spans]
+    if not ids:
         return EvidenceSpan(None, None, "unresolved")
-    hull = (min(s for s, _ in cited), max(e for _, e in cited))
     if evidence_text:
-        for start, end in cited:
+        regions = [search_spans.get(c, chunk_spans[c]) for c in ids]
+        for start, end in regions:
             found = _find(document, evidence_text, start, end)
             if found:
                 return EvidenceSpan(*found, "evidence_in_chunk")
+        hull = (min(s for s, _ in regions), max(e for _, e in regions))
         found = _find(document, evidence_text, *hull)
         if found:
             return EvidenceSpan(*found, "evidence_in_chunk_hull")
-    return EvidenceSpan(*hull, "chunk_span")
+    run = [ids[0]]
+    for chunk_id in ids[1:]:
+        if chunk_id != run[-1] + 1:
+            break
+        run.append(chunk_id)
+    return EvidenceSpan(chunk_spans[run[0]][0], chunk_spans[run[-1]][1], "chunk_span")

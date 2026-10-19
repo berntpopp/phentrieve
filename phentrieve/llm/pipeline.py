@@ -1760,17 +1760,20 @@ class TwoPhaseLLMPipeline:
         chunk, because the model may quote that text.
         """
         chunk_spans: dict[int, tuple[int, int]] = {}
+        search_spans: dict[int, tuple[int, int]] = {}
         previous_end = 0
         for chunk in grounded_chunks:
             start, end = chunk.get("start_char"), chunk.get("end_char")
             if start is None or end is None:
                 continue
+            chunk_id = int(chunk["chunk_id"])
+            chunk_spans[chunk_id] = (int(start), int(end))
             region_start = (
                 min(previous_end, int(start))
                 if chunk.get("prompt_text")
                 else int(start)
             )
-            chunk_spans[int(chunk["chunk_id"])] = (region_start, int(end))
+            search_spans[chunk_id] = (region_start, int(end))
             previous_end = max(previous_end, int(end))
         for item in extracted:
             located = locate_evidence(
@@ -1778,6 +1781,7 @@ class TwoPhaseLLMPipeline:
                 item.get("evidence_text"),
                 item.get("chunk_ids") or [],
                 chunk_spans,
+                search_spans=search_spans,
             )
             item["start_char"] = located.start
             item["end_char"] = located.end
