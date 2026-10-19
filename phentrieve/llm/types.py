@@ -161,8 +161,8 @@ class LLMGroundedExtractedPhenotype(BaseModel):
     )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
     chunk_ids: list[int] = Field(min_length=1)
-    start_char: int | None = None
-    end_char: int | None = None
+    # No character offsets: the pipeline locates evidence_text in the cited
+    # chunks (phentrieve.llm.evidence_offsets).
 
 
 class LLMGroundedExtractedPhenotypes(BaseModel):

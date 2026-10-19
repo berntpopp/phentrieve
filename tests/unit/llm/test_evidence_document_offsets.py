@@ -188,3 +188,12 @@ def test_terms_have_a_temporality_defaulting_to_unknown():
     term = LLMPhenotype(term_id="HP:0002027", label="Abdominal pain")
 
     assert term.temporality == "unknown"
+
+
+def test_phase1_schema_no_longer_asks_the_model_for_offsets():
+    from phentrieve.llm.types import LLMGroundedExtractedPhenotype
+
+    fields = LLMGroundedExtractedPhenotype.model_fields
+
+    assert "start_char" not in fields
+    assert "end_char" not in fields
