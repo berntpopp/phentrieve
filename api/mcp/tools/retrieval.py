@@ -178,6 +178,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
+            )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(
                     shaped.get("aggregated_hpo_terms", []), mode
@@ -187,6 +190,8 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 meta["truncated"] = trunc
             if family_trunc:
                 meta["family_history_findings_truncated"] = family_trunc
+            if other_trunc:
+                meta["other_person_findings_truncated"] = other_trunc
             _maybe_citation(meta, mode)
             shaped["_meta"] = meta
             return shaped
@@ -264,6 +269,9 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
+            )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(
                     shaped.get("aggregated_hpo_terms", []), mode
@@ -273,6 +281,8 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 meta["truncated"] = trunc
             if family_trunc:
                 meta["family_history_findings_truncated"] = family_trunc
+            if other_trunc:
+                meta["other_person_findings_truncated"] = other_trunc
             _maybe_citation(meta, mode)
             shaped["_meta"] = meta
             return shaped

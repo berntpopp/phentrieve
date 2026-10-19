@@ -66,6 +66,7 @@ def _build_aggregated_hpo_term(term: dict[str, Any]) -> AggregatedHPOTermAPI:
         confidence=term.get("confidence", 0.0),
         status=term.get("status", "unknown"),
         experiencer=term.get("experiencer"),
+        temporality=term.get("temporality"),
         excluded=bool(term.get("excluded", is_excluded(term.get("status", "")))),
         evidence_count=term.get("evidence_count", 0),
         source_chunk_ids=term.get("source_chunk_ids")
@@ -184,6 +185,11 @@ def adapt_shared_service_response_to_api(
         )
         if isinstance(term, dict)
     ]
+    other_person_findings = [
+        _build_aggregated_hpo_term(term)
+        for term in _coerce_response_items(service_result.get("other_person_findings"))
+        if isinstance(term, dict)
+    ]
 
     if standard_context is not None:
         meta.update(
@@ -208,6 +214,7 @@ def adapt_shared_service_response_to_api(
             "processed_chunks": processed_chunks,
             "aggregated_hpo_terms": aggregated_terms,
             "family_history_findings": family_history_findings,
+            "other_person_findings": other_person_findings,
         }
     )
 
@@ -219,6 +226,9 @@ def adapt_shared_service_response_to_api(
         # space, so give them the same dangling-chunk-ref sanity check (B2fix).
         validate_response_chunk_references(
             response.processed_chunks, response.family_history_findings
+        )
+        validate_response_chunk_references(
+            response.processed_chunks, response.other_person_findings
         )
 
     return response
