@@ -545,6 +545,89 @@ def test_llm_adaptation_drops_terms_without_valid_chunk_references() -> None:
     assert adapted == []
 
 
+_POSITIONED_CHUNKS = [
+    {"chunk_id": 1, "text": "Fever.", "start_char": 0, "end_char": 6},
+    {
+        "chunk_id": 2,
+        "text": "Patient had recurrent seizures.",
+        "start_char": 7,
+        "end_char": 38,
+    },
+]
+
+
+def _seizure_term(record: dict) -> SimpleNamespace:
+    return SimpleNamespace(
+        term_id="HP:0001250",
+        label="Seizure",
+        evidence="recurrent seizures",
+        assertion="present",
+        score=0.9,
+        confidence=0.9,
+        evidence_records=[record],
+    )
+
+
+def test_llm_text_attributions_convert_document_offsets_to_chunk_offsets() -> None:
+    # Evidence records carry document offsets; text attributions are relative
+    # to their chunk, and the frontend adds the chunk position itself.
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [2],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 19,
+                    "end_char": 37,
+                    "offset_basis": "evidence_in_chunk",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
+def test_llm_text_attributions_split_a_span_over_its_cited_chunks() -> None:
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1, 2],
+                    "evidence_text": "Fever. Patient had recurrent seizures.",
+                    "start_char": 0,
+                    "end_char": 38,
+                    "offset_basis": "evidence_in_chunk_hull",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 1,
+            "start_char": 0,
+            "end_char": 6,
+            "matched_text_in_chunk": "Fever.",
+        },
+        {
+            "chunk_id": 2,
+            "start_char": 0,
+            "end_char": 31,
+            "matched_text_in_chunk": "Patient had recurrent seizures.",
+        },
+    ]
+
+
 def test_llm_adaptation_trusts_llm_assertion_over_chunk_status() -> None:
     """LLM-2: the LLM assigns assertion per phrase (more precise than chunk-level
     NegEx). The coarse 'all source chunks negated -> negated' override is dropped

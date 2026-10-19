@@ -299,11 +299,7 @@ def _infer_text_attribution_offsets(
     *,
     chunk_text: str,
     matched_text: str | None,
-    start_char: Any,
-    end_char: Any,
 ) -> tuple[int | None, int | None]:
-    if isinstance(start_char, int) and isinstance(end_char, int):
-        return start_char, end_char
     if not matched_text:
         return None, None
 
@@ -313,29 +309,60 @@ def _infer_text_attribution_offsets(
     return start_idx, start_idx + len(matched_text)
 
 
+def _chunk_relative_span(
+    chunk: Mapping[str, Any], start_char: Any, end_char: Any
+) -> tuple[int, int] | None:
+    """Clip a document span to a chunk and make it relative to the chunk start."""
+    chunk_start, chunk_end = chunk.get("start_char"), chunk.get("end_char")
+    if not (
+        isinstance(start_char, int)
+        and isinstance(end_char, int)
+        and isinstance(chunk_start, int)
+        and isinstance(chunk_end, int)
+    ):
+        return None
+    start, end = max(start_char, chunk_start), min(end_char, chunk_end)
+    if start >= end:
+        return None
+    return start - chunk_start, end - chunk_start
+
+
 def _adapt_llm_text_attributions(
     evidence_records: list[Mapping[str, Any]],
     *,
-    chunk_text_by_id: Mapping[int, str],
+    chunk_by_id: Mapping[int, Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
     text_attributions: list[dict[str, Any]] = []
     seen: set[tuple[int, int | None, int | None, str | None]] = set()
-    valid_chunk_ids = set(chunk_text_by_id)
 
     for record in evidence_records:
         chunk_ids = [
             _coerce_chunk_id(chunk_id) for chunk_id in record.get("chunk_ids", [])
         ]
-        matched_text = record.get("evidence_text") or record.get("phrase")
+        record_start, record_end = record.get("start_char"), record.get("end_char")
         for chunk_id in chunk_ids:
-            if chunk_id is None or chunk_id not in valid_chunk_ids:
+            if chunk_id is None or chunk_id not in chunk_by_id:
                 continue
-            start_char, end_char = _infer_text_attribution_offsets(
-                chunk_text=chunk_text_by_id.get(chunk_id, ""),
-                matched_text=matched_text,
-                start_char=record.get("start_char"),
-                end_char=record.get("end_char"),
-            )
+            chunk = chunk_by_id[chunk_id]
+            chunk_text = str(chunk.get("text", ""))
+            matched_text = record.get("evidence_text") or record.get("phrase")
+            # Evidence records carry document offsets, while attributions are
+            # relative to their chunk (consumers add the chunk position).
+            start_char: int | None
+            end_char: int | None
+            span = _chunk_relative_span(chunk, record_start, record_end)
+            if span is not None:
+                start_char, end_char = span
+                matched_text = chunk_text[start_char:end_char]
+            elif isinstance(record_start, int) and isinstance(
+                chunk.get("start_char"), int
+            ):
+                # The evidence span lies outside this cited chunk.
+                continue
+            else:
+                start_char, end_char = _infer_text_attribution_offsets(
+                    chunk_text=chunk_text, matched_text=matched_text
+                )
             if start_char is None or end_char is None:
                 continue
             key = (
@@ -365,12 +392,12 @@ def _adapt_llm_aggregated_terms(
     grounded_chunks: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
     adapted_terms: list[dict[str, Any]] = []
-    chunk_text_by_id = {
-        chunk_id: str(chunk.get("text", ""))
+    chunk_by_id = {
+        chunk_id: chunk
         for chunk in grounded_chunks
         if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
     }
-    valid_chunk_ids = set(chunk_text_by_id)
+    valid_chunk_ids = set(chunk_by_id)
 
     for term in terms:
         evidence_records = [
@@ -420,7 +447,7 @@ def _adapt_llm_aggregated_terms(
             continue
         text_attributions = _adapt_llm_text_attributions(
             evidence_records,
-            chunk_text_by_id=chunk_text_by_id,
+            chunk_by_id=chunk_by_id,
         )
         top_evidence_chunk_id = None
         top_evidence_score = None
