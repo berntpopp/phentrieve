@@ -28,3 +28,18 @@ def test_prompt_keeps_a_later_mention_with_another_assertion() -> None:
 
     assert "with a different assertion" in prompt
     assert "Do not duplicate the same concept multiple times" not in prompt
+
+
+def test_prompt_defines_uncertain_with_cues_in_each_language() -> None:
+    prompt = _system_prompt()
+
+    assert "uncertain means" in prompt
+    for cue in (
+        "suspected",
+        "differential diagnosis",
+        "V. a.",
+        "fraglich",
+        "suspicion de",
+        "sospecha de",
+    ):
+        assert cue in prompt, cue

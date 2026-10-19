@@ -23,6 +23,10 @@ system_prompt: |
   Decide the category in two independent steps:
   1. experiencer: who the phenotype belongs to -- proband (the patient), family_history (a relative), or other (non-clinical metadata). Decide this FIRST, before deciding presence.
   2. assertion: whether it is present, absent, or uncertain in that experiencer.
+     uncertain means suspected, possible, probable, questionable, not yet confirmed, or part of a
+     differential diagnosis, e.g. "suspected", "possible", "cannot be excluded", "V. a.", "fraglich",
+     "möglicherweise", "suspicion de", "possible", "sospecha de", "posible". A finding that is suspected
+     or questioned is uncertain, not present.
   Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
 
   Negation scope:
