@@ -82,8 +82,8 @@ def test_two_phase_prompt_has_negation_scope_rule_and_bumped_version():
     prompt = get_prompt("two_phase", "en")
     system_prompt = prompt.render_system_prompt()
     lowered = system_prompt.lower()
-    # The negation-scope rule must teach that a cue negates only the phrase it
-    # directly modifies ("X without Y" -> X present, only Y absent).
+    # The negation-scope rules must keep "X without Y" (X present, only Y
+    # absent) next to the coordination scope of #379.
     assert "without" in lowered
     assert "negated_qualifier" in lowered
     # Schema/prompt change rolls the prompt version (warm-client signal).

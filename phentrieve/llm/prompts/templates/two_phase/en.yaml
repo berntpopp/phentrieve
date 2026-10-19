@@ -26,7 +26,9 @@ system_prompt: |
   Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
 
   Negation scope:
-  - A negation cue negates ONLY the noun phrase it directly modifies, not the whole sentence.
+  - A negation cue applies to every finding of the coordinated list it introduces: "no hepatomegaly or splenomegaly" -> both absent; "keine Hepatomegalie, Splenomegalie oder Aszites" -> all three absent.
+  - The list may continue over several chunk lines; the cue still applies to every item of the list.
+  - The scope ends at a contrast word (but, however, except, although; aber, jedoch, außer; mais, sauf; pero, excepto), at a new clause with its own verb, or at the end of the sentence: "no fever, but persistent cough" -> fever absent, cough present.
   - In "X without Y", X is present (Abnormal) and only Y is absent: keep X as the phenotype and set negated_qualifier to Y. Do NOT negate X.
   - Example: "severe intellectual disability without regression" -> phrase "severe intellectual disability", category Abnormal, negated_qualifier "regression".
   - "no family history of Z" is Family_History (a relative is mentioned), not a proband finding about Z.

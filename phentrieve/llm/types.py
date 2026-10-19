@@ -93,9 +93,10 @@ _EXPERIENCER_DESCRIPTION = (
     "otherwise 'proband'."
 )
 _ASSERTION_DESCRIPTION = (
-    "Whether the phenotype is present in the experiencer. A negation cue negates "
-    "only the noun phrase it directly modifies: in 'X without Y', X is present and "
-    "only Y is absent."
+    "Whether the phenotype is present in the experiencer. A negation cue applies "
+    "to every finding of the coordinated list it introduces, up to a contrast "
+    "word, a new clause or the end of the sentence; in 'X without Y', X is "
+    "present and only Y is absent."
 )
 _NEGATED_QUALIFIER_DESCRIPTION = (
     "For an 'X without Y' phrase where X is present and only the qualifier Y is "
