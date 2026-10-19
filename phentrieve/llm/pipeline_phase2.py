@@ -304,6 +304,7 @@ def phenotype_from_candidate(
         chunk_ids=list(item.get("chunk_ids", [])),
         start_char=item.get("start_char"),
         end_char=item.get("end_char"),
+        offset_basis=item.get("offset_basis"),
         match_method=match_method,
     )
     normalized_category = normalize_category(str(item.get("category", "")))

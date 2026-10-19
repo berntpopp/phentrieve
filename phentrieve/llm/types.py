@@ -61,6 +61,9 @@ class LLMPhenotype(BaseModel):
     # (LLM-1). Kept distinct from ``assertion`` so a proband finding and a
     # relative's mention of the same HPO id never collapse into one term.
     experiencer: str = "proband"
+    # When the finding applies: current | historical | unknown. Not produced
+    # by the current prompts, so it stays ``unknown``.
+    temporality: str = "unknown"
     # The negated portion of an "X without Y" phrase (LLM-2): X is present and
     # only the qualifier Y is absent. None when the phrase is not partially
     # negated.
@@ -159,8 +162,13 @@ class LLMPhenotypeEvidence(BaseModel):
     phrase: str
     evidence_text: str | None = None
     chunk_ids: list[int] = Field(default_factory=list)
+    # Character offsets in the source document, computed in code from the
+    # cited chunks (see ``phentrieve.llm.evidence_offsets``); ``offset_basis``
+    # records how: evidence_in_chunk | evidence_in_chunk_hull | chunk_span |
+    # unresolved.
     start_char: int | None = None
     end_char: int | None = None
+    offset_basis: str | None = None
     match_method: str = "unknown"
 
 

@@ -277,6 +277,7 @@ def test_run_llm_backend_adapts_grounded_chunks_and_text_attributions(mocker):
                     "chunk_ids": [1],
                     "start_char": 12,
                     "end_char": 30,
+                    "offset_basis": None,
                     "match_method": "local",
                 }
             ],
