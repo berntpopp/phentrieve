@@ -89,8 +89,8 @@ class LLMPhenotype(BaseModel):
 # ``negated_qualifier`` captures the negated portion of an "X without Y" phrase.
 _EXPERIENCER_DESCRIPTION = (
     "Decide FIRST, independently of presence: who the phenotype belongs to. "
-    "'family_history' for a relative, 'other' for non-clinical metadata, "
-    "otherwise 'proband'."
+    "'family_history' for a relative of the patient, 'other' for another person "
+    "who is not a relative (e.g. a neighbour or donor), otherwise 'proband'."
 )
 _ASSERTION_DESCRIPTION = (
     "Whether the phenotype is present in the experiencer. A negation cue applies "
@@ -216,6 +216,8 @@ class LLMPipelineConfig(BaseModel):
 class LLMExtractionResult(BaseModel):
     terms: list[LLMPhenotype] = Field(default_factory=list)
     family_history_findings: list[LLMPhenotype] = Field(default_factory=list)
+    # Findings of another person who is not a relative (experiencer ``other``).
+    other_person_findings: list[LLMPhenotype] = Field(default_factory=list)
     meta: LLMMeta
 
 

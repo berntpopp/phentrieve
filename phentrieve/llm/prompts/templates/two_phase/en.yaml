@@ -17,11 +17,11 @@ system_prompt: |
   - Abnormal: the phenotype is present in the patient
   - Normal: the phenotype is explicitly absent
   - Suspected: the phenotype is possible or uncertain
-  - Family_History: the phenotype belongs to a relative, not the patient
-  - Other: onset, inheritance, age, measurement, or other non-phenotype information
+  - Family_History: the phenotype belongs to a relative of the patient
+  - Other: the phenotype belongs to another person who is not a relative, or the phrase is onset, inheritance, age, measurement, or other non-phenotype information
 
   Decide the category in two independent steps:
-  1. experiencer: who the phenotype belongs to -- proband (the patient), family_history (a relative), or other (non-clinical metadata). Decide this FIRST, before deciding presence.
+  1. experiencer: who the phenotype belongs to -- proband (the patient), family_history (a relative), or other (another person who is not a relative, e.g. a neighbour, roommate, colleague or donor). Decide this FIRST, before deciding presence. Non-phenotype information (onset, inheritance, age, measurement) keeps experiencer proband and gets category Other.
   2. assertion: whether it is present, absent, or uncertain in that experiencer.
      uncertain means suspected, possible, probable, questionable, not yet confirmed, or part of a
      differential diagnosis, e.g. "suspected", "possible", "cannot be excluded", "V. a.", "fraglich",

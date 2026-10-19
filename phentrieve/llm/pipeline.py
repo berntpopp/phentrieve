@@ -415,8 +415,14 @@ class TwoPhaseLLMPipeline:
         # a family finding wearing a legacy Abnormal category that would
         # otherwise leak into the proband path).
         family_items: list[dict[str, Any]] = []
+        other_person_items: list[dict[str, Any]] = []
         proband_items: list[dict[str, Any]] = []
         for item in extracted:
+            # Another person who is not a relative: resolved like family
+            # findings, returned in ``other_person_findings``.
+            if str(item.get("experiencer") or "").strip().lower() == "other":
+                other_person_items.append(item)
+                continue
             is_family = (
                 str(item.get("experiencer") or "").strip().lower() == "family_history"
                 or _normalize_category(str(item.get("category", "")))
@@ -495,6 +501,7 @@ class TwoPhaseLLMPipeline:
                 and phase_counts["phase1_completed_groups"] > 0
             )
         resolved_family: list[LLMPhenotype] = []
+        resolved_other_person: list[LLMPhenotype] = []
         if actionable:
             # Proband path: merge the outcome into the CANONICAL meta keys so the
             # result stays byte-identical to the pre-B2 inline block. The gated
@@ -592,6 +599,31 @@ class TwoPhaseLLMPipeline:
                 family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
             trace["family"] = family_trace
 
+        if other_person_items:
+            other_outcome = self._resolve_items(
+                other_person_items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            resolved_other_person.extend(other_outcome.resolved)
+            prompt_tokens_total += other_outcome.prompt_tokens
+            completion_tokens_total += other_outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(
+                token_usage_total,
+                other_outcome.token_usage,
+            )
+            request_count_total += other_outcome.request_count
+            phase_counts["other_person_phrases"] = len(other_person_items)
+            phase_counts["other_person_resolved_phrases"] = len(other_outcome.resolved)
+            if other_outcome.mapping_ran:
+                phase_request_counts["other_person_phase2b_llm_requests"] = (
+                    other_outcome.phase2b_llm_requests
+                )
+            trace["other_person"] = {
+                "phase2a": other_outcome.phase2a_trace,
+                "phase2b_local": other_outcome.phase2b_local_trace,
+            }
+
         # B3: map each resolved proband finding's negated qualifier Y (the
         # absent portion of an "X without Y" phrase) to a GENERATED excluded
         # finding. Y is retrieved through the SAME retrieval path as any phrase;
@@ -613,6 +645,9 @@ class TwoPhaseLLMPipeline:
             ),
             family_history_findings=self._deduplicate_terms(
                 self._drop_non_phenotypic(resolved_family)
+            ),
+            other_person_findings=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_other_person)
             ),
             meta=LLMMeta(
                 llm_provider=config.provider,

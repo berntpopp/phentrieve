@@ -43,3 +43,19 @@ def test_prompt_defines_uncertain_with_cues_in_each_language() -> None:
         "sospecha de",
     ):
         assert cue in prompt, cue
+
+
+def test_prompt_defines_other_as_a_person_who_is_not_a_relative() -> None:
+    prompt = _system_prompt()
+
+    assert "another person who is not a relative" in prompt
+    assert "other (non-clinical metadata)" not in prompt
+
+
+def test_schema_describes_other_as_a_person_who_is_not_a_relative() -> None:
+    from phentrieve.llm.types import LLMGroundedExtractedPhenotype
+
+    description = LLMGroundedExtractedPhenotype.model_fields["experiencer"].description
+
+    assert "not a relative" in description
+    assert "metadata" not in description
