@@ -658,6 +658,141 @@ def test_ollama_structured_retry_does_not_expand_small_requested_budget(
     assert fake_http.requests[1]["json"]["options"]["num_predict"] == 1000
 
 
+@pytest.mark.parametrize(
+    ("finish_reason", "expected"),
+    [
+        ("max_output_tokens", True),
+        ("MAX_TOKENS", True),
+        ("FinishReason.MAX_TOKENS", True),
+        ("max_tokens", True),
+        ("length", True),
+        ("stop", False),
+        ("STOP", False),
+        ("completed", False),
+        ("end_turn", False),
+        ("refusal", False),
+        (None, False),
+    ],
+)
+def test_is_output_truncation_finish_reason_normalizes_provider_values(
+    finish_reason, expected
+) -> None:
+    from phentrieve.llm.providers.base import is_output_truncation_finish_reason
+
+    assert is_output_truncation_finish_reason(finish_reason) is expected
+
+
+def test_openai_does_not_repeat_identical_request_after_truncation_at_budget_cap(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        responses=[
+            _fake_openai_response(
+                output_text='{"phenotypes": [{"phrase": "plantar\\n\\n\\n',
+                finish_reason="max_output_tokens",
+                input_tokens=10,
+                output_tokens=65521,
+            ),
+            _fake_openai_response(
+                output_text='{"phenotypes":[]}',
+                input_tokens=10,
+                output_tokens=3,
+            ),
+        ],
+    )
+    provider = get_llm_provider(llm_provider="openai", llm_model="gpt-5.4-mini")
+
+    with pytest.raises(ValidationError):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+            max_output_tokens=65536,
+        )
+
+    assert len(fake_responses.create_calls) == 1
+    assert provider.last_request_count == 1
+    assert provider.last_usage["completion_tokens"] == 65521
+
+
+@pytest.mark.parametrize("finish_reason", ["MAX_TOKENS", "FinishReason.MAX_TOKENS"])
+def test_gemini_does_not_repeat_identical_request_after_truncation_at_budget_cap(
+    monkeypatch, finish_reason
+) -> None:
+    fake_models = _install_fake_google_genai(
+        monkeypatch,
+        [
+            _FakeResponse(
+                text='{"phenotypes":[{"phrase":"plantar\\n\\n\\n',
+                parsed=None,
+                finish_reason=finish_reason,
+                prompt_tokens=10,
+                completion_tokens=8192,
+                total_tokens=8202,
+            ),
+            _FakeResponse(
+                text='{"phenotypes":[]}',
+                parsed=None,
+                finish_reason="STOP",
+                prompt_tokens=10,
+                completion_tokens=3,
+                total_tokens=13,
+            ),
+        ],
+    )
+    provider = GeminiStructuredOutputProvider(
+        model_name="gemini-2.5-flash",
+        api_key="test-key",
+        structured_retries=1,
+    )
+
+    with pytest.raises(ValidationError):
+        provider.run_structured_prompt(
+            system_prompt="system",
+            user_prompt="user",
+            response_model=LLMExtractedPhenotypes,
+            max_output_tokens=8192,
+        )
+
+    assert len(fake_models.calls) == 1
+    assert provider.last_request_count == 1
+
+
+def test_openai_still_retries_non_truncated_invalid_json_at_budget_cap(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("PHENTRIEVE_OPENAI_API_KEY", "test-key")
+    fake_responses = _install_fake_openai(
+        monkeypatch,
+        responses=[
+            _fake_openai_response(
+                output_text='{"phenotypes": [',
+                finish_reason="stop",
+                input_tokens=10,
+                output_tokens=2,
+            ),
+            _fake_openai_response(
+                output_text='{"phenotypes":[]}',
+                input_tokens=10,
+                output_tokens=3,
+            ),
+        ],
+    )
+    provider = get_llm_provider(llm_provider="openai", llm_model="gpt-5.4-mini")
+
+    result = provider.run_structured_prompt(
+        system_prompt="system",
+        user_prompt="user",
+        response_model=LLMExtractedPhenotypes,
+        max_output_tokens=65536,
+    )
+
+    assert result.phenotypes == []
+    assert len(fake_responses.create_calls) == 2
+
+
 def test_ollama_structured_prompt_does_not_retry_plain_text_refusal(
     monkeypatch,
 ) -> None:

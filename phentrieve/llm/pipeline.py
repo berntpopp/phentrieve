@@ -8,7 +8,10 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from phentrieve.llm.config import (
+    DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS,
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+    DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS,
+    DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK,
     DEFAULT_LLM_LANGUAGE,
     DEFAULT_LLM_MAPPING_BATCH_SIZE,
     DEFAULT_LOCAL_MATCH_THRESHOLD,
@@ -122,6 +125,7 @@ from phentrieve.llm.prompts.loader import (
     get_prompt,
 )
 from phentrieve.llm.provider import ToolExecutor
+from phentrieve.llm.providers.base import is_output_truncation_finish_reason
 from phentrieve.llm.types import (
     AnnotationMode,
     GroundedChunk,
@@ -139,6 +143,18 @@ from phentrieve.llm.types import (
 from phentrieve.llm.utils import token_sort_similarity
 
 logger = logging.getLogger(__name__)
+
+
+def _grounded_phase1_output_token_budget(chunk_count: int) -> int:
+    """Output-token budget for one grounded phase-1 request with ``chunk_count`` chunks."""
+    proportional = (
+        DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS
+        + DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK * max(int(chunk_count), 0)
+    )
+    return min(
+        DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+        max(DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS, proportional),
+    )
 
 
 @dataclass
@@ -341,6 +357,14 @@ class TwoPhaseLLMPipeline:
                     next_mode=next_mode,
                 ):
                     assert next_mode is not None
+                    if next_mode == "grouped_large" and exc.output_truncated:
+                        next_mode, current_extraction_groups = (
+                            self._plan_grouped_large_after_truncation(
+                                text=text,
+                                grounded_chunks=current_grounded_chunks,
+                                extraction_prompt=extraction_prompt,
+                            )
+                        )
                     phase1_fallback_count += 1
                     current_phase1_mode = next_mode
                     continue
@@ -846,7 +870,7 @@ class TwoPhaseLLMPipeline:
             chunk_index_text=chunk_index_text,
         )
         max_output_tokens = (
-            DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+            _grounded_phase1_output_token_budget(len(grounded_chunks))
             if grounded_chunks or chunk_index_text is not None
             else DEFAULT_PHASE1_MAX_OUTPUT_TOKENS
         )
@@ -871,12 +895,16 @@ class TwoPhaseLLMPipeline:
             )
         except Exception as exc:
             logger.exception("Phase 1 structured extraction failed")
-            raise LLMPipelinePhaseError(
+            phase_error = LLMPipelinePhaseError(
                 "phase1",
                 "Structured extraction failed",
                 usage=dict(getattr(self.provider, "last_usage", {}) or {}),
                 request_count=int(getattr(self.provider, "last_request_count", 0) or 0),
-            ) from exc
+            )
+            phase_error.output_truncated = is_output_truncation_finish_reason(
+                getattr(self.provider, "last_finish_reason", None)
+            )
+            raise phase_error from exc
 
         usage = dict(getattr(self.provider, "last_usage", {}) or {})
         request_count = int(getattr(self.provider, "last_request_count", 0) or 0)
@@ -1333,6 +1361,37 @@ class TwoPhaseLLMPipeline:
             "structured_json_invalid",
             "structured_schema_validation_failed",
         }
+
+    def _plan_grouped_large_after_truncation(
+        self,
+        *,
+        text: str,
+        grounded_chunks: list[dict[str, Any]],
+        extraction_prompt: PromptTemplate,
+    ) -> tuple[Phase1Mode, list[dict[str, Any]]]:
+        """Choose the fallback after an ungrouped request ran out of output budget.
+
+        A single large group holding every chunk re-sends essentially the same
+        request (only the list rendering differs), so it would repeat the
+        truncated generation. In that case go straight to small groups.
+        """
+        try:
+            large_groups = self._build_large_extraction_groups(
+                text=text,
+                grounded_chunks=grounded_chunks,
+                extraction_prompt=extraction_prompt,
+            )
+        except Exception:
+            # Let the regular grouped_large path build and report the failure.
+            return "grouped_large", []
+        if len(large_groups) <= 1:
+            logger.warning(
+                "Phase 1 output truncated; skipping grouped_large because it "
+                "would resend all %d chunks as one group",
+                len(grounded_chunks),
+            )
+            return "grouped_small", []
+        return "grouped_large", large_groups
 
     def _build_large_extraction_groups(
         self,

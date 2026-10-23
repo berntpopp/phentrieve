@@ -80,6 +80,7 @@ class FakeProvider(LLMProvider):
         if "exception" in response:
             self.last_usage = response.get("usage") or {}
             self.last_request_count = response.get("request_count", 1)
+            self.last_finish_reason = response.get("finish_reason")
             raise response["exception"]
         self.last_usage = response.get("usage") or {
             "prompt_tokens": 10,
@@ -1663,6 +1664,142 @@ def test_pipeline_chains_phase1_fallback_from_ungrouped_to_grouped_large_to_grou
     assert result.meta.phase_counts["phase1_failed_groups"] == 2
     assert result.meta.phase_counts["phase1_partial_failures"] == 1
     assert result.meta.phase_request_counts["phase1_requests"] == 6
+
+
+@pytest.mark.parametrize(
+    ("chunk_count", "expected_budget"),
+    [
+        (1, 8192),
+        (17, 8192),
+        (100, 26624),
+        (300, 65536),
+    ],
+)
+def test_grounded_phase1_output_budget_scales_with_chunk_count(
+    chunk_count, expected_budget
+) -> None:
+    provider = FakeProvider(responses=[{"parsed": {"phenotypes": []}}])
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline.run(
+        text="Clinical note.",
+        grounded_chunks=[
+            {"chunk_id": index, "text": f"Chunk {index}."}
+            for index in range(1, chunk_count + 1)
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert provider.structured_calls[0]["max_output_tokens"] == expected_budget
+
+
+def test_pipeline_skips_single_group_grouped_large_after_output_truncation(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS",
+        1,
+    )
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError(
+                    "Invalid JSON: EOF while parsing a string at line 27"
+                ),
+                "finish_reason": "max_output_tokens",
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Opening. Middle. Closing.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Middle sentence."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    phase1_trace = result.meta.trace["phase1"]
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_small",
+    ]
+    assert phase1_trace["final_mode"] == "grouped_small"
+    assert phase1_trace["failure_class"] == "structured_json_invalid"
+    assert result.meta.phase_counts["phase1_fallbacks"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 4
+
+
+def test_pipeline_keeps_multi_group_grouped_large_after_output_truncation(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS",
+        21,
+    )
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("Invalid JSON: EOF while parsing a string"),
+                "finish_reason": "max_output_tokens",
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Opening. Middle. Closing.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Middle sentence."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    phase1_trace = result.meta.trace["phase1"]
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_large",
+    ]
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][1]["groups"]
+    ] == [[1, 2], [2, 3]]
+    assert result.meta.phase_request_counts["phase1_requests"] == 3
 
 
 def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
