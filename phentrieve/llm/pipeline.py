@@ -27,6 +27,7 @@ from phentrieve.llm.config import (
     NEGATED_ASSERTION,
     PRESENT_ASSERTION,
 )
+from phentrieve.llm.evidence_offsets import locate_evidence
 from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
@@ -398,6 +399,11 @@ class TwoPhaseLLMPipeline:
         )
         extracted = self._deduplicate_phase1_extractions(
             _expand_combined_phase1_extractions(extracted)
+        )
+        # After deduplication, so the set of findings is unchanged; only their
+        # spans become document offsets.
+        self._attach_document_offsets(
+            extracted, text=text, grounded_chunks=grounded_chunks
         )
         # B2 partition: split family-experiencer phrases out of the proband set
         # BEFORE the actionable filter. A single-pass split by predicate avoids
@@ -1614,6 +1620,7 @@ class TwoPhaseLLMPipeline:
             shared_result["negated_qualifier"] = item.get("negated_qualifier")
             shared_result["start_char"] = item.get("start_char")
             shared_result["end_char"] = item.get("end_char")
+            shared_result["offset_basis"] = item.get("offset_basis")
             shared_result["experiencer"] = item.get("experiencer")
             shared_result["assertion"] = item.get("assertion")
             shared_result["grounded_context"] = self._build_grounded_context(
@@ -1738,6 +1745,48 @@ class TwoPhaseLLMPipeline:
             or existing_evidence in incoming_evidence
             or incoming_evidence in existing_evidence
         )
+
+    @staticmethod
+    def _attach_document_offsets(
+        extracted: list[dict[str, Any]],
+        *,
+        text: str,
+        grounded_chunks: list[dict[str, Any]],
+    ) -> None:
+        """Replace model-reported offsets with document offsets of the evidence.
+
+        A chunk whose phase-1 rendering carries the text that cleanup dropped
+        before it (``prompt_text``) is searched from the end of the previous
+        chunk, because the model may quote that text.
+        """
+        chunk_spans: dict[int, tuple[int, int]] = {}
+        search_spans: dict[int, tuple[int, int]] = {}
+        previous_end = 0
+        for chunk in grounded_chunks:
+            start, end = chunk.get("start_char"), chunk.get("end_char")
+            # Unlocated chunks carry -1 positions from the text pipeline.
+            if start is None or end is None or not 0 <= int(start) <= int(end):
+                continue
+            chunk_id = int(chunk["chunk_id"])
+            chunk_spans[chunk_id] = (int(start), int(end))
+            region_start = (
+                min(previous_end, int(start))
+                if chunk.get("prompt_text")
+                else int(start)
+            )
+            search_spans[chunk_id] = (region_start, int(end))
+            previous_end = max(previous_end, int(end))
+        for item in extracted:
+            located = locate_evidence(
+                text,
+                item.get("evidence_text"),
+                item.get("chunk_ids") or [],
+                chunk_spans,
+                search_spans=search_spans,
+            )
+            item["start_char"] = located.start
+            item["end_char"] = located.end
+            item["offset_basis"] = located.basis
 
     @staticmethod
     def _merge_phase1_extraction(

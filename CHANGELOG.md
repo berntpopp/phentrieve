@@ -20,6 +20,18 @@ together:
 
 ### Fixed
 
+- **LLM evidence offsets are computed in code from the cited chunks.** The
+  model reported `start_char`/`end_char` relative to a chunk, so evidence spans
+  did not point into the document. The pipeline now locates `evidence_text`
+  inside the cited chunks (tolerating typography, whitespace, letter case and
+  Unicode composition) and records how the span was found in a new
+  `offset_basis` (`evidence_in_chunk`, `evidence_in_chunk_hull`, `chunk_span`,
+  `unresolved`). A hull search only spans runs of adjacent cited chunks, and
+  chunks the text pipeline could not locate (`-1` positions) are ignored. The
+  full-text adapter maps the document offsets into each chunk's cleaned text for
+  `text_attributions`. Paraphrased evidence now gets a whole-chunk attribution
+  (`chunk_span`) where it previously had none.
+
 - **Grounded phase-1 extraction sees negation cues that chunk cleanup removed**
   ([#375](https://github.com/berntpopp/phentrieve/issues/375)). `FinalChunkCleaner`
   strips leading words such as `no`/`not`, and assertion detection is disabled
