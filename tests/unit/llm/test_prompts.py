@@ -291,6 +291,31 @@ def test_legacy_phase1_prompt_keeps_full_text_when_no_grounding() -> None:
     assert "[]" in rendered
 
 
+def test_phase1_system_prompt_fits_legacy_and_grounded_inputs() -> None:
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+    system_prompt = " ".join(template.system_prompt.lower().split())
+
+    # Legacy whole-document requests carry the note in a clinical text block
+    # with an empty chunk index, so the system prompt must not claim the chunk
+    # index is the only note source.
+    assert "which is provided as a chunk index" not in system_prompt
+    assert "or as a clinical text block when the chunk index is empty" in system_prompt
+
+    legacy = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="FULL NOTE SENTINEL",
+        grounded_chunks=[],
+    )
+    grounded = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text="",
+        grounded_chunks=[{"chunk_id": 1, "text": "Patient has seizures."}],
+    )
+    assert "UNTRUSTED_CLINICAL_TEXT_BEGIN" in legacy
+    assert "UNTRUSTED_CLINICAL_TEXT_BEGIN" not in grounded
+    assert "chunk_id=1: Patient has seizures." in grounded
+
+
 def test_two_phase_phase1_prompt_marks_untrusted_data_boundaries() -> None:
     template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
     rendered = template.render_user_prompt(
