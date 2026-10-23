@@ -454,11 +454,10 @@ def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1],
-                "start_char": None,
-                "end_char": None,
             }
         ]
     }
@@ -767,11 +766,10 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1, 2],
-                "start_char": None,
-                "end_char": None,
             }
         ]
     }
@@ -785,6 +783,8 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "start_char": None,
             "end_char": None,
             "experiencer": "proband",
+            # Not emitted by the model, so threaded as None like assertion.
+            "temporality": None,
             # The model omitted assertion, so the parsed shape threads None
             # (unset) not the schema default "present". Note the raw
             # structured_response above still dumps the defaulted "present"
@@ -1195,96 +1195,6 @@ def test_grouped_mentions_deduplicate_before_retrieval() -> None:
                 ),
             ],
         )
-    ]
-
-
-def test_grouped_phase1_keeps_far_apart_mentions_separate() -> None:
-    provider = FakeProvider(
-        responses=[
-            {
-                "parsed": {
-                    "phenotypes": [
-                        {
-                            "phrase": "recurrent seizures",
-                            "category": "Abnormal",
-                            "chunk_ids": [1, 2],
-                            "evidence_text": "recurrent seizures",
-                            "start_char": 12,
-                            "end_char": 30,
-                        }
-                    ]
-                }
-            },
-            {
-                "parsed": {
-                    "phenotypes": [
-                        {
-                            "phrase": "recurrent seizures",
-                            "category": "Abnormal",
-                            "chunk_ids": [2, 3],
-                            "evidence_text": "recurrent seizures",
-                            "start_char": 112,
-                            "end_char": 130,
-                        }
-                    ]
-                }
-            },
-        ]
-    )
-    tool_executor = FakeToolExecutor(
-        batch_results=[
-            {
-                "phrase": "recurrent seizures",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0001250",
-                        "term_name": "Recurrent seizures",
-                        "score": 0.95,
-                    }
-                ],
-            }
-        ]
-    )
-    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
-
-    result = pipeline.run(
-        text="Patient had recurrent seizures twice in the note.",
-        grounded_chunks=[
-            {"chunk_id": 1, "text": "Patient had recurrent"},
-            {"chunk_id": 2, "text": "recurrent seizures"},
-            {"chunk_id": 3, "text": "seizures twice in the note."},
-        ],
-        extraction_groups=[
-            {
-                "group_id": 1,
-                "chunk_ids": [1, 2],
-                "text": "chunk_id=1: Patient had recurrent\nchunk_id=2: recurrent seizures",
-            },
-            {
-                "group_id": 2,
-                "chunk_ids": [2, 3],
-                "text": "chunk_id=2: recurrent seizures\nchunk_id=3: seizures twice in the note.",
-            },
-        ],
-        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
-    )
-
-    assert result.meta.phase_counts["extracted_phrases"] == 2
-    assert result.meta.trace["phase1"]["extracted"] == [
-        {
-            "phrase": "recurrent seizures",
-            "category": "abnormal",
-            "chunk_ids": [1, 2],
-            "evidence_text": "recurrent seizures",
-            "actionable": True,
-        },
-        {
-            "phrase": "recurrent seizures",
-            "category": "abnormal",
-            "chunk_ids": [2, 3],
-            "evidence_text": "recurrent seizures",
-            "actionable": True,
-        },
     ]
 
 

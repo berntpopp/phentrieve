@@ -2130,11 +2130,11 @@ def test_structured_prompt_schema_preserves_nullable_optional_field_types(
     evidence_text_schema = schema["properties"]["phenotypes"]["items"]["properties"][
         "evidence_text"
     ]
-    start_char_schema = schema["properties"]["phenotypes"]["items"]["properties"][
-        "start_char"
-    ]
+    negated_qualifier_schema = schema["properties"]["phenotypes"]["items"][
+        "properties"
+    ]["negated_qualifier"]
     assert evidence_text_schema["anyOf"] == [{"type": "string"}, {"type": "null"}]
-    assert start_char_schema["anyOf"] == [{"type": "integer"}, {"type": "null"}]
+    assert negated_qualifier_schema["anyOf"] == [{"type": "string"}, {"type": "null"}]
 
 
 def test_structured_prompt_accepts_long_phrase_when_served_schema_is_relaxed(

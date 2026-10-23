@@ -93,13 +93,34 @@ def test_grounded_chunks_keep_cleaned_text_and_offsets(monkeypatch) -> None:
 def test_grounded_chunks_restore_stripped_leading_context(monkeypatch) -> None:
     chunks = _build(monkeypatch)
 
+    # Leading words that cleanup dropped, and the punctuation that follows a
+    # chunk in the source, so a coordinated list stays recognisable.
     assert [chunk.prompt_text for chunk in chunks] == [
-        "On examination",
+        "On examination,",
         "there were no plantar",
-        "or palmar pits",
+        "or palmar pits,",
         None,
-        "or macrocephaly",
-        "There was no hepatosplenomegaly",
+        "or macrocephaly.",
+        "There was no hepatosplenomegaly.",
+    ]
+
+
+def test_prompt_text_keeps_the_commas_of_a_negated_list() -> None:
+    from phentrieve.llm.preprocessing import _prompt_texts
+
+    text = "Kein Hinweis auf Asthma, Hypothyreose, Katarakt oder Kleinwuchs."
+    pieces = ["Asthma", "Hypothyreose", "Katarakt", "oder Kleinwuchs"]
+    chunks, position = [], 0
+    for piece in pieces:
+        start = text.index(piece, position)
+        position = start + len(piece)
+        chunks.append({"text": piece, "start_char": start, "end_char": position})
+
+    assert _prompt_texts(text, chunks) == [
+        "Kein Hinweis auf Asthma,",
+        "Hypothyreose,",
+        None,
+        "oder Kleinwuchs.",
     ]
 
 
@@ -114,7 +135,7 @@ def test_prompt_text_collapses_line_breaks_in_restored_context() -> None:
 
     prompt_texts = _prompt_texts(text, chunks)
 
-    assert prompt_texts == [None, "and no seizures were observed"]
+    assert prompt_texts == [None, "and no seizures were observed."]
     rendered = render_group_chunk_index_text(
         group={},
         grounded_chunks=[
@@ -124,7 +145,19 @@ def test_prompt_text_collapses_line_breaks_in_restored_context() -> None:
             )
         ],
     )
-    assert "chunk_id=2: and no seizures were observed" in rendered.splitlines()
+    assert "chunk_id=2: and no seizures were observed." in rendered.splitlines()
+
+
+def test_prompt_text_skips_chunks_without_a_located_position() -> None:
+    # An unlocated chunk (-1 positions) must not end the previous chunk's
+    # trailing punctuation search at position -1.
+    text = "Fever. Seizures."
+    chunks = [
+        {"text": "Fever", "start_char": 0, "end_char": 5},
+        {"text": "Seizures", "start_char": -1, "end_char": -1},
+    ]
+
+    assert _prompt_texts(text, chunks) == ["Fever.", None]
 
 
 def test_prompt_text_is_none_without_positions(monkeypatch) -> None:

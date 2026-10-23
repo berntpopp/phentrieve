@@ -116,9 +116,13 @@ def test_phase1_extraction_shape_preserves_grounding_fields() -> None:
             "negated_qualifier": None,
             "chunk_ids": [2],
             "evidence_text": "recurrent seizures since infancy",
-            "start_char": 8,
-            "end_char": 26,
+            # The schema no longer asks the model for offsets; the pipeline
+            # computes them later from the cited chunks.
+            "start_char": None,
+            "end_char": None,
             "experiencer": "proband",
+            # Not emitted by the model, so threaded as None like assertion.
+            "temporality": None,
             # The wire payload omitted assertion, so the parsed shape threads
             # None (unset) rather than the schema default "present"; the category
             # fallback re-engages downstream (B1).

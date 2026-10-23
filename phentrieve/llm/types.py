@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from phentrieve.llm.config import (
     DEFAULT_LLM_LANGUAGE,
@@ -61,8 +61,8 @@ class LLMPhenotype(BaseModel):
     # (LLM-1). Kept distinct from ``assertion`` so a proband finding and a
     # relative's mention of the same HPO id never collapse into one term.
     experiencer: str = "proband"
-    # When the finding applies: current | historical | unknown. Not produced
-    # by the current prompts, so it stays ``unknown``.
+    # When the finding applies: current | historical | unknown (``unknown``
+    # when the phase-1 model did not state it).
     temporality: str = "unknown"
     # The negated portion of an "X without Y" phrase (LLM-2): X is present and
     # only the qualifier Y is absent. None when the phrase is not partially
@@ -89,14 +89,32 @@ class LLMPhenotype(BaseModel):
 # ``negated_qualifier`` captures the negated portion of an "X without Y" phrase.
 _EXPERIENCER_DESCRIPTION = (
     "Decide FIRST, independently of presence: who the phenotype belongs to. "
-    "'family_history' for a relative, 'other' for non-clinical metadata, "
-    "otherwise 'proband'."
+    "'family_history' for a relative of the patient, 'other' for another person "
+    "who is not a relative (e.g. a neighbour or donor), otherwise 'proband'."
 )
 _ASSERTION_DESCRIPTION = (
-    "Whether the phenotype is present in the experiencer. A negation cue negates "
-    "only the noun phrase it directly modifies: in 'X without Y', X is present and "
-    "only Y is absent."
+    "Whether the phenotype is present in the experiencer. A negation cue applies "
+    "to every finding of the coordinated list it introduces, up to a contrast "
+    "word, a new clause or the end of the sentence; in 'X without Y', X is "
+    "present and only Y is absent."
 )
+_TEMPORALITY_DESCRIPTION = (
+    "When the phenotype applies: 'current' (now or in the reported episode), "
+    "'historical' (only in the past and no longer present), or 'unknown'."
+)
+_TEMPORALITY_VALUES = frozenset({"current", "historical", "unknown"})
+
+
+def _coerce_temporality(value: Any) -> str:
+    """Map a value outside the temporality contract to ``unknown``.
+
+    One stray value (e.g. "past") from a provider without schema enforcement
+    must not fail validation of the whole phase-1 response.
+    """
+    normalized = str(value).strip().lower() if isinstance(value, str) else ""
+    return normalized if normalized in _TEMPORALITY_VALUES else "unknown"
+
+
 _NEGATED_QUALIFIER_DESCRIPTION = (
     "For an 'X without Y' phrase where X is present and only the qualifier Y is "
     "absent, the negated qualifier Y; otherwise null."
@@ -116,6 +134,9 @@ class LLMExtractedPhenotype(BaseModel):
     assertion: Literal["present", "absent", "uncertain"] = Field(
         default="present", description=_ASSERTION_DESCRIPTION
     )
+    temporality: Literal["current", "historical", "unknown"] = Field(
+        default="unknown", description=_TEMPORALITY_DESCRIPTION
+    )
     negated_qualifier: str | None = Field(
         default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
     )
@@ -126,6 +147,10 @@ class LLMExtractedPhenotype(BaseModel):
                 "uncertain, family history, or non-phenotype metadata."
             )
         )
+    )
+
+    _normalize_temporality = field_validator("temporality", mode="before")(
+        _coerce_temporality
     )
 
 
@@ -145,13 +170,20 @@ class LLMGroundedExtractedPhenotype(BaseModel):
     assertion: Literal["present", "absent", "uncertain"] = Field(
         default="present", description=_ASSERTION_DESCRIPTION
     )
+    temporality: Literal["current", "historical", "unknown"] = Field(
+        default="unknown", description=_TEMPORALITY_DESCRIPTION
+    )
     negated_qualifier: str | None = Field(
         default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
     )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
     chunk_ids: list[int] = Field(min_length=1)
-    start_char: int | None = None
-    end_char: int | None = None
+    # No character offsets: the pipeline locates evidence_text in the cited
+    # chunks (phentrieve.llm.evidence_offsets).
+
+    _normalize_temporality = field_validator("temporality", mode="before")(
+        _coerce_temporality
+    )
 
 
 class LLMGroundedExtractedPhenotypes(BaseModel):
@@ -215,6 +247,8 @@ class LLMPipelineConfig(BaseModel):
 class LLMExtractionResult(BaseModel):
     terms: list[LLMPhenotype] = Field(default_factory=list)
     family_history_findings: list[LLMPhenotype] = Field(default_factory=list)
+    # Findings of another person who is not a relative (experiencer ``other``).
+    other_person_findings: list[LLMPhenotype] = Field(default_factory=list)
     meta: LLMMeta
 
 

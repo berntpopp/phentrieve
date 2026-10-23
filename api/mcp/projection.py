@@ -161,6 +161,10 @@ def project_extract_payload(
         out["family_history_findings"] = project_aggregated_terms_for_mcp(
             payload["family_history_findings"]
         )
+    if isinstance(payload.get("other_person_findings"), list):
+        out["other_person_findings"] = project_aggregated_terms_for_mcp(
+            payload["other_person_findings"]
+        )
     if isinstance(payload.get("processed_chunks"), list):
         out["processed_chunks"] = project_processed_chunks_for_mcp(
             payload["processed_chunks"], include_unmatched=include_unmatched_chunks

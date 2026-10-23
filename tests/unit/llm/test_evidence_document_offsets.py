@@ -241,3 +241,49 @@ def test_terms_have_a_temporality_defaulting_to_unknown():
     term = LLMPhenotype(term_id="HP:0002027", label="Abdominal pain")
 
     assert term.temporality == "unknown"
+
+
+def test_phase1_schema_no_longer_asks_the_model_for_offsets():
+    from phentrieve.llm.types import LLMGroundedExtractedPhenotype
+
+    fields = LLMGroundedExtractedPhenotype.model_fields
+
+    assert "start_char" not in fields
+    assert "end_char" not in fields
+
+
+def test_evidence_may_quote_the_punctuation_shown_after_a_chunk():
+    document = "Kein Hinweis auf Asthma, Hypothyreose oder Kleinwuchs."
+    first = document.index("Asthma")
+    second = document.index("Hypothyreose")
+    grounded_chunks = [
+        {
+            "chunk_id": 1,
+            "text": "Asthma",
+            "start_char": first,
+            "end_char": first + 6,
+            "prompt_text": "Kein Hinweis auf Asthma,",
+        },
+        {
+            "chunk_id": 2,
+            "text": "Hypothyreose",
+            "start_char": second,
+            "end_char": second + 12,
+            "prompt_text": None,
+        },
+    ]
+    extracted = [
+        {
+            "phrase": "Asthma",
+            "evidence_text": "Kein Hinweis auf Asthma,",
+            "chunk_ids": [1],
+        }
+    ]
+
+    pipeline_module.TwoPhaseLLMPipeline._attach_document_offsets(
+        extracted, text=document, grounded_chunks=grounded_chunks
+    )
+
+    item = extracted[0]
+    assert document[item["start_char"] : item["end_char"]] == "Kein Hinweis auf Asthma,"
+    assert item["offset_basis"] == "evidence_in_chunk"

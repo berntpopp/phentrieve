@@ -383,10 +383,11 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
     # Experiencer (not assertion) now carries family-ness (B1 split them into
     # separate axes); key the guard on experiencer, keeping the legacy
-    # assertion check as a defensive OR fallback (B2).
+    # assertion check as a defensive OR fallback (B2). A finding of another
+    # person who is not a relative (experiencer "other") is dropped likewise.
     experiencer = str(p.get("experiencer") or "").strip().lower()
     if (
-        experiencer == "family_history"
+        experiencer in {"family_history", "other"}
         or str(assertion).strip().lower() == "family_history"
     ):
         return None

@@ -269,6 +269,7 @@ def test_run_llm_backend_adapts_grounded_chunks_and_text_attributions(mocker):
             "evidence": "recurrent seizures",
             "status": "present",
             "experiencer": "proband",
+            "temporality": "unknown",
             "excluded": False,
             "evidence_records": [
                 {

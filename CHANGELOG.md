@@ -18,6 +18,23 @@ together:
 
 ## [Unreleased]
 
+### Changed
+
+- **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
+  decides experiencer, assertion and temporality in independent steps: a
+  negation cue applies to every item of the coordinated list it introduces (also
+  across chunk lines), `uncertain` is defined with multilingual cues, absent and
+  uncertain findings are extracted as exhaustively as present ones, and
+  non-phenotype information (onset, inheritance, age, measurement) always gets
+  category Other. Findings of another person who is not a relative
+  (experiencer `other`) are returned in a new `other_person_findings` list on
+  the pipeline result, REST response and MCP extract tools, and are never
+  exported into a phenopacket. Every term gets a `temporality`
+  (`current` | `historical` | `unknown`); unexpected values are coerced to
+  `unknown`, and an `unknown` twin of a term with a known temporality is merged
+  into it. The phase-1 schema no longer asks for character offsets.
+  `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
+
 ### Fixed
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The

@@ -69,6 +69,9 @@ from phentrieve.llm.pipeline_phase1 import (
     spans_overlap as _spans_overlap,
 )
 from phentrieve.llm.pipeline_phase1 import (
+    temporality_axis as _temporality_axis,
+)
+from phentrieve.llm.pipeline_phase1 import (
     tokenize as _tokenize,
 )
 from phentrieve.llm.pipeline_phase2 import (
@@ -415,8 +418,14 @@ class TwoPhaseLLMPipeline:
         # a family finding wearing a legacy Abnormal category that would
         # otherwise leak into the proband path).
         family_items: list[dict[str, Any]] = []
+        other_person_items: list[dict[str, Any]] = []
         proband_items: list[dict[str, Any]] = []
         for item in extracted:
+            # Another person who is not a relative: resolved like family
+            # findings, returned in ``other_person_findings``.
+            if str(item.get("experiencer") or "").strip().lower() == "other":
+                other_person_items.append(item)
+                continue
             is_family = (
                 str(item.get("experiencer") or "").strip().lower() == "family_history"
                 or _normalize_category(str(item.get("category", "")))
@@ -495,6 +504,7 @@ class TwoPhaseLLMPipeline:
                 and phase_counts["phase1_completed_groups"] > 0
             )
         resolved_family: list[LLMPhenotype] = []
+        resolved_other_person: list[LLMPhenotype] = []
         if actionable:
             # Proband path: merge the outcome into the CANONICAL meta keys so the
             # result stays byte-identical to the pre-B2 inline block. The gated
@@ -592,6 +602,31 @@ class TwoPhaseLLMPipeline:
                 family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
             trace["family"] = family_trace
 
+        if other_person_items:
+            other_outcome = self._resolve_items(
+                other_person_items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+            resolved_other_person.extend(other_outcome.resolved)
+            prompt_tokens_total += other_outcome.prompt_tokens
+            completion_tokens_total += other_outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(
+                token_usage_total,
+                other_outcome.token_usage,
+            )
+            request_count_total += other_outcome.request_count
+            phase_counts["other_person_phrases"] = len(other_person_items)
+            phase_counts["other_person_resolved_phrases"] = len(other_outcome.resolved)
+            if other_outcome.mapping_ran:
+                phase_request_counts["other_person_phase2b_llm_requests"] = (
+                    other_outcome.phase2b_llm_requests
+                )
+            trace["other_person"] = {
+                "phase2a": other_outcome.phase2a_trace,
+                "phase2b_local": other_outcome.phase2b_local_trace,
+            }
+
         # B3: map each resolved proband finding's negated qualifier Y (the
         # absent portion of an "X without Y" phrase) to a GENERATED excluded
         # finding. Y is retrieved through the SAME retrieval path as any phrase;
@@ -613,6 +648,9 @@ class TwoPhaseLLMPipeline:
             ),
             family_history_findings=self._deduplicate_terms(
                 self._drop_non_phenotypic(resolved_family)
+            ),
+            other_person_findings=self._deduplicate_terms(
+                self._drop_non_phenotypic(resolved_other_person)
             ),
             meta=LLMMeta(
                 llm_provider=config.provider,
@@ -929,6 +967,11 @@ class TwoPhaseLLMPipeline:
                     "start_char": getattr(phenotype, "start_char", None),
                     "end_char": getattr(phenotype, "end_char", None),
                     "experiencer": getattr(phenotype, "experiencer", None),
+                    "temporality": (
+                        phenotype.temporality
+                        if "temporality" in phenotype.model_fields_set
+                        else None
+                    ),
                     # Thread the model's assertion ONLY when the model actually
                     # emitted it. The wire schema declares assertion with a
                     # default of "present", so a category-only finding (e.g.
@@ -1623,6 +1666,7 @@ class TwoPhaseLLMPipeline:
             shared_result["offset_basis"] = item.get("offset_basis")
             shared_result["experiencer"] = item.get("experiencer")
             shared_result["assertion"] = item.get("assertion")
+            shared_result["temporality"] = item.get("temporality")
             shared_result["grounded_context"] = self._build_grounded_context(
                 item=item,
                 grounded_chunks=grounded_chunks,
@@ -1705,6 +1749,8 @@ class TwoPhaseLLMPipeline:
                 != str(incoming.get(axis) or "").strip().lower()
             ):
                 return False
+        if _temporality_axis(existing) != _temporality_axis(incoming):
+            return False
         if (
             str(existing.get("phrase", "")).strip().lower()
             != str(incoming.get("phrase", "")).strip().lower()
@@ -1755,27 +1801,41 @@ class TwoPhaseLLMPipeline:
     ) -> None:
         """Replace model-reported offsets with document offsets of the evidence.
 
-        A chunk whose phase-1 rendering carries the text that cleanup dropped
-        before it (``prompt_text``) is searched from the end of the previous
-        chunk, because the model may quote that text.
+        A chunk whose phase-1 rendering (``prompt_text``) carries the text that
+        cleanup dropped around it is searched from the end of the previous chunk
+        to the start of the next one, because the model may quote that text.
         """
+        # Unlocated chunks carry -1 positions from the text pipeline.
+        positioned = [
+            (
+                int(chunk["chunk_id"]),
+                int(chunk["start_char"]),
+                int(chunk["end_char"]),
+                bool(chunk.get("prompt_text")),
+            )
+            for chunk in grounded_chunks
+            if chunk.get("start_char") is not None
+            and chunk.get("end_char") is not None
+            and 0 <= int(chunk["start_char"]) <= int(chunk["end_char"])
+        ]
         chunk_spans: dict[int, tuple[int, int]] = {}
         search_spans: dict[int, tuple[int, int]] = {}
         previous_end = 0
-        for chunk in grounded_chunks:
-            start, end = chunk.get("start_char"), chunk.get("end_char")
-            # Unlocated chunks carry -1 positions from the text pipeline.
-            if start is None or end is None or not 0 <= int(start) <= int(end):
-                continue
-            chunk_id = int(chunk["chunk_id"])
-            chunk_spans[chunk_id] = (int(start), int(end))
-            region_start = (
-                min(previous_end, int(start))
-                if chunk.get("prompt_text")
-                else int(start)
+        for position, (chunk_id, start, end, rendered) in enumerate(positioned):
+            chunk_spans[chunk_id] = (start, end)
+            next_start = (
+                positioned[position + 1][1]
+                if position + 1 < len(positioned)
+                else len(text)
             )
-            search_spans[chunk_id] = (region_start, int(end))
-            previous_end = max(previous_end, int(end))
+            # A rendered chunk also shows the text dropped before it and the
+            # punctuation after it, so its search region spans both gaps.
+            search_spans[chunk_id] = (
+                (min(previous_end, start), max(end, next_start))
+                if rendered
+                else (start, end)
+            )
+            previous_end = max(previous_end, end)
         for item in extracted:
             located = locate_evidence(
                 text,

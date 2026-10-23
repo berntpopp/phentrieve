@@ -205,6 +205,13 @@ class AggregatedHPOTermAPI(BaseModel):
             "the backend does not attribute an experiencer."
         ),
     )
+    temporality: str | None = Field(
+        default=None,
+        description=(
+            "When the finding applies ('current', 'historical', 'unknown'). "
+            "None when the backend does not attribute a temporality."
+        ),
+    )
     excluded: bool = Field(
         default=False,
         description=(
@@ -305,5 +312,12 @@ class TextProcessingResponseAPI(BaseModel):
             "HPO terms attributed to a family member (experiencer != proband), "
             "kept separate from aggregated_hpo_terms so a relative's finding is "
             "never conflated with the proband's."
+        ),
+    )
+    other_person_findings: list[AggregatedHPOTermAPI] = Field(
+        default_factory=list,
+        description=(
+            "HPO terms attributed to another person who is not a relative "
+            "(experiencer 'other'), kept separate from aggregated_hpo_terms."
         ),
     )
