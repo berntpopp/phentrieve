@@ -20,6 +20,22 @@ together:
 
 ### Fixed
 
+- **Grounded phase-1 extraction sees negation cues that chunk cleanup removed**
+  ([#375](https://github.com/berntpopp/phentrieve/issues/375)). `FinalChunkCleaner`
+  strips leading words such as `no`/`not`, and assertion detection is disabled
+  for grounded chunks, so the extraction prompt showed e.g. `hepatosplenomegaly`
+  for "There was no hepatosplenomegaly" and the model extracted it as present.
+  Grounded chunks now carry a `prompt_text` that prefixes the source text dropped
+  since the previous chunk ("There was no hepatosplenomegaly"). It is used only
+  in the phase-1 chunk index (ungrouped, precomputed and fallback groups), with
+  whitespace runs and line breaks in the restored text collapsed so each chunk
+  stays on one index line. Chunk `text` and offsets, retrieval, phase-2 mapping
+  context and API output are unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to
+  `3` so earlier LLM benchmark checkpoints do not match new runs. Limitation: a
+  cue that scopes over a coordinated list is restored only for the chunk it
+  directly precedes ("no plantar or palmar pits, facial abnormalities or
+  macrocephaly" restores `no` for `plantar` but not for the later items).
+
 - **Runaway phase-1 generations no longer burn the full output budget repeatedly**
   ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate
   response (e.g. a repeated `\n` escape inside `evidence_text`) previously ran to

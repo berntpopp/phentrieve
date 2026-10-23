@@ -51,7 +51,34 @@ def _status_with_left_context(
 
 
 def _render_group_text(chunks: list[GroundedChunk]) -> str:
-    return "\n".join(f"chunk_id={chunk.chunk_id}: {chunk.text}" for chunk in chunks)
+    return "\n".join(
+        f"chunk_id={chunk.chunk_id}: {chunk.prompt_text or chunk.text}"
+        for chunk in chunks
+    )
+
+
+def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
+    """Prefix each chunk with the source text dropped since the previous chunk.
+
+    Chunk cleanup strips leading words such as "no"; the extraction prompt must
+    still show them. Separators at the start of the gap are not repeated, and
+    whitespace runs are collapsed so the prefix stays on its chunk-index line.
+    """
+    prompt_texts: list[str | None] = []
+    previous_end = 0
+    for chunk in chunks:
+        start_char = chunk.get("start_char")
+        end_char = chunk.get("end_char")
+        if not isinstance(start_char, int) or not isinstance(end_char, int):
+            prompt_texts.append(None)
+            continue
+        gap = text[min(previous_end, start_char) : start_char]
+        gap = gap.lstrip(" \t\r\n.,;:!?)]")
+        if gap:
+            gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
+        prompt_texts.append(f"{gap}{chunk.get('text', '')}" if gap else None)
+        previous_end = max(previous_end, end_char)
+    return prompt_texts
 
 
 def build_grounded_chunks_from_text_pipeline(
@@ -80,6 +107,7 @@ def build_grounded_chunks_from_text_pipeline(
         sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
     )
     processed_chunks = text_pipeline.process(text, include_positions=include_positions)
+    prompt_texts = _prompt_texts(text, processed_chunks)
     return [
         GroundedChunk(
             chunk_id=index + 1,
@@ -91,6 +119,7 @@ def build_grounded_chunks_from_text_pipeline(
                 chunk=chunk,
                 assertion_detector=text_pipeline.assertion_detector,
             ),
+            prompt_text=prompt_texts[index],
         )
         for index, chunk in enumerate(processed_chunks)
     ]

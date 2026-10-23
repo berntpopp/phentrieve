@@ -87,6 +87,11 @@ def clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
+def phase1_chunk_text(chunk: dict[str, Any]) -> str:
+    """Chunk text for the extraction prompt, keeping context cleanup dropped."""
+    return str(chunk.get("prompt_text") or chunk.get("text", ""))
+
+
 def render_phase1_user_prompt(
     *,
     extraction_prompt: PromptTemplate,
@@ -100,7 +105,7 @@ def render_phase1_user_prompt(
     if grounded_chunks:
         chunk_index = (
             "\n".join(
-                f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+                f"- chunk_id={chunk['chunk_id']}: {phase1_chunk_text(chunk)}"
                 for chunk in grounded_chunks
             )
             or "[]"
@@ -190,7 +195,7 @@ def render_group_chunk_index_text(
         group_text
         if isinstance(group_text, str) and group_text.strip()
         else "\n".join(
-            f"chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+            f"chunk_id={chunk['chunk_id']}: {phase1_chunk_text(chunk)}"
             for chunk in grounded_chunks
         )
     )

@@ -237,6 +237,9 @@ class GroundedChunk:
     start_char: int | None
     end_char: int | None
     status: str
+    # Phase-1 rendering of the chunk including source text that cleanup dropped
+    # before it (e.g. a leading "no"); None when nothing was dropped.
+    prompt_text: str | None = None
 
 
 @dataclass(frozen=True)
