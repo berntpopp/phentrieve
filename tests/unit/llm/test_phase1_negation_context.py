@@ -17,6 +17,7 @@ from phentrieve.llm.pipeline_phase1 import (
 )
 from phentrieve.llm.pipeline_phase2 import build_grounded_context
 from phentrieve.llm.preprocessing import (
+    _prompt_texts,
     build_extraction_groups,
     build_grounded_chunks_from_text_pipeline,
 )
@@ -100,6 +101,30 @@ def test_grounded_chunks_restore_stripped_leading_context(monkeypatch) -> None:
         "or macrocephaly",
         "There was no hepatosplenomegaly",
     ]
+
+
+def test_prompt_text_collapses_line_breaks_in_restored_context() -> None:
+    # A line break inside the restored gap would split the chunk-index line, and
+    # the grouped renderers drop lines without a ``chunk_id=N:`` prefix.
+    text = "He had hypotonia and\nno  seizures were observed."
+    chunks = [
+        {"text": "He had hypotonia", "start_char": 0, "end_char": 16},
+        {"text": "seizures were observed", "start_char": 25, "end_char": 47},
+    ]
+
+    prompt_texts = _prompt_texts(text, chunks)
+
+    assert prompt_texts == [None, "and no seizures were observed"]
+    rendered = render_group_chunk_index_text(
+        group={},
+        grounded_chunks=[
+            {"chunk_id": index, "text": chunk["text"], "prompt_text": prompt_text}
+            for index, (chunk, prompt_text) in enumerate(
+                zip(chunks, prompt_texts, strict=True), start=1
+            )
+        ],
+    )
+    assert "chunk_id=2: and no seizures were observed" in rendered.splitlines()
 
 
 def test_prompt_text_is_none_without_positions(monkeypatch) -> None:
