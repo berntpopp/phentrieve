@@ -1764,7 +1764,8 @@ class TwoPhaseLLMPipeline:
         previous_end = 0
         for chunk in grounded_chunks:
             start, end = chunk.get("start_char"), chunk.get("end_char")
-            if start is None or end is None:
+            # Unlocated chunks carry -1 positions from the text pipeline.
+            if start is None or end is None or not 0 <= int(start) <= int(end):
                 continue
             chunk_id = int(chunk["chunk_id"])
             chunk_spans[chunk_id] = (int(start), int(end))

@@ -4,7 +4,8 @@ The model quotes ``evidence_text`` and cites ``chunk_ids``; character offsets
 it reports itself are unreliable. The span is the evidence text located inside
 the cited chunks, whose document positions are known from preprocessing.
 Matching tolerates typography a model may alter (quotes, dashes, repeated or
-non-breaking whitespace); offsets always refer to the original document.
+non-breaking whitespace, letter case, Unicode composition); offsets always
+refer to the original document.
 """
 
 from __future__ import annotations
@@ -61,17 +62,39 @@ def _normalized(text: str) -> tuple[str, list[int], list[int]]:
             ends.append(end)
             index = end
             continue
-        characters.append(text[index].translate(_TYPOGRAPHY))
-        starts.append(index)
-        ends.append(index + 1)
-        index += 1
+        # A base character and its combining marks are composed and case-folded
+        # together; every resulting character maps to the whole cluster.
+        end = index + 1
+        while end < len(text) and unicodedata.combining(text[end]):
+            end += 1
+        cluster = unicodedata.normalize("NFC", text[index:end]).casefold()
+        for character in cluster.translate(_TYPOGRAPHY):
+            characters.append(character)
+            starts.append(index)
+            ends.append(end)
+        index = end
     return "".join(characters), starts, ends
+
+
+def _is_located(span: tuple[int, int]) -> bool:
+    """Chunks the text pipeline could not locate carry ``-1`` positions."""
+    return 0 <= span[0] <= span[1]
+
+
+def _adjacent_runs(chunk_ids: Sequence[int]) -> list[list[int]]:
+    runs: list[list[int]] = []
+    for chunk_id in chunk_ids:
+        if runs and chunk_id == runs[-1][-1] + 1:
+            runs[-1].append(chunk_id)
+        else:
+            runs.append([chunk_id])
+    return runs
 
 
 def _find(document: str, evidence: str, start: int, end: int) -> tuple[int, int] | None:
     """First match of ``evidence`` lying within document[start:end]."""
     haystack, starts, ends = _normalized(document[start:end])
-    needle = _normalized(unicodedata.normalize("NFC", evidence).strip())[0]
+    needle = _normalized(evidence.strip())[0]
     if not needle:
         return None
     position = haystack.find(needle)
@@ -91,28 +114,37 @@ def locate_evidence(
     """Document span of one piece of evidence.
 
     Tried in order: the evidence inside one cited chunk (first in chunk-id
-    order), inside the hull of all cited chunks (evidence that crosses chunk
-    borders), and finally the first run of adjacent cited chunks themselves.
-    ``search_spans`` may widen a chunk's search region (for example by text
-    that cleanup dropped before it); the fallback always uses ``chunk_spans``.
+    order), inside the hull of a run of adjacent cited chunks (evidence that
+    crosses chunk borders; a hull never spans an uncited chunk), and finally
+    the first run of adjacent cited chunks themselves. ``search_spans`` may
+    widen a chunk's search region (for example by text that cleanup dropped
+    before it); the fallback always uses ``chunk_spans``. Chunks without a
+    located position are ignored.
     """
     search_spans = search_spans or chunk_spans
-    ids = [c for c in sorted(set(chunk_ids)) if c in chunk_spans]
+    ids = [
+        c
+        for c in sorted(set(chunk_ids))
+        if c in chunk_spans and _is_located(chunk_spans[c])
+    ]
     if not ids:
         return EvidenceSpan(None, None, "unresolved")
+    runs = _adjacent_runs(ids)
     if evidence_text:
-        regions = [search_spans.get(c, chunk_spans[c]) for c in ids]
-        for start, end in regions:
-            found = _find(document, evidence_text, start, end)
+        regions = {c: search_spans.get(c, chunk_spans[c]) for c in ids}
+        for chunk_id in ids:
+            found = _find(document, evidence_text, *regions[chunk_id])
             if found:
                 return EvidenceSpan(*found, "evidence_in_chunk")
-        hull = (min(s for s, _ in regions), max(e for _, e in regions))
-        found = _find(document, evidence_text, *hull)
-        if found:
-            return EvidenceSpan(*found, "evidence_in_chunk_hull")
-    run = [ids[0]]
-    for chunk_id in ids[1:]:
-        if chunk_id != run[-1] + 1:
-            break
-        run.append(chunk_id)
+        for run in runs:
+            if len(run) < 2:
+                continue
+            hull = (
+                min(regions[c][0] for c in run),
+                max(regions[c][1] for c in run),
+            )
+            found = _find(document, evidence_text, *hull)
+            if found:
+                return EvidenceSpan(*found, "evidence_in_chunk_hull")
+    run = runs[0]
     return EvidenceSpan(chunk_spans[run[0]][0], chunk_spans[run[-1]][1], "chunk_span")

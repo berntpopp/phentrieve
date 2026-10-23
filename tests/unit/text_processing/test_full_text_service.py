@@ -596,6 +596,43 @@ def test_llm_text_attributions_convert_document_offsets_to_chunk_offsets() -> No
     ]
 
 
+def test_llm_text_attributions_map_document_offsets_into_cleaned_chunk_text() -> None:
+    # Chunk text is whitespace-cleaned, so its characters do not line up with
+    # the document span the chunk positions point to.
+    document = "Patient   had\n  recurrent seizures."
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 16,
+                    "end_char": 34,
+                    "offset_basis": "evidence_in_chunk",
+                }
+            )
+        ],
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "Patient had recurrent seizures.",
+                "start_char": 0,
+                "end_char": 35,
+            }
+        ],
+        document_text=document,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 1,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
 def test_llm_text_attributions_split_a_span_over_its_cited_chunks() -> None:
     adapted = _adapt_llm_aggregated_terms(
         [

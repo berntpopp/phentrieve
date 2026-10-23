@@ -9,6 +9,7 @@ from __future__ import annotations
 import inspect
 import logging
 import os
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -313,24 +314,60 @@ def _chunk_relative_span(
     chunk: Mapping[str, Any], start_char: Any, end_char: Any
 ) -> tuple[int, int] | None:
     """Clip a document span to a chunk and make it relative to the chunk start."""
-    chunk_start, chunk_end = chunk.get("start_char"), chunk.get("end_char")
     if not (
         isinstance(start_char, int)
         and isinstance(end_char, int)
-        and isinstance(chunk_start, int)
-        and isinstance(chunk_end, int)
+        and _is_located_chunk(chunk)
     ):
         return None
+    chunk_start, chunk_end = int(chunk["start_char"]), int(chunk["end_char"])
     start, end = max(start_char, chunk_start), min(end_char, chunk_end)
     if start >= end:
         return None
     return start - chunk_start, end - chunk_start
 
 
+def _is_located_chunk(chunk: Mapping[str, Any]) -> bool:
+    """Chunks the text pipeline could not locate carry ``-1`` positions."""
+    chunk_start, chunk_end = chunk.get("start_char"), chunk.get("end_char")
+    return (
+        isinstance(chunk_start, int)
+        and isinstance(chunk_end, int)
+        and 0 <= chunk_start <= chunk_end
+    )
+
+
+_WHITESPACE_RUN = re.compile(r"\s+")
+
+
+def _cleaned_length(raw_prefix: str) -> int:
+    """Length of a chunk prefix after chunk cleanup collapsed its whitespace."""
+    return len(_WHITESPACE_RUN.sub(" ", raw_prefix).lstrip())
+
+
+def _cleaned_chunk_span(
+    *,
+    document_text: str,
+    chunk: Mapping[str, Any],
+    chunk_text: str,
+    span: tuple[int, int],
+) -> tuple[int, int]:
+    """Map a span relative to the chunk's document slice into its cleaned text.
+
+    Chunk positions point at the raw document slice, while chunk ``text`` has
+    its whitespace runs collapsed and its ends stripped.
+    """
+    raw_chunk = document_text[int(chunk["start_char"]) : int(chunk["end_char"])]
+    start = min(_cleaned_length(raw_chunk[: span[0]]), len(chunk_text))
+    end = min(_cleaned_length(raw_chunk[: span[1]]), len(chunk_text))
+    return start, max(start, end)
+
+
 def _adapt_llm_text_attributions(
     evidence_records: list[Mapping[str, Any]],
     *,
     chunk_by_id: Mapping[int, Mapping[str, Any]],
+    document_text: str | None = None,
 ) -> list[dict[str, Any]]:
     text_attributions: list[dict[str, Any]] = []
     seen: set[tuple[int, int | None, int | None, str | None]] = set()
@@ -352,11 +389,16 @@ def _adapt_llm_text_attributions(
             end_char: int | None
             span = _chunk_relative_span(chunk, record_start, record_end)
             if span is not None:
+                if document_text is not None:
+                    span = _cleaned_chunk_span(
+                        document_text=document_text,
+                        chunk=chunk,
+                        chunk_text=chunk_text,
+                        span=span,
+                    )
                 start_char, end_char = span
                 matched_text = chunk_text[start_char:end_char]
-            elif isinstance(record_start, int) and isinstance(
-                chunk.get("start_char"), int
-            ):
+            elif isinstance(record_start, int) and _is_located_chunk(chunk):
                 # The evidence span lies outside this cited chunk.
                 continue
             else:
@@ -390,6 +432,7 @@ def _adapt_llm_aggregated_terms(
     terms: Sequence[Any],
     *,
     grounded_chunks: Sequence[Mapping[str, Any]],
+    document_text: str | None = None,
 ) -> list[dict[str, Any]]:
     adapted_terms: list[dict[str, Any]] = []
     chunk_by_id = {
@@ -448,6 +491,7 @@ def _adapt_llm_aggregated_terms(
         text_attributions = _adapt_llm_text_attributions(
             evidence_records,
             chunk_by_id=chunk_by_id,
+            document_text=document_text,
         )
         top_evidence_chunk_id = None
         top_evidence_score = None
@@ -925,10 +969,12 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     adapted_terms = _adapt_llm_aggregated_terms(
         result.terms,
         grounded_chunks=grounded_chunks,
+        document_text=text,
     )
     adapted_family = _adapt_llm_aggregated_terms(
         getattr(result, "family_history_findings", []),
         grounded_chunks=grounded_chunks,
+        document_text=text,
     )
     adapted_chunks = _adapt_llm_processed_chunks(grounded_chunks, adapted_terms)
 

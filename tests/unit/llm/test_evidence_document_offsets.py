@@ -57,6 +57,39 @@ def test_typography_and_whitespace_do_not_prevent_a_match():
     assert DOCUMENT[located.start : located.end] == "weder Meläna"
 
 
+def test_letter_case_does_not_prevent_a_match():
+    located = locate_evidence(DOCUMENT, "bauchschmerzen", [1], CHUNKS)
+
+    assert (located.start, located.end) == _span("Bauchschmerzen")
+    assert located.basis == "evidence_in_chunk"
+
+
+def test_decomposed_document_text_matches_composed_evidence():
+    document = "Es lagen weder Meläna noch Bauchschmerzen vor."
+    chunks = {1: (0, len(document) - 1)}
+
+    located = locate_evidence(document, "Meläna", [1], chunks)
+
+    assert document[located.start : located.end] == "Meläna"
+    assert located.basis == "evidence_in_chunk"
+
+
+def test_hull_search_does_not_match_inside_an_uncited_chunk():
+    # Chunks 1 and 3 are cited, chunk 2 lies between them but is not cited.
+    located = locate_evidence(DOCUMENT, "Biopsieproben zeigten", [1, 3], CHUNKS)
+
+    assert (located.start, located.end) == CHUNKS[1]
+    assert located.basis == "chunk_span"
+
+
+def test_chunks_without_a_located_position_are_ignored():
+    chunks = {1: CHUNKS[1], 2: (-1, -1)}
+
+    assert locate_evidence(DOCUMENT, "paraphrase", [2], chunks).basis == "unresolved"
+    located = locate_evidence(DOCUMENT, "paraphrase", [1, 2], chunks)
+    assert (located.start, located.end) == CHUNKS[1]
+
+
 def test_paraphrased_evidence_falls_back_to_the_cited_chunks():
     located = locate_evidence(DOCUMENT, "Nekrosen der... Submukosa", [2, 3], CHUNKS)
 
@@ -120,6 +153,26 @@ def test_pipeline_replaces_model_counted_offsets_with_document_offsets():
     item = extracted[0]
     assert DOCUMENT[item["start_char"] : item["end_char"]] == "Bauchschmerzen"
     assert item["offset_basis"] == "evidence_in_chunk"
+
+
+def test_pipeline_skips_chunks_the_text_pipeline_could_not_locate():
+    # TextProcessingPipeline marks unlocated chunks with -1 positions.
+    extracted = [
+        {"phrase": "x", "evidence_text": "paraphrase", "chunk_ids": [1, 2]},
+        {"phrase": "y", "evidence_text": "paraphrase", "chunk_ids": [2]},
+    ]
+    grounded_chunks = [
+        {"chunk_id": 1, "text": "a", "start_char": 0, "end_char": 38},
+        {"chunk_id": 2, "text": "b", "start_char": -1, "end_char": -1},
+    ]
+
+    pipeline_module.TwoPhaseLLMPipeline._attach_document_offsets(
+        extracted, text=DOCUMENT, grounded_chunks=grounded_chunks
+    )
+
+    assert (extracted[0]["start_char"], extracted[0]["end_char"]) == (0, 38)
+    assert (extracted[1]["start_char"], extracted[1]["end_char"]) == (None, None)
+    assert extracted[1]["offset_basis"] == "unresolved"
 
 
 def test_evidence_may_quote_the_text_cleanup_dropped_before_a_chunk():
