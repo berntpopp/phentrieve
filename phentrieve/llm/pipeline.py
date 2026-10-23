@@ -69,6 +69,9 @@ from phentrieve.llm.pipeline_phase1 import (
     spans_overlap as _spans_overlap,
 )
 from phentrieve.llm.pipeline_phase1 import (
+    temporality_axis as _temporality_axis,
+)
+from phentrieve.llm.pipeline_phase1 import (
     tokenize as _tokenize,
 )
 from phentrieve.llm.pipeline_phase2 import (
@@ -1740,12 +1743,14 @@ class TwoPhaseLLMPipeline:
         # refuse the merge before any span/evidence heuristics run. This runs
         # BEFORE the B2 family partition, so collapsing here would silently drop
         # a co-located family or opposite-polarity mention.
-        for axis in ("experiencer", "assertion", "temporality"):
+        for axis in ("experiencer", "assertion"):
             if (
                 str(existing.get(axis) or "").strip().lower()
                 != str(incoming.get(axis) or "").strip().lower()
             ):
                 return False
+        if _temporality_axis(existing) != _temporality_axis(incoming):
+            return False
         if (
             str(existing.get("phrase", "")).strip().lower()
             != str(incoming.get("phrase", "")).strip().lower()

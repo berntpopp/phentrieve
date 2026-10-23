@@ -31,6 +31,7 @@ system_prompt: |
      in the past and no longer present, e.g. "asthma as a child", "cataract operated five years ago"),
      or unknown (cannot be decided from the note). A known chronic condition is current.
   Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
+  Exception: non-phenotype information (onset, inheritance, age, measurement) always gets category Other with experiencer proband, regardless of its assertion; never map it to Abnormal, Normal or Suspected.
 
   Negation scope:
   - A negation cue applies to every finding of the coordinated list it introduces: "no hepatomegaly or splenomegaly" -> both absent; "keine Hepatomegalie, Splenomegalie oder Aszites" -> all three absent.

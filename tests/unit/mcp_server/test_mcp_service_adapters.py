@@ -263,6 +263,17 @@ def test_export_excludes_family_history_via_experiencer_mixed_proband():
     assert "HP:0000365" not in feature_ids
 
 
+def test_other_person_finding_is_not_exported_onto_the_subject():
+    # other_person_findings (e.g. a donor's hepatitis) are resolved like family
+    # findings and must never become a phenotypic feature of the subject.
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest,
+        {"hpo_id": "HP:0012115", "assertion": "present", "experiencer": "other"},
+        0,
+    )
+    assert out is None
+
+
 def test_absent_assertion_exports_as_negated_not_affirmed():
     out = _coerce_export_phenotype(
         ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "absent"}, 0

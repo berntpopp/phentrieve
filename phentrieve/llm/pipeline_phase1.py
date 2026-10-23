@@ -219,8 +219,13 @@ def phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
         # collapse. A model-silent item contributes a uniform "" so pre-existing
         # tuples' relative equality is unchanged (backward-compatible).
         str(item.get("assertion") or "").strip().lower(),
-        str(item.get("temporality") or "").strip().lower(),
+        temporality_axis(item),
     )
+
+
+def temporality_axis(item: dict[str, Any]) -> str:
+    """Temporality of a phase-1 item; a model-silent item is ``unknown``."""
+    return str(item.get("temporality") or "").strip().lower() or "unknown"
 
 
 def sorted_chunk_ids(chunk_ids: list[Any]) -> list[int]:

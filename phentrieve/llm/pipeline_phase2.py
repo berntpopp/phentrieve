@@ -408,6 +408,12 @@ def select_candidate_ids(
     return selected
 
 
+def _merge_term_evidence(target: LLMPhenotype, term: LLMPhenotype) -> None:
+    target.evidence_records.extend(term.evidence_records)
+    if not target.evidence and term.evidence:
+        target.evidence = term.evidence
+
+
 def deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
     deduplicated: dict[tuple[str, str, str, str], LLMPhenotype] = {}
     for term in terms:
@@ -415,10 +421,21 @@ def deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         if key not in deduplicated:
             deduplicated[key] = term
             continue
-        deduplicated[key].evidence_records.extend(term.evidence_records)
-        if not deduplicated[key].evidence and term.evidence:
-            deduplicated[key].evidence = term.evidence
-    return list(deduplicated.values())
+        _merge_term_evidence(deduplicated[key], term)
+    # A term whose temporality is unknown joins its twin with a known
+    # temporality; current and historical twins stay separate findings.
+    known: dict[tuple[str, str, str], LLMPhenotype] = {}
+    for key, term in deduplicated.items():
+        if term.temporality != "unknown":
+            known.setdefault(key[:3], term)
+    result: list[LLMPhenotype] = []
+    for key, term in deduplicated.items():
+        target = known.get(key[:3]) if term.temporality == "unknown" else None
+        if target is None:
+            result.append(term)
+        else:
+            _merge_term_evidence(target, term)
+    return result
 
 
 def local_match(

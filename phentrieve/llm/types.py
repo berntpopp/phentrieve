@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from phentrieve.llm.config import (
     DEFAULT_LLM_LANGUAGE,
@@ -102,6 +102,19 @@ _TEMPORALITY_DESCRIPTION = (
     "When the phenotype applies: 'current' (now or in the reported episode), "
     "'historical' (only in the past and no longer present), or 'unknown'."
 )
+_TEMPORALITY_VALUES = frozenset({"current", "historical", "unknown"})
+
+
+def _coerce_temporality(value: Any) -> str:
+    """Map a value outside the temporality contract to ``unknown``.
+
+    One stray value (e.g. "past") from a provider without schema enforcement
+    must not fail validation of the whole phase-1 response.
+    """
+    normalized = str(value).strip().lower() if isinstance(value, str) else ""
+    return normalized if normalized in _TEMPORALITY_VALUES else "unknown"
+
+
 _NEGATED_QUALIFIER_DESCRIPTION = (
     "For an 'X without Y' phrase where X is present and only the qualifier Y is "
     "absent, the negated qualifier Y; otherwise null."
@@ -136,6 +149,10 @@ class LLMExtractedPhenotype(BaseModel):
         )
     )
 
+    _normalize_temporality = field_validator("temporality", mode="before")(
+        _coerce_temporality
+    )
+
 
 class LLMExtractedPhenotypes(BaseModel):
     phenotypes: list[LLMExtractedPhenotype] = Field(
@@ -163,6 +180,10 @@ class LLMGroundedExtractedPhenotype(BaseModel):
     chunk_ids: list[int] = Field(min_length=1)
     # No character offsets: the pipeline locates evidence_text in the cited
     # chunks (phentrieve.llm.evidence_offsets).
+
+    _normalize_temporality = field_validator("temporality", mode="before")(
+        _coerce_temporality
+    )
 
 
 class LLMGroundedExtractedPhenotypes(BaseModel):
