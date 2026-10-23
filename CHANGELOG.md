@@ -28,8 +28,13 @@ together:
   Grounded phase-1 requests now get a chunk-proportional output budget
   (`max(8192, 1024 + 256 × chunks)`, capped at 65,536). Structured retries are
   skipped when a response was truncated at a budget the retry cannot raise.
-  After such a truncation, `grouped_large` is skipped when it would resend all
-  chunks as one group, and extraction falls back directly to `grouped_small`.
+  Grounded phase-1 always passes its budget explicitly, so the budget is also
+  the retry ceiling: a truncated grounded phase-1 response is never retried with
+  a larger budget (it was not before either, at 65,536) and recovery comes from
+  the grouped fallback. After such a truncation, `grouped_large` is skipped when
+  it would resend all chunks as one group, and extraction falls back directly to
+  `grouped_small`. Reasoning models count hidden reasoning tokens against the
+  same budget; the 8,192-token floor was derived from a non-reasoning model.
 - **Grounded Phase-1 prompt no longer sends an empty clinical-text block.** In
   grounded and grouped extraction the chunk index is the note, but the user
   prompt still rendered an empty `UNTRUSTED_CLINICAL_TEXT` block while the system
