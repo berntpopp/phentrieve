@@ -39,6 +39,7 @@ SAFETY_INSTRUCTION_MODES = DOCUMENT_BOUNDARY_MODES | {"two_phase"}
 class PromptTemplate:
     system_prompt: str
     user_prompt_template: str
+    grounded_user_prompt_template: str = ""
     few_shot_examples: list[dict[str, str]] = field(default_factory=list)
     version: str = "v1"
     mode: str = ""
@@ -82,6 +83,20 @@ class PromptTemplate:
         return self._render_prompt_text(
             self.user_prompt_template,
             text=self._wrap_untrusted_document_text(text),
+            **kwargs,
+        )
+
+    def render_grounded_user_prompt(self, *, chunk_index: str, **kwargs: Any) -> str:
+        """Render a user prompt whose only document payload is the chunk index.
+
+        Templates without a dedicated grounded template keep the legacy shape:
+        the regular user template with an empty document text.
+        """
+        if not self.grounded_user_prompt_template:
+            return self.render_user_prompt("", chunk_index=chunk_index, **kwargs)
+        return self._render_prompt_text(
+            self.grounded_user_prompt_template,
+            chunk_index=chunk_index,
             **kwargs,
         )
 
@@ -212,6 +227,9 @@ def _load_yaml_template(
     return PromptTemplate(
         system_prompt=str(data.get("system_prompt", "")),
         user_prompt_template=str(data.get("user_prompt_template", "{text}")),
+        grounded_user_prompt_template=str(
+            data.get("grounded_user_prompt_template", "") or ""
+        ),
         few_shot_examples=list(data.get("few_shot_examples", [])),
         version=str(data.get("version", "v1")),
         mode=mode,

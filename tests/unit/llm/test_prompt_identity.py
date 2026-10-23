@@ -67,6 +67,24 @@ def test_prompt_text_change_changes_component_and_bundle_hash(tmp_path: Path) ->
     assert before.sha256 != after.sha256
 
 
+def test_grounded_user_template_change_changes_component_hash(
+    tmp_path: Path,
+) -> None:
+    _write_bundle(tmp_path)
+    extraction = tmp_path / "two_phase" / "en.yaml"
+    content = yaml.safe_load(extraction.read_text(encoding="utf-8"))
+    content["grounded_user_prompt_template"] = "Chunks: {chunk_index}"
+    extraction.write_text(yaml.safe_dump(content), encoding="utf-8")
+    before = build_prompt_bundle_identity("two_phase", "en", tmp_path)
+
+    content["grounded_user_prompt_template"] = "Chunk index: {chunk_index}"
+    extraction.write_text(yaml.safe_dump(content), encoding="utf-8")
+    after = build_prompt_bundle_identity("two_phase", "en", tmp_path)
+
+    assert before.components[0].sha256 != after.components[0].sha256
+    assert before.sha256 != after.sha256
+
+
 def test_two_phase_bundle_components_have_stable_order(tmp_path: Path) -> None:
     _write_bundle(tmp_path)
     identity = build_prompt_bundle_identity("two_phase", "en", tmp_path)
@@ -80,7 +98,10 @@ def test_two_phase_bundle_components_have_stable_order(tmp_path: Path) -> None:
 def test_behavior_version_changes_bundle_hash(monkeypatch, tmp_path: Path) -> None:
     _write_bundle(tmp_path)
     before = build_prompt_bundle_identity("two_phase", "en", tmp_path)
-    monkeypatch.setattr("phentrieve.llm.prompts.identity.PROMPT_BEHAVIOR_VERSION", "2")
+    monkeypatch.setattr(
+        "phentrieve.llm.prompts.identity.PROMPT_BEHAVIOR_VERSION",
+        f"{before.prompt_behavior_version}-changed",
+    )
     after = build_prompt_bundle_identity("two_phase", "en", tmp_path)
     assert before.sha256 != after.sha256
 

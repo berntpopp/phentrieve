@@ -18,6 +18,20 @@ together:
 
 ## [Unreleased]
 
+### Fixed
+
+- **Grounded Phase-1 prompt no longer sends an empty clinical-text block.** In
+  grounded and grouped extraction the chunk index is the note, but the user
+  prompt still rendered an empty `UNTRUSTED_CLINICAL_TEXT` block while the system
+  prompt asked for extraction "from the full note". Grounded requests now use a
+  dedicated chunk-index-only `grounded_user_prompt_template`, and the system
+  prompt names both note sources: the chunk index, or the clinical text block
+  when the chunk index is empty (legacy whole-document mode), with chunk_ids
+  required only when the index is not empty (prompt `v3.1.0` → `v3.2.0`).
+  Custom templates without the new key keep the previous rendering. The prompt
+  identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
+  to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
+
 ## [0.28.3] — 2026-10-01 (CLI 0.28.3 / API 0.18.3 / Frontend 0.18.2)
 
 Consolidated Dependabot version updates and security fixes. No functional

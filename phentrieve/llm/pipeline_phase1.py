@@ -96,10 +96,7 @@ def render_phase1_user_prompt(
 ) -> str:
     if chunk_index_text is not None:
         chunk_index = chunk_index_text or "[]"
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
+        return extraction_prompt.render_grounded_user_prompt(chunk_index=chunk_index)
     if grounded_chunks:
         chunk_index = (
             "\n".join(
@@ -108,10 +105,7 @@ def render_phase1_user_prompt(
             )
             or "[]"
         )
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
+        return extraction_prompt.render_grounded_user_prompt(chunk_index=chunk_index)
     return extraction_prompt.render_user_prompt(text, chunk_index="[]")
 
 
