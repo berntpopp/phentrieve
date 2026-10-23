@@ -61,7 +61,8 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
     """Prefix each chunk with the source text dropped since the previous chunk.
 
     Chunk cleanup strips leading words such as "no"; the extraction prompt must
-    still show them. Separators at the start of the gap are not repeated.
+    still show them. Separators at the start of the gap are not repeated, and
+    whitespace runs are collapsed so the prefix stays on its chunk-index line.
     """
     prompt_texts: list[str | None] = []
     previous_end = 0
@@ -73,6 +74,8 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
             continue
         gap = text[min(previous_end, start_char) : start_char]
         gap = gap.lstrip(" \t\r\n.,;:!?)]")
+        if gap:
+            gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
         prompt_texts.append(f"{gap}{chunk.get('text', '')}" if gap else None)
         previous_end = max(previous_end, end_char)
     return prompt_texts

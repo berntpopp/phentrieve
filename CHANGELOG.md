@@ -39,10 +39,14 @@ together:
   for "There was no hepatosplenomegaly" and the model extracted it as present.
   Grounded chunks now carry a `prompt_text` that prefixes the source text dropped
   since the previous chunk ("There was no hepatosplenomegaly"). It is used only
-  in the phase-1 chunk index (ungrouped, precomputed and fallback groups). Chunk
-  `text` and offsets, retrieval, phase-2 mapping context and API output are
-  unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to `3` so earlier LLM
-  benchmark checkpoints do not match new runs.
+  in the phase-1 chunk index (ungrouped, precomputed and fallback groups), with
+  whitespace runs and line breaks in the restored text collapsed so each chunk
+  stays on one index line. Chunk `text` and offsets, retrieval, phase-2 mapping
+  context and API output are unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to
+  `3` so earlier LLM benchmark checkpoints do not match new runs. Limitation: a
+  cue that scopes over a coordinated list is restored only for the chunk it
+  directly precedes ("no plantar or palmar pits, facial abnormalities or
+  macrocephaly" restores `no` for `plantar` but not for the later items).
 
 - **Runaway phase-1 generations no longer burn the full output budget repeatedly**
   ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate
@@ -52,14 +56,21 @@ together:
   Grounded phase-1 requests now get a chunk-proportional output budget
   (`max(8192, 1024 + 256 × chunks)`, capped at 65,536). Structured retries are
   skipped when a response was truncated at a budget the retry cannot raise.
-  After such a truncation, `grouped_large` is skipped when it would resend all
-  chunks as one group, and extraction falls back directly to `grouped_small`.
+  Grounded phase-1 always passes its budget explicitly, so the budget is also
+  the retry ceiling: a truncated grounded phase-1 response is never retried with
+  a larger budget (it was not before either, at 65,536) and recovery comes from
+  the grouped fallback. After such a truncation, `grouped_large` is skipped when
+  it would resend all chunks as one group, and extraction falls back directly to
+  `grouped_small`. Reasoning models count hidden reasoning tokens against the
+  same budget; the 8,192-token floor was derived from a non-reasoning model.
 - **Grounded Phase-1 prompt no longer sends an empty clinical-text block.** In
   grounded and grouped extraction the chunk index is the note, but the user
   prompt still rendered an empty `UNTRUSTED_CLINICAL_TEXT` block while the system
   prompt asked for extraction "from the full note". Grounded requests now use a
   dedicated chunk-index-only `grounded_user_prompt_template`, and the system
-  prompt names the chunk index as the note source (prompt `v3.1.0` → `v3.2.0`).
+  prompt names both note sources: the chunk index, or the clinical text block
+  when the chunk index is empty (legacy whole-document mode), with chunk_ids
+  required only when the index is not empty (prompt `v3.1.0` → `v3.2.0`).
   Custom templates without the new key keep the previous rendering. The prompt
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
