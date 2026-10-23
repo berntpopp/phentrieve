@@ -1805,6 +1805,7 @@ class TwoPhaseLLMPipeline:
         cleanup dropped around it is searched from the end of the previous chunk
         to the start of the next one, because the model may quote that text.
         """
+        # Unlocated chunks carry -1 positions from the text pipeline.
         positioned = [
             (
                 int(chunk["chunk_id"]),
@@ -1813,7 +1814,9 @@ class TwoPhaseLLMPipeline:
                 bool(chunk.get("prompt_text")),
             )
             for chunk in grounded_chunks
-            if chunk.get("start_char") is not None and chunk.get("end_char") is not None
+            if chunk.get("start_char") is not None
+            and chunk.get("end_char") is not None
+            and 0 <= int(chunk["start_char"]) <= int(chunk["end_char"])
         ]
         chunk_spans: dict[int, tuple[int, int]] = {}
         search_spans: dict[int, tuple[int, int]] = {}

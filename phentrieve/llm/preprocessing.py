@@ -68,19 +68,24 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
     the words dropped since the previous chunk and followed by the punctuation
     that follows it in the source, so a coordinated list split into several
     chunks ("no A," / "B," / "or C.") stays recognisable (#375). Separators
-    are shown once, after the chunk they follow. ``None`` when nothing differs
-    from the cleaned chunk text.
+    are shown once, after the chunk they follow, and whitespace runs in the
+    prefix are collapsed so it stays on its chunk-index line. ``None`` when
+    nothing differs from the cleaned chunk text.
     """
+    # Chunks the text pipeline could not locate carry -1 positions.
     positioned = [
         (index, chunk["start_char"], chunk["end_char"])
         for index, chunk in enumerate(chunks)
         if isinstance(chunk.get("start_char"), int)
         and isinstance(chunk.get("end_char"), int)
+        and 0 <= chunk["start_char"] <= chunk["end_char"]
     ]
     prompt_texts: list[str | None] = [None] * len(chunks)
     previous_end = 0
     for position, (index, start_char, end_char) in enumerate(positioned):
         gap = text[min(previous_end, start_char) : start_char].lstrip(_SEPARATORS)
+        if gap:
+            gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
         next_start = (
             positioned[position + 1][1] if position + 1 < len(positioned) else len(text)
         )
