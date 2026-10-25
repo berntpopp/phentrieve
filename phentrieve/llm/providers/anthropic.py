@@ -33,6 +33,19 @@ logger = logging.getLogger(__name__)
 _retry_rng = SystemRandom()
 
 
+def _without_max_items(schema: Any) -> Any:
+    """Drop ``maxItems``: Anthropic structured outputs do not support it."""
+    if isinstance(schema, dict):
+        return {
+            key: _without_max_items(value)
+            for key, value in schema.items()
+            if key != "maxItems"
+        }
+    if isinstance(schema, list):
+        return [_without_max_items(item) for item in schema]
+    return schema
+
+
 def _load_anthropic_module() -> Any:
     try:
         return importlib.import_module("anthropic")
@@ -114,7 +127,7 @@ class AnthropicStructuredOutputProvider(LLMProvider):
         self.last_usage = {}
         self.last_finish_reason = None
         self.last_request_count = 0
-        response_schema = build_response_json_schema(response_model)
+        response_schema = _without_max_items(build_response_json_schema(response_model))
         initial_output_tokens = max_output_tokens or self.max_tokens
         retry_output_tokens = (
             max_output_tokens

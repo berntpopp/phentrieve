@@ -256,6 +256,7 @@ class OpenAIStructuredOutputProvider(LLMProvider):
                 "type",
                 "enum",
                 "description",
+                "maxItems",
             }:
                 sanitized[key] = value
 

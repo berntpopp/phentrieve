@@ -1583,8 +1583,9 @@ def test_pipeline_chains_phase1_fallback_from_ungrouped_to_grouped_large_to_grou
 @pytest.mark.parametrize(
     ("chunk_count", "expected_budget"),
     [
-        (1, 8192),
-        (17, 8192),
+        (1, 2048),
+        (2, 2048),
+        (17, 5376),
         (100, 26624),
         (300, 65536),
     ],

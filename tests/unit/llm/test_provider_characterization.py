@@ -8,11 +8,13 @@ import pytest
 from phentrieve.llm.provider import (
     GeminiStructuredOutputProvider,
     OllamaStructuredOutputProvider,
+    OpenAIStructuredOutputProvider,
     ToolExecutor,
     build_response_json_schema,
     resolve_llm_provider_request,
 )
-from phentrieve.llm.types import LLMExtractedPhenotypes
+from phentrieve.llm.providers.anthropic import _without_max_items
+from phentrieve.llm.types import LLMExtractedPhenotypes, LLMGroundedExtractedPhenotypes
 
 
 class FakeRetriever:
@@ -150,6 +152,27 @@ def test_structured_error_classification_does_not_retry_refusals() -> None:
 
     assert provider._is_retryable_structured_error(ValueError("invalid json")) is True
     assert provider._is_retryable_structured_error(RuntimeError("refusal")) is False
+
+
+def test_grounded_chunk_ids_schema_is_bounded_except_for_anthropic() -> None:
+    schema = build_response_json_schema(LLMGroundedExtractedPhenotypes)
+    chunk_ids = schema["properties"]["phenotypes"]["items"]["properties"]["chunk_ids"]
+
+    assert chunk_ids["maxItems"] == 8
+    assert "maxItems" not in str(_without_max_items(schema))
+    openai_schema = OpenAIStructuredOutputProvider(
+        model_name="gpt-5.4", api_key="test-key"
+    )._build_openai_response_schema(LLMGroundedExtractedPhenotypes)
+    openai_item = openai_schema["properties"]["phenotypes"]["items"]
+    assert openai_item["properties"]["chunk_ids"]["maxItems"] == 8
+    # Validation stays lenient for providers without constrained decoding.
+    LLMGroundedExtractedPhenotypes.model_validate(
+        {
+            "phenotypes": [
+                {"phrase": "x", "category": "Abnormal", "chunk_ids": list(range(1, 12))}
+            ]
+        }
+    )
 
 
 def test_response_json_schema_is_compacted_for_provider_requests() -> None:

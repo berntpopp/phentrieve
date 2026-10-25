@@ -43,7 +43,10 @@ DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS = 65536
 # grounded phase-1 responses used at most ~112 output tokens per chunk and
 # ~5.3k tokens in total, so this leaves ample headroom while bounding the cost
 # of degenerate (runaway) generations that would otherwise run to the ceiling.
-DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS = 8192
+# The floor is low so small fallback groups (2 chunks, ~100-300 tokens) cut a
+# runaway after 2k tokens instead of 8k. Reasoning models spend hidden tokens
+# from the same budget; raise the floor if they truncate small groups.
+DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS = 2048
 DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS = 1024
 DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK = 256
 DEFAULT_PHASE1_MAX_PHENOTYPES = 128
