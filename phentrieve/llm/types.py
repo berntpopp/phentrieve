@@ -177,7 +177,9 @@ class LLMGroundedExtractedPhenotype(BaseModel):
         default=None, description=_NEGATED_QUALIFIER_DESCRIPTION
     )
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
-    chunk_ids: list[int] = Field(min_length=1)
+    # maxItems goes to the provider schema only (not validated): constrained
+    # decoding then cannot loop forever in "chunk_ids": [11, 11, 11, ...].
+    chunk_ids: list[int] = Field(min_length=1, json_schema_extra={"maxItems": 8})
     # No character offsets: the pipeline locates evidence_text in the cited
     # chunks (phentrieve.llm.evidence_offsets).
 

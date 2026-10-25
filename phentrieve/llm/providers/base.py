@@ -383,6 +383,10 @@ def compact_json_schema(
             definitions=definitions,
         )
 
+    max_items = schema.get("maxItems")
+    if isinstance(max_items, int) and compact.get("type") == "array":
+        compact["maxItems"] = max_items
+
     required = schema.get("required")
     if isinstance(required, list):
         compact["required"] = list(required)
