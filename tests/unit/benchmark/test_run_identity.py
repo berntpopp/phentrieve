@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import subprocess
 import sys
 from dataclasses import replace
@@ -46,7 +47,7 @@ def _document(identifier: str, text: str, hpo_ids: list[str]) -> dict[str, objec
 def _write_installed_bundle(tmp_path: Path) -> Path:
     database = tmp_path / "hpo_data.db"
     indexes = tmp_path / "indexes"
-    indexes.mkdir()
+    indexes.mkdir(exist_ok=True)
     database.write_bytes(b"ontology")
     (indexes / "vectors.bin").write_bytes(b"vectors")
     (tmp_path / "manifest.json").write_text(
@@ -511,6 +512,42 @@ def test_asset_identity_detects_tampered_bundle_content(tmp_path) -> None:
     _write_installed_bundle(tmp_path)
     (tmp_path / "indexes" / "vectors.bin").write_bytes(b"tampered")
 
+    with pytest.raises(ValueError, match="Checksum verification failed.*indexes/"):
+        load_retrieval_asset_identity(tmp_path)
+
+
+def _write_chroma_sqlite(path: Path) -> None:
+    connection = sqlite3.connect(path)
+    connection.executescript(
+        "CREATE TABLE acquire_write (id INTEGER PRIMARY KEY, lock_status INTEGER);"
+        "INSERT INTO acquire_write VALUES (1, 1);"
+        "CREATE TABLE embeddings (id INTEGER PRIMARY KEY, label TEXT);"
+        "INSERT INTO embeddings VALUES (1, 'Seizure');"
+    )
+    connection.commit()
+    connection.close()
+
+
+def _sqlite_exec(path: Path, sql: str) -> None:
+    connection = sqlite3.connect(path)
+    connection.execute(sql)
+    connection.commit()
+    connection.close()
+
+
+def test_asset_identity_tolerates_chroma_lock_rows_only(tmp_path) -> None:
+    indexes = tmp_path / "indexes"
+    indexes.mkdir()
+    chroma = indexes / "chroma.sqlite3"
+    _write_chroma_sqlite(chroma)
+    _write_installed_bundle(tmp_path)
+    pristine = load_retrieval_asset_identity(tmp_path)
+
+    # Chroma appends a write-lock row on every open.
+    _sqlite_exec(chroma, "INSERT INTO acquire_write VALUES (2, 1)")
+    assert load_retrieval_asset_identity(tmp_path) == pristine
+
+    _sqlite_exec(chroma, "UPDATE embeddings SET label = 'Tampered'")
     with pytest.raises(ValueError, match="Checksum verification failed.*indexes/"):
         load_retrieval_asset_identity(tmp_path)
 
