@@ -125,6 +125,7 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel to patched versions
+# - setuptools >= 84.1.0 fixes GHSA-xmj3-9gf7-h52w
 # - setuptools >= 83.0.0 fixes CVE-2026-59890 / PYSEC-2026-3447 (MANIFEST.in exclusion
 #   bypass in sdist via Unicode normalization collision)
 # - setuptools >= 78.1.1 fixes CVE-2025-47273 (path traversal/arbitrary file write)
@@ -142,7 +143,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # (enforced by tests/unit/test_dependency_security_policy.py).
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade "pip>=24.1" "setuptools>=83.0.0" wheel
+    pip install --upgrade "pip>=24.1" "setuptools>=84.1.0" wheel
 
 WORKDIR /build
 

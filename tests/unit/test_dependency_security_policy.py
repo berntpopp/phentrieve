@@ -182,6 +182,7 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "pyjwt": Version("2.15.0"),  # GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v
         "oauthlib": Version("4.0.0"),  # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v
         "virtualenv": Version("21.7.13"),  # GHSA-p58f-9548-mpm2 and friends
+        "filelock": Version("4.2.1"),  # CVE-2026-112907 and friends
     }
     for name, floor in expected.items():
         assert any(
@@ -224,9 +225,9 @@ def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:
     packages = _uv_packages()
 
     assert any(
-        dependency.startswith("setuptools>=83.0.0") for dependency in dev_dependencies
+        dependency.startswith("setuptools>=84.1.0") for dependency in dev_dependencies
     )
-    assert packages["setuptools"] >= Version("83.0.0")
+    assert packages["setuptools"] >= Version("84.1.0")
 
 
 def test_setuptools_floors_stay_aligned_across_build_backend_and_api_image() -> None:
@@ -241,7 +242,7 @@ def test_setuptools_floors_stay_aligned_across_build_backend_and_api_image() -> 
     published image. Keeping the three floors identical makes the constraint binding,
     and makes any future bump edit the Dockerfile line, which busts the cached layer.
     """
-    patched = Version("83.0.0")
+    patched = Version("84.1.0")
     dev_floor = _setuptools_floor(_pyproject()["dependency-groups"]["dev"])
     build_backend_floor = _setuptools_floor(_pyproject()["build-system"]["requires"])
     api_image_floor = _dockerfile_setuptools_floor()
