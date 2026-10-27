@@ -358,6 +358,7 @@ def compare_vector_modes(
         phentrieve benchmark compare-vectors --no-single  # Only compare multi-vector strategies
     """
     from phentrieve.evaluation.benchmark_orchestrator import orchestrate_benchmark
+    from phentrieve.retrieval.aggregation import AggregationStrategy
     from phentrieve.utils import setup_logging_cli
 
     setup_logging_cli(debug=debug)
@@ -370,13 +371,11 @@ def compare_vector_modes(
     )
 
     # Validate strategies
+    # Every preset strategy except "custom" (which needs a formula).
     valid_strategies = {
-        "label_only",
-        "label_synonyms_min",
-        "label_synonyms_max",
-        "all_weighted",
-        "all_max",
-        "all_min",
+        strategy.value
+        for strategy in AggregationStrategy
+        if strategy is not AggregationStrategy.CUSTOM
     }
     for s in strategy_list:
         if s not in valid_strategies:
