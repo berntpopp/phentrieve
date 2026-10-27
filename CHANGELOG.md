@@ -34,8 +34,40 @@ together:
   `unknown`, and an `unknown` twin of a term with a known temporality is merged
   into it. The phase-1 schema no longer asks for character offsets.
   `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
+- **One helper for located chunks and the gaps between them** (#401). The
+  "chunk has a document position" check and the walk over the text cleanup
+  dropped between chunks were written several times (evidence offsets, full-text
+  adapter, phase-1 prompt rendering, pipeline offset attachment). They now live
+  in `phentrieve.llm.evidence_offsets`, and a rendered chunk's evidence search
+  region is exactly the source text its phase-1 line shows (before, it extended
+  over the whole gap to the next chunk).
 
 ### Fixed
+
+- **Other-person findings get correct highlight offsets** (#394). The full-text
+  adapter mapped their document spans without the document text, so offsets
+  drifted by the whitespace that chunk cleanup collapsed.
+- **Full-text attribution offsets on non-ASCII text** (#411). The fallback
+  search for evidence inside a chunk ran on the lowered chunk text, whose length
+  can differ ("İ" lowers to two code points), shifting the offsets. It now
+  searches the original text case-insensitively. (The other points of #411 do
+  not apply on this branch: attribution offsets are computed in code and
+  clipped to the chunk, not taken from the model.)
+- **LLM evidence offsets** (#397):
+  - A `chunk_span` fallback (evidence not found in the cited chunks) is no
+    longer shown as an exact highlight of the whole chunk. The adapter searches
+    the cited chunks for the evidence text and adds no attribution when it is
+    absent, as before the evidence-offset rework; the frontend then falls back
+    to the label. The evidence record keeps `offset_basis="chunk_span"`.
+  - Soft hyphens (U+00AD) and words hyphenated at a line break
+    (`"Hämo-\nglobin"`), common in text pasted from PDFs, no longer prevent a
+    match.
+  - A chunk that follows a chunk the text pipeline could not locate no longer
+    repeats that chunk's text in its phase-1 line, so the model cannot cite it
+    for the unlocated finding. This changes the phase-1 prompt content for such
+    notes; `PROMPT_BEHAVIOR_VERSION` is bumped to `5`.
+  - Each search region is normalized once per document instead of once per
+    finding.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
