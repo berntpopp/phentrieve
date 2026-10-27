@@ -288,13 +288,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # Only the multi-GB API image needs the extra disk.
-      - name: Free disk space
-        if: matrix.service == 'api'
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
-          docker system prune -af
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
@@ -325,7 +318,8 @@ jobs:
         if: matrix.service == 'api'
         run: |
           docker run --rm --entrypoint sh phentrieve-api:ci -c \
-            'phentrieve --version && python -c "import api.main, langdetect, de_core_news_sm, en_core_web_sm"'
+            'phentrieve --version && python -c "import api.main, langdetect, de_core_news_sm, en_core_web_sm" &&
+             python -c "import importlib.util as u, torch; assert torch.__version__.endswith(\"+cpu\"), torch.__version__; assert not (u.find_spec(\"nvidia\") or u.find_spec(\"triton\")), \"CUDA wheels in image\""'
 
   dependency-review:
     name: Dependency Review
