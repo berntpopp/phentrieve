@@ -78,10 +78,10 @@ so you can sign in immediately. Leave both empty in production.
 
 ```bash
 PHENTRIEVE_AUTH_ENABLED=true
-PHENTRIEVE_AUTH_JWT_SECRET=<32+ byte secret>   # required; API refuses to start without it
+PHENTRIEVE_AUTH_JWT_SECRET=<32+ char secret>   # required; API refuses to start if shorter
 PHENTRIEVE_AUTH_COOKIE_SECURE=true             # HTTPS
 PHENTRIEVE_AUTH_COOKIE_SAMESITE=lax            # "none" if frontend/API are cross-site
-PHENTRIEVE_EMAIL_BACKEND=smtp
+PHENTRIEVE_EMAIL_BACKEND=smtp                  # required; API refuses to start otherwise
 PHENTRIEVE_EMAIL_FROM=noreply@phentrieve.org
 PHENTRIEVE_PUBLIC_BASE_URL=https://phentrieve.org
 PHENTRIEVE_SMTP_HOST=...
