@@ -82,3 +82,48 @@ class TestAppVersion:
         data = response.json()
         assert "description" in data
         assert "HPO" in data["description"]
+
+
+class TestProductionAuthStartupChecks:
+    @pytest.fixture
+    def prod_auth(self, monkeypatch, tmp_path):
+        import api.config as api_config
+
+        monkeypatch.setattr(api_config, "PHENTRIEVE_ENV", "production")
+        monkeypatch.setattr(api_config, "PHENTRIEVE_AUTH_ENABLED", True)
+        monkeypatch.setattr(api_config, "PHENTRIEVE_AUTH_JWT_SECRET", "s" * 32)
+        monkeypatch.setattr(api_config, "PHENTRIEVE_EMAIL_BACKEND", "smtp")
+        monkeypatch.setattr(
+            api_config, "PHENTRIEVE_AUTH_DB_PATH", str(tmp_path / "users.db")
+        )
+        return api_config
+
+    @pytest.mark.parametrize("secret", ["", "s" * 31])
+    def test_refuses_short_jwt_secret(self, prod_auth, monkeypatch, secret):
+        from api.main import create_app
+
+        monkeypatch.setattr(prod_auth, "PHENTRIEVE_AUTH_JWT_SECRET", secret)
+        with pytest.raises(RuntimeError, match="PHENTRIEVE_AUTH_JWT_SECRET"):
+            create_app()
+
+    def test_refuses_console_email_backend(self, prod_auth, monkeypatch):
+        from api.main import create_app
+
+        monkeypatch.setattr(prod_auth, "PHENTRIEVE_EMAIL_BACKEND", "console")
+        with pytest.raises(RuntimeError, match="PHENTRIEVE_EMAIL_BACKEND=smtp"):
+            create_app()
+
+    def test_starts_with_strong_secret_and_smtp(self, prod_auth):
+        from api.main import create_app
+
+        create_app()
+
+    def test_auth_disabled_production_starts_with_defaults(
+        self, prod_auth, monkeypatch
+    ):
+        from api.main import create_app
+
+        monkeypatch.setattr(prod_auth, "PHENTRIEVE_AUTH_ENABLED", False)
+        monkeypatch.setattr(prod_auth, "PHENTRIEVE_AUTH_JWT_SECRET", "")
+        monkeypatch.setattr(prod_auth, "PHENTRIEVE_EMAIL_BACKEND", "console")
+        create_app()
