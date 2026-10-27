@@ -9,7 +9,15 @@ _MIN_PASSWORD = 10
 _MAX_PASSWORD = 72
 
 
+def _validate_password_bytes(value: str) -> str:
+    # bcrypt 5 raises on >72 bytes; max_length counts characters, not bytes.
+    if len(value.encode("utf-8")) > _MAX_PASSWORD:
+        raise ValueError("Password must be at most 72 bytes.")
+    return value
+
+
 def _validate_password_strength(value: str) -> str:
+    _validate_password_bytes(value)
     if not any(c.isalpha() for c in value):
         raise ValueError("Password must contain at least one letter.")
     if not any(c.isdigit() for c in value):
@@ -30,6 +38,11 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def _bytes(cls, value: str) -> str:
+        return _validate_password_bytes(value)
 
 
 class TokenRequest(BaseModel):
