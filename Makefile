@@ -395,7 +395,15 @@ security-python: ## Run Python security scans (pip-audit + Bandit)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
 	@echo "[1/3] Running pip-audit (dependency vulnerabilities)..."
-	@uv run pip-audit --strict || echo "⚠️  pip-audit found vulnerabilities"
+	@# Mirrors .github/workflows/security.yml (keep the ignore list in sync). Auditing the
+	@# exported lock avoids --strict aborting on the non-PyPI spaCy model wheels.
+	@uv export --format requirements-txt --all-extras --dev --no-emit-project --no-hashes --quiet > .audit-requirements.txt
+	@uv run pip-audit --requirement .audit-requirements.txt --vulnerability-service pypi \
+		--ignore-vuln GHSA-f4j7-r4q5-qw2c \
+		--ignore-vuln CVE-2026-45830 \
+		--ignore-vuln CVE-2026-45831 \
+		--ignore-vuln CVE-2026-45833 \
+		--no-deps --disable-pip; status=$$?; rm -f .audit-requirements.txt; exit $$status
 	@echo ""
 	@echo "[2/3] Running Bandit via Ruff (SAST - security rules)..."
 	@uv run ruff check phentrieve/ api/ --select S || echo "⚠️  Bandit/Ruff found security issues"

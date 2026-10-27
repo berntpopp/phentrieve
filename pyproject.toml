@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.28.4"
+version = "0.28.7"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -68,6 +68,8 @@ api = [
     "fastapi>=0.137.2",  # Security: first release CI-validated against starlette>=1.3.1
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
+    "langdetect>=1.0.9",  # language auto-detection for API text processing
+    "de_core_news_sm @ https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl",
 ]
 # MCP server dependencies (for Model Context Protocol integration)
 # Streamable HTTP only, built on the standalone FastMCP v3 framework
@@ -111,7 +113,7 @@ constraint-dependencies = [
     # release so a future `uv lock` cannot regress below the fix.
     "starlette>=1.3.1",          # form() DoS + SSRF / auth-bypass fixes
     "cryptography>=50.0.0",      # vulnerable OpenSSL in wheels + PKCS#7 Bleichenbacher oracle (GHSA-g6cj-pr64-35w5)
-    "msgpack>=1.2.1",            # out-of-bounds read / crash on Unpacker reuse
+    "msgpack>=1.2.3",            # out-of-bounds read / crash on Unpacker reuse; CVE-2026-114613
     "python-multipart>=0.0.31",  # querystring DoS + parameter smuggling fixes
     "pyasn1>=0.6.4",             # BER/CER/DER decoder DoS (GHSA-m4p7-r5rc-7g4j, -8ppf-4f7h-5ppj, -hm4w-wwcw-mr6r)
     "pymdown-extensions>=11.0.1",  # ReDoS (GHSA-gm37-52c6-37mw) + b64 path traversal (GHSA-9xwg-3r6f-jcx2)
@@ -119,6 +121,8 @@ constraint-dependencies = [
     "anyio>=4.14.2",             # CVE-2026-63374 / CVE-2026-64847 fixed release
     "pyjwt>=2.15.0",             # alg/claim-verification bypasses (GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v, GHSA-gvp8-978c-rx2q); via mcp[crypto]
     "oauthlib>=4.0.0",           # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v; via chromadb -> kubernetes
+    "authlib>=1.9.0",            # CVE-2026-96760; via codecarbon (energy extra) and fastmcp
+    "dnspython>=2.9.0",          # CVE-2026-114605; via email-validator (pydantic[email])
     "virtualenv>=21.14.9",       # GHSA-c978-59m8-c77v, GHSA-6w3r-xr62-4xcp, GHSA-394h-qwmc-48pf and friends; via pre-commit
     "pillow>=13.0.0",            # GHSA-5x8w-8jj5-q52h, GHSA-w889-685w-c8fh and ~40 more; via matplotlib
     "filelock>=4.2.1",           # GHSA-v4x8-3wr5-3wq8, GHSA-567q-5qvw-pf92, GHSA-9vhv-jxww-xfm5

@@ -160,13 +160,19 @@ ENV UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1
 # --inexact keeps the venv's pip, which the data-bundle stage still uses.
-# langdetect and the German spaCy model are runtime extras outside pyproject.
+# The deployment is CPU-only: skip the locked CUDA torch, triton and nvidia-* wheels
+# (~4.6 GB) and install the CPU build of the same locked torch version instead.
+# ponytail: the CPU torch wheel is pinned by exact version over HTTPS, not by hash.
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --inexact --no-dev --no-install-project \
-        --extra api --extra mcp --extra llm && \
-    uv pip install --python "$VIRTUAL_ENV/bin/python" \
-        langdetect \
-        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl
+    set -eu; \
+    EXTRAS="--extra api --extra mcp --extra llm"; \
+    REQS="$(uv export --frozen --no-dev --no-hashes --no-emit-project $EXTRAS)"; \
+    TORCH="$(printf '%s\n' "$REQS" | sed -nE 's/^torch==([^ ;]+).*/\1/p')"; \
+    SKIP="$(printf '%s\n' "$REQS" | sed -nE 's/^(torch|triton|nvidia-[a-z0-9-]+)==.*/--no-install-package \1/p')"; \
+    test -n "$TORCH"; \
+    uv sync --frozen --inexact --no-dev --no-install-project $SKIP $EXTRAS; \
+    uv pip install --python "$VIRTUAL_ENV/bin/python" --no-deps \
+        --index-url https://download.pytorch.org/whl/cpu "torch==${TORCH}+cpu"
 
 # ============================================================================
 # STAGE 3: Data Bundle - Download pre-built data OR build indexes from scratch
@@ -352,6 +358,15 @@ COPY --chown=phentrieve:phentrieve api/ ./api/
 # Copy root pyproject.toml for CLI version detection at runtime
 # Note: api/pyproject.toml is already copied with api/ directory above
 COPY --chown=phentrieve:phentrieve pyproject.toml ./
+
+# Install the project itself (no deps) so the `phentrieve` console script and its
+# dist-info exist. Done here, not in python-builder, so source edits never invalidate
+# the cached dependency venv. The bind mount is rw because setuptools writes egg-info
+# into the source tree; those writes are discarded. Uses the venv's pinned setuptools.
+RUN --mount=from=ghcr.io/astral-sh/uv:0.11.28@sha256:0f36cb9361a3346885ca3677e3767016687b5a170c1a6b88465ec14aefec90aa,source=/uv,target=/usr/local/bin/uv \
+    --mount=type=bind,target=/src,rw \
+    uv pip install --python /opt/venv/bin/python --no-deps --no-cache \
+        --no-build-isolation /src
 
 # Copy entrypoint script (must be executable)
 # The entrypoint handles runtime permission fixing for bind mounts
