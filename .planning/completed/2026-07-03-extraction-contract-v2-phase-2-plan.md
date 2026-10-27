@@ -1,5 +1,7 @@
 # Extraction Contract v2 -- Phase 2 Implementation Plan (LLM contract v2)
 
+> **Status: SHIPPED** in PR #303 (released in v0.25.0). Moved from `active/` on 2026-10-27; the checkboxes below were not ticked during execution.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > **Rev 3** -- rev 1 -> rev 2 fixed a Task-2 validation bug, the vocabulary strategy, the `_retrieve_candidates` axis-threading, the B3 emit point, the `capabilities_version`/MCP-projection mechanisms, and the frontend/prompt paths (self-review + Codex round 1). Rev 2 -> rev 3 (Codex round 2) made the compat-`category` concrete (D3 helper + conflict tests), added a non-breaking `excluded` flag for extract-status consistency, threaded family through the real `adapt_full_text_response`, added family-mapping cost accounting, required generated exclusions to inherit valid chunk refs (or they drop at the service boundary), de-brittled the capabilities test, and fixed the Vitest watch-mode command. See "Review deltas" at the end.

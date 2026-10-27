@@ -1,5 +1,7 @@
 # HPO Data Release Separation Implementation Plan
 
+> **Status: SHIPPED** in PRs #309-#312; data releases are published from `berntpopp/phentrieve-data` (`hpo-v2026-06-23-r2`, then `hpo-v2026-09-01-r1`). Moved from `active/` on 2026-10-27; the checkboxes below were not ticked during execution.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Publish the verified HPO `v2026-06-23` minimal, single-vector, and multivector bundle matrix for all nine supported retrieval models from a dedicated data-release repository, while separating this lifecycle from Phentrieve software releases.
