@@ -297,6 +297,28 @@ def test_uncertain_does_not_crash_and_is_not_excluded():
     assert out.assertion_status == "affirmed"
 
 
+@pytest.mark.parametrize(
+    "phenotype",
+    [
+        {"hpo_id": "HP:0001250", "status": "unknown", "excluded": True},
+        {"hpo_id": "HP:0001250", "assertion": "present", "excluded": True},
+        {"hpo_id": "HP:0001250", "excluded": True},
+    ],
+)
+def test_excluded_flag_exports_as_negated(phenotype):
+    # #407: the extractor's ``excluded`` flag is authoritative.
+    out = _coerce_export_phenotype(ExportPhenotypeRequest, phenotype, 0)
+    assert out is not None and out.assertion_status == "negated"
+
+
+@pytest.mark.parametrize("value", ["denied", "no", "negative", "excluded"])
+def test_negation_synonyms_export_as_negated(value):
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": value}, 0
+    )
+    assert out is not None and out.assertion_status == "negated"
+
+
 def test_present_assertion_affirmed():
     out = _coerce_export_phenotype(
         ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "present"}, 0

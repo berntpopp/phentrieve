@@ -37,6 +37,12 @@ together:
 
 ### Fixed
 
+- **Phenopacket export honours every negation synonym and `excluded: true`**
+  (#407). `denied`, `no`, `negative` and `excluded` now export as excluded
+  features (they previously normalized to `unknown`, i.e. present); an explicit
+  `excluded: true` wins over any `status`/`assertion` string; and the MCP
+  export reads the extractor's `excluded` flag.
+
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
   did not point into the document. The pipeline now locates `evidence_text`

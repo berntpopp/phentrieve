@@ -342,6 +342,67 @@ class TestPhenopacketUtils:
             == "affirmed"
         )
 
+    @pytest.mark.parametrize("value", ["denied", "no", "negative", "excluded"])
+    def test_negation_synonyms_export_as_excluded(self, value):
+        """#407: every negation synonym in assertion_vocab must export as
+        excluded, not fall through to "unknown" (present)."""
+        record = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {"hpo_id": "HP:0001945", "label": "Fever", "assertion": value}
+        )
+        assert record.assertion == "negated"
+
+        phenopacket = json.loads(
+            format_as_phenopacket_v2(
+                aggregated_results=[
+                    {
+                        "hpo_id": "HP:0001945",
+                        "term_name": "Fever",
+                        "assertion": value,
+                        "score": 0.8,
+                    }
+                ]
+            )
+        )
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_excluded_flag_wins_over_status(self):
+        """#407: ``excluded: True`` is authoritative even when a string field
+        (here ``status: "unknown"``) is present."""
+        record = NormalizedPhenotypeExportRecord.from_legacy_dict(
+            {"hpo_id": "HP:1", "label": "x", "status": "unknown", "excluded": True}
+        )
+        assert record.assertion == "negated"
+
+        phenopacket = json.loads(
+            format_as_phenopacket_v2(
+                aggregated_results=[
+                    {
+                        "hpo_id": "HP:0001945",
+                        "term_name": "Fever",
+                        "status": "unknown",
+                        "excluded": True,
+                        "score": 0.8,
+                    }
+                ]
+            )
+        )
+        assert phenopacket["phenotypicFeatures"][0]["excluded"] is True
+
+    def test_uncertain_and_unknown_assertions_unchanged(self):
+        """#407 must not alter the uncertain/unknown mapping (tracked in #399)."""
+        for value, expected in [
+            ("uncertain", "uncertain"),
+            ("suspected", "uncertain"),
+            ("unknown", "unknown"),
+            ("present", "affirmed"),
+        ]:
+            assert (
+                NormalizedPhenotypeExportRecord.from_legacy_dict(
+                    {"hpo_id": "HP:1", "label": "x", "assertion": value}
+                ).assertion
+                == expected
+            )
+
     def test_export_phenopacket_bundle_returns_strict_packet_and_optional_sidecar(
         self,
     ) -> None:
