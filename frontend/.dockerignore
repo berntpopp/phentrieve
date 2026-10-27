@@ -88,3 +88,8 @@ docker-compose*.yml
 # Logs
 logs/
 *.log
+
+# Secrets and keys
+*.pem
+*.key
+**/*.env

@@ -7,8 +7,12 @@
 # ============================================================================
 # Python 3.12 offers ~5% performance improvement and is the latest stable LTS
 # Keep at 3.11 for now due to dependency compatibility (spaCy, torch, etc.)
-ARG PYTHON_VERSION=3.11.13
+ARG PYTHON_VERSION=3.11.18
 ARG DEBIAN_VERSION=trixie
+# Base image digest for python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}. Pinned so a rebuild
+# is reproducible; bump PYTHON_VERSION and this digest together (runtime apt-get upgrade
+# still pulls Debian security fixes between bumps).
+ARG PYTHON_DIGEST=sha256:82209229d3fda30d71e603ec95bb4bea0476635ba6df3df2e32284e036654f51
 # SQLite 3.51.1 fixes CVE-2025-7458 and CVE-2025-6965 (critical integer overflow vulnerabilities)
 ARG SQLITE_VERSION=3510100
 ARG SQLITE_YEAR=2025
@@ -49,7 +53,7 @@ ARG BUILD_MODEL="FremyCompany/BioLORD-2023-M"
 # ============================================================================
 # STAGE 1: SQLite Builder - Build custom SQLite with required extensions
 # ============================================================================
-FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS sqlite-builder
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}@${PYTHON_DIGEST} AS sqlite-builder
 
 ARG SQLITE_VERSION
 ARG SQLITE_YEAR
@@ -97,7 +101,7 @@ SHELL ["/bin/sh", "-c"]
 # ============================================================================
 # STAGE 2: Python Dependencies Builder - Install all Python packages
 # ============================================================================
-FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS python-builder
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}@${PYTHON_DIGEST} AS python-builder
 
 # Copy SQLite from builder using --link for independent layer rebasing (2025 best practice)
 # --link creates layers that can be rebased onto new base images without rebuilding
@@ -125,6 +129,7 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel to patched versions
+# - setuptools >= 84.1.0 fixes GHSA-xmj3-9gf7-h52w (namespace_packages.txt path escape)
 # - setuptools >= 83.0.0 fixes CVE-2026-59890 / PYSEC-2026-3447 (MANIFEST.in exclusion
 #   bypass in sdist via Unicode normalization collision)
 # - setuptools >= 78.1.1 fixes CVE-2025-47273 (path traversal/arbitrary file write)
@@ -142,49 +147,26 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # (enforced by tests/unit/test_dependency_security_policy.py).
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade "pip>=24.1" "setuptools>=83.0.0" wheel
+    pip install --upgrade "pip>=24.1" "setuptools>=84.1.0" wheel
 
 WORKDIR /build
 
-# Copy only dependency files first for better caching
-COPY pyproject.toml ./
-
-# Install dependencies in specific order to handle binary compatibility
-# CRITICAL: Remove --no-cache-dir to leverage pip cache mount for 60-90% faster builds
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# hadolint ignore=DL3042,DL3013
-RUN --mount=type=cache,target=/root/.cache/pip \
-    set -euxo pipefail && \
-    # Install NumPy 2.x first (modern ABI) \
-    pip install "numpy>=2.0.0,<3.0.0" && \
-    # Install spaCy 3.8+ (compatible with NumPy 2.x and Pydantic v2) \
-    pip install "spacy>=3.8.0,<4.0.0" && \
-    pip install \
-        https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl && \
-    pip install \
-        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl && \
-    # Install langdetect for language auto-detection (fixes #VULN-007) \
-    pip install langdetect && \
-    # Install API dependencies (FastAPI, uvicorn) \
-    pip install \
-        "fastapi>=0.115.0" \
-        "uvicorn[standard]>=0.35.0" \
-        "python-dotenv>=1.0.0" \
-        "pydantic>=2.0.0" \
-        "pydantic-settings>=2.0.0" && \
-    # Install MCP dependencies for the Streamable HTTP endpoint at /mcp \
-    # (FastMCP v3 framework; replaces the removed fastapi-mcp bridge) \
-    pip install \
-        "mcp[cli]>=1.27.0,<2.0.0" \
-        "fastmcp>=3.2.0,<4.0.0" && \
-    # LLM provider SDKs for the 'llm' extraction backend (pyproject [llm] extra) \
-    pip install \
-        "google-genai>=1.22.0,<3.0.0" \
-        "anthropic>=0.73.0,<1.0.0" \
-        "openai>=2.0.0,<3.0.0" && \
-    # Install remaining dependencies from pyproject.toml \
-    pip install .
-SHELL ["/bin/sh", "-c"]
+# Install the exact dependency set from uv.lock (hash-verified, same versions CI tests).
+# Only the manifests are copied, so source edits never invalidate this layer.
+COPY --from=ghcr.io/astral-sh/uv:0.11.28@sha256:0f36cb9361a3346885ca3677e3767016687b5a170c1a6b88465ec14aefec90aa /uv /usr/local/bin/uv
+COPY pyproject.toml uv.lock ./
+ENV UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1
+# --inexact keeps the venv's pip, which the data-bundle stage still uses.
+# langdetect and the German spaCy model are runtime extras outside pyproject.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --inexact --no-dev --no-install-project \
+        --extra api --extra mcp --extra llm && \
+    uv pip install --python "$VIRTUAL_ENV/bin/python" \
+        langdetect \
+        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl
 
 # ============================================================================
 # STAGE 3: Data Bundle - Download pre-built data OR build indexes from scratch
@@ -282,7 +264,7 @@ SHELL ["/bin/sh", "-c"]
 # ============================================================================
 # STAGE 4: Runtime - Minimal production image
 # ============================================================================
-FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} AS runtime
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}@${PYTHON_DIGEST} AS runtime
 
 ARG BUNDLE_URL
 
@@ -307,11 +289,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     # Explicitly force-upgrade the OpenSSL family. A warm registry build cache can
     # otherwise pin a stale `apt-get upgrade` layer (e.g. openssl 3.5.6-1~deb13u1)
     # and keep shipping it across rebuilds. Naming the packages here guarantees the
-    # latest published Debian security patch (3.5.6-1~deb13u2: CVE-2026-45447 and the
-    # related PKCS7/CMS/X.509 fixes) lands, and editing this line busts the layer cache.
+    # latest published Debian security patch lands (3.5.7-1~deb13u3: CVE-2026-75804,
+    # CVE-2026-84782 and friends; pcre2 10.46-1~deb13u3: CVE-2026-103111), and editing
+    # this line busts the layer cache.
     apt-get install -y --no-install-recommends --only-upgrade \
         openssl \
         libssl3t64 \
+        openssl-provider-legacy \
+        libpcre2-8-0 \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         libgomp1 \

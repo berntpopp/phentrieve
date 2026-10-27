@@ -12,7 +12,10 @@ on:
       - 'plan/**'
       - 'LICENSE'
       - '.github/workflows/deploy-docs.yml'
+  # Draft PRs run nothing; marking the PR ready (ready_for_review) runs the full gate,
+  # and drafts cannot merge, so no unverified head can land.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
       - develop
@@ -23,30 +26,56 @@ on:
       - 'plan/**'
       - 'LICENSE'
       - '.github/workflows/deploy-docs.yml'
+  # Weekly + manual runs test every supported Python; PRs and pushes test the 3.11 floor.
+  schedule:
+    - cron: '0 5 * * 1'
   workflow_dispatch:
 
-# Cancel in-progress runs for the same workflow and ref
+permissions:
+  contents: read
+
+# Superseded PR pushes are cancelled; main/develop runs always finish so caches get saved.
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  UV_VERSION: '0.11.28'
+  NODE_VERSION: '24'
 
 jobs:
   changes:
     name: Detect Changes
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      contents: read
       pull-requests: read
     outputs:
-      python: ${{ steps.filter.outputs.python }}
-      frontend: ${{ steps.filter.outputs.frontend }}
-      docker: ${{ steps.filter.outputs.docker }}
+      python: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.python == 'true' }}
+      frontend: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.frontend == 'true' }}
+      python-versions: ${{ steps.full.outputs.run == 'true' && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
+      images: ${{ steps.images.outputs.images }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: dorny/paths-filter@v4
+      - id: full
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          case "$EVENT_NAME" in
+            schedule|workflow_dispatch) echo "run=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "run=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
+          # Image filters list every build input: the API image installs from uv.lock,
+          # so a dependency bump must rebuild and rescan it.
           filters: |
             python:
               - 'phentrieve/**'
@@ -58,33 +87,54 @@ jobs:
             frontend:
               - 'frontend/**'
               - '.github/workflows/ci.yml'
-            docker:
-              - '**/Dockerfile'
+            api-image:
+              - 'api/Dockerfile'
+              - 'api/docker-entrypoint.sh'
+              - '.dockerignore'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'docker-compose*.yml'
+              - '.github/workflows/ci.yml'
+            frontend-image:
+              - 'frontend/Dockerfile'
+              - 'frontend/.dockerignore'
+              - 'frontend/nginx.conf'
+              - 'frontend/package.json'
+              - 'frontend/package-lock.json'
               - 'docker-compose*.yml'
               - '.github/workflows/ci.yml'
 
-  python-quality:
-    name: Python Quality (3.11)
+      # Images are built and scanned on PRs only; on push docker-publish.yml builds them.
+      - id: images
+        env:
+          API: ${{ steps.filter.outputs.api-image }}
+          FRONTEND: ${{ steps.filter.outputs.frontend-image }}
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+        run: |
+          images='[]'
+          if [ "$IS_PR" = true ]; then
+            images="$(jq -cn --arg api "$API" --arg fe "$FRONTEND" \
+              '[if $api == "true" then "api" else empty end, if $fe == "true" then "frontend" else empty end]')"
+          fi
+          echo "images=$images" >> "$GITHUB_OUTPUT"
+
+  # Fail fast: format, lint and typecheck gate the test matrix.
+  python-lint:
+    name: Python Lint & Typecheck
     needs: changes
     if: needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
-    env:
-      HF_HOME: ${{ github.workspace }}/.cache/huggingface
-
+    timeout-minutes: 10
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: "latest"
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: ${{ env.UV_VERSION }}
           enable-cache: true
           cache-dependency-glob: uv.lock
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v7
-        with:
           python-version: '3.11'
 
       - name: Install dependencies
@@ -96,79 +146,93 @@ jobs:
       - name: Run Ruff linting
         run: make lint
 
+      # mypy validates cache entries against file hashes, so a restored cache is safe.
+      - name: Cache mypy
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mypy_cache
+          key: mypy-${{ hashFiles('uv.lock', 'pyproject.toml') }}-${{ github.sha }}
+          restore-keys: |
+            mypy-${{ hashFiles('uv.lock', 'pyproject.toml') }}-
+
       - name: Run mypy type checking
         run: make typecheck
 
-      - name: Run pytest
+  python-test:
+    name: Python Tests (${{ matrix.python-version }})
+    needs: [changes, python-lint]
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HF_HOME: ${{ github.workspace }}/.cache/huggingface
+    strategy:
+      fail-fast: false
+      matrix:
+        # Version-specific failures have not occurred in practice: every recent Python
+        # failure hit all three versions alike. The full matrix runs weekly and on demand.
+        python-version: ${{ fromJSON(needs.changes.outputs.python-versions) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      # 3.11 is the coverage-gated reference run; newer versions run the compat suite.
+      - name: Run pytest with coverage
+        if: matrix.python-version == '3.11'
         env:
           COVERAGE_CORE: sysmon
         run: make test-ci
 
+      - name: Run pytest compatibility suite
+        if: matrix.python-version != '3.11'
+        run: uv run pytest tests/ -q -m "not slow and not e2e" --no-cov
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage.xml
           flags: python
           name: python-3.11
         continue-on-error: true
 
-  python-compat:
-    name: Python Compatibility (${{ matrix.python-version }})
-    needs: changes
-    if: needs.changes.outputs.python == 'true'
-    runs-on: ubuntu-latest
-    env:
-      HF_HOME: ${{ github.workspace }}/.cache/huggingface
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.12', '3.13']
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          version: "latest"
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --locked --all-extras --dev
-
-      - name: Run pytest compatibility suite
-        run: uv run pytest tests/ -q -m "not slow and not e2e" --no-cov
-
   frontend-ci:
     name: Frontend CI
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20.19'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: frontend
         run: npm ci
 
       - name: Cache ESLint
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: frontend/.eslintcache
           key: eslint-${{ hashFiles('frontend/package-lock.json', 'frontend/eslint.config.*') }}
@@ -176,17 +240,16 @@ jobs:
             eslint-
 
       - name: Run ESLint
-        working-directory: frontend
         run: npm run lint
 
       - name: Run Prettier format check
-        working-directory: frontend
         run: npm run format:check
 
       - name: Run Vitest tests (with coverage on main, no coverage on PRs)
-        working-directory: frontend
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "$EVENT_NAME" = "pull_request" ]; then
             npm run test:ci
           else
             npm run test:coverage
@@ -194,7 +257,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: github.event_name != 'pull_request'
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./frontend/coverage/coverage-final.json
           flags: frontend
@@ -202,48 +265,66 @@ jobs:
         continue-on-error: true
 
       - name: Build frontend
-        working-directory: frontend
         run: npm run build
         env:
           VITE_API_URL: /api/v1
 
+  # Runs only after the code it packages has passed tests; reuses the public
+  # registry build cache that docker-publish.yml writes on main.
   docker-build-test:
-    name: Docker Build Test
-    needs: changes
-    if: needs.changes.outputs.docker == 'true'
+    name: Docker Build & Scan (${{ matrix.service }})
+    needs: [changes, python-test, frontend-ci]
+    if: >-
+      ${{ always() && needs.changes.outputs.images != '[]' && needs.changes.outputs.images != ''
+      && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
+      fail-fast: false
       matrix:
-        service: [api, frontend]
-
+        service: ${{ fromJSON(needs.changes.outputs.images) }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      # Only the multi-GB API image needs the extra disk.
       - name: Free disk space
+        if: matrix.service == 'api'
         run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
           docker system prune -af
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build ${{ matrix.service }} image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ${{ matrix.service == 'api' && '.' || './frontend' }}
           file: ${{ matrix.service == 'api' && './api/Dockerfile' || './frontend/Dockerfile' }}
           push: false
-          tags: ghcr.io/berntpopp/phentrieve/${{ matrix.service }}:test
+          load: true
+          tags: phentrieve-${{ matrix.service }}:ci
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.service }}:buildcache
           build-args: |
             ${{ matrix.service == 'frontend' && 'VITE_API_URL=/api/v1' || '' }}
+
+      - name: Scan image (fail on fixable HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: phentrieve-${{ matrix.service }}:ci
+          scanners: vuln
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+          exit-code: '1'
 
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     permissions:
       contents: read
     steps:
@@ -351,34 +432,29 @@ jobs:
           jq -r '.[] | "\(.severity): \(.name)@\(.version) (\(.advisory)) - \(.summary)\n\(.url)\n"' "$findings_json" >&2
           exit 1
 
+  # Single required check: path-filtered jobs report "skipped", which passes, while a
+  # failed or cancelled job fails the gate.
   ci-summary:
     name: CI Summary
-    needs: [changes, python-quality, python-compat, frontend-ci, docker-build-test, dependency-review]
-    if: always()
+    needs: [changes, python-lint, python-test, frontend-ci, docker-build-test, dependency-review]
+    if: ${{ always() && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check CI results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
         run: |
-          echo "## CI Results Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Python Quality | ${{ needs.python-quality.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Python Compatibility | ${{ needs.python-compat.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend CI | ${{ needs.frontend-ci.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docker Build | ${{ needs.docker-build-test.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency Review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## CI Results Summary"
+            echo ""
+            echo "| Job | Result |"
+            echo "|-----|--------|"
+            jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"' <<< "$RESULTS"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          if [[ "${{ needs.python-quality.result }}" == "failure" ]] || \
-             [[ "${{ needs.python-compat.result }}" == "failure" ]] || \
-             [[ "${{ needs.frontend-ci.result }}" == "failure" ]] || \
-             [[ "${{ needs.docker-build-test.result }}" == "failure" ]]; then
-            echo "One or more CI jobs failed"
-            exit 1
-          fi
-
-          if [[ "${{ needs.dependency-review.result }}" == "failure" ]]; then
-            echo "Dependency review found vulnerabilities"
+          failed="$(jq -r '[to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key] | join(", ")' <<< "$RESULTS")"
+          if [ -n "$failed" ]; then
+            echo "::error::CI jobs did not pass: $failed"
             exit 1
           fi

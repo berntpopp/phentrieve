@@ -95,8 +95,15 @@ def test_github_actions_node_versions_satisfy_vite_8_engine_floor() -> None:
         for workflow in sorted(WORKFLOW_DIR.glob("*.yml"))
     )
 
-    assert "node-version: '20.19'" in workflow_text
-    assert "node-version: '20'" not in workflow_text
+    versions = re.findall(
+        r"(?:node-version|NODE_VERSION): '([0-9]+(?:\.[0-9]+){0,2})'", workflow_text
+    )
+
+    assert versions, "no Node version pinned in workflows"
+    for version in versions:
+        # A bare major ('24') resolves to its latest release, so check the major alone.
+        node = _parse_version(version) if "." in version else (int(version), 99, 0)
+        assert node >= (22, 12, 0) or (20, 19, 0) <= node < (21, 0, 0), version
 
 
 def test_vite_8_config_does_not_use_object_form_manual_chunks() -> None:

@@ -30,6 +30,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 concurrency:
   group: hpo-data-${{ inputs.release_tag }}
   cancel-in-progress: false
@@ -41,23 +44,29 @@ jobs:
     timeout-minutes: 720
     permissions:
       contents: write
+    # Inputs reach shell steps through env, never template expansion (script injection).
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
+      RELEASE_SPEC_PATH: ${{ inputs.release_spec_path }}
     steps:
       - name: Checkout data-release repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: data-release
+          persist-credentials: false
 
       - name: Checkout pinned Phentrieve source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: berntpopp/phentrieve
           ref: ${{ inputs.source_commit }}
           path: phentrieve
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
-          version: latest
+          version: '0.11.28'
           enable-cache: true
           cache-dependency-glob: phentrieve/uv.lock
 
@@ -69,17 +78,17 @@ jobs:
         working-directory: phentrieve
         run: |
           uv run python scripts/build_data_release.py \
-            --spec "${GITHUB_WORKSPACE}/data-release/${{ inputs.release_spec_path }}" \
-            --data-dir ".runs/${{ inputs.release_tag }}/data" \
-            --output-dir "dist/${{ inputs.release_tag }}" \
+            --spec "${GITHUB_WORKSPACE}/data-release/${RELEASE_SPEC_PATH}" \
+            --data-dir ".runs/${RELEASE_TAG}/data" \
+            --output-dir "dist/${RELEASE_TAG}" \
             --device cuda
 
       - name: Run retrieval smoke checks
         working-directory: phentrieve
         run: |
           uv run python scripts/verify_data_release.py \
-            --spec "${GITHUB_WORKSPACE}/data-release/${{ inputs.release_spec_path }}" \
-            --bundle-dir "dist/${{ inputs.release_tag }}" \
+            --spec "${GITHUB_WORKSPACE}/data-release/${RELEASE_SPEC_PATH}" \
+            --bundle-dir "dist/${RELEASE_TAG}" \
             --smoke-test
 
       - name: Create caller-owned draft release
@@ -87,12 +96,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ inputs.release_tag }}" \
-            --repo "${{ github.repository }}" \
+          gh release create "${RELEASE_TAG}" \
+            --repo "${GITHUB_REPOSITORY}" \
             --draft \
-            --title "HPO ${{ inputs.release_tag }}" \
+            --title "HPO ${RELEASE_TAG}" \
             --notes "Verified HPO vector-index data release. See release-manifest.json and verification-report.json." \
-            "dist/${{ inputs.release_tag }}"/*.tar.gz \
-            "dist/${{ inputs.release_tag }}/SHA256SUMS" \
-            "dist/${{ inputs.release_tag }}/release-manifest.json" \
-            "dist/${{ inputs.release_tag }}/verification-report.json"
+            "dist/${RELEASE_TAG}"/*.tar.gz \
+            "dist/${RELEASE_TAG}/SHA256SUMS" \
+            "dist/${RELEASE_TAG}/release-manifest.json" \
+            "dist/${RELEASE_TAG}/verification-report.json"
