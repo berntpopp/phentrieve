@@ -7,5 +7,3 @@ CVE-2026-45829
 CVE-2026-45830
 CVE-2026-45831
 CVE-2026-45833
-# torch.jit.script memory corruption; no patched torch release.
-CVE-2025-3000

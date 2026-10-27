@@ -189,6 +189,9 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "fsspec": Version("2026.6.0"),  # GHSA-27vj-qcqg-25rc
         "opentelemetry-api": Version("1.45.1"),  # GHSA-xcq7-p3pf-p88h
         "certifi": Version("2026.10.19"),  # PYSEC-2026-4320
+        "authlib": Version("1.9.0"),  # CVE-2026-96760 / GHSA-6v38-4h7w-rj9h
+        "dnspython": Version("2.9.0"),  # CVE-2026-114605
+        "msgpack": Version("1.2.3"),  # CVE-2026-114613
     }
     for name, floor in expected.items():
         assert any(
@@ -215,14 +218,30 @@ def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:
         assert Version("2.4.0") <= posthog < Version("6.0.0")
 
 
-def test_torch_vulnerability_exception_is_explicitly_limited_to_no_patch() -> None:
-    """Torch remains necessary for SentenceTransformers until a patched release exists."""
+def _security_workflow_ignores() -> set[str]:
     security_workflow = (
         REPO_ROOT / ".github" / "workflows" / "security.yml"
     ).read_text(encoding="utf-8")
+    return set(re.findall(r"--ignore-vuln (\S+)", security_workflow))
 
-    assert "CVE-2025-3000" in security_workflow
-    assert "no patched release" in security_workflow
+
+def test_torch_cve_2025_3000_is_no_longer_ignored() -> None:
+    """CVE-2025-3000 affects torch <= 2.12.0; the locked torch is past it (#413)."""
+    trivyignore = (REPO_ROOT / ".trivyignore").read_text(encoding="utf-8").split()
+
+    assert _uv_packages()["torch"] > Version("2.12.0")
+    assert "CVE-2025-3000" not in _security_workflow_ignores()
+    assert "CVE-2025-3000" not in trivyignore
+
+
+def test_local_pip_audit_matches_the_ci_ignore_list() -> None:
+    """`make security-python` must report the same advisories CI does (#413)."""
+    makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
+    match = re.search(r"^PIP_AUDIT_IGNORES := (.*)$", makefile, re.MULTILINE)
+    assert match, "Makefile must define PIP_AUDIT_IGNORES"
+
+    assert set(match.group(1).split()) == _security_workflow_ignores()
+    assert "uv run pip-audit --strict" not in makefile
 
 
 def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:

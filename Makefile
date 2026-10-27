@@ -389,13 +389,24 @@ ci-quick: ## Quick CI check (format + lint only, no tests)
 
 security: security-python security-frontend  ## Run all security scans
 
+# Accepted pip-audit advisories; keep identical to the --ignore-vuln list in
+# .github/workflows/security.yml (enforced by tests/unit/test_dependency_security_policy.py).
+PIP_AUDIT_IGNORES := GHSA-f4j7-r4q5-qw2c CVE-2026-45830 CVE-2026-45831 CVE-2026-45833
+# Same invocation as CI: audit the exported lock, not the venv. `pip-audit --strict`
+# aborted on the URL-pinned spaCy models before reporting any advisory.
+PIP_AUDIT_RUN = req="$$(mktemp)"; \
+	uv export --format requirements-txt --all-extras --dev --no-emit-project --no-hashes --quiet > "$$req" && \
+	uv run --no-sync pip-audit --requirement "$$req" --vulnerability-service pypi \
+		$(foreach id,$(PIP_AUDIT_IGNORES),--ignore-vuln $(id)) --no-deps --disable-pip; \
+	status=$$?; rm -f "$$req"; exit $$status
+
 security-python: ## Run Python security scans (pip-audit + Bandit)
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  Python Security Scanning"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo ""
 	@echo "[1/3] Running pip-audit (dependency vulnerabilities)..."
-	@uv run pip-audit --strict || echo "⚠️  pip-audit found vulnerabilities"
+	@($(PIP_AUDIT_RUN)) || echo "⚠️  pip-audit found vulnerabilities"
 	@echo ""
 	@echo "[2/3] Running Bandit via Ruff (SAST - security rules)..."
 	@uv run ruff check phentrieve/ api/ --select S || echo "⚠️  Bandit/Ruff found security issues"
@@ -426,7 +437,7 @@ security-audit: ## Run dependency audits only (pip-audit + npm audit)
 	@echo "Running dependency vulnerability audits..."
 	@echo ""
 	@echo "Python dependencies:"
-	@uv run pip-audit --strict || true
+	@($(PIP_AUDIT_RUN)) || true
 	@echo ""
 	@echo "JavaScript dependencies:"
 	@cd frontend && npm audit --audit-level=high || true
