@@ -21,6 +21,9 @@ concurrency:
   group: docker-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_API: ${{ github.repository }}/api
@@ -33,16 +36,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Lint API Dockerfile
-        uses: hadolint/hadolint-action@v3.5.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         with:
           dockerfile: api/Dockerfile
           failure-threshold: error
 
       - name: Lint Frontend Dockerfile
-        uses: hadolint/hadolint-action@v3.5.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         with:
           dockerfile: frontend/Dockerfile
           failure-threshold: error
@@ -55,15 +60,16 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write
       security-events: write  # For Trivy SARIF upload
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Free disk space
-        uses: jlumbroso/free-disk-space@main
+        uses: jlumbroso/free-disk-space@36e9a5af4eddb91fc11aec4c6f6f79b3cc0cb523 # main
         with:
           # Remove Android SDK (~12GB), .NET (~2GB), Haskell (~6GB)
           android: true
@@ -77,11 +83,10 @@ jobs:
           tool-cache: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -89,7 +94,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for API
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}
           tags: |
@@ -103,7 +108,7 @@ jobs:
 
       - name: Build and push API image
         id: build-api
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./api/Dockerfile
@@ -125,17 +130,19 @@ jobs:
             BUILD_INDEXES=false
 
       - name: Scan API image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
           output: 'trivy-api-results.sarif'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
-          exit-code: '0'  # Don't fail build, just report
+          trivyignores: .trivyignore
+          # Fail the run on a fixable HIGH/CRITICAL finding; the SARIF still uploads.
+          exit-code: '1'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: always()
         with:
           sarif_file: 'trivy-api-results.sarif'
@@ -143,7 +150,8 @@ jobs:
 
       # Dockle - CIS benchmark compliance checker
       - name: Run Dockle on API image
-        uses: erzz/dockle-action@v1
+        if: ${{ !cancelled() }}
+        uses: erzz/dockle-action@e8a7c41f36f1236ca3282b298d425ffbfdb2e922 # v1.4.1
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ steps.meta.outputs.version }}
           report-format: sarif
@@ -155,6 +163,7 @@ jobs:
           # CIS-DI-0010: Do not store secrets - we use env vars at runtime
 
       - name: Filter accepted Dockle API findings
+        if: ${{ !cancelled() }}
         run: |
           jq '(.runs[]?.results) |= map(select((.ruleId // .rule.id // "") != "DKL-DI-0005"))' \
             dockle-api-results.sarif > dockle-api-results.filtered.sarif
@@ -162,7 +171,7 @@ jobs:
         # DKL-DI-0005 is emitted from the upstream python:slim base image apt layer.
 
       - name: Upload Dockle API results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: always()
         with:
           sarif_file: dockle-api-results.sarif
@@ -176,31 +185,19 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write
       security-events: write  # For Trivy SARIF upload
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Free disk space
-        uses: jlumbroso/free-disk-space@main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Minimal cleanup for frontend (smaller image)
-          android: true
-          dotnet: true
-          haskell: false
-          large-packages: false
-          docker-images: true
-          swap-storage: false
-          tool-cache: false
+          persist-credentials: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -208,7 +205,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Frontend
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
           tags: |
@@ -222,7 +219,7 @@ jobs:
 
       - name: Build and push Frontend image
         id: build-frontend
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -239,17 +236,19 @@ jobs:
             VITE_API_URL=/api/v1
 
       - name: Scan Frontend image with Trivy
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
-          exit-code: '0'  # Don't fail build, just report
+          trivyignores: .trivyignore
+          # Fail the run on a fixable HIGH/CRITICAL finding; the SARIF still uploads.
+          exit-code: '1'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: always()
         with:
           sarif_file: 'trivy-frontend-results.sarif'
@@ -257,7 +256,8 @@ jobs:
 
       # Dockle - CIS benchmark compliance checker
       - name: Run Dockle on Frontend image
-        uses: erzz/dockle-action@v1
+        if: ${{ !cancelled() }}
+        uses: erzz/dockle-action@e8a7c41f36f1236ca3282b298d425ffbfdb2e922 # v1.4.1
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.meta.outputs.version }}
           report-format: sarif
@@ -266,7 +266,7 @@ jobs:
           exit-code: 0  # Don't fail build, just report
 
       - name: Upload Dockle Frontend results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: always()
         with:
           sarif_file: dockle-frontend-results.sarif

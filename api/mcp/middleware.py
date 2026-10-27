@@ -18,6 +18,7 @@ import json
 import logging
 from typing import Any
 
+from fastmcp.exceptions import ValidationError as FastMCPValidationError
 from fastmcp.server.middleware.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools.tool import ToolResult
 from mcp.types import CallToolRequestParams, TextContent
@@ -70,6 +71,11 @@ class ArgValidationMiddleware(Middleware):
             result = await call_next(context)
         except ValidationError as exc:
             return self._error_result(name, valid, schema, exc)
+        except FastMCPValidationError as exc:
+            # FastMCP >=3.4.10 re-raises the pydantic error wrapped in its own type.
+            if not isinstance(exc.__cause__, ValidationError):
+                raise
+            return self._error_result(name, valid, schema, exc.__cause__)
 
         if (
             applied
