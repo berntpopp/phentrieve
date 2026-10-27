@@ -41,6 +41,7 @@ from phentrieve.config import (
     DEFAULT_NUM_RESULTS,
     MIN_SIMILARITY_THRESHOLD,
 )
+from phentrieve.llm.pipeline_trace import incomplete_extraction_signal
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -283,6 +284,16 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 meta["family_history_findings_truncated"] = family_trunc
             if other_trunc:
                 meta["other_person_findings_truncated"] = other_trunc
+            # A partial LLM result (a phase-1 group lost for good) is flagged
+            # here, where every response mode keeps it (#395).
+            raw_meta = raw.get("meta")
+            meta.update(
+                incomplete_extraction_signal(
+                    raw_meta.get("observability")
+                    if isinstance(raw_meta, dict)
+                    else None
+                )
+            )
             _maybe_citation(meta, mode)
             shaped["_meta"] = meta
             return shaped

@@ -1718,6 +1718,172 @@ def test_pipeline_keeps_multi_group_grouped_large_after_output_truncation(
     assert result.meta.phase_request_counts["phase1_requests"] == 3
 
 
+# Issue #395 scenario: the ungrouped request truncates, then the last
+# grouped_small window ([3, 4], holding the dense negated list) truncates too.
+_TRUNCATION_CHUNKS = [
+    {"chunk_id": 1, "text": "Recurrent seizures."},
+    {"chunk_id": 2, "text": "Normal EEG."},
+    {"chunk_id": 3, "text": "No hypotonia."},
+    {"chunk_id": 4, "text": "No ataxia, no microcephaly, no cardiomyopathy."},
+]
+_TRUNCATION_CANDIDATES = {
+    "recurrent seizures": [
+        {"hpo_id": "HP:0001250", "term_name": "recurrent seizures", "score": 0.99}
+    ],
+    "hypotonia": [{"hpo_id": "HP:0001252", "term_name": "hypotonia", "score": 0.99}],
+    "ataxia": [{"hpo_id": "HP:0001251", "term_name": "ataxia", "score": 0.99}],
+}
+
+
+def _truncated_response() -> dict[str, object]:
+    return {
+        "exception": RuntimeError("Invalid JSON: EOF while parsing a string"),
+        "finish_reason": "max_output_tokens",
+        "request_count": 1,
+    }
+
+
+def _run_truncation_scenario(monkeypatch, last_group_responses):
+    # One worker: the sequential fake provider then answers groups in order.
+    monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
+    provider = FakeProvider(
+        responses=[
+            _truncated_response(),
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("recurrent seizures", "Abnormal"),
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "hypotonia", "Normal", chunk_ids=[3], assertion="absent"
+                        ),
+                    ]
+                },
+                "request_count": 1,
+            },
+            *last_group_responses,
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=PhraseKeyedToolExecutor(_TRUNCATION_CANDIDATES),
+    )
+    result = pipeline.run(
+        text=" ".join(str(chunk["text"]) for chunk in _TRUNCATION_CHUNKS),
+        grounded_chunks=[dict(chunk) for chunk in _TRUNCATION_CHUNKS],
+        extraction_groups=[],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+    return result, provider
+
+
+def test_truncated_grouped_small_group_is_retried_once_at_the_ceiling(
+    monkeypatch,
+) -> None:
+    result, provider = _run_truncation_scenario(
+        monkeypatch,
+        [
+            _truncated_response(),
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "ataxia", "Normal", chunk_ids=[4], assertion="absent"
+                        ),
+                    ]
+                },
+                "request_count": 1,
+            },
+        ],
+    )
+
+    assert sorted((t.term_id, t.assertion) for t in result.terms) == [
+        ("HP:0001250", "present"),
+        ("HP:0001251", "negated"),
+        ("HP:0001252", "negated"),
+    ]
+    budgets = [call["max_output_tokens"] for call in provider.structured_calls]
+    # The runaway guard is intact: every first attempt uses the scaled budget;
+    # only the truncated grouped_small group is retried, once, at the ceiling.
+    assert budgets == [2048, 2048, 2048, 2048, 65536]
+    assert provider.responses == []
+    counts = result.meta.phase_counts
+    assert counts["phase1_truncation_retries"] == 1
+    assert counts["phase1_unrecovered_groups"] == 0
+    assert counts["phase1_failed_groups"] == 0
+    retried_group = result.meta.trace["phase1"]["groups"][2]
+    assert retried_group["status"] == "completed"
+    assert retried_group["truncation_retry"] is True
+    assert retried_group["request_count"] == 2
+
+
+def test_group_still_truncated_after_retry_is_reported_unrecovered(
+    monkeypatch,
+) -> None:
+    result, provider = _run_truncation_scenario(
+        monkeypatch, [_truncated_response(), _truncated_response()]
+    )
+
+    # The request still succeeds with the findings of the other groups ...
+    assert sorted(t.term_id for t in result.terms) == ["HP:0001250", "HP:0001252"]
+    assert [call["max_output_tokens"] for call in provider.structured_calls] == [
+        2048,
+        2048,
+        2048,
+        2048,
+        65536,
+    ]
+    # ... but the lost group is counted, so callers can flag the result.
+    counts = result.meta.phase_counts
+    assert counts["phase1_unrecovered_groups"] == 1
+    assert counts["phase1_truncation_retries"] == 1
+    assert counts["phase1_failed_groups"] == 1
+    failed_group = result.meta.trace["phase1"]["groups"][2]
+    assert failed_group["status"] == "failed"
+    assert failed_group["truncation_retry"] is True
+    assert failed_group["chunk_ids"] == [3, 4]
+
+
+def test_grouped_large_truncation_is_not_retried_at_the_ceiling(monkeypatch) -> None:
+    """A truncated grouped_large window falls back to smaller groups instead."""
+    monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
+    provider = FakeProvider(
+        responses=[
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            _truncated_response(),
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    result = pipeline.run(
+        text="One. Two.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "One."},
+            {"chunk_id": 2, "text": "Two."},
+        ],
+        extraction_groups=[
+            {"group_id": 1, "chunk_ids": [1], "text": "chunk_id=1: One."},
+            {"group_id": 2, "chunk_ids": [2], "text": "chunk_id=2: Two."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert 65536 not in [
+        call["max_output_tokens"] for call in provider.structured_calls
+    ]
+    assert result.meta.phase_counts["phase1_unrecovered_groups"] == 0
+    assert result.meta.phase_counts["phase1_truncation_retries"] == 0
+
+
 def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
     mocker, monkeypatch
 ) -> None:

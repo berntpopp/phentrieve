@@ -102,6 +102,16 @@ together:
   `error_type` holds the class name of the underlying provider error (for
   example a timeout vs a validation error) instead of the constant
   `pipeline_phase_error`; the message stays generic.
+- **A truncated phase-1 group is no longer dropped silently** (#395). A
+  `grouped_small` group (the last fallback level) that truncates at its scaled
+  output budget is retried once at a fixed 65,536-token ceiling
+  (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
+  keep the scaled budget, so runaway generations are still cut early. A group
+  that still fails is counted in `phase1_unrecovered_groups`, and REST
+  responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
+  (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
+  Retries are traced per group (`truncation_retry`) and counted in
+  `phase1_truncation_retries`. The frontend does not display the flag yet.
 
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
