@@ -32,6 +32,10 @@ git checkout test/integration-2026-10-27   # develop + #437..#444
 make install-dev && make frontend-install
 ```
 
+Delete any stale setuptools `build/` directory before testing (`rm -rf build`).
+#414 deletes modules, and a stale `build/lib` keeps them in locally built wheels. That makes
+`test_runtime_source_hash_matches_built_wheel` fail with a hash mismatch.
+
 To test a single PR, check out its branch instead:
 
 | PR | Branch |
