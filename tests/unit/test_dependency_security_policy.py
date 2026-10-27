@@ -161,12 +161,14 @@ def test_jinabert_model_is_not_reintroduced() -> None:
 
 def test_mcp_uses_the_patched_transport_release() -> None:
     """GHSA-hvrp-rf83-w775 / GHSA-jpw9-pfvf-9f58 are fixed in 1.27.2 and
-    GHSA-vj7q-gjh5-988w in 1.28.1."""
+    GHSA-vj7q-gjh5-988w in 1.28.1, GHSA-84m7-p3x7-pcfv in 1.30.0."""
     optional = _pyproject()["project"]["optional-dependencies"]
     packages = _uv_packages()
 
-    assert any("mcp[cli]>=1.28.1" in dependency for dependency in optional["mcp"])
-    assert packages["mcp"] >= Version("1.28.1")
+    assert any("mcp[cli]>=1.30.0" in dependency for dependency in optional["mcp"])
+    assert any("fastmcp>=3.4.10" in dependency for dependency in optional["mcp"])
+    assert packages["mcp"] >= Version("1.30.0")
+    assert packages["fastmcp"] >= Version("3.4.10")  # GHSA-7xgj-8392-5q4r
 
 
 def test_transitive_security_floors_are_pinned_in_constraints() -> None:
@@ -181,8 +183,12 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "anyio": Version("4.14.2"),  # CVE-2026-63374, CVE-2026-64847
         "pyjwt": Version("2.15.0"),  # GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v
         "oauthlib": Version("4.0.0"),  # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v
-        "virtualenv": Version("21.7.13"),  # GHSA-p58f-9548-mpm2 and friends
-        "filelock": Version("4.2.1"),  # CVE-2026-112907 and friends
+        "virtualenv": Version("21.14.9"),  # GHSA-c978-59m8-c77v and friends
+        "pillow": Version("13.0.0"),  # GHSA-5x8w-8jj5-q52h and friends
+        "filelock": Version("4.2.1"),  # GHSA-v4x8-3wr5-3wq8 and friends
+        "fsspec": Version("2026.6.0"),  # GHSA-27vj-qcqg-25rc
+        "opentelemetry-api": Version("1.45.1"),  # GHSA-xcq7-p3pf-p88h
+        "certifi": Version("2026.10.19"),  # PYSEC-2026-4320
     }
     for name, floor in expected.items():
         assert any(
@@ -227,7 +233,7 @@ def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:
     assert any(
         dependency.startswith("setuptools>=84.1.0") for dependency in dev_dependencies
     )
-    assert packages["setuptools"] >= Version("84.1.0")
+    assert packages["setuptools"] >= Version("84.1.0")  # GHSA-xmj3-9gf7-h52w
 
 
 def test_setuptools_floors_stay_aligned_across_build_backend_and_api_image() -> None:

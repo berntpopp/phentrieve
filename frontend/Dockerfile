@@ -3,8 +3,10 @@
 # ============================================================================
 # ARGUMENTS
 # ============================================================================
-ARG NODE_VERSION=20.19-alpine3.20
-ARG NGINX_VERSION=1.27-alpine3.20-slim
+# Tags pinned to digests for reproducible builds; bump tag and digest together.
+# Node 20 and Alpine 3.20 are end-of-life; Node 24 is the active LTS.
+ARG NODE_VERSION=24.22.1-alpine3.24@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+ARG NGINX_VERSION=1.30.6-alpine3.24-slim@sha256:5d8bb9437d74a600ec5dbf90c035451c724dc33eac8d3a71078f6f8612c345f6
 ARG VITE_API_URL
 
 # ============================================================================

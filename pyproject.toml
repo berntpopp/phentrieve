@@ -1,7 +1,7 @@
 # Initial pyproject.toml for Phentrieve
 
 [build-system]
-# setuptools >= 84.1.0 fixes GHSA-xmj3-9gf7-h52w (83.0.0 fixed CVE-2026-59890).
+# setuptools >= 84.1.0 fixes GHSA-xmj3-9gf7-h52w (and CVE-2026-59890 / PYSEC-2026-3447 from 83.0.0).
 # Keep this floor identical to the dev-group floor and the api/Dockerfile floor;
 # tests/unit/test_dependency_security_policy.py fails if they drift apart.
 requires = ["setuptools>=84.1.0", "wheel"]
@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phentrieve"
-version = "0.28.3"
+version = "0.28.4"
 description = "A CLI tool for retrieving Human Phenotype Ontology (HPO) terms from clinical text using multilingual embeddings."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -73,8 +73,8 @@ api = [
 # Streamable HTTP only, built on the standalone FastMCP v3 framework
 # (matches the maintainer's *-link MCP server family).
 mcp = [
-    "mcp[cli]>=1.28.1,<3.0.0",  # Security: GHSA-hvrp-rf83-w775, GHSA-jpw9-pfvf-9f58 (1.27.2), GHSA-vj7q-gjh5-988w (1.28.1)
-    "fastmcp>=3.4.10,<5.0.0",  # Security: GHSA-7xgj-8392-5q4r (3.4.10 / 4.1.2)
+    "mcp[cli]>=1.30.0,<3.0.0",  # Security: GHSA-hvrp-rf83-w775, GHSA-jpw9-pfvf-9f58 (1.27.2), GHSA-vj7q-gjh5-988w (1.28.1), GHSA-84m7-p3x7-pcfv (1.30.0)
+    "fastmcp>=3.4.10,<5.0.0",  # Security: GHSA-7xgj-8392-5q4r
     "fastapi>=0.137.2",  # Security: first release CI-validated against starlette>=1.3.1
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
@@ -82,7 +82,7 @@ mcp = [
 ]
 llm = [
     "google-genai>=1.22.0,<3.0.0",
-    "anthropic>=0.73.0,<2.0.0",
+    "anthropic>=0.73.0,<3.0.0",
     "openai>=2.0.0,<4.0.0",
 ]
 benchmarks = [
@@ -119,8 +119,12 @@ constraint-dependencies = [
     "anyio>=4.14.2",             # CVE-2026-63374 / CVE-2026-64847 fixed release
     "pyjwt>=2.15.0",             # alg/claim-verification bypasses (GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v, GHSA-gvp8-978c-rx2q); via mcp[crypto]
     "oauthlib>=4.0.0",           # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v; via chromadb -> kubernetes
-    "virtualenv>=21.7.13",       # GHSA-p58f-9548-mpm2, GHSA-x78j-v8h9-3j2q, GHSA-94p9-xgh2-xp45; via pre-commit
-    "filelock>=4.2.1",           # CVE-2026-112907, CVE-2026-112913, CVE-2026-112940; via torch/huggingface-hub
+    "virtualenv>=21.14.9",       # GHSA-c978-59m8-c77v, GHSA-6w3r-xr62-4xcp, GHSA-394h-qwmc-48pf and friends; via pre-commit
+    "pillow>=13.0.0",            # GHSA-5x8w-8jj5-q52h, GHSA-w889-685w-c8fh and ~40 more; via matplotlib
+    "filelock>=4.2.1",           # GHSA-v4x8-3wr5-3wq8, GHSA-567q-5qvw-pf92, GHSA-9vhv-jxww-xfm5
+    "fsspec>=2026.6.0",          # GHSA-27vj-qcqg-25rc ReferenceFileSystem SSTI
+    "opentelemetry-api>=1.45.1", # GHSA-xcq7-p3pf-p88h unbounded tracestate parsing
+    "certifi>=2026.10.19",       # PYSEC-2026-4320; via requests/httpx
 ]
 
 [tool.setuptools]
@@ -293,7 +297,7 @@ dev = [
     "types-cachetools>=5.5.0",  # Type stubs for cachetools library
     # Security scanning
     "pip-audit>=2.9.0",  # Python dependency vulnerability scanner
-    "setuptools>=84.1.0",  # GHSA-xmj3-9gf7-h52w fixed release
+    "setuptools>=84.1.0",  # GHSA-xmj3-9gf7-h52w fixed release (PYSEC-2026-3447 fixed in 83.0.0)
     "bandit[toml,sarif]>=1.9.0",  # Python SAST with TOML config and SARIF output
     "mkdocs-glightbox>=0.5.2",
     "mkdocs-material>=9.7.7",

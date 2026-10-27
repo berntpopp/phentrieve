@@ -28,6 +28,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+permissions:
+  contents: read
+
 jobs:
   # Python dependency vulnerability scanning
   pip-audit:
@@ -40,22 +43,25 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
-          version: "latest"
+          version: '0.11.28'
           enable-cache: true
           cache-dependency-glob: uv.lock
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: uv sync --locked --all-extras --dev
+      # The scanners need only the locked dev tools, not the multi-GB runtime stack.
+      - name: Install scanner tools
+        run: uv sync --locked --only-group dev
 
       - name: Export locked Python dependencies
         run: |
@@ -79,12 +85,13 @@ jobs:
           # removed together with the JinaBert model: its pinned remote implementation imports
           # transformers.pytorch_utils.find_pruneable_heads_and_indices, which no longer exists
           # in Transformers 5.x. Dropping that model unblocked the patched 5.x major.
-          uv run pip-audit --requirement audit-requirements.txt --vulnerability-service pypi \
+          uv run --no-sync pip-audit --requirement audit-requirements.txt --vulnerability-service pypi \
             --ignore-vuln CVE-2025-3000 \
             --ignore-vuln GHSA-f4j7-r4q5-qw2c \
             --ignore-vuln CVE-2026-45830 \
             --ignore-vuln CVE-2026-45831 \
-            --ignore-vuln CVE-2026-45833
+            --ignore-vuln CVE-2026-45833 \
+            --no-deps --disable-pip
 
   # Python SAST with Bandit (run directly with uv for proper pyproject.toml support)
   bandit:
@@ -97,33 +104,36 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
-          version: "latest"
+          version: '0.11.28'
           enable-cache: true
           cache-dependency-glob: uv.lock
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: uv sync --locked --all-extras --dev
+      # The scanners need only the locked dev tools, not the multi-GB runtime stack.
+      - name: Install scanner tools
+        run: uv sync --locked --only-group dev
 
       - name: Run Bandit Security Scan
         run: |
-          uv run bandit -r phentrieve api -c pyproject.toml -f sarif -o bandit-results.sarif --severity-level medium --confidence-level medium || true
+          uv run --no-sync bandit -r phentrieve api -c pyproject.toml -f sarif -o bandit-results.sarif --severity-level medium --confidence-level medium || true
           # Always generate output even if no issues found
           if [ ! -s bandit-results.sarif ]; then
             echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.9.2"}},"results":[]}]}' > bandit-results.sarif
           fi
 
       - name: Upload Bandit results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         if: always()
         with:
           sarif_file: bandit-results.sarif
@@ -137,12 +147,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20.19'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 

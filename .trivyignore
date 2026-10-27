@@ -1,0 +1,11 @@
+# Accepted image-scan findings. Keep in sync with the pip-audit --ignore-vuln list in
+# .github/workflows/security.yml and the Dependency Review allowlist in ci.yml.
+# Scans already run with --ignore-unfixed; these entries only matter if Trivy's DB
+# starts listing a fixed version that the pinned dependency cannot adopt.
+# chromadb 1.x is required to read the published data bundles; embedded client only.
+CVE-2026-45829
+CVE-2026-45830
+CVE-2026-45831
+CVE-2026-45833
+# torch.jit.script memory corruption; no patched torch release.
+CVE-2025-3000
