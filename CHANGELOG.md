@@ -98,6 +98,10 @@ together:
   `other_person_*` keys through the same helper as the family path. The dead
   span-overlap guard and bounds merge in phase-1 deduplication are removed
   (phase-1 items carry no offsets until after deduplication).
+- **Phase-1 group failure traces record the exception type again** (#425).
+  `error_type` holds the class name of the underlying provider error (for
+  example a timeout vs a validation error) instead of the constant
+  `pipeline_phase_error`; the message stays generic.
 
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
