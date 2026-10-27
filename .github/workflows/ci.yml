@@ -26,6 +26,9 @@ on:
       - 'plan/**'
       - 'LICENSE'
       - '.github/workflows/deploy-docs.yml'
+  # Weekly + manual runs test every supported Python; PRs and pushes test the 3.11 floor.
+  schedule:
+    - cron: '0 5 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -50,13 +53,23 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      python: ${{ steps.filter.outputs.python }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+      python: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.python == 'true' }}
+      frontend: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.frontend == 'true' }}
+      python-versions: ${{ steps.full.outputs.run == 'true' && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
       images: ${{ steps.images.outputs.images }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - id: full
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          case "$EVENT_NAME" in
+            schedule|workflow_dispatch) echo "run=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "run=false" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
@@ -156,7 +169,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        # Version-specific failures have not occurred in practice: every recent Python
+        # failure hit all three versions alike. The full matrix runs weekly and on demand.
+        python-version: ${{ fromJSON(needs.changes.outputs.python-versions) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
