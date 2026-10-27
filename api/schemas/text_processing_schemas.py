@@ -2,6 +2,7 @@ from typing import Any, Literal, cast
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
+from api.inference_limits import MAX_TEXT_INPUT_CHARS
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
@@ -23,6 +24,7 @@ class TextProcessingRequest(BaseModel):
 
     text: str = Field(
         ...,
+        max_length=MAX_TEXT_INPUT_CHARS,
         validation_alias=AliasChoices("text", "text_content"),
         description="The raw research phenotype text to process.",
     )
@@ -37,8 +39,8 @@ class TextProcessingRequest(BaseModel):
     allow_standard_fallback: bool = Field(
         default=False,
         description=(
-            "When true, production LLM quota exhaustion falls back to the standard "
-            "backend instead of returning a quota error."
+            "When true, LLM quota exhaustion or an LLM backend error falls back "
+            "to the standard backend instead of returning an error."
         ),
     )
     language: str | None = Field(

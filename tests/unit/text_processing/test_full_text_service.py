@@ -1615,3 +1615,90 @@ def test_run_standard_backend_invokes_adaptive_when_enabled(mocker):
     assert result["meta"]["num_aggregated_hpo_terms"] == 1
     # The aggregated terms come from the rechunker output, not the initial pass.
     assert [t["id"] for t in result["aggregated_hpo_terms"]] == ["HP:0002"]
+
+
+def test_run_llm_backend_reuses_supplied_retriever_and_model(mocker) -> None:
+    """#420: a caller-owned retriever/model is used instead of building new ones."""
+    provider = mocker.Mock()
+    provider.count_tokens.return_value = {"total_tokens": 1}
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(llm_model="gemini-2.5-flash", llm_mode="two_phase"),
+    )
+    pipeline_factory = mocker.Mock(return_value=pipeline)
+    preprocess = mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=SimpleNamespace(grounded_chunks=[], extraction_groups=[]),
+    )
+    from_model_name = mocker.patch(
+        "phentrieve.retrieval.dense_retriever.DenseRetriever.from_model_name"
+    )
+    retriever = mocker.Mock()
+    retriever.detect_index_type.return_value = "multi_vector"
+    sbert_model = object()
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_grounded",
+        retrieval_model_name="some/model",
+        retriever=retriever,
+        sbert_model_for_semantic_chunking=sbert_model,
+        provider_factory=mocker.Mock(return_value=provider),
+        pipeline_factory=pipeline_factory,
+    )
+
+    assert (
+        preprocess.call_args.kwargs["sbert_model_for_semantic_chunking"] is sbert_model
+    )
+    tool_executor = pipeline_factory.call_args.kwargs["tool_executor"]
+    assert tool_executor._retriever is retriever
+    assert tool_executor.model_name == "some/model"
+    assert tool_executor.multi_vector is True
+    from_model_name.assert_not_called()
+
+
+def test_run_llm_backend_without_retriever_keeps_default_tool_executor(mocker):
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(llm_model="gemini-2.5-flash", llm_mode="two_phase"),
+    )
+    pipeline_factory = mocker.Mock(return_value=pipeline)
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_legacy",
+        provider_factory=mocker.Mock(return_value=mocker.Mock()),
+        pipeline_factory=pipeline_factory,
+    )
+
+    assert "tool_executor" not in pipeline_factory.call_args.kwargs
+
+
+def test_build_grounded_chunks_uses_supplied_semantic_model(mocker) -> None:
+    from phentrieve.llm import preprocessing
+
+    load_model = mocker.patch("phentrieve.embeddings.load_embedding_model")
+    pipeline_cls = mocker.patch(
+        "phentrieve.text_processing.pipeline.TextProcessingPipeline"
+    )
+    pipeline_cls.return_value.process.return_value = []
+    sbert_model = object()
+
+    preprocessing.build_grounded_chunks_from_text_pipeline(
+        text="Patient has seizures.",
+        language="en",
+        chunking_pipeline_config=None,
+        assertion_config=None,
+        retrieval_model_name="some/model",
+        sbert_model_for_semantic_chunking=sbert_model,
+    )
+
+    load_model.assert_not_called()
+    assert (
+        pipeline_cls.call_args.kwargs["sbert_model_for_semantic_chunking"]
+        is sbert_model
+    )

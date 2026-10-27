@@ -2,6 +2,8 @@ from typing import Any
 
 from fastapi.concurrency import run_in_threadpool
 
+from api.dependencies import get_dense_retriever_dependency
+from api.inference_limits import INFERENCE_SLOTS
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -286,7 +288,10 @@ async def execute_standard_text_processing(
             cli_overrides=None,
         )
 
-    service_result = await run_in_threadpool(run_full_text_service, **service_kwargs)
+    async with INFERENCE_SLOTS:
+        service_result = await run_in_threadpool(
+            run_full_text_service, **service_kwargs
+        )
     return adapt_shared_service_response_to_api(
         service_result,
         request=request,
@@ -302,6 +307,11 @@ async def execute_llm_text_processing(
     actual_language = request.language or DEFAULT_LANGUAGE
     retrieval_model_name_to_load = validate_model_name(
         "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
+    )
+    # Reuse the process-wide cached retriever (and its model) instead of letting
+    # the LLM backend open a fresh Chroma collection on every request (#420).
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=retrieval_model_name_to_load
     )
     service_kwargs: dict[str, Any] = {
         "text": request.text,
@@ -320,9 +330,14 @@ async def execute_llm_text_processing(
             "language": actual_language,
         },
         "retrieval_model_name": retrieval_model_name_to_load,
+        "retriever": retriever,
+        "sbert_model_for_semantic_chunking": retriever.model,
     }
 
-    service_result = await run_in_threadpool(run_full_text_service, **service_kwargs)
+    async with INFERENCE_SLOTS:
+        service_result = await run_in_threadpool(
+            run_full_text_service, **service_kwargs
+        )
     return adapt_shared_service_response_to_api(service_result, request=request)
 
 

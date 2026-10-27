@@ -108,6 +108,7 @@ def build_grounded_chunks_from_text_pipeline(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> list[GroundedChunk]:
     from phentrieve.config import get_default_chunk_pipeline_config
     from phentrieve.embeddings import load_embedding_model
@@ -123,7 +124,11 @@ def build_grounded_chunks_from_text_pipeline(
         assertion_config=(
             {"disable": True} if assertion_config is None else assertion_config
         ),
-        sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
+        sbert_model_for_semantic_chunking=(
+            sbert_model_for_semantic_chunking
+            if sbert_model_for_semantic_chunking is not None
+            else load_embedding_model(retrieval_model_name)
+        ),
     )
     processed_chunks = text_pipeline.process(text, include_positions=include_positions)
     prompt_texts = _prompt_texts(text, processed_chunks)

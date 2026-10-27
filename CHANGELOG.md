@@ -20,6 +20,18 @@ together:
 
 ### Changed
 
+- **LLM quota helpers are shared by REST and MCP** (#434). `quota_enforced()`,
+  `check_llm_quota()` and `record_llm_quota_success()` live in
+  `api/llm_quota.py` on top of `DailyQuotaStore.get_today_status` /
+  `record_today_success`; the duplicated copies in the text router and the MCP
+  adapter are gone. REST and MCP policies are unchanged.
+- **The API LLM text path reuses the cached dense retriever** (#420) and its
+  model for semantic chunking, instead of opening a new Chroma collection per
+  request. `run_llm_backend` now forwards a supplied `retriever` to the
+  pipeline's tool executor.
+- **Removed the text router's re-exported private service aliases** and
+  `_process_text_internal` (#428); tests patch `api.services.text_processing_*`.
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -91,6 +103,14 @@ together:
   Custom templates without the new key keep the previous rendering. The prompt
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
+- **Text input is capped at 50,000 characters and model inference is
+  throttled** (#406). `TextProcessingRequest.text`, `QueryRequest.text` and the
+  MCP text arguments reject longer input with a validation error, and the text
+  processing thread-pool calls share a process-wide semaphore sized by
+  `PHENTRIEVE_MAX_CONCURRENT_INFERENCE` (default 2).
+- **REST `allow_standard_fallback` now also covers LLM backend errors** (#418),
+  as on MCP: the request reruns on the standard backend with
+  `meta.fallback_reason = "llm_backend_error"` instead of returning a 500.
 
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
