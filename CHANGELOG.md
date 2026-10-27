@@ -37,6 +37,13 @@ together:
 
 ### Fixed
 
+- **Frontend health poll and response logging are cheaper** (#431). The API
+  health poll skips its interval tick while the tab is hidden, and API response
+  logs read the size from `Content-Length` instead of `JSON.stringify`-ing every
+  response body.
+
+- **ESLint no longer lints the generated `frontend/coverage/` directory** (#432).
+
 - **Full-text "normal" findings are no longer collected as present** (#404).
   The frontend mapped a `status: "normal"` term (and any term the API flags
   `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out

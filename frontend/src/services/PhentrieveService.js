@@ -30,6 +30,13 @@ const buildRequestConfig = () => {
   return { headers };
 };
 const getSerializedSize = (value) => JSON.stringify(value)?.length || 0;
+// Log the response size from the Content-Length header instead of re-serializing
+// the body on every response (full-text results can exceed 1 MB). Null when the
+// server sent no header (e.g. chunked or compressed responses).
+const getResponseSize = (response) => {
+  const size = Number.parseInt(response?.headers?.['content-length'], 10);
+  return Number.isFinite(size) ? size : null;
+};
 const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
 class PhentrieveService {
@@ -45,7 +52,7 @@ class PhentrieveService {
       const response = await axios.post(`${API_URL}/query/`, queryPayload, buildRequestConfig());
       logService.debug('HPO API response received', {
         status: response.status,
-        dataSize: getSerializedSize(response.data),
+        dataSize: getResponseSize(response),
         resultsCount: response.data?.results?.length || 0,
       });
       return response.data; // Expected to match QueryResponse schema
@@ -64,7 +71,7 @@ class PhentrieveService {
         response: error.response
           ? {
               status: error.response.status,
-              dataSize: getSerializedSize(error.response.data),
+              dataSize: getResponseSize(error.response),
             }
           : null,
       });
@@ -99,7 +106,7 @@ class PhentrieveService {
 
       logService.debug('Text Processing API response received', {
         status: response.status,
-        dataSize: getSerializedSize(response.data),
+        dataSize: getResponseSize(response),
         numChunks: response.data.processed_chunks?.length || 0,
         numAggregatedTerms: response.data.aggregated_hpo_terms?.length || 0,
       });
@@ -120,7 +127,7 @@ class PhentrieveService {
         response: error.response
           ? {
               status: error.response.status,
-              dataSize: getSerializedSize(error.response.data),
+              dataSize: getResponseSize(error.response),
             }
           : null,
       });
