@@ -18,6 +18,44 @@ together:
 
 ## [Unreleased]
 
+## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
+
+Security patch release: clears every open Dependabot and Trivy alert, makes the
+API image reproducible from `uv.lock`, and hardens the Docker and CI/CD supply
+chain (#392). No functional changes.
+
+### Fixed
+
+- **Python dependency advisories (~60 Dependabot alerts):** pillow 13.0.0
+  (GHSA-5x8w-8jj5-q52h, GHSA-w889-685w-c8fh and ~40 more), virtualenv 21.15.0,
+  filelock 4.2.4, fsspec 2026.9.0 (GHSA-27vj-qcqg-25rc), opentelemetry-api
+  1.45.1, certifi 2026.10.23 (GHSA-6q48-6c7w-9gw2), setuptools 84.2.1
+  (GHSA-xmj3-9gf7-h52w), fastmcp 3.4.10 (GHSA-7xgj-8392-5q4r) and mcp 1.30.0
+  (GHSA-84m7-p3x7-pcfv). Floors are pinned in `tool.uv.constraint-dependencies`
+  and the `mcp` extra, and enforced by policy tests.
+- **Frontend advisories:** vite 8.3.5, vitest 5.0.5, happy-dom 21.0.4
+  (GHSA-834v-8h66-3h79), follow-redirects 1.16.2; `npm audit` reports 0.
+- **API image OS advisories (40 Trivy alerts):** the runtime layer now
+  force-upgrades `openssl-provider-legacy` and `libpcre2-8-0` alongside OpenSSL.
+- **MCP argument validation:** FastMCP 3.4.10 wraps pydantic `ValidationError`;
+  the middleware unwraps it so bad arguments still return the
+  `validation_failed` envelope.
+
+### Changed
+
+- **API image installs from `uv.lock`** (`uv sync --frozen`, hash-verified)
+  instead of an ad-hoc `pip install`, so it ships exactly the versions CI tests.
+- **Base images pinned by digest:** Python 3.11.18, Node 24 LTS, nginx 1.30
+  stable on Alpine 3.24 (Node 20 and Alpine 3.20 are end-of-life).
+- **Docker build context is an allowlist**; untracked env files and virtualenvs
+  can no longer reach an image layer.
+- **CI/CD:** actions pinned to commit SHAs; read-only default token
+  permissions; draft PRs skipped. Lint and typecheck gate the tests. PRs test
+  the Python 3.11 floor, and the full 3.11-3.13 matrix runs weekly. Image build
+  and Trivy scan (blocking on fixable HIGH/CRITICAL) run on PRs after tests.
+  Faster security scans; injection-safe data-bundle workflow.
+- `anthropic` optional dependency range widened to `<3.0.0`.
+
 ## [0.28.3] — 2026-10-01 (CLI 0.28.3 / API 0.18.3 / Frontend 0.18.2)
 
 Consolidated Dependabot version updates and security fixes. No functional
