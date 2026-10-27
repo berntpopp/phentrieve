@@ -1,3 +1,4 @@
+import { watch } from 'vue';
 import { createI18n } from 'vue-i18n';
 
 // Import locale files explicitly to ensure they're included in the production build
@@ -56,5 +57,14 @@ const i18n = createI18n({
   silentTranslationWarn: true,
   silentFallbackWarn: true,
 });
+
+// Keep <html lang> in sync so screen readers and hyphenation use the active language
+watch(
+  i18n.global.locale,
+  (locale) => {
+    document.documentElement.lang = locale;
+  },
+  { immediate: true }
+);
 
 export default i18n;

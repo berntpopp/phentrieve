@@ -2,7 +2,7 @@
   <div data-testid="user-note-summary" class="user-note-summary">
     <div class="user-note-summary__header">
       <v-icon size="small" color="primary">mdi-file-document-outline</v-icon>
-      <span class="text-body-2 font-weight-medium">Clinical note</span>
+      <span class="text-body-2 font-weight-medium">{{ $t('queryInterface.form.noteLabel') }}</span>
       <span class="text-caption text-medium-emphasis">
         {{ meta }}
       </span>
@@ -11,7 +11,9 @@
         size="x-small"
         variant="text"
         icon
-        :aria-label="expanded ? 'Collapse clinical note' : 'Expand clinical note'"
+        :aria-label="
+          $t(expanded ? 'queryInterface.form.collapseNote' : 'queryInterface.form.expandNote')
+        "
         @click="$emit('toggle')"
       >
         <v-icon size="small">
@@ -37,7 +39,7 @@
           open-on-focus
           max-width="280"
           content-class="annotated-note-tooltip"
-          :content-props="{ 'aria-label': segment.tooltip }"
+          :aria-label="segment.tooltip"
         >
           <template #activator="{ props }">
             <mark
@@ -48,6 +50,7 @@
                 'annotated-note-span--active':
                   activePhenotypeId && segment.termIds.includes(activePhenotypeId),
                 'annotated-note-span--manual': segment.manual,
+                'annotated-note-span--negated': segment.negated,
               }"
               role="button"
               aria-haspopup="menu"
@@ -68,6 +71,9 @@
           <div class="annotated-note-tooltip__content">
             <div class="annotated-note-tooltip__eyebrow">Linked phenotype</div>
             <div class="annotated-note-tooltip__label">{{ segment.tooltip }}</div>
+            <div v-if="segment.negated" class="annotated-note-tooltip__negated">
+              {{ $t('queryInterface.phenotypeCollection.assertionStatus.negated') }}
+            </div>
           </div>
         </v-tooltip>
         <span v-else>{{ segment.text }}</span>
@@ -195,7 +201,7 @@ export default {
   margin-top: 8px;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(15, 23, 42, 0.9);
+  color: rgba(var(--v-theme-on-surface), 0.9);
 }
 
 .annotated-note-span,
@@ -217,15 +223,30 @@ export default {
 }
 
 /* Manually curated annotations get a distinct hue (violet) so they read as
-   human edits versus the automatic (blue) extraction. */
-.annotated-note-span--manual {
+   human edits versus the automatic (blue) extraction. The doubled class outranks
+   the base ".user-note-summary__expanded mark" selector (0,2,1). */
+.annotated-note-span.annotated-note-span--manual {
   background: rgba(124, 58, 237, 0.18);
   box-shadow: inset 0 -0.42em 0 rgba(124, 58, 237, 0.16);
 }
 
-.annotated-note-span--manual:hover {
+.annotated-note-span.annotated-note-span--manual:hover {
   background: rgba(124, 58, 237, 0.26);
   box-shadow: inset 0 -0.5em 0 rgba(124, 58, 237, 0.2);
+}
+
+.annotated-note-span.annotated-note-span--negated,
+.annotated-note-span.annotated-note-span--negated:hover {
+  background: rgba(var(--v-theme-warning), 0.12);
+  box-shadow: none;
+  text-decoration: underline wavy rgba(var(--v-theme-warning), 0.7);
+  text-underline-offset: 3px;
+}
+
+.annotated-note-tooltip__negated {
+  margin-top: 4px;
+  font-weight: 600;
+  color: rgb(var(--v-theme-warning));
 }
 
 .annotated-note-span--active {

@@ -284,6 +284,23 @@ describe('buildSegmentsFromAnnotations', () => {
     expect(segs[1].manual).toBe(true);
   });
 
+  it('flags negated annotations, but not a merged run that also links a present term', () => {
+    const negated = annotations.map((ann) =>
+      ann.id === 'a1' ? { ...ann, status: 'negated' } : ann
+    );
+    const segs = buildSegmentsFromAnnotations(note, negated).filter((s) => s.highlighted);
+    expect(segs[0].negated).toBe(true);
+    expect(segs[1].negated).toBe(false);
+
+    const overlapping = [
+      { ...negated[0] },
+      { ...negated[0], id: 'a3', hpoId: 'HP:0000253', status: 'affirmed' },
+    ];
+    const merged = buildSegmentsFromAnnotations(note, overlapping).filter((s) => s.highlighted);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].negated).toBe(false);
+  });
+
   it('merges overlapping spans and unions termIds', () => {
     const overlap = [
       {

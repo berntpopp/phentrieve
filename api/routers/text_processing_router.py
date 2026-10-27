@@ -47,6 +47,7 @@ from api.services.text_processing_execution import (
 from api.services.text_processing_execution import (
     validate_response_chunk_references as _validate_response_chunk_references,
 )
+from phentrieve.text_processing.full_text_service import LLMCancelToken
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
@@ -261,14 +262,24 @@ async def process_text_extract_hpo(
                     detail=exc.to_detail(),
                 ) from exc
 
+    # Set when the client disconnects (user cancelled) or we time out; the LLM
+    # worker then skips its remaining paid provider calls.
+    cancel_event = LLMCancelToken()
+    disconnect_watcher = (
+        asyncio.create_task(_cancel_on_disconnect(http_request, cancel_event))
+        if request.extraction_backend == "llm"
+        else None
+    )
     try:
         # Wrap processing with timeout protection
         response = await asyncio.wait_for(
-            _process_text_via_shared_service(request), timeout=timeout_seconds
+            _process_text_via_shared_service(request, cancel_event),
+            timeout=timeout_seconds,
         )
     except asyncio.exceptions.TimeoutError:
-        # Keep the reservation: the worker thread (and its paid LLM call) keeps
-        # running after wait_for gives up.
+        # Keep the reservation: the in-flight paid LLM call still completes,
+        # but no further calls start.
+        cancel_event.set()
         logger.error(
             "API: Request timed out after %ss (text length: %s chars)",
             timeout_seconds,
@@ -285,9 +296,17 @@ async def process_text_extract_hpo(
         )
     except Exception:
         # Failed before producing a result: the caller got nothing, refund it.
-        if quota_status is not None:
+        # A cancel after paid LLM calls started is charged, like a timeout, so
+        # start-and-cancel loops cannot spend LLM budget for free.
+        cancelled_after_llm_spend = (
+            cancel_event.is_set() and cancel_event.llm_calls_started > 0
+        )
+        if quota_status is not None and not cancelled_after_llm_spend:
             release_llm_quota(quota_status)
         raise
+    finally:
+        if disconnect_watcher is not None:
+            disconnect_watcher.cancel()
 
     if quota_status is not None:
         response.meta["quota_limit"] = quota_status.quota_limit
@@ -300,9 +319,23 @@ async def process_text_extract_hpo(
     return response
 
 
-async def _process_text_via_shared_service(request: TextProcessingRequest):
+async def _cancel_on_disconnect(
+    http_request: Request, cancel_event: LLMCancelToken
+) -> None:
+    """Flag the run as cancelled once the client goes away (e.g. it hit Cancel)."""
+    while not cancel_event.is_set():
+        if await http_request.is_disconnected():
+            logger.info("API: Client disconnected; cancelling remaining LLM calls")
+            cancel_event.set()
+            return
+        await asyncio.sleep(0.5)
+
+
+async def _process_text_via_shared_service(
+    request: TextProcessingRequest, cancel_event: LLMCancelToken | None = None
+):
     """Compatibility wrapper for the shared-service-based text processing path."""
-    return await _service_process_text_via_shared_service(request)
+    return await _service_process_text_via_shared_service(request, cancel_event)
 
 
 async def _process_text_internal(request: TextProcessingRequest):

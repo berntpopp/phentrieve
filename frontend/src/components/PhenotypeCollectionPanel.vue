@@ -1,11 +1,7 @@
 <template>
   <div>
     <!-- Floating action button for collection panel -->
-    <v-tooltip
-      location="left"
-      :text="bridgeLabels.openPanel"
-      :content-props="{ 'aria-label': bridgeLabels.openPanel }"
-    >
+    <v-tooltip location="left" :text="bridgeLabels.openPanel" :aria-label="bridgeLabels.openPanel">
       <template #activator="{ props }">
         <v-btn
           v-bind="props"
@@ -38,6 +34,7 @@
       :aria-label="bridgeLabels.panel"
       data-testid="case-workspace-drawer"
       @update:model-value="$emit('update:panelOpen', $event)"
+      @keydown.esc="$emit('update:panelOpen', false)"
     >
       <v-list-item class="pl-2 pr-1">
         <v-list-item-title class="text-h6" data-testid="case-workspace-title">
@@ -79,9 +76,7 @@
             <v-chip
               size="x-small"
               class="ml-2"
-              :color="
-                phenotype.assertion_status === 'negated' ? 'pink-lighten-1' : 'green-lighten-1'
-              "
+              :color="phenotype.assertion_status === 'negated' ? 'warning' : 'success'"
               label
               variant="flat"
             >
@@ -94,11 +89,9 @@
 
           <template #append>
             <v-tooltip
-              :text="$t('queryInterface.phenotypeCollection.assertionToggle')"
+              :text="assertionToggleText(phenotype.assertion_status)"
               location="start"
-              :content-props="{
-                'aria-label': $t('queryInterface.phenotypeCollection.assertionToggle'),
-              }"
+              :aria-label="assertionToggleText(phenotype.assertion_status)"
             >
               <template #activator="{ props }">
                 <v-btn
@@ -141,10 +134,10 @@
 
       <v-sheet v-else class="pa-4 text-center">
         <v-icon size="x-large" color="grey-darken-1" class="mb-2"> mdi-tray-plus </v-icon>
-        <div class="text-body-1 text-grey-darken-2">
+        <div class="text-body-1 text-medium-emphasis">
           {{ $t('queryInterface.phenotypeCollection.empty') }}
         </div>
-        <div class="text-caption text-grey-darken-3 mt-2">
+        <div class="text-caption text-medium-emphasis mt-2">
           {{ $t('queryInterface.phenotypeCollection.instructions') }}
           <v-icon size="small"> mdi-plus-circle-outline </v-icon>
         </div>
@@ -158,7 +151,7 @@
         <v-tooltip
           location="bottom"
           :text="$t('queryInterface.tooltips.subjectId')"
-          :content-props="{ 'aria-label': $t('queryInterface.tooltips.subjectId') }"
+          :aria-label="$t('queryInterface.tooltips.subjectId')"
         >
           <template #activator="{ props }">
             <v-text-field
@@ -169,7 +162,7 @@
               hide-details="auto"
               class="mb-3"
               :aria-label="$t('queryInterface.phenotypeCollection.aria.subjectId')"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               @update:model-value="$emit('update:subjectId', $event)"
             >
@@ -185,7 +178,7 @@
         <v-tooltip
           location="bottom"
           :text="$t('queryInterface.tooltips.sex')"
-          :content-props="{ 'aria-label': $t('queryInterface.tooltips.sex') }"
+          :aria-label="$t('queryInterface.tooltips.sex')"
         >
           <template #activator="{ props }">
             <v-select
@@ -200,7 +193,7 @@
               class="mb-3"
               clearable
               :aria-label="$t('queryInterface.phenotypeCollection.aria.sex')"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               @update:model-value="$emit('update:sex', $event)"
             >
@@ -214,7 +207,7 @@
         <v-tooltip
           location="bottom"
           :text="$t('queryInterface.tooltips.dateOfBirth')"
-          :content-props="{ 'aria-label': $t('queryInterface.tooltips.dateOfBirth') }"
+          :aria-label="$t('queryInterface.tooltips.dateOfBirth')"
         >
           <template #activator="{ props }">
             <v-text-field
@@ -228,7 +221,7 @@
               clearable
               type="date"
               :aria-label="$t('queryInterface.phenotypeCollection.aria.dateOfBirth')"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               @update:model-value="$emit('update:dateOfBirth', $event)"
             >
@@ -269,13 +262,34 @@
           </v-btn>
           <v-btn
             block
-            variant="tonal"
+            variant="outlined"
+            color="primary"
+            class="mb-2"
+            prepend-icon="mdi-content-copy"
+            :disabled="presentIds.length === 0"
+            data-testid="collection-copy-ids"
+            @click="copyIds"
+          >
+            {{
+              copiedCount
+                ? $t('queryInterface.phenotypeCollection.copied', { count: copiedCount })
+                : $t('queryInterface.phenotypeCollection.copyIds')
+            }}
+          </v-btn>
+          <v-btn
+            block
+            :variant="confirmingClear ? 'flat' : 'tonal'"
             color="error"
             prepend-icon="mdi-delete-sweep-outline"
             :disabled="phenotypes.length === 0"
-            @click="$emit('clear')"
+            data-testid="collection-clear"
+            @click="onClear"
           >
-            {{ $t('queryInterface.phenotypeCollection.clear') }}
+            {{
+              confirmingClear
+                ? $t('queryInterface.phenotypeCollection.clearConfirm')
+                : $t('queryInterface.phenotypeCollection.clear')
+            }}
           </v-btn>
         </div>
       </template>
@@ -372,12 +386,48 @@ export default {
     'update:sex',
     'update:dateOfBirth',
   ],
+  data() {
+    return { confirmingClear: false, copiedCount: 0 };
+  },
   computed: {
+    // Excluded terms are left out: a bare ID list is read as "present" by tools like Exomiser
+    presentIds() {
+      return this.phenotypes
+        .filter((p) => this.normalizeAssertionStatus(p.assertion_status) !== 'negated')
+        .map((p) => p.hpo_id);
+    },
     bridgeLabels() {
       return getCaseWorkspaceBridgeLabels(this.$i18n?.locale);
     },
   },
   methods: {
+    // Two-step clear: the first click arms, a second click within 4s clears
+    onClear() {
+      clearTimeout(this.clearTimer);
+      if (this.confirmingClear) {
+        this.confirmingClear = false;
+        this.$emit('clear');
+        return;
+      }
+      this.confirmingClear = true;
+      this.clearTimer = setTimeout(() => (this.confirmingClear = false), 4000);
+    },
+    async copyIds() {
+      const ids = this.presentIds;
+      try {
+        await navigator.clipboard.writeText(ids.join('\n'));
+      } catch {
+        return; // clipboard blocked (insecure context / permissions); exports still work
+      }
+      this.copiedCount = ids.length;
+      clearTimeout(this.copyTimer);
+      this.copyTimer = setTimeout(() => (this.copiedCount = 0), 2500);
+    },
+    assertionToggleText(status) {
+      return this.normalizeAssertionStatus(status) === 'negated'
+        ? this.$t('queryInterface.phenotypeCollection.markPresent')
+        : this.$t('queryInterface.phenotypeCollection.markExcluded');
+    },
     normalizeAssertionStatus(status) {
       if (status === 'present') {
         return 'affirmed';

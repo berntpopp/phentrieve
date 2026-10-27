@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
@@ -107,6 +107,37 @@ describe('CaseWorkspacePanel', () => {
     expect(resolveCaseWorkspaceBridgeLocale('FR-ca')).toBe('fr');
     expect(resolveCaseWorkspaceBridgeLocale('')).toBe('en');
     expect(resolveCaseWorkspaceBridgeLocale(undefined)).toBe('en');
+  });
+
+  it('only clears the collection on a second click', async () => {
+    const wrapper = await mountLegacyBridge({
+      phenotypes: [{ hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' }],
+    });
+    const clear = wrapper.get('[data-testid="collection-clear"]');
+
+    await clear.trigger('click');
+    expect(wrapper.emitted('clear')).toBeUndefined();
+    expect(clear.text()).toContain('clearConfirm');
+
+    await clear.trigger('click');
+    expect(wrapper.emitted('clear')).toHaveLength(1);
+  });
+
+  it('copies only present HPO IDs', async () => {
+    const writeText = vi.fn().mockResolvedValue();
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+    const wrapper = await mountLegacyBridge({
+      phenotypes: [
+        { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'affirmed' },
+        { hpo_id: 'HP:0001263', label: 'Developmental delay', assertion_status: 'negated' },
+        { hpo_id: 'HP:0004322', label: 'Short stature' },
+      ],
+    });
+
+    await wrapper.get('[data-testid="collection-copy-ids"]').trigger('click');
+
+    expect(writeText).toHaveBeenCalledWith('HP:0001250\nHP:0004322');
+    vi.unstubAllGlobals();
   });
 
   for (const [locale, labels] of Object.entries(CASE_WORKSPACE_BRIDGE_LABELS)) {

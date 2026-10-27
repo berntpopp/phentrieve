@@ -19,7 +19,7 @@
         :open-delay="300"
         max-width="320"
         content-class="score-tooltip-content"
-        :content-props="{ 'aria-label': tooltipTitle }"
+        :aria-label="tooltipTitle"
       >
         <div class="score-tooltip">
           <!-- Tooltip header -->
@@ -204,7 +204,6 @@ const scaleFillStyle = computed(() => {
   const percentage = props.score * 100;
   return {
     width: `${percentage}%`,
-    transition: 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 });
 
@@ -213,7 +212,6 @@ const scaleMarkerStyle = computed(() => {
   const percentage = props.score * 100;
   return {
     left: `${percentage}%`,
-    transition: 'left 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 });
 
@@ -245,8 +243,7 @@ const isPulsing = computed(() => {
 .score-value {
   font-weight: 600;
   font-size: 0.875rem;
-  letter-spacing: 0.5px;
-  font-family: 'Roboto Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .score-icon {

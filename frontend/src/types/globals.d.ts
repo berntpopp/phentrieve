@@ -9,4 +9,4 @@
  * @example
  * console.log(__APP_VERSION__) // "0.1.0"
  */
-declare const __APP_VERSION__: string
+declare const __APP_VERSION__: string;

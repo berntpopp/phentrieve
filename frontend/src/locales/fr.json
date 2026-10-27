@@ -23,11 +23,12 @@
     "confirmClearMessage": "Cela supprimera définitivement tout l'historique de conversation et les phénotypes collectés. Cette action est irréversible."
   },
   "home": {
-    "logoAlt": "Logo Phentrieve - Cliquez pour réinitialiser",
+    "logoAlt": "Logo Phentrieve - réinitialiser l'application",
     "resetAriaLabel": "Réinitialiser la conversation",
     "resetTitle": "Réinitialiser l'application ?",
     "resetMessage": "Cela effacera tout l'historique de conversation et les phénotypes collectés. Votre acceptation de l'avertissement sera conservée.",
-    "resetConfirm": "Réinitialiser"
+    "resetConfirm": "Réinitialiser",
+    "resetTooltip": "Recommencer : effacer la conversation et les phénotypes collectés"
   },
   "models": {
     "biolord": "BioLORD 2023-M"
@@ -35,56 +36,62 @@
   "app": {
     "footer": {
       "disclaimer": "Avertissement",
-      "disclaimerTooltip": "Voir les informations importantes d'avertissement et d'utilisation",
-      "disclaimerAcknowledgedTooltip": "Reconnu le {date}",
+      "disclaimerTooltip": "Voir l'avertissement et les informations importantes sur l'utilisation",
+      "disclaimerAcknowledgedTooltip": "Accepté le {date}",
       "tutorial": "Tutoriel",
-      "tutorialTooltip": "Démarrer le tutoriel",
+      "tutorialTooltip": "Voir le tutoriel guidé",
       "faq": "FAQ",
-      "faqTooltip": "Voir les questions fréquemment posées",
+      "faqTooltip": "Voir la foire aux questions",
       "logs": "Journaux",
-      "logsTooltip": "Voir les journaux d'application et les informations de débogage",
+      "logsTooltip": "Voir les journaux de l'application et les informations de débogage",
       "copyright": "© {year} Phentrieve",
       "githubTooltip": "Voir le code source sur GitHub",
       "docsTooltip": "Voir la documentation du projet",
       "licenseTooltip": "Voir la licence du projet",
       "apiTooltip": "Ouvrir la documentation de l'API (OpenAPI)",
       "mcpTooltip": "Connecter un agent IA (MCP)",
-      "homeTooltip": "Aller à l'accueil"
+      "homeTooltip": "Aller à l'accueil",
+      "theme": {
+        "system": "Thème : celui du système. Cliquez pour le thème clair",
+        "light": "Thème : clair. Cliquez pour le thème sombre",
+        "dark": "Thème : sombre. Cliquez pour suivre le système"
+      },
+      "more": "Plus de liens"
     }
   },
   "disclaimerDialog": {
-    "title": "Avertissement pour Usage de Recherche",
+    "title": "Avertissement : usage en recherche uniquement",
     "mainHeader": "Phentrieve est destiné uniquement à des fins de recherche et d'information.",
-    "description": "Cet outil est conçu pour cartographier le texte clinique selon les termes standardisés de l'Ontologie du Phénotype Humain (HPO) afin d'aider à la recherche et à la découverte de connaissances.",
-    "limitationsTitle": "Limitations Importantes:",
+    "description": "Cet outil est conçu pour associer des textes de recherche aux termes standardisés de la Human Phenotype Ontology (HPO) afin de soutenir la recherche et la découverte de connaissances.",
+    "limitationsTitle": "Limites importantes :",
     "limitations": {
-      "item1": "Phentrieve  N'EST PAS un outil de diagnostic clinique et ne doit pas remplacer les conseils, diagnostics ou traitements médicaux professionnels.",
-      "item2": "Les modèles d'IA et le mappage HPO peuvent contenir des inexactitudes, des erreurs ou des limitations.",
-      "item3": "Les résultats doivent être vérifiés par des professionnels de la santé qualifiés avant d'être utilisés dans un contexte clinique.",
-      "item4": "L'outil n'établit pas de relation médecin-patient et ne remplace pas la consultation de professionnels de santé."
+      "item1": "Phentrieve N'EST PAS un outil de diagnostic clinique et ne doit pas remplacer l'avis, le diagnostic ou le traitement d'un professionnel de santé.",
+      "item2": "Les modèles d'IA et l'association aux termes HPO peuvent comporter des inexactitudes, des erreurs ou des limites.",
+      "item3": "Les résultats doivent faire l'objet d'une vérification indépendante avant toute utilisation ultérieure et ne doivent pas servir à la prise de décision clinique.",
+      "item4": "L'outil n'établit pas de relation médecin-patient et ne remplace pas la consultation d'un professionnel de santé."
     },
-    "responsibilityTitle": "Responsabilité de l'Utilisateur:",
-    "responsibilityText": "En utilisant Phentrieve, vous reconnaissez comprendre ces limitations et assumez l'entière responsabilité de la façon dont vous interprétez et utilisez les informations fournies par cet outil.",
+    "responsibilityTitle": "Responsabilité de l'utilisateur :",
+    "responsibilityText": "En utilisant Phentrieve, vous reconnaissez comprendre ces limites et assumez l'entière responsabilité de la manière dont vous interprétez et utilisez les informations fournies par cet outil.",
     "acceptButton": "Je comprends et j'accepte"
   },
   "queryInterface": {
     "title": "Phentrieve",
-    "subtitle": "Mappage de termes HPO pour les descriptions phénotypiques cliniques",
-    "welcomeText": "Phentrieve est un outil propulsé par l'IA qui cartographie avec précision le texte clinique en termes standardisés de l'Ontologie du Phénotype Humain (HPO), simplifiant l'annotation des phénotypes pour la recherche et le diagnostic.",
+    "subtitle": "Association de descriptions phénotypiques de recherche aux termes HPO",
+    "welcomeText": "Phentrieve est un outil de recherche fondé sur l'IA qui associe des textes phénotypiques aux termes standardisés de la Human Phenotype Ontology (HPO), pour l'annotation en recherche et la découverte de connaissances.",
     "queryModeLabel": "Mode requête",
-    "documentModeLabel": "Mode document",
+    "documentModeLabel": "Mode texte intégral",
     "modeSwitch": {
-      "autoFullTextNotice": "Basculement automatique vers le mode texte complet pour les textes cliniques plus longs"
+      "autoFullTextNotice": "Passage au mode texte intégral pour un texte de recherche plus long"
     },
-    "inputLabel": "Saisir une description textuelle clinique",
+    "inputLabel": "Saisir un texte de recherche",
     "examples": {
       "title": "Exemples",
       "loadExample": "Charger l'exemple",
-      "example1": "Le patient présente une petite taille, des fractures récurrentes et des sclérotiques bleues, suggérant une ostéogenèse imparfaite.",
-      "example2": "L'enfant présente un dysmorphisme facial avec hypertélorisme, fentes palpébrales inclinées vers le bas et oreilles basses, ainsi que des malformations cardiaques congénitales et un retard de développement."
+      "example1": "La note de recherche décrit une petite taille, des fractures récurrentes et des sclérotiques bleues.",
+      "example2": "Le résumé de recherche mentionne une dysmorphie faciale avec hypertélorisme, fentes palpébrales orientées en bas et en dehors, oreilles bas implantées, cardiopathies congénitales et retard de développement."
     },
-    "formLabel": "Informations du Patient (Optionnel)",
-    "idLabel": "ID du patient",
+    "formLabel": "Métadonnées du sujet de recherche (facultatif)",
+    "idLabel": "ID du sujet",
     "sexLabel": "Sexe",
     "dobLabel": "Date de naissance",
     "sexOptions": {
@@ -96,32 +103,32 @@
     "analyzeButton": "Analyser le texte",
     "clearButton": "Effacer",
     "copyButton": "Copier les termes HPO",
-    "exportButton": "Exporter comme Phenopacket",
+    "exportButton": "Exporter en Phenopacket",
     "processingMessage": "Traitement en cours...",
-    "noInputError": "Veuillez entrer un texte à analyser",
+    "noInputError": "Veuillez saisir un texte à analyser",
     "copySuccess": "Termes HPO copiés dans le presse-papiers",
-    "exportSuccess": "Phenopacket exporté dans le presse-papiers",
-    "error": "Erreur: {message}",
+    "exportSuccess": "Phenopacket copié dans le presse-papiers",
+    "error": "Erreur : {message}",
     "piiReview": {
-      "title": "Identifiants possibles detectes",
-      "description": "Phentrieve a trouve des identifiants possibles avant l'envoi de ce texte.",
-      "willRedact": "Seront masques localement",
-      "needsReview": "A verifier",
-      "overrideNotice": "Les identifiants a forte confiance seront masques localement avant l'envoi. D'autres identifiants possibles peuvent rester si vous continuez.",
-      "safetyAid": "Ceci est une aide de securite et ne peut pas garantir que toutes les donnees personnelles sont detectees ni que le texte est desidentifie.",
+      "title": "Identifiants potentiels détectés",
+      "description": "Phentrieve a détecté des identifiants personnels potentiels dans ce texte. Vérifiez-les avant l'envoi.",
+      "willRedact": "Seront masqués localement",
+      "needsReview": "À vérifier",
+      "overrideNotice": "Les identifiants détectés avec une confiance élevée seront masqués localement avant l'envoi. D'autres identifiants potentiels peuvent subsister si vous continuez.",
+      "safetyAid": "Il s'agit d'une aide à la protection des données. Elle ne garantit pas que tous les identifiants personnels soient détectés, ni que le texte soit dépourvu de tout élément identifiant.",
       "cancel": "Verifier le texte",
       "redact": "Masquer dans le texte",
       "continue": "Continuer avec le masquage local",
       "categories": {
         "email": "E-mail",
-        "phone": "Telephone",
+        "phone": "Téléphone",
         "url": "URL",
         "ip_address": "Adresse IP",
         "date": "Date",
         "dob": "Date de naissance",
-        "medical_record": "Dossier medical",
-        "accession_id": "ID d'accession",
-        "sample_id": "ID d'echantillon",
+        "medical_record": "Dossier médical",
+        "accession_id": "Numéro d'accession",
+        "sample_id": "ID d'échantillon",
         "national_identifier": "Identifiant national",
         "address": "Adresse",
         "person_name": "Nom",
@@ -131,19 +138,19 @@
     },
     "phenotypeCollection": {
       "title": "Collection HPO",
-      "close": "Fermer le panneau de collection HPO",
+      "close": "Fermer le panneau de la collection HPO",
       "count": "{count} phénotype(s) collecté(s)",
       "empty": "Aucun phénotype collecté pour l'instant",
       "instructions": "Cliquez sur le bouton à côté d'un terme HPO pour l'ajouter à votre collection",
-      "subjectInfoHeader": "Informations sur le sujet (Optionnel)",
+      "subjectInfoHeader": "Informations sur le sujet (facultatif)",
       "subjectId": "ID du sujet",
       "sex": "Sexe",
       "dateOfBirth": "Date de naissance",
       "exportPhenopacket": "Exporter en Phenopacket (JSON)",
       "exportText": "Exporter en texte",
-      "exportError": "Erreur lors de l'export du Phenopacket. Vérifiez la console pour plus de détails.",
+      "exportError": "Impossible d'exporter le Phenopacket. Veuillez réessayer.",
       "clear": "Effacer la collection",
-      "assertionToggle": "Basculer le statut d'affirmation",
+      "assertionToggle": "Changer le statut d'assertion",
       "assertionStatus": {
         "affirmed": "Affirmé",
         "present": "Présent",
@@ -152,29 +159,34 @@
         "unknown": "Inconnu"
       },
       "aria": {
-        "openPanel": "Ouvrir le panneau de collecte HPO",
-        "panel": "Collecte de phénotypes",
-        "toggleAssertion": "Basculer le statut d'affirmation pour {label} ({id})",
-        "removeItem": "Retirer {label} ({id}) de la collecte",
+        "openPanel": "Ouvrir le panneau de la collection HPO",
+        "panel": "Collection de phénotypes",
+        "toggleAssertion": "Changer le statut d'assertion de {label} ({id})",
+        "removeItem": "Retirer {label} ({id}) de la collection",
         "subjectId": "Saisir l'identifiant du sujet pour le Phenopacket",
         "sex": "Sélectionner le sexe du sujet pour le Phenopacket",
         "dateOfBirth": "Saisir la date de naissance du sujet pour le Phenopacket",
-        "exportPhenopacket": "Exporter les phénotypes collectés comme JSON Phenopacket"
-      }
+        "exportPhenopacket": "Exporter les phénotypes collectés au format JSON Phenopacket"
+      },
+      "copyIds": "Copier les ID HPO présents",
+      "copied": "{count} ID HPO copiés",
+      "clearConfirm": "Cliquez à nouveau pour tout effacer",
+      "markExcluded": "Marquer comme exclu (absent)",
+      "markPresent": "Marquer comme présent"
     },
     "advancedOptions": {
       "title": "Options avancées",
-      "embeddingModel": "Modèle d'embedding",
+      "embeddingModel": "Modèle de plongement",
       "similarityThreshold": "Seuil de similarité",
       "includeDetails": "Inclure les détails",
       "language": "Langue",
       "processingModeTitle": "Mode de traitement",
       "processingModeLabel": "Mode de traitement",
       "modeAutomatic": "Automatique (par longueur de texte)",
-      "modeQuery": "Mode requête (texte court)",
-      "modeTextProcess": "Mode traitement de texte (document)",
-      "textProcessingTitle": "Paramètres de traitement de texte",
-      "extractionBackend": "Backend d'extraction",
+      "modeQuery": "Requête (texte court)",
+      "modeTextProcess": "Texte intégral (texte plus long)",
+      "textProcessingTitle": "Paramètres du texte intégral",
+      "extractionBackend": "Moteur d'extraction",
       "standardExtraction": "Extraction standard",
       "llmExtraction": "Extraction LLM",
       "llmModel": "Modèle LLM",
@@ -182,53 +194,69 @@
       "llmModes": {
         "twoPhase": "Extraction en deux phases"
       },
-      "llmDisclosure": "L'extraction LLM peut traiter le texte soumis avec un fournisseur d'IA externe configuré par l'opérateur du service. Utilisez uniquement du texte de recherche ; ne soumettez pas d'informations directement identifiantes.",
+      "llmDisclosure": "L'extraction LLM peut transmettre le texte soumis à un fournisseur d'IA externe configuré par l'exploitant du service. Utilisez uniquement du texte de recherche ; ne soumettez pas d'informations directement identifiantes.",
       "chunkingStrategy": "Stratégie de découpage",
-      "windowSize": "Taille de fenêtre (tokens)",
-      "stepSize": "Taille de pas",
-      "chunkThreshold": "Seuil de récupération de fragments",
-      "aggConfidence": "Confiance des termes agrégés",
+      "windowSize": "Taille de la fenêtre (tokens)",
+      "stepSize": "Taille du pas",
+      "chunkThreshold": "Seuil de récupération des fragments",
+      "aggConfidence": "Confiance agrégée des termes",
       "detectAssertions": "Détecter les assertions",
-      "splitThreshold": "Seuil de division",
+      "splitThreshold": "Seuil de découpage",
       "minSegmentLength": "Longueur minimale de segment",
       "numResultsPerChunk": "Résultats par fragment",
       "topTermPerChunk": "Ne conserver que le meilleur terme HPO par fragment",
       "strategies": {
-        "sliding_window_punct_cleaned": "Fenêtre glissante + Ponctuation + Nettoyeur",
-        "sliding_window_punct_conj_cleaned": "Fenêtre glissante + Ponctuation + Conjonctions + Nettoyeur"
+        "sliding_window_punct_cleaned": "Fenêtre glissante + ponctuation + nettoyage",
+        "sliding_window_punct_conj_cleaned": "Fenêtre glissante + ponctuation + conjonctions + nettoyage"
       }
     },
     "tooltips": {
       "advancedOptions": "Configurer les paramètres de recherche avancés",
       "phenotypeCollection": "Afficher et gérer les phénotypes collectés",
-      "embeddingModel": "Sélectionner le modèle d'IA utilisé pour l'embedding du texte",
-      "similarityThreshold": "Définir le score de similarité minimum requis pour les résultats",
-      "includeDetails": "Inclure les définitions et synonymes des termes HPO dans les résultats de recherche (limité à 20 résultats pour les performances)",
-      "language": "Sélectionner la langue pour le traitement des requêtes et la détection des négations",
-      "subjectId": "Entrer un identifiant pour le sujet/patient",
+      "embeddingModel": "Sélectionner le modèle d'IA utilisé pour le plongement vectoriel (embedding) du texte",
+      "similarityThreshold": "Définir le score de similarité minimal requis pour les résultats",
+      "includeDetails": "Inclure les définitions et synonymes des termes HPO dans les résultats de recherche (limité à 20 résultats pour des raisons de performance)",
+      "language": "Sélectionner la langue pour le traitement des requêtes et la détection des assertions",
+      "subjectId": "Saisir un identifiant pour le sujet",
       "sex": "Sélectionner le sexe biologique du sujet",
-      "dateOfBirth": "Entrer la date de naissance du sujet"
+      "dateOfBirth": "Saisir la date de naissance du sujet"
     },
     "accessibility": {
-      "textProcessInputLabel": "Champ de saisie du document clinique pour le traitement de texte",
-      "textProcessInputDescription": "Saisissez un texte clinique plus long pour le traitement du document.",
-      "queryInputLabel": "Champ de saisie du texte clinique",
-      "queryInputDescription": "Saisissez un texte clinique pour rechercher des termes HPO.",
+      "textProcessInputLabel": "Texte de recherche pour l'analyse en texte intégral",
+      "textProcessInputDescription": "Saisissez un texte phénotypique de recherche plus long pour le traitement du document.",
+      "queryInputLabel": "Texte phénotypique",
+      "queryInputDescription": "Saisissez un texte phénotypique de recherche pour rechercher des termes HPO.",
       "processingInProgress": "Traitement en cours.",
       "searchInProgress": "Recherche en cours.",
-      "openAdvancedOptions": "Ouvrir les options avancées",
-      "closeAdvancedOptions": "Fermer les options avancées",
       "searchButton": "Rechercher des termes HPO",
       "userInput": "Saisie utilisateur",
       "response": "Réponse de Phentrieve",
       "advancedOptionsRegion": "Options de recherche avancées",
-      "selectEmbeddingModel": "Sélectionner le modèle d'embedding",
-      "embeddingModelDescription": "Choisissez le modèle à utiliser pour l'embedding du texte. Sélection actuelle : {selectedModel}",
-      "similarityThresholdSlider": "Curseur du seuil de similarité",
+      "selectEmbeddingModel": "Sélectionner le modèle de plongement",
+      "embeddingModelDescription": "Choisissez le modèle à utiliser pour le plongement vectoriel du texte. Sélection actuelle : {selectedModel}",
+      "similarityThresholdSlider": "Seuil de similarité",
       "similarityThresholdDescription": "Ajustez le seuil de similarité minimal. Valeur actuelle : {similarityThreshold}",
       "selectQueryLanguage": "Sélectionner la langue de requête",
       "queryLanguageDescription": "Choisissez la langue pour le traitement de la requête. Sélection actuelle : {selectedLanguage}",
       "includeDetailsSwitch": "Inclure les définitions et synonymes des termes HPO"
+    },
+    "form": {
+      "queryPill": "Requête",
+      "fullTextPill": "Texte intégral",
+      "modeGroup": "Mode de recherche",
+      "settings": "Paramètres",
+      "queryLabel": "Requête de phénotype",
+      "noteLabel": "Note de recherche",
+      "notePlaceholder": "Collez ou saisissez un texte phénotypique de recherche",
+      "noteSubmitHint": "Ctrl+Entrée pour analyser",
+      "cancel": "Annuler",
+      "collapseNote": "Réduire la note",
+      "expandNote": "Développer la note"
+    },
+    "fullTextReceipt": {
+      "title": "Analyse du texte intégral prête",
+      "addAll": "Tout ajouter ({count})",
+      "addAllConfirm": "Cliquez à nouveau pour tout ajouter ({count})"
     }
   },
   "annotatedDocumentPane": {
@@ -262,20 +290,20 @@
     "replace": "Remplacer",
     "add": "Ajouter",
     "cancel": "Annuler",
-    "empty": "Aucun terme HPO correspondant",
+    "empty": "Aucun terme HPO correspondant trouvé",
     "loading": "Recherche...",
     "scoreLabel": "Score"
   },
   "resultsDisplay": {
-    "title": "Termes HPO Extraits",
+    "title": "Termes HPO extraits",
     "termCountLabel": "{count} termes trouvés",
-    "noResultsMessage": "Aucun terme HPO identifié. Essayez un texte différent ou vérifiez votre saisie.",
+    "noResultsMessage": "Aucun terme HPO trouvé. Essayez de reformuler le texte ou d'abaisser le seuil de similarité.",
     "termIdHeader": "ID HPO",
-    "termNameHeader": "Nom du Terme",
+    "termNameHeader": "Nom du terme",
     "confidenceHeader": "Confiance",
     "actionsHeader": "Actions",
     "removeTermTooltip": "Supprimer ce terme",
-    "confidenceTooltip": "Score de confiance: {score}",
+    "confidenceTooltip": "Score de confiance : {score}",
     "viewTermLink": "Voir sur le site HPO",
     "modelLabel": "Modèle",
     "languageLabel": "Langue",
@@ -283,81 +311,81 @@
     "negated": "Niée",
     "affirmed": "Affirmée",
     "unknown": "Inconnu",
-    "similarityLabel": "Score de similitude",
+    "similarityLabel": "Score de similarité",
     "confidenceLabel": "Score de confiance",
-    "cosineSimilarity": "Similitude cosinus",
-    "rangeExplanation": "{min} (aucune similitude) à {max} (correspondance parfaite)",
-    "noMatch": "Aucune correspondance",
-    "perfectMatch": "Correspondance parfaite",
-    "scoreNote": "Représente la similitude sémantique dans l'espace vectoriel",
+    "cosineSimilarity": "Similarité cosinus",
+    "rangeExplanation": "{min} (aucune similarité) à {max} (similarité maximale)",
+    "noMatch": "Aucune similarité",
+    "perfectMatch": "Similarité maximale",
+    "scoreNote": "Représente la similarité sémantique dans l'espace vectoriel",
     "quality": {
       "excellent": "Excellente correspondance",
-      "high": "Haute correspondance",
+      "high": "Correspondance élevée",
       "moderate": "Correspondance modérée",
       "low": "Faible correspondance",
-      "poor": "Mauvaise correspondance"
+      "poor": "Correspondance médiocre"
     },
-    "noTermsFound": "Aucun terme HPO correspondant à votre requête n'a été trouvé avec le seuil actuel. Essayez de réduire le seuil de similarité ou de reformuler votre requête.",
-    "defaultError": "Une erreur s'est produite lors du traitement de votre requête.",
-    "addToCollectionTooltip": "Ajouter {id} à la collection",
-    "alreadyInCollectionTooltip": "{id} déjà dans la collection",
-    "confidenceScoreTooltip": "Score de confiance: {score}",
+    "noTermsFound": "Aucun terme HPO ne correspond à votre requête. Essayez une autre recherche ou ajustez le seuil de similarité.",
+    "defaultError": "Une erreur s'est produite lors du traitement de votre requête. Veuillez réessayer.",
+    "addToCollectionTooltip": "Ajouter le terme HPO {id} à votre collection",
+    "alreadyInCollectionTooltip": "Le terme HPO {id} est déjà dans votre collection",
+    "confidenceScoreTooltip": "Score de confiance : {score}",
     "sourceChunksTooltip": "Trouvé dans {count} fragments de texte",
-    "maxScoreTooltip": "Confiance maximale: {score}",
-    "topEvidenceTooltip": "Meilleure preuve dans le fragment #{id}",
+    "maxScoreTooltip": "Confiance maximale : {score}",
+    "topEvidenceTooltip": "Meilleure preuve dans le fragment n° {id}",
     "addToCollectionAriaLabel": "Ajouter {label} ({id}) à la collection",
-    "alreadyInCollectionAriaLabel": "Le terme HPO {id} ({label}) est dans la collection",
+    "alreadyInCollectionAriaLabel": "{label} ({id}) est déjà dans la collection",
     "showDetails": "Afficher les détails",
     "hideDetails": "Masquer les détails",
     "definitionLabel": "Définition",
     "synonymsLabel": "Synonymes",
     "textProcess": {
-      "title": "Analyse de Texte Traité",
-      "chunksTitle": "Fragments Traités & Termes HPO par Fragment",
-      "aggregatedTitle": "Phénotypes Agrégés du Document",
+      "title": "Analyse en texte intégral",
+      "chunksTitle": "Fragments traités et termes HPO par fragment",
+      "aggregatedTitle": "Phénotypes agrégés du document",
       "chunksLabel": "Fragments",
       "strategyLabel": "Stratégie",
       "chunkLabel": "Fragment",
-      "chunkHPOTerms": "Termes HPO identifiés dans ce fragment:",
+      "chunkHPOTerms": "Termes HPO identifiés dans ce fragment :",
       "noChunkHPOTerms": "Aucun terme HPO n'a été identifié pour ce fragment.",
-      "hpoInChunkTitle": "Termes HPO trouvés dans ce fragment:",
-      "noChunkHPOTermsMatched": "Aucun terme HPO n'a atteint le seuil de récupération pour ce fragment spécifique.",
+      "hpoInChunkTitle": "Termes HPO trouvés dans ce fragment :",
+      "noChunkHPOTermsMatched": "Aucun terme HPO n'a atteint le seuil de récupération pour ce fragment.",
       "avgConfidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
-      "maxScoreTooltip": "Score maximum d'un fragment",
-      "evidenceFromChunksShort": "Fragments:",
+      "maxScoreTooltip": "Score maximal obtenu dans un fragment",
+      "evidenceFromChunksShort": "Fragments :",
       "hitsText": "résultats",
       "evidenceCountTooltip": "Nombre de fragments fournissant des preuves",
       "evidenceTooltip": "Fragments sources. Cliquez pour voir le meilleur fragment de preuve.",
       "confidenceTooltip": "Score de confiance moyen de tous les fragments de preuve",
       "sourceChunks": "Fragments sources",
       "topEvidence": "Meilleure preuve",
-      "llmLimitedNotice": "Version de démonstration limitée : {quotaLimit} analyses LLM par jour.",
+      "llmLimitedNotice": "Démonstration publique limitée : {quotaLimit} analyses LLM par jour.",
       "noChunksProcessed": "Aucun fragment de texte n'a été traité.",
       "noAggregatedTerms": "Aucun terme HPO agrégé trouvé.",
       "strategyUnknown": "Stratégie inconnue",
-      "assertionDetail": "Méthode d'assertion:",
-      "finalStatus": "Statut final:"
+      "assertionDetail": "Méthode d'assertion :",
+      "finalStatus": "Statut final :"
     }
   },
   "logViewer": {
-    "title": "Journaux d'Application",
+    "title": "Journaux de l'application",
     "clearLogsButton": "Effacer les journaux",
     "closeButton": "Fermer",
     "emptyLogsMessage": "Aucun journal à afficher",
     "searchPlaceholder": "Rechercher dans les journaux",
-    "logLevels": "Niveaux de journaux",
+    "logLevels": "Niveaux de journal",
     "timestamp": "Horodatage",
     "level": "Niveau",
     "message": "Message",
     "details": "Détails",
     "stats": {
       "received": "Reçus",
-      "dropped": "Abandonnés",
+      "dropped": "Rejetés",
       "memory": "Mémoire"
     },
     "config": {
       "title": "Configuration de la journalisation",
-      "description": "Définissez le nombre maximum d'entrées de journal à conserver en mémoire. Les anciens journaux sont automatiquement supprimés (FIFO).",
+      "description": "Définissez le nombre maximal d'entrées de journal conservées en mémoire. Une fois la limite atteinte, les entrées les plus anciennes sont supprimées en premier.",
       "cancel": "Annuler",
       "save": "Enregistrer"
     }
@@ -366,54 +394,57 @@
     "api": {
       "unknown": "Une erreur inattendue s'est produite. Veuillez réessayer.",
       "network": "Impossible de se connecter au serveur. Veuillez vérifier votre connexion Internet et réessayer.",
-      "clientSide": "Une erreur s'est produite lors de {context}.",
-      "badRequest": "Votre requête était invalide. Veuillez vérifier les données et réessayer. (Statut: {status})",
-      "validation": "La saisie a été refusée. Vérifiez-la et respectez les limites de taille : 50 000 caractères pour un texte complet, 10 000 pour une requête simple. (Statut: {status})",
-      "badRequestModel": "Le modèle spécifié dans votre requête est invalide ou non pris en charge. (Statut: {status})",
-      "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action. (Statut: {status})",
-      "forbidden": "Vous n'avez pas la permission d'accéder à cette ressource. (Statut: {status})",
-      "notFound": "La ressource demandée est introuvable. (Statut: {status})",
-      "notFoundModel": "Le modèle demandé est introuvable sur le serveur. (Statut: {status})",
-      "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard. (Statut: {status})",
-      "serviceUnavailable": "Le service est temporairement indisponible. Veuillez réessayer plus tard. (Statut: {status})",
-      "llmQuotaExceeded": "La limite LLM pour le texte complet est atteinte aujourd'hui."
-    }
+      "clientSide": "Une erreur s'est produite lors de {context}. Veuillez réessayer.",
+      "badRequest": "Le serveur n'a pas pu traiter cette requête. Vérifiez votre saisie et réessayez. (Statut : {status})",
+      "validation": "La saisie a été refusée. Vérifiez-la en tenant compte des limites de taille : 50 000 caractères en texte intégral, 10 000 pour une requête simple. (Statut : {status})",
+      "badRequestModel": "Le modèle sélectionné est invalide ou non pris en charge. Sélectionnez un autre modèle dans les paramètres et réessayez. (Statut : {status})",
+      "unauthorized": "Vous devez être connecté pour effectuer cette action. Connectez-vous et réessayez. (Statut : {status})",
+      "forbidden": "Vous n'avez pas la permission d'accéder à cette ressource. (Statut : {status})",
+      "notFound": "La ressource demandée est introuvable. (Statut : {status})",
+      "notFoundModel": "Le modèle sélectionné n'est pas disponible sur le serveur. Sélectionnez un autre modèle dans les paramètres et réessayez. (Statut : {status})",
+      "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard. (Statut : {status})",
+      "serviceUnavailable": "Le service est temporairement indisponible. Veuillez réessayer plus tard. (Statut : {status})",
+      "llmQuotaExceeded": "Vous avez atteint la limite quotidienne d'analyses LLM en texte intégral. Réessayez demain ou choisissez l'extraction standard comme moteur d'extraction dans les paramètres.",
+      "llmUnavailable": "L'extraction LLM en texte intégral n'est pas disponible pour le moment. Ouvrez les paramètres, choisissez l'extraction standard comme moteur d'extraction, puis réessayez. (Statut : {status})",
+      "timeout": "La requête a pris trop de temps et a été interrompue. Essayez un texte plus court ou réessayez plus tard."
+    },
+    "requestInterrupted": "Cette requête a été interrompue par un rechargement de la page. Veuillez la renvoyer."
   },
   "languageSwitcher": {
     "label": "Langue"
   },
   "faq": {
     "backToHome": "Retour à l'accueil",
-    "pageTitle": "Foire Aux Questions",
+    "pageTitle": "Foire aux questions",
     "searchPlaceholder": "Rechercher parmi {count} questions",
     "categories": {
       "general": {
-        "title": "Informations Générales",
+        "title": "Informations générales",
         "questions": {
           "whatIsPhentrieve": {
-            "question": "Qu'est-ce que Phentrieve?",
-            "answer": "Phentrieve est un outil avancé propulsé par l'IA qui associe automatiquement les descriptions cliniques aux termes standardisés de l'Ontologie du Phénotype Humain (HPO). Il optimise le processus d'annotation phénotypique pour la recherche et le diagnostic clinique, le rendant plus rapide et plus précis.Les fonctionnalités principales incluent:Mappage automatique du texte clinique vers les termes HPOHaute précision grâce à des modèles d'IA de pointeSupport pour plusieurs languesInterface conviviale"
+            "question": "Qu'est-ce que Phentrieve ?",
+            "answer": "<p>Phentrieve est un outil de recherche fondé sur l'IA qui associe des descriptions phénotypiques aux termes standardisés de la Human Phenotype Ontology (HPO). Il facilite l'annotation phénotypique pour la recherche, l'enseignement, l'évaluation comparative (benchmarking) et la découverte de connaissances.</p><p>Principales fonctionnalités :</p><ul><li>Association de textes de recherche aux termes HPO</li><li>Recherche sémantique à l'aide de modèles de plongement biomédicaux</li><li>Prise en charge de plusieurs langues</li><li>Interface conviviale</li></ul>"
           },
           "howItWorks": {
-            "question": "Comment fonctionne Phentrieve?",
-            "answer": "Phentrieve utilise un pipeline sophistiqué de modèles d'IA et d'algorithmes pour traiter le texte clinique:Analyse de texte: Le système analyse le texte d'entrée en utilisant des modèles de langage biomédical spécialisésCorrespondance de termes: Il identifie les termes HPO potentiels en utilisant la recherche sémantique et la correspondance contextuelleClassement: Les correspondances sont classées par pertinenceRésultats: Les termes HPO les plus pertinents sont présentés à l'utilisateurCe processus assure des correspondances de haute qualité tout en maintenant l'efficacité."
+            "question": "Comment fonctionne Phentrieve ?",
+            "answer": "<p>Phentrieve s'appuie sur une chaîne de traitement combinant modèles d'IA et algorithmes pour traiter les textes phénotypiques de recherche :</p><ol><li><strong>Analyse du texte :</strong> le système analyse le texte d'entrée à l'aide de modèles de langage biomédicaux spécialisés</li><li><strong>Correspondance des termes :</strong> il identifie les termes HPO candidats par recherche sémantique et correspondance contextuelle</li><li><strong>Classement :</strong> les correspondances sont classées par pertinence</li><li><strong>Résultats :</strong> les termes HPO les plus pertinents sont présentés à l'utilisateur</li></ol><p>Les résultats sont des suggestions et doivent être vérifiés avant toute utilisation ultérieure.</p>"
           },
           "whoCanUse": {
-            "question": "Qui peut utiliser Phentrieve?",
-            "answer": "<p><strong>Phentrieve est uniquement à des fins de recherche et d'information.</strong> Ce n'est PAS un outil de diagnostic clinique.</p><p>Conçu pour :</p><ul><li><strong>Chercheurs :</strong> Standardisation des descriptions phénotypiques dans les études de recherche</li><li><strong>Généticiens Cliniques :</strong> Phénotypage de recherche et revue de littérature (PAS pour le diagnostic des patients)</li><li><strong>Bioinformaticiens :</strong> Analyse automatisée des phénotypes dans les ensembles de données de recherche</li><li><strong>Professionnels de la Santé :</strong> Fins éducatives et documentation de recherche</li></ul><p><strong>Important :</strong> Les résultats doivent être vérifiés par des professionnels de santé qualifiés avant toute application clinique. Consultez l'avertissement pour les conditions d'utilisation complètes.</p>"
+            "question": "Qui peut utiliser Phentrieve ?",
+            "answer": "<p><strong>Phentrieve est destiné uniquement à la recherche et à l'information.</strong> Ce n'est PAS un outil de diagnostic clinique.</p><p>Public visé :</p><ul><li><strong>Chercheurs :</strong> standardisation des descriptions phénotypiques dans les études de recherche</li><li><strong>Bio-informaticiens :</strong> analyse automatisée des phénotypes dans les jeux de données de recherche</li><li><strong>Enseignants et étudiants :</strong> apprentissage de l'annotation phénotypique fondée sur la HPO</li><li><strong>Biocurateurs :</strong> revue de la littérature et documentation de recherche</li></ul><p><strong>Important :</strong> les résultats ne doivent pas être utilisés pour le diagnostic, le traitement, le triage ou toute autre décision clinique.</p>"
           }
         }
       },
       "technical": {
-        "title": "Détails Techniques",
+        "title": "Détails techniques",
         "questions": {
           "performance": {
-            "question": "Quelles performances puis-je attendre?",
-            "answer": "<p>Nos résultats de benchmark montrent:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>Les performances peuvent varier en fonction de la complexité et de la spécificité du texte d'entrée.</p>"
+            "question": "Quelles performances puis-je attendre ?",
+            "answer": "<p>Résultats sur notre jeu de données de référence (taux de réussite aux rangs 1, 3 et 5) :</p><ul><li>BioLORD-2023-M : HR{'@'}1 = 0,3333, HR{'@'}3 = 0,6667, HR{'@'}5 = 0,7778</li></ul><p>Les performances peuvent varier selon la complexité et la spécificité du texte d'entrée.</p>"
           },
           "similarityScore": {
-            "question": "Que signifient les scores de similitude?",
-            "answer": "<p>Phentrieve utilise la similitude cosinus pour mesurer à quel point votre texte clinique correspond aux termes HPO. Les scores vont de 0,0 (aucune similitude) à 1,0 (correspondance parfaite).</p><h4>Plages de Score</h4><ul><li><strong>0,90 - 1,00:</strong> Correspondance excellente - très pertinent</li><li><strong>0,75 - 0,89:</strong> Correspondance élevée - très pertinent</li><li><strong>0,60 - 0,74:</strong> Correspondance modérée - potentiellement pertinent</li><li><strong>0,40 - 0,59:</strong> Correspondance faible - vaguement lié</li><li><strong>0,00 - 0,39:</strong> Correspondance médiocre - non recommandé</li></ul><h4>Détails Techniques</h4><p>Les scores sont calculés en utilisant la similitude cosinus entre les vecteurs d'intégration. Un score de 1,0 indique une signification sémantique identique, tandis que 0,0 indique aucune similitude.</p><p><strong>Remarque:</strong> Ces scores représentent la similitude sémantique dans l'espace vectoriel, pas la certitude clinique. Examinez toujours les résultats avec une expertise clinique.</p>"
+            "question": "Que signifient les scores de similarité ?",
+            "answer": "<p>Phentrieve utilise la similarité cosinus pour mesurer dans quelle mesure votre texte phénotypique de recherche correspond aux termes HPO. Les scores vont de 0,0 (aucune similarité) à 1,0 (similarité maximale).</p><h4>Plages de scores</h4><ul><li><strong>0,90 - 1,00 :</strong> correspondance excellente - hautement pertinent</li><li><strong>0,75 - 0,89 :</strong> correspondance élevée - très pertinent</li><li><strong>0,60 - 0,74 :</strong> correspondance modérée - potentiellement pertinent</li><li><strong>0,40 - 0,59 :</strong> correspondance faible - lien ténu</li><li><strong>0,00 - 0,39 :</strong> correspondance médiocre - non recommandé</li></ul><h4>Détails techniques</h4><p>Les scores sont calculés par similarité cosinus entre vecteurs de plongement (embeddings). Un score de 1,0 signifie que les vecteurs de plongement pointent dans la même direction, tandis que 0,0 indique l'absence de similarité.</p><p><strong>Remarque :</strong> ces scores représentent une similarité sémantique dans l'espace vectoriel, et non une certitude clinique.</p>"
           }
         }
       }
@@ -422,45 +453,45 @@
   "tutorial": {
     "step1": {
       "title": "Bienvenue dans Phentrieve",
-      "content": "Voici votre point de départ pour mapper le texte clinique aux termes HPO. Faisons un tour rapide des principales fonctionnalités !"
+      "content": "Voici votre point de départ pour associer des textes phénotypiques de recherche aux termes HPO. Faisons une visite rapide des principales fonctionnalités !"
     },
     "step2": {
-      "title": "Entrer le Texte Clinique",
-      "content": "Tapez ou collez votre description clinique ici. Vous pouvez décrire les symptômes du patient, les phénotypes ou toute observation médicale que vous souhaitez mapper aux termes HPO."
+      "title": "Saisir le texte de recherche",
+      "content": "Saisissez ou collez ici votre description de recherche. Vous pouvez décrire des phénotypes ou des observations de recherche que vous souhaitez associer aux termes HPO."
     },
     "step3": {
-      "title": "Rechercher des Termes HPO",
-      "content": "Cliquez sur ce bouton pour démarrer l'analyse alimentée par l'IA. Phentrieve va traiter votre texte et trouver les termes HPO les plus pertinents."
+      "title": "Rechercher des termes HPO",
+      "content": "Cliquez sur ce bouton pour lancer l'analyse par IA. Phentrieve va traiter votre texte et proposer des termes HPO pertinents."
     },
     "step4": {
-      "title": "Examiner les Résultats",
-      "content": "Vos résultats de recherche apparaîtront ici, classés par pertinence. Chaque résultat montre le terme HPO, sa définition et le score de confiance."
+      "title": "Examiner les résultats",
+      "content": "Vos résultats de recherche apparaîtront ici, classés par similarité. Chaque résultat affiche le terme HPO, son identifiant et un score de similarité."
     },
     "step5": {
-      "title": "Options Avancées",
-      "content": "Développez cette section pour accéder aux paramètres de recherche avancés comme la sélection de modèle, les limites de résultats et les options de re-classement."
+      "title": "Options avancées",
+      "content": "Développez cette section pour accéder aux paramètres de recherche avancés, comme le choix du modèle et les limites de résultats."
     },
     "step6": {
-      "title": "Collecter des Termes",
-      "content": "Ajoutez des termes HPO intéressants à votre collection en cliquant sur le bouton 'Ajouter à la Collection'. Vous pourrez les examiner et les exporter plus tard."
+      "title": "Collecter des termes",
+      "content": "Ajoutez les termes HPO pertinents à votre collection à l'aide du bouton d'ajout situé à côté de chaque résultat. Vous pourrez les examiner et les exporter plus tard."
     },
     "step7": {
-      "title": "Votre Collection",
-      "content": "Visualisez, gérez et exportez vos termes HPO collectés ici. Vous pouvez exporter au format texte ou JSON Phenopacket structuré."
+      "title": "Votre collection",
+      "content": "Consultez, gérez et exportez ici vos termes HPO collectés. Vous pouvez les exporter au format texte ou au format JSON Phenopacket structuré."
     },
     "step8": {
-      "title": "Aide et Ressources",
-      "content": "Accédez à la documentation, FAQ et ressources supplémentaires en utilisant les liens du pied de page. Vous pouvez aussi consulter les journaux pour le débogage."
+      "title": "Aide et ressources",
+      "content": "Accédez à la documentation, à la FAQ et à d'autres ressources via les liens du pied de page. Vous pouvez aussi consulter les journaux à des fins de débogage."
     },
     "navigation": {
       "next": "Suivant",
       "previous": "Précédent",
-      "skip": "Ignorer le Tour",
-      "finish": "Terminer le Tour"
+      "skip": "Passer la visite",
+      "finish": "Terminer la visite"
     },
     "tooltips": {
-      "startTour": "Démarrer le tour guidé",
-      "restartTour": "Redémarrer le tour"
+      "startTour": "Démarrer la visite guidée",
+      "restartTour": "Relancer la visite guidée"
     }
   },
   "phenopacket": {
@@ -492,11 +523,11 @@
     },
     "links": {
       "forgotPassword": "Mot de passe oublié ?",
-      "needAccount": "Pas de compte ? S'inscrire",
+      "needAccount": "Pas de compte ? Créez-en un",
       "backToLogin": "Retour à la connexion"
     },
     "validation": {
-      "emailRequired": "L'e-mail est requis",
+      "emailRequired": "L'adresse e-mail est requise",
       "emailInvalid": "Saisissez une adresse e-mail valide",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMin": "Le mot de passe doit comporter au moins 10 caractères",
@@ -504,29 +535,29 @@
     },
     "messages": {
       "registerSuccess": "Compte créé. Vérifiez votre e-mail pour le valider et débloquer le quota quotidien supérieur.",
-      "resetSent": "Si l'adresse est valide, un lien de réinitialisation a été envoyé."
+      "resetSent": "Si un compte existe pour cette adresse, un lien de réinitialisation du mot de passe a été envoyé."
     },
     "errors": {
-      "loginFailed": "E-mail ou mot de passe invalide.",
+      "loginFailed": "E-mail ou mot de passe incorrect.",
       "locked": "Trop de tentatives. Veuillez réessayer plus tard.",
       "generic": "Une erreur s'est produite. Veuillez réessayer."
     },
     "account": {
-      "loginRegister": "Se connecter ou s'inscrire",
+      "loginRegister": "Se connecter ou créer un compte",
       "account": "Compte",
       "signedInAs": "Connecté en tant que",
       "verified": "Vérifié",
       "unverified": "Non vérifié",
       "resendVerification": "Renvoyer l'e-mail de vérification",
       "logout": "Se déconnecter",
-      "quotaToday": "Quota plein texte aujourd'hui : {remaining} sur {limit} restant(s)"
+      "quotaToday": "Quota quotidien en texte intégral : {remaining} restant(s) sur {limit}"
     },
     "nudge": {
-      "loginForMore": "Connectez-vous pour un quota plein texte quotidien supérieur"
+      "loginForMore": "Connectez-vous pour bénéficier d'un quota quotidien supérieur en texte intégral"
     },
     "verifyView": {
       "title": "Vérification de l'e-mail",
-      "goHome": "Aller à l'application",
+      "goHome": "Accéder à l'application",
       "missingToken": "Il manque le jeton à ce lien de vérification.",
       "success": "Votre e-mail est vérifié. Vous bénéficiez désormais du quota quotidien supérieur.",
       "failed": "Ce lien de vérification est invalide ou a expiré."

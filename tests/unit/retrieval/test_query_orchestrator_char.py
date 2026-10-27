@@ -267,3 +267,22 @@ class TestProcessQueryMultiVector:
         )
         assert isinstance(results, list)
         assert mock_retriever.query_multi_vector.call_count >= 1
+
+
+def test_full_text_negated_query_embeds_concept_without_cue(mock_retriever):
+    """CLI path: "no seizures" retrieves on "seizures" but stays negated."""
+    from phentrieve.text_processing.assertion_detection import (
+        CombinedAssertionDetector,
+    )
+
+    results = process_query(
+        text="no seizures",
+        retriever=mock_retriever,
+        num_results=3,
+        similarity_threshold=0.5,
+        sentence_mode=False,
+        query_assertion_detector=CombinedAssertionDetector(language="en"),
+    )
+
+    assert mock_retriever.query.call_args.args[0] == "seizures"
+    assert results[0]["original_query_assertion_status"] == "negated"

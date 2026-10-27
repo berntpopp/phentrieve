@@ -236,3 +236,48 @@ async def test_full_text_service_runs_are_capped_by_semaphore(monkeypatch) -> No
             tg.start_soon(text_processing_execution._run_full_text_service_limited)
 
     assert peak == 1
+
+
+@pytest.mark.asyncio
+async def test_execute_llm_auto_detects_language_when_none(monkeypatch) -> None:
+    from api.services import text_processing_context, text_processing_execution
+
+    captured_kwargs: dict[str, object] = {}
+    request = TextProcessingRequest(
+        text="Der Patient hat keine Krampfanfälle.",
+        extraction_backend="llm",
+        language=None,
+    )
+
+    def fake_run_full_text_service(**kwargs):
+        captured_kwargs.update(kwargs)
+        return {
+            "meta": {"extraction_backend": "llm"},
+            "processed_chunks": [],
+            "aggregated_hpo_terms": [],
+        }
+
+    async def fake_run_in_threadpool(func, *args, **kwargs):
+        return func(*args, **kwargs)
+
+    monkeypatch.setattr(
+        text_processing_context, "detect_language", lambda text, default_lang: "de"
+    )
+    monkeypatch.setattr(
+        text_processing_context, "run_in_threadpool", fake_run_in_threadpool
+    )
+    monkeypatch.setattr(
+        text_processing_execution,
+        "resolve_public_llm_target",
+        lambda: SimpleNamespace(provider="p", model="m", base_url=None),
+    )
+    monkeypatch.setattr(
+        text_processing_execution, "run_full_text_service", fake_run_full_text_service
+    )
+    monkeypatch.setattr(
+        text_processing_execution, "run_in_threadpool", fake_run_in_threadpool
+    )
+
+    await text_processing_execution.execute_llm_text_processing(request)
+
+    assert captured_kwargs["language"] == "de"

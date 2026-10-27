@@ -1493,3 +1493,23 @@ def test_run_standard_backend_invokes_adaptive_when_enabled(mocker):
     assert result["meta"]["num_aggregated_hpo_terms"] == 1
     # The aggregated terms come from the rechunker output, not the initial pass.
     assert [t["id"] for t in result["aggregated_hpo_terms"]] == ["HP:0002"]
+
+
+def test_cancelled_run_starts_no_further_llm_calls() -> None:
+    from phentrieve.text_processing.full_text_service import (
+        LLMCancelToken,
+        LLMRequestCancelledError,
+        _stop_when_cancelled,
+    )
+
+    calls: list[str] = []
+    cancel_event = LLMCancelToken()
+    guarded = _stop_when_cancelled(lambda prompt: calls.append(prompt), cancel_event)
+
+    guarded("phase1")
+    cancel_event.set()
+    with pytest.raises(LLMRequestCancelledError):
+        guarded("phase2")
+
+    assert calls == ["phase1"]
+    assert cancel_event.llm_calls_started == 1
