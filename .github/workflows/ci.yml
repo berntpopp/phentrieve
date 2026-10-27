@@ -19,13 +19,8 @@ on:
     branches:
       - main
       - develop
-    paths-ignore:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - '*.md'
-      - 'plan/**'
-      - 'LICENSE'
-      - '.github/workflows/deploy-docs.yml'
+    # No paths-ignore on PRs: "CI Summary" is a required check, so it must report on
+    # every PR. Detect Changes skips the heavy jobs when only docs changed.
   # Weekly + manual runs test every supported Python; PRs and pushes test the 3.11 floor.
   schedule:
     - cron: '0 5 * * 1'
@@ -55,7 +50,8 @@ jobs:
     outputs:
       python: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.python == 'true' }}
       frontend: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.frontend == 'true' }}
-      python-versions: ${{ steps.full.outputs.run == 'true' && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
+      # Dependency changes also get the full matrix: a lock bump can break 3.12/3.13 only.
+      python-versions: ${{ (steps.full.outputs.run == 'true' || steps.filter.outputs.deps == 'true') && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
       images: ${{ steps.images.outputs.images }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,6 +80,9 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
+            deps:
+              - 'pyproject.toml'
+              - 'uv.lock'
             frontend:
               - 'frontend/**'
               - '.github/workflows/ci.yml'
@@ -99,6 +98,7 @@ jobs:
               - 'frontend/Dockerfile'
               - 'frontend/.dockerignore'
               - 'frontend/nginx.conf'
+              - 'frontend/nginx-security-headers.conf'
               - 'frontend/package.json'
               - 'frontend/package-lock.json'
               - 'docker-compose*.yml'
@@ -288,13 +288,6 @@ jobs:
         with:
           persist-credentials: false
 
-      # Only the multi-GB API image needs the extra disk.
-      - name: Free disk space
-        if: matrix.service == 'api'
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
-          docker system prune -af
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
@@ -319,6 +312,14 @@ jobs:
           ignore-unfixed: true
           trivyignores: .trivyignore
           exit-code: '1'
+
+      # Building is not enough: v0.28.4 built and scanned clean but shipped without the CLI.
+      - name: Smoke-test api image
+        if: matrix.service == 'api'
+        run: |
+          docker run --rm --entrypoint sh phentrieve-api:ci -c \
+            'phentrieve --version && python -c "import api.main, langdetect, de_core_news_sm, en_core_web_sm" &&
+             python -c "import importlib.util as u, torch; assert torch.__version__.endswith(\"+cpu\"), torch.__version__; assert not (u.find_spec(\"nvidia\") or u.find_spec(\"triton\")), \"CUDA wheels in image\""'
 
   dependency-review:
     name: Dependency Review

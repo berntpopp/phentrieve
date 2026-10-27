@@ -98,10 +98,6 @@ together:
   `other_person_*` keys through the same helper as the family path. The dead
   span-overlap guard and bounds merge in phase-1 deduplication are removed
   (phase-1 items carry no offsets until after deduplication).
-- **Phase-1 group failure traces record the exception type again** (#425).
-  `error_type` holds the class name of the underlying provider error (for
-  example a timeout vs a validation error) instead of the constant
-  `pipeline_phase_error`; the message stays generic.
 - **A truncated phase-1 group is no longer dropped silently** (#395). A
   `grouped_small` group (the last fallback level) that truncates at its scaled
   output budget is retried once at a fixed 65,536-token ceiling
@@ -112,6 +108,91 @@ together:
   (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
   Retries are traced per group (`truncation_retry`) and counted in
   `phase1_truncation_retries`. The frontend does not display the flag yet.
+
+## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
+
+Smaller API image: CPU-only torch (#446).
+
+### Changed
+
+- **The API image ships CPU-only torch: 6.9 GB -> 2.8 GB.** The deployment has
+  no GPU, but the image installed the locked CUDA build of torch plus triton and
+  15 `nvidia-*` wheels (~4.6 GB). The build now installs the CPU build of the
+  same locked torch version (2.13.0+cpu). `pyproject.toml` and `uv.lock` are
+  unchanged, so local and benchmark installs keep CUDA.
+- **CI:** the API image smoke test fails if CUDA wheels or non-CPU torch reach
+  the image. The PR image job no longer frees runner disk space, which took
+  4.5 minutes of a 12-minute job.
+
+## [0.28.6] — 2026-10-27 (CLI 0.28.6 / API 0.18.6 / Frontend 0.18.4)
+
+Dependency security patch and CI follow-ups to 0.28.5 (#436).
+
+### Fixed
+
+- **dnspython 2.9.0** (CVE-2026-114605), pulled in via email-validator. The
+  advisory was published after 0.28.5 and failed the Security Scanning workflow
+  on `main`. The floor is enforced by the dependency policy test.
+
+### Changed
+
+- **CI runs on every PR**, including docs-only ones. The `main` ruleset now
+  requires the "CI Summary" check, and the `pull_request` `paths-ignore` meant
+  docs-only PRs never reported it. `Detect Changes` still skips the heavy jobs.
+- The frontend image is rebuilt and scanned when
+  `frontend/nginx-security-headers.conf` changes.
+
+## [0.28.5] — 2026-10-27 (CLI 0.28.5 / API 0.18.5 / Frontend 0.18.4)
+
+Security hardening and regression fixes from the v0.28.4 code review.
+
+### Fixed
+
+- **API image ships the `phentrieve` CLI again** (#403): v0.28.4 installed only
+  the dependencies, so `phentrieve data prepare` / `index build` failed inside
+  the container and `python -m phentrieve` raised `PackageNotFoundError`.
+- **Auth session handling:** re-registering a pending account replaces its
+  password and revokes its sessions; email verification revokes earlier
+  sessions; refresh-token rotation is atomic and a reused token revokes all of
+  the user's sessions (30 s grace for concurrent tabs); access tokens issued
+  before a password change are rejected; an expired lockout no longer re-locks
+  on the next typo.
+- **Login responses are uniform:** unknown, locked and wrong-password logins
+  all run bcrypt and return the same 401 (locked accounts previously got 429).
+- **Passwords over 72 bytes** are rejected with a 422 instead of a 500, and no
+  longer consume the reset token (#412).
+- **LLM quota** is reserved before the LLM call and released on failure, so
+  concurrent requests can no longer exceed the daily limit. MCP callers are
+  counted per client instead of sharing one global bucket, and MCP honours
+  `PHENTRIEVE_LLM_QUOTA_ENFORCE`. Quota helpers are shared (#434).
+- **nginx:** security headers (CSP, framing, nosniff) now reach `index.html`
+  and every location; the real client IP is used behind the reverse proxy;
+  credential and email endpoints are rate-limited per client.
+- **Dependency advisories:** authlib 1.9.x (CVE-2026-96760), msgpack 1.2.4
+  (CVE-2026-114613); stale torch ignore removed (#413).
+
+### Added
+
+- **Input limits:** 50,000 characters for full text and MCP text arguments,
+  10,000 for queries; the frontend explains a 422 (#406).
+- **`PHENTRIEVE_MAX_CONCURRENT_INFERENCE`** (default 2) caps concurrent
+  full-text inference across REST and MCP (#406).
+- **`PHENTRIEVE_LLM_QUOTA_PEPPER`**: HMAC key for quota subject hashes (falls
+  back to `PHENTRIEVE_AUTH_JWT_SECRET`, then a per-process key).
+- **`PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS`** (default 30).
+- **CI smoke-runs the API image** (#409); the full Python matrix runs on
+  dependency changes (#424); tests for the MCP validation unwrap (#423).
+
+### Changed
+
+- **Production with auth enabled refuses to start** unless
+  `PHENTRIEVE_AUTH_JWT_SECRET` has at least 32 characters and
+  `PHENTRIEVE_EMAIL_BACKEND=smtp`.
+- **Quota counters reset once** on upgrade because subject hashes changed.
+- `langdetect` and `de_core_news_sm` are locked in the `api` extra (#421);
+  `make security-python` mirrors the CI pip-audit invocation (#413).
+- The missing-bundle-manifest error says how to recover (#422); phase-1 LLM
+  traces keep the underlying exception type (#425).
 
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 

@@ -7,6 +7,7 @@ the user, or ``None`` (used by the quota path to pick the tier).
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import HTTPException, Request, status
@@ -37,9 +38,16 @@ def _user_from_bearer(request: Request) -> User | None:
     try:
         claims = tokens.decode_access_token(token.strip(), secret=secret)
         user_id = int(claims["sub"])
-    except (tokens.TokenError, KeyError, ValueError):
+        issued_at = int(claims["iat"])
+    except (tokens.TokenError, KeyError, ValueError, TypeError):
         return None
-    return get_user_store().get_by_id(user_id)
+    user = get_user_store().get_by_id(user_id)
+    # iat is whole seconds, so compare against the floored password-change time.
+    if user is not None and user.password_changed_at is not None:
+        changed_at = int(datetime.fromisoformat(user.password_changed_at).timestamp())
+        if issued_at < changed_at:
+            return None
+    return user
 
 
 def get_optional_user(request: Request) -> User | None:

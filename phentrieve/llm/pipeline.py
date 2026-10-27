@@ -1135,8 +1135,6 @@ class TwoPhaseLLMPipeline:
                         "status": "failed",
                         "error_code": "phase1_group_error",
                         "error": "Grouped phase 1 extraction failed",
-                        # The class name of the underlying provider error
-                        # (e.g. a timeout vs a schema error); never its message.
                         "error_type": type(
                             group_error.__cause__ or group_error
                         ).__name__,

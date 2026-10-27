@@ -1397,7 +1397,6 @@ def test_non_regroupable_group_failure_raises_instead_of_succeeding(caplog) -> N
     assert phase1_groups[1]["status"] == "failed"
     assert phase1_groups[1]["error"] == "Grouped phase 1 extraction failed"
     assert phase1_groups[1]["error_code"] == "phase1_group_error"
-    # The provider exception class survives; its (secret-bearing) message does not.
     assert phase1_groups[1]["error_type"] == "RuntimeError"
     assert phase1_groups[1]["extracted_count"] == 0
     assert phase1_groups[1]["extracted"] == []

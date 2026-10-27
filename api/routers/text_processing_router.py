@@ -1,19 +1,21 @@
 import asyncio
 import logging
-from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, status
 
 import api.config as api_config
 from api.llm_quota import (
-    DailyQuotaStore,
     QuotaExceededError,
     QuotaStatus,
+    QuotaStoreUnavailableError,
+    anonymous_subject_key,
     hash_subject_key,
+    quota_enforced,
     quota_reset_at_iso,
-    resolve_subject_ip,
+    read_llm_quota,
+    release_llm_quota,
+    reserve_llm_quota,
 )
 from api.research_use import (
     RESEARCH_USE_LIMITATION,
@@ -63,39 +65,6 @@ __all__ = [
 ]
 
 
-def _is_production_environment() -> bool:
-    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
-
-
-def _get_trusted_proxy_cidrs() -> list[str]:
-    return [
-        cidr.strip()
-        for cidr in api_config.PHENTRIEVE_TRUSTED_PROXY_CIDRS.split(",")
-        if cidr.strip()
-    ]
-
-
-def _quota_enforced() -> bool:
-    """Whether LLM quota is enforced.
-
-    Tri-state ``PHENTRIEVE_LLM_QUOTA_ENFORCE``: explicit ``true``/``false``
-    override, otherwise the legacy behaviour (enforce only in production).
-    """
-    override = api_config.PHENTRIEVE_LLM_QUOTA_ENFORCE
-    if override == "true":
-        return True
-    if override == "false":
-        return False
-    return _is_production_environment()
-
-
-def _get_llm_quota_store(daily_limit: int) -> DailyQuotaStore:
-    return DailyQuotaStore(
-        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
-        daily_limit=daily_limit,
-    )
-
-
 def _resolve_authenticated_subject(http_request: Request) -> tuple[str, bool] | None:
     """Return (subject_key, is_verified) for a logged-in user, else None.
 
@@ -135,13 +104,8 @@ def _resolve_quota_subject(http_request: Request) -> tuple[str, int, bool, bool]
     else:
         authenticated = False
 
-    client_host = http_request.client.host if http_request.client else None
-    subject_ip = resolve_subject_ip(
-        client_host=client_host,
-        x_forwarded_for=http_request.headers.get("x-forwarded-for"),
-        trusted_proxy_cidrs=_get_trusted_proxy_cidrs(),
-    )
-    if subject_ip is None:
+    anonymous_key = anonymous_subject_key(http_request)
+    if anonymous_key is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=(
@@ -151,48 +115,24 @@ def _resolve_quota_subject(http_request: Request) -> tuple[str, int, bool, bool]
             ),
         )
     return (
-        hash_subject_key(subject_ip),
+        anonymous_key,
         api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
         authenticated,
         False,
     )
 
 
-def check_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
+def reserve_llm_quota_or_raise(http_request: Request) -> QuotaStatus:
+    """Reserve one LLM call before running it so parallel requests cannot all pass."""
     subject_key, daily_limit, _authenticated, _verified = _resolve_quota_subject(
         http_request
     )
-    usage_date_utc = datetime.now(UTC).date().isoformat()
     try:
-        quota_status = _get_llm_quota_store(daily_limit).get_status(
-            subject_key=subject_key,
-            usage_date_utc=usage_date_utc,
-        )
-    except Exception as exc:  # noqa: BLE001
+        return reserve_llm_quota(subject_key=subject_key, daily_limit=daily_limit)
+    except QuotaStoreUnavailableError as exc:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=(
-                "Unable to evaluate LLM quota state. Verify "
-                "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
-            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
         ) from exc
-
-    if quota_status.quota_remaining <= 0:
-        raise QuotaExceededError(
-            quota_used=quota_status.quota_used,
-            quota_limit=quota_status.quota_limit,
-            quota_remaining=quota_status.quota_remaining,
-            usage_date_utc=quota_status.usage_date_utc,
-        )
-
-    return quota_status
-
-
-def _record_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
-    return _get_llm_quota_store(quota_status.quota_limit).record_success(
-        subject_key=quota_status.subject_key,
-        usage_date_utc=quota_status.usage_date_utc,
-    )
 
 
 @router.get("/quota", summary="Get current LLM daily quota status")
@@ -206,26 +146,18 @@ def get_llm_quota_status(http_request: Request) -> dict[str, Any]:
     subject_key, daily_limit, authenticated, verified = _resolve_quota_subject(
         http_request
     )
-    usage_date_utc = datetime.now(UTC).date().isoformat()
     try:
-        quota_status = _get_llm_quota_store(daily_limit).get_status(
-            subject_key=subject_key,
-            usage_date_utc=usage_date_utc,
-        )
-    except Exception as exc:  # noqa: BLE001
+        quota_status = read_llm_quota(subject_key=subject_key, daily_limit=daily_limit)
+    except QuotaStoreUnavailableError as exc:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=(
-                "Unable to evaluate LLM quota state. Verify "
-                "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
-            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
         ) from exc
 
     detail = quota_status.to_detail()
-    detail["quota_reset_at"] = quota_reset_at_iso(usage_date_utc)
+    detail["quota_reset_at"] = quota_reset_at_iso(quota_status.usage_date_utc)
     detail["authenticated"] = authenticated
     detail["verified"] = verified
-    detail["enforced"] = _quota_enforced()
+    detail["enforced"] = quota_enforced()
     return detail
 
 
@@ -306,9 +238,9 @@ async def process_text_extract_hpo(
         http_request.headers.get("x-phentrieve-allow-standard-fallback", "").lower()
         == "true"
     )
-    if request.extraction_backend == "llm" and _quota_enforced():
+    if request.extraction_backend == "llm" and quota_enforced():
         try:
-            quota_status = check_llm_quota_or_raise(http_request)
+            quota_status = reserve_llm_quota_or_raise(http_request)
         except QuotaExceededError as exc:
             if allow_standard_fallback:
                 request = request.model_copy(
@@ -334,31 +266,9 @@ async def process_text_extract_hpo(
         response = await asyncio.wait_for(
             _process_text_via_shared_service(request), timeout=timeout_seconds
         )
-        if quota_status is not None:
-            try:
-                updated_quota_status = _record_llm_quota_success(quota_status)
-            except QuotaExceededError as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail=exc.to_detail(),
-                ) from exc
-            except Exception as exc:  # noqa: BLE001
-                raise HTTPException(
-                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail=(
-                        "Unable to persist LLM quota usage. Verify "
-                        "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
-                    ),
-                ) from exc
-            response.meta["quota_limit"] = updated_quota_status.quota_limit
-            response.meta["quota_remaining"] = updated_quota_status.quota_remaining
-            response.meta["quota_reset_at"] = quota_reset_at_iso(
-                updated_quota_status.usage_date_utc
-            )
-        if forced_standard_fallback is not None:
-            response.meta.update(forced_standard_fallback)
-        return response
     except asyncio.exceptions.TimeoutError:
+        # Keep the reservation: the worker thread (and its paid LLM call) keeps
+        # running after wait_for gives up.
         logger.error(
             "API: Request timed out after %ss (text length: %s chars)",
             timeout_seconds,
@@ -373,6 +283,21 @@ async def process_text_extract_hpo(
                 f"(2) use 'simple' chunking strategy."
             ),
         )
+    except Exception:
+        # Failed before producing a result: the caller got nothing, refund it.
+        if quota_status is not None:
+            release_llm_quota(quota_status)
+        raise
+
+    if quota_status is not None:
+        response.meta["quota_limit"] = quota_status.quota_limit
+        response.meta["quota_remaining"] = quota_status.quota_remaining
+        response.meta["quota_reset_at"] = quota_reset_at_iso(
+            quota_status.usage_date_utc
+        )
+    if forced_standard_fallback is not None:
+        response.meta.update(forced_standard_fallback)
+    return response
 
 
 async def _process_text_via_shared_service(request: TextProcessingRequest):
