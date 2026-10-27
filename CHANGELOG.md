@@ -38,6 +38,13 @@ together:
   "does this chunking pipeline need a sentence-transformer model" loop that was
   copy-pasted in `text process`, `text chunk` and `text interactive` now lives
   in `phentrieve.text_processing.config_resolver.needs_semantic_model`.
+- **One health route: `GET /api/v1/health`** (#433). It now answers directly
+  (the Docker health checks used to get a 307 to `/api/v1/health/`) and
+  returns `{"status": "healthy", "service", "version", "timestamp"}`, the shape
+  `/api/v1/system/health` already returned; the old body was
+  `{"status": "ok"}`. `/api/v1/health/` and `/api/v1/system/health` stay as
+  undocumented aliases with the same payload, and the frontend connection
+  poll now calls `/api/v1/health`.
 
 ### Fixed
 
