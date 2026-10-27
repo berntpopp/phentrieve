@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS users (
     failed_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TEXT,
     created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    updated_at TEXT NOT NULL,
+    password_changed_at TEXT
 )
 """
 
@@ -72,6 +73,7 @@ class User:
     locked_until: str | None
     created_at: str
     updated_at: str
+    password_changed_at: str | None = None
 
 
 def _now_iso() -> str:
@@ -102,6 +104,13 @@ class UserStore:
             connection.execute(CREATE_USERS_TABLE_SQL)
             connection.execute(CREATE_AUTH_TOKENS_TABLE_SQL)
             connection.execute(CREATE_REFRESH_SESSIONS_TABLE_SQL)
+            columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(users)")
+            }
+            if "password_changed_at" not in columns:  # pre-existing DBs
+                connection.execute(
+                    "ALTER TABLE users ADD COLUMN password_changed_at TEXT"
+                )
             connection.commit()
 
     # ------------------------------------------------------------------ users
@@ -116,6 +125,7 @@ class UserStore:
             locked_until=row["locked_until"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
+            password_changed_at=row["password_changed_at"],
         )
 
     def create_user(self, *, email: str, password_hash: str) -> User:
@@ -164,10 +174,15 @@ class UserStore:
             connection.commit()
 
     def update_password(self, user_id: int, password_hash: str) -> None:
+        now = _now_iso()
         with closing(self._connect()) as connection:
             connection.execute(
-                "UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?",
-                (password_hash, _now_iso(), user_id),
+                """
+                UPDATE users
+                SET password_hash = ?, password_changed_at = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (password_hash, now, now, user_id),
             )
             connection.commit()
 
@@ -180,12 +195,17 @@ class UserStore:
             try:
                 connection.execute("BEGIN IMMEDIATE")
                 row = connection.execute(
-                    "SELECT failed_attempts FROM users WHERE id = ?", (user_id,)
+                    "SELECT failed_attempts, locked_until FROM users WHERE id = ?",
+                    (user_id,),
                 ).fetchone()
                 if row is None:
                     connection.rollback()
                     return
-                attempts = int(row["failed_attempts"]) + 1
+                attempts = int(row["failed_attempts"])
+                # A served lockout starts a fresh window instead of re-locking on 1 typo.
+                if row["locked_until"] and row["locked_until"] <= now.isoformat():
+                    attempts = 0
+                attempts += 1
                 locked_until: str | None = None
                 if attempts >= max_attempts:
                     locked_until = (
@@ -311,6 +331,61 @@ class UserStore:
                 (token_hash, now),
             ).fetchone()
         return int(row["user_id"]) if row is not None else None
+
+    def rotate_refresh_session(
+        self, token_hash: str, *, reuse_grace_seconds: int
+    ) -> int | None:
+        """Atomically claim (revoke) an active refresh session, returning its user.
+
+        Presenting an already-revoked token is treated as reuse of a stolen
+        token: every session of that user is revoked and ``None`` is returned.
+        Within ``reuse_grace_seconds`` of the revocation it is treated as a
+        benign multi-tab race instead: ``None``, but other sessions survive.
+        """
+        now_dt = datetime.now(UTC)
+        now = now_dt.isoformat()
+        grace_start = (now_dt - timedelta(seconds=reuse_grace_seconds)).isoformat()
+        with closing(self._connect()) as connection:
+            try:
+                connection.execute("BEGIN IMMEDIATE")
+                row = connection.execute(
+                    """
+                    SELECT user_id, expires_at, revoked_at
+                    FROM refresh_sessions WHERE token_hash = ?
+                    """,
+                    (token_hash,),
+                ).fetchone()
+                # ponytail: any revocation (rotation/logout/reset) gets the grace.
+                if (
+                    row is None
+                    or (row["revoked_at"] is None and row["expires_at"] <= now)
+                    or (
+                        row["revoked_at"] is not None
+                        and row["revoked_at"] > grace_start
+                    )
+                ):
+                    connection.rollback()
+                    return None
+                if row["revoked_at"] is not None:
+                    connection.execute(
+                        """
+                        UPDATE refresh_sessions SET revoked_at = ?
+                        WHERE user_id = ? AND revoked_at IS NULL
+                        """,
+                        (now, row["user_id"]),
+                    )
+                    connection.commit()
+                    return None
+                connection.execute(
+                    "UPDATE refresh_sessions SET revoked_at = ? WHERE token_hash = ?",
+                    (now, token_hash),
+                )
+                connection.commit()
+                return int(row["user_id"])
+            except Exception:
+                if connection.in_transaction:
+                    connection.rollback()
+                raise
 
     def revoke_refresh_session(self, token_hash: str) -> None:
         with closing(self._connect()) as connection:

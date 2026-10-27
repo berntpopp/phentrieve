@@ -157,7 +157,9 @@ services:
       - PHENTRIEVE_LLM_QUOTA_DB_PATH=${PHENTRIEVE_LLM_QUOTA_DB_PATH:-/phentrieve_data_mount/app/llm_quota.db}
       - PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT=${PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT:-20}
       - PHENTRIEVE_LLM_QUOTA_ENFORCE=${PHENTRIEVE_LLM_QUOTA_ENFORCE:-}
-      # Accounts / authentication (off by default; set a strong JWT secret to enable)
+      # Accounts / authentication (off by default). With PHENTRIEVE_ENV=production
+      # and auth enabled, the API refuses to start unless PHENTRIEVE_AUTH_JWT_SECRET
+      # is >= 32 chars and PHENTRIEVE_EMAIL_BACKEND=smtp.
       - PHENTRIEVE_AUTH_ENABLED=${PHENTRIEVE_AUTH_ENABLED:-false}
       - PHENTRIEVE_AUTH_JWT_SECRET=${PHENTRIEVE_AUTH_JWT_SECRET:-}
       - PHENTRIEVE_AUTH_DB_PATH=${PHENTRIEVE_AUTH_DB_PATH:-/phentrieve_data_mount/app/users.db}
@@ -170,7 +172,8 @@ services:
       # Optional pre-verified dev account seeded at startup (leave empty in prod)
       - PHENTRIEVE_AUTH_SEED_EMAIL=${PHENTRIEVE_AUTH_SEED_EMAIL:-}
       - PHENTRIEVE_AUTH_SEED_PASSWORD=${PHENTRIEVE_AUTH_SEED_PASSWORD:-}
-      # Email delivery for verification + password reset
+      # Email delivery for verification + password reset (console = dev only;
+      # it logs the links, so production with auth enabled requires smtp)
       - PHENTRIEVE_EMAIL_BACKEND=${PHENTRIEVE_EMAIL_BACKEND:-console}
       - PHENTRIEVE_EMAIL_FROM=${PHENTRIEVE_EMAIL_FROM:-noreply@phentrieve.org}
       - PHENTRIEVE_PUBLIC_BASE_URL=${PHENTRIEVE_PUBLIC_BASE_URL:-http://localhost:5734}

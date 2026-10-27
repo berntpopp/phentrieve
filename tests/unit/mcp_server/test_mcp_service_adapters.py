@@ -442,3 +442,93 @@ def test_extract_llm_reraises_backend_error_without_fallback(monkeypatch):
             allow_standard_fallback=False,
             service=flaky_service,
         )
+
+
+def _llm_ok_service(**_kwargs):
+    return {"meta": {}, "processed_chunks": [], "aggregated_hpo_terms": []}
+
+
+def _call_llm_service(service):
+    return extract_hpo_terms_llm_service(
+        text="hi",
+        language="en",
+        include_details=False,
+        include_chunk_positions=False,
+        num_results_per_chunk=5,
+        chunk_retrieval_threshold=0.5,
+        llm_mode="two_phase",
+        llm_internal_mode="whole_document_grounded",
+        allow_standard_fallback=False,
+        service=service,
+    )
+
+
+def _http_request(client_ip: str):
+    from starlette.requests import Request
+
+    return Request({"type": "http", "headers": [], "client": (client_ip, 1234)})
+
+
+def test_extract_llm_quota_is_per_client_ip_and_honors_enforce_flag(
+    monkeypatch, tmp_path
+):
+    import api.config as api_config
+
+    monkeypatch.setattr(api_config, "PHENTRIEVE_ENV", "development")
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_QUOTA_ENFORCE", "true")
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_DAILY_LIMIT", 1)
+    monkeypatch.setattr(
+        api_config, "PHENTRIEVE_LLM_QUOTA_DB_PATH", str(tmp_path / "q.db")
+    )
+    current = {"ip": "203.0.113.5"}
+    monkeypatch.setattr(
+        service_adapters, "get_http_request", lambda: _http_request(current["ip"])
+    )
+
+    out = _call_llm_service(_llm_ok_service)
+    assert out["meta"]["quota_remaining"] == 0
+
+    from api.llm_quota import QuotaExceededError
+
+    with pytest.raises(QuotaExceededError):
+        _call_llm_service(_llm_ok_service)
+
+    # A different caller has its own bucket.
+    current["ip"] = "198.51.100.7"
+    assert _call_llm_service(_llm_ok_service)["meta"]["quota_remaining"] == 0
+
+
+def test_extract_llm_backend_error_releases_quota(monkeypatch, tmp_path):
+    import api.config as api_config
+
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_QUOTA_ENFORCE", "true")
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_DAILY_LIMIT", 1)
+    monkeypatch.setattr(
+        api_config, "PHENTRIEVE_LLM_QUOTA_DB_PATH", str(tmp_path / "q.db")
+    )
+    monkeypatch.setattr(
+        service_adapters, "get_http_request", lambda: _http_request("203.0.113.5")
+    )
+
+    def failing(**_kwargs):
+        raise RuntimeError("backend down")
+
+    with pytest.raises(RuntimeError):
+        _call_llm_service(failing)
+    # The refunded unit is still usable.
+    assert _call_llm_service(_llm_ok_service)["meta"]["quota_remaining"] == 0
+
+
+def test_extract_llm_store_failure_is_temporarily_unavailable(monkeypatch):
+    import api.config as api_config
+    from api.llm_quota import QuotaStoreUnavailableError
+
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_QUOTA_ENFORCE", "true")
+
+    def broken(**_kwargs):
+        raise QuotaStoreUnavailableError("db down")
+
+    monkeypatch.setattr(service_adapters, "reserve_llm_quota", broken)
+    with pytest.raises(McpToolError) as excinfo:
+        _call_llm_service(_llm_ok_service)
+    assert excinfo.value.error_code == "temporarily_unavailable"

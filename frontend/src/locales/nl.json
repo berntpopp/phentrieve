@@ -371,6 +371,7 @@
       "network": "Kon geen verbinding maken met de server. Controleer uw internetverbinding en probeer het opnieuw.",
       "clientSide": "Er is een fout opgetreden tijdens het {context}.",
       "badRequest": "Uw verzoek was ongeldig. Controleer de invoer en probeer het opnieuw. (Status: {status})",
+      "validation": "De invoer is geweigerd. Controleer deze en let op de limieten: 50.000 tekens voor volledige tekst, 10.000 voor een enkele zoekopdracht. (Status: {status})",
       "badRequestModel": "Het model dat in uw verzoek is opgegeven, is ongeldig of wordt niet ondersteund. (Status: {status})",
       "unauthorized": "U bent niet gemachtigd om deze actie uit te voeren. (Status: {status})",
       "forbidden": "U heeft geen toestemming om toegang te krijgen tot deze bron. (Status: {status})",

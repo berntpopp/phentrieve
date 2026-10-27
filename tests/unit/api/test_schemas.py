@@ -84,6 +84,14 @@ class TestQueryRequest:
 
         assert "String should have at least 1 character" in str(exc_info.value)
 
+    def test_text_max_length_validation(self):
+        """Over-long query text is rejected before any inference runs."""
+        from api.schemas.query_schemas import MAX_QUERY_CHARS
+
+        QueryRequest(text="a" * MAX_QUERY_CHARS)
+        with pytest.raises(ValidationError, match="at most"):
+            QueryRequest(text="a" * (MAX_QUERY_CHARS + 1))
+
     def test_num_results_must_be_positive(self):
         """Test num_results must be > 0."""
         # Act & Assert
@@ -255,6 +263,14 @@ class TestTextProcessingRequest:
         assert req.text_content == "patient has seizures"
         assert req.language == "en"  # Defaults to DEFAULT_LANGUAGE
         assert req.chunking_strategy == "sliding_window_punct_conj_cleaned"  # Default
+
+    def test_text_processing_request_rejects_over_long_text(self):
+        """Full text above MAX_TEXT_CHARS is rejected (issue #406)."""
+        from api.schemas.text_processing_schemas import MAX_TEXT_CHARS
+
+        TextProcessingRequest(text="a" * MAX_TEXT_CHARS)
+        with pytest.raises(ValidationError, match="at most"):
+            TextProcessingRequest(text="a" * (MAX_TEXT_CHARS + 1))
 
     def test_full_text_processing_request(self):
         """Test request with all fields."""

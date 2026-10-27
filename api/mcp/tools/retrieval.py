@@ -36,6 +36,7 @@ from api.mcp.tools._common import (
     TextArg,
     require_research_ack,
 )
+from api.services import text_processing_execution
 from phentrieve.config import (
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
     DEFAULT_NUM_RESULTS,
@@ -152,7 +153,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
 
         async def call() -> dict[str, Any]:
             require_research_ack(research_use_acknowledged)
-            raw = await anyio.to_thread.run_sync(
+            raw = await text_processing_execution.run_inference_in_thread(
                 lambda: extract_hpo_terms_service(
                     text=text,
                     language=language,
@@ -242,7 +243,7 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
 
         async def call() -> dict[str, Any]:
             require_research_ack(research_use_acknowledged)
-            raw = await anyio.to_thread.run_sync(
+            raw = await text_processing_execution.run_inference_in_thread(
                 lambda: extract_hpo_terms_llm_service(
                     text=text,
                     language=language,

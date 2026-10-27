@@ -88,11 +88,13 @@ def test_login_wrong_password_then_lockout(auth_client, caplog):
             "/api/v1/auth/login", json={"email": "a@ex.com", "password": "wrongpass1"}
         )
         assert r.status_code == 401
-    # Account now locked: even the correct password is rejected with 429.
+    # Account now locked: even the correct password is rejected, with the same
+    # 401 as a wrong password so lock state does not reveal the account.
     r = auth_client.post(
         "/api/v1/auth/login", json={"email": "a@ex.com", "password": _PASSWORD}
     )
-    assert r.status_code == 429
+    assert r.status_code == 401
+    assert r.json()["detail"] == "Invalid email or password."
 
 
 def test_no_user_enumeration_on_register_existing(auth_client, caplog):
@@ -217,76 +219,131 @@ def test_password_reset_survives_email_send_failure(auth_client, monkeypatch, ca
     assert "a@ex.com" in caplog.text
 
 
-# "ue"-umlaut x36 + "1" x36: 72 characters (passes max_length) but 108 UTF-8 bytes,
-# which bcrypt>=5 rejects with ValueError (#412).
-_LONG_UTF8_PASSWORD = "\u00fc" * 36 + "1" * 36
-
-
-def test_register_rejects_password_over_72_bytes(auth_client):
-    assert len(_LONG_UTF8_PASSWORD) == 72
-    assert len(_LONG_UTF8_PASSWORD.encode("utf-8")) > 72
-    r = auth_client.post(
-        "/api/v1/auth/register",
-        json={"email": "long@ex.com", "password": _LONG_UTF8_PASSWORD},
+def _login(client, email="a@ex.com", password=_PASSWORD):
+    return client.post(
+        "/api/v1/auth/login", json={"email": email, "password": password}
     )
-    assert r.status_code == 422
-    assert "72 bytes" in r.text
 
 
-def test_password_reset_confirm_rejects_password_over_72_bytes(auth_client, caplog):
-    token = _register(auth_client, caplog)
-    auth_client.post("/api/v1/auth/verify", json={"token": token})
-    auth_client.post("/api/v1/auth/password-reset/request", json={"email": "a@ex.com"})
-    reset_token = _link_token(caplog, "reset-password")
-
-    r = auth_client.post(
-        "/api/v1/auth/password-reset/confirm",
-        json={"token": reset_token, "new_password": _LONG_UTF8_PASSWORD},
+def _refresh(client):
+    return client.post(
+        "/api/v1/auth/refresh",
+        headers={"X-CSRF-Token": client.cookies.get("csrf_token") or "x"},
     )
-    assert r.status_code == 422
-    assert "72 bytes" in r.text
-
-    # The rejected request did not consume the token.
-    r = auth_client.post(
-        "/api/v1/auth/password-reset/confirm",
-        json={"token": reset_token, "new_password": "Br4ndNewPass"},
-    )
-    assert r.status_code == 200
 
 
-def test_password_reset_hash_failure_keeps_token_usable(
-    auth_client, monkeypatch, caplog
+def _use_refresh_cookie(client, raw):
+    client.cookies.clear()
+    client.cookies.set("csrf_token", "c")
+    client.cookies.set("refresh_token", raw)
+
+
+def test_reregister_unverified_replaces_password_and_revokes_sessions(
+    auth_client, caplog
 ):
-    """#412: the new password is hashed before the reset token is consumed."""
+    # Squatter registers the victim's address and opens a session.
+    _register(auth_client, caplog)
+    assert _login(auth_client).status_code == 200
+
+    other = "Victim0wnsIt"
+    r = auth_client.post(
+        "/api/v1/auth/register", json={"email": "a@ex.com", "password": other}
+    )
+    assert r.status_code == 201
+    assert r.json()["message"].startswith("If the address is valid")
+
+    assert _refresh(auth_client).status_code == 401  # squatter session revoked
+    assert _login(auth_client).status_code == 401
+    assert _login(auth_client, password=other).status_code == 200
+
+
+def test_verify_revokes_existing_sessions(auth_client, caplog):
+    token = _register(auth_client, caplog)
+    assert _login(auth_client).status_code == 200
+    assert auth_client.post("/api/v1/auth/verify", json={"token": token}).is_success
+    assert _refresh(auth_client).status_code == 401
+
+
+def test_login_unknown_email_still_runs_bcrypt(auth_client, monkeypatch):
     import api.auth.router as auth_router
 
-    token = _register(auth_client, caplog)
-    auth_client.post("/api/v1/auth/verify", json={"token": token})
+    calls = []
+    real = auth_router.verify_password
+    monkeypatch.setattr(
+        auth_router, "verify_password", lambda p, h: calls.append(h) or real(p, h)
+    )
+    r = _login(auth_client, email="nobody@ex.com")
+    assert r.status_code == 401
+    assert r.json()["detail"] == "Invalid email or password."
+    assert calls == [auth_router._DUMMY_PASSWORD_HASH]
+
+
+def test_refresh_token_reuse_within_grace_is_benign_race(auth_client, caplog):
+    _register(auth_client, caplog)
+    _login(auth_client)
+    first = auth_client.cookies.get("refresh_token")
+    assert _refresh(auth_client).status_code == 200
+    second = auth_client.cookies.get("refresh_token")
+
+    # Another tab sends the same (just rotated) cookie: 401, but no revoke-all.
+    _use_refresh_cookie(auth_client, first)
+    assert _refresh(auth_client).status_code == 401
+    _use_refresh_cookie(auth_client, second)
+    assert _refresh(auth_client).status_code == 200
+
+
+def test_refresh_token_reuse_revokes_rotated_session(auth_client, caplog, monkeypatch):
+    monkeypatch.setattr(api_config, "PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS", 0)
+    _register(auth_client, caplog)
+    _login(auth_client)
+    first = auth_client.cookies.get("refresh_token")
+    assert _refresh(auth_client).status_code == 200
+    second = auth_client.cookies.get("refresh_token")
+    assert second and second != first
+
+    # Replay the rotated-out token: rejected and the newer session is revoked.
+    _use_refresh_cookie(auth_client, first)
+    assert _refresh(auth_client).status_code == 401
+    _use_refresh_cookie(auth_client, second)
+    assert _refresh(auth_client).status_code == 401
+
+
+def test_access_token_rejected_after_password_change(auth_client, caplog):
+    import sqlite3
+    from datetime import UTC, datetime, timedelta
+
+    _register(auth_client, caplog)
+    access = _login(auth_client).json()["access_token"]
+    headers = {"Authorization": f"Bearer {access}"}
+    assert auth_client.get("/api/v1/auth/me", headers=headers).status_code == 200
+
+    # Simulate a password change one second after the token was issued.
+    changed = (datetime.now(UTC) + timedelta(seconds=1)).isoformat()
+    with sqlite3.connect(api_config.PHENTRIEVE_AUTH_DB_PATH) as conn:
+        conn.execute("UPDATE users SET password_changed_at = ?", (changed,))
+    assert auth_client.get("/api/v1/auth/me", headers=headers).status_code == 401
+
+
+def test_password_over_72_bytes_rejected_without_burning_reset_token(
+    auth_client, caplog
+):
+    long_pw = "é" * 40 + "1"  # 41 chars, 81 bytes
+    r = auth_client.post(
+        "/api/v1/auth/register", json={"email": "b@ex.com", "password": long_pw}
+    )
+    assert r.status_code == 422
+    assert _login(auth_client, password=long_pw).status_code == 422
+
+    _register(auth_client, caplog)
     auth_client.post("/api/v1/auth/password-reset/request", json={"email": "a@ex.com"})
     reset_token = _link_token(caplog, "reset-password")
-
-    real_hash = auth_router.hash_password
-
-    def _boom(_password):
-        raise ValueError("password cannot be longer than 72 bytes")
-
-    monkeypatch.setattr(auth_router, "hash_password", _boom)
-    with pytest.raises(ValueError):
-        auth_client.post(
-            "/api/v1/auth/password-reset/confirm",
-            json={"token": reset_token, "new_password": "Br4ndNewPass"},
-        )
-
-    monkeypatch.setattr(auth_router, "hash_password", real_hash)
+    r = auth_client.post(
+        "/api/v1/auth/password-reset/confirm",
+        json={"token": reset_token, "new_password": long_pw},
+    )
+    assert r.status_code == 422
     r = auth_client.post(
         "/api/v1/auth/password-reset/confirm",
         json={"token": reset_token, "new_password": "Br4ndNewPass"},
     )
     assert r.status_code == 200
-    assert (
-        auth_client.post(
-            "/api/v1/auth/login",
-            json={"email": "a@ex.com", "password": "Br4ndNewPass"},
-        ).status_code
-        == 200
-    )

@@ -49,6 +49,10 @@ _REGISTER_MSG = "If the address is valid, a verification email has been sent."
 _RESET_MSG = "If the address is valid, a password reset email has been sent."
 _VERIFY_OK = "Email verified. You now have the higher daily quota."
 _RESET_OK = "Password updated. Please sign in with your new password."
+_LOGIN_FAILED = "Invalid email or password."
+
+# Verified against unknown emails so login timing does not reveal accounts.
+_DUMMY_PASSWORD_HASH = hash_password("phentrieve-dummy-password-0")
 
 
 def _samesite() -> Literal["lax", "strict", "none"]:
@@ -150,16 +154,19 @@ async def _send_verify(store: UserStore, user: User) -> None:
 @router.post("/register", response_model=MessageResponse, status_code=201)
 async def register(body: RegisterRequest) -> MessageResponse:
     store = get_user_store()
+    # Hash on every path so timing does not reveal whether the email exists.
+    password_hash = hash_password(body.password)
     existing = store.get_by_email(body.email)
     if existing is not None:
-        # No enumeration: behave identically. Resend verification if pending.
+        # No enumeration: behave identically. A pending (unverified) account is
+        # re-claimed by the latest registrant so nobody can squat an address.
         if not existing.is_verified:
+            store.update_password(existing.id, password_hash)
+            store.revoke_all_for_user(existing.id)
             await _send_verify(store, existing)
         return MessageResponse(message=_REGISTER_MSG)
     try:
-        user = store.create_user(
-            email=body.email, password_hash=hash_password(body.password)
-        )
+        user = store.create_user(email=body.email, password_hash=password_hash)
     except EmailExistsError:
         return MessageResponse(message=_REGISTER_MSG)
     await _send_verify(store, user)
@@ -176,6 +183,8 @@ async def verify(body: TokenRequest) -> MessageResponse:
             detail="Invalid or expired verification token.",
         )
     store.mark_verified(user_id)
+    # Drop sessions opened before the mailbox owner proved control.
+    store.revoke_all_for_user(user_id)
     return MessageResponse(message=_VERIFY_OK)
 
 
@@ -192,21 +201,23 @@ async def resend_verification(body: EmailRequest) -> MessageResponse:
 async def login(body: LoginRequest, response: Response) -> LoginResponse:
     store = get_user_store()
     user = store.get_by_email(body.email)
-    if user is not None and store.is_locked(user):
+    if user is None:
+        verify_password(body.password, _DUMMY_PASSWORD_HASH)
         raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Too many failed attempts. Please try again later.",
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_LOGIN_FAILED
         )
-    if user is None or not verify_password(body.password, user.password_hash):
-        if user is not None:
+    # Always run bcrypt and answer locked accounts with the same 401, so neither
+    # timing nor status code distinguishes locked/unknown/wrong-password.
+    locked = store.is_locked(user)
+    if not verify_password(body.password, user.password_hash) or locked:
+        if not locked:
             store.record_failed_login(
                 user.id,
                 max_attempts=api_config.PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS,
                 lockout_seconds=api_config.PHENTRIEVE_AUTH_LOCKOUT_SECONDS,
             )
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password.",
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=_LOGIN_FAILED
         )
     store.reset_failed_login(user.id)
     access_token = _issue_session(response, store, user)
@@ -221,11 +232,16 @@ async def refresh(request: Request, response: Response) -> LoginResponse:
     _require_csrf(request)
     store = get_user_store()
     raw = request.cookies.get(REFRESH_COOKIE)
-    user_id = store.get_active_refresh_user(tokens.hash_token(raw)) if raw else None
-    # ``raw is None`` is already implied by ``user_id is None`` (see the ternary
-    # above); it is spelled out so the type checker narrows ``raw`` to ``str`` for
-    # the revoke call below.
-    if user_id is None or raw is None:
+    # Claims (revokes) the presented token atomically; reuse revokes all sessions.
+    user_id = (
+        store.rotate_refresh_session(
+            tokens.hash_token(raw),
+            reuse_grace_seconds=api_config.PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS,
+        )
+        if raw
+        else None
+    )
+    if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired session.",
@@ -235,8 +251,6 @@ async def refresh(request: Request, response: Response) -> LoginResponse:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown user."
         )
-    # Rotate: revoke the presented token, issue a fresh session.
-    store.revoke_refresh_session(tokens.hash_token(raw))
     access_token = _issue_session(response, store, user)
     return LoginResponse(
         access_token=access_token,
@@ -282,15 +296,14 @@ async def password_reset_request(body: EmailRequest) -> MessageResponse:
 @router.post("/password-reset/confirm", response_model=MessageResponse)
 async def password_reset_confirm(body: PasswordResetConfirm) -> MessageResponse:
     store = get_user_store()
-    # Hash before consuming the single-use token: if hashing fails, the link
-    # must stay usable rather than being burnt without changing the password.
-    new_password_hash = hash_password(body.new_password)
+    # Hash first: a hashing failure must not burn the single-use token.
+    password_hash = hash_password(body.new_password)
     user_id = store.consume_token(tokens.hash_token(body.token), purpose="reset")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token.",
         )
-    store.update_password(user_id, new_password_hash)
+    store.update_password(user_id, password_hash)
     store.revoke_all_for_user(user_id)
     return MessageResponse(message=_RESET_OK)
