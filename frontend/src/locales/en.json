@@ -137,8 +137,8 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO collection",
-      "close": "Close HPO collection panel",
+      "title": "Case workspace",
+      "close": "Close case workspace",
       "count": "{count} phenotype(s) collected",
       "empty": "No phenotypes collected yet",
       "instructions": "Click the button next to any HPO term to add it to your collection",
@@ -159,8 +159,8 @@
         "unknown": "Unknown"
       },
       "aria": {
-        "openPanel": "Open HPO collection panel",
-        "panel": "Phenotype collection",
+        "openPanel": "Open case workspace",
+        "panel": "Case workspace",
         "toggleAssertion": "Toggle assertion status for {label} ({id})",
         "removeItem": "Remove {label} ({id}) from collection",
         "subjectId": "Enter subject identifier for Phenopacket",

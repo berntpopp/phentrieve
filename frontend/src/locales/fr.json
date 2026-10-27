@@ -137,8 +137,8 @@
       }
     },
     "phenotypeCollection": {
-      "title": "Collection HPO",
-      "close": "Fermer le panneau de la collection HPO",
+      "title": "Espace de travail du cas",
+      "close": "Fermer l'espace de travail du cas",
       "count": "{count} phénotype(s) collecté(s)",
       "empty": "Aucun phénotype collecté pour l'instant",
       "instructions": "Cliquez sur le bouton à côté d'un terme HPO pour l'ajouter à votre collection",
@@ -159,8 +159,8 @@
         "unknown": "Inconnu"
       },
       "aria": {
-        "openPanel": "Ouvrir le panneau de la collection HPO",
-        "panel": "Collection de phénotypes",
+        "openPanel": "Ouvrir l'espace de travail du cas",
+        "panel": "Espace de travail du cas",
         "toggleAssertion": "Changer le statut d'assertion de {label} ({id})",
         "removeItem": "Retirer {label} ({id}) de la collection",
         "subjectId": "Saisir l'identifiant du sujet pour le Phenopacket",

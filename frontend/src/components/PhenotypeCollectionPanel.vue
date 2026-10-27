@@ -1,7 +1,11 @@
 <template>
   <div>
     <!-- Floating action button for collection panel -->
-    <v-tooltip location="left" :text="bridgeLabels.openPanel" :aria-label="bridgeLabels.openPanel">
+    <v-tooltip
+      location="left"
+      :text="$t('queryInterface.phenotypeCollection.aria.openPanel')"
+      :aria-label="$t('queryInterface.phenotypeCollection.aria.openPanel')"
+    >
       <template #activator="{ props }">
         <v-btn
           v-bind="props"
@@ -12,7 +16,7 @@
           location="bottom right"
           size="large"
           elevation="3"
-          :aria-label="bridgeLabels.openPanel"
+          :aria-label="$t('queryInterface.phenotypeCollection.aria.openPanel')"
           data-testid="case-workspace-open-button"
           data-tutorial-step="collection-fab"
           @click="$emit('toggle-panel')"
@@ -31,19 +35,19 @@
       width="400"
       temporary
       style="z-index: 1500"
-      :aria-label="bridgeLabels.panel"
+      :aria-label="$t('queryInterface.phenotypeCollection.aria.panel')"
       data-testid="case-workspace-drawer"
       @update:model-value="$emit('update:panelOpen', $event)"
       @keydown.esc="$emit('update:panelOpen', false)"
     >
       <v-list-item class="pl-2 pr-1">
         <v-list-item-title class="text-h6" data-testid="case-workspace-title">
-          {{ bridgeLabels.title }}
+          {{ $t('queryInterface.phenotypeCollection.title') }}
         </v-list-item-title>
         <template #append>
           <v-btn
             icon
-            :aria-label="bridgeLabels.closePanel"
+            :aria-label="$t('queryInterface.phenotypeCollection.close')"
             data-testid="case-workspace-close-button"
             variant="text"
             density="compact"
@@ -299,71 +303,9 @@
 
 <script>
 /**
- * PhenotypeCollectionPanel - Temporary case workspace bridge for the HPO collection panel.
+ * PhenotypeCollectionPanel - Case workspace drawer holding the collected HPO terms.
  * Extracted from QueryInterface.vue to reduce component complexity.
  */
-const CASE_WORKSPACE_BRIDGE_LABELS = Object.freeze({
-  en: Object.freeze({
-    title: 'Case Workspace',
-    openPanel: 'Open Case Workspace Panel',
-    closePanel: 'Close Case Workspace Panel',
-    panel: 'Case Workspace Panel',
-  }),
-  de: Object.freeze({
-    title: 'Fallarbeitsbereich',
-    openPanel: 'Fallarbeitsbereich oeffnen',
-    closePanel: 'Fallarbeitsbereich schliessen',
-    panel: 'Fallarbeitsbereich',
-  }),
-  es: Object.freeze({
-    title: 'Espacio de trabajo del caso',
-    openPanel: 'Abrir panel del espacio de trabajo del caso',
-    closePanel: 'Cerrar panel del espacio de trabajo del caso',
-    panel: 'Panel del espacio de trabajo del caso',
-  }),
-  fr: Object.freeze({
-    title: 'Espace de travail du cas',
-    openPanel: "Ouvrir le panneau de l'espace de travail du cas",
-    closePanel: "Fermer le panneau de l'espace de travail du cas",
-    panel: "Panneau de l'espace de travail du cas",
-  }),
-  nl: Object.freeze({
-    title: 'Casuswerkruimte',
-    openPanel: 'Casuswerkruimtepaneel openen',
-    closePanel: 'Casuswerkruimtepaneel sluiten',
-    panel: 'Casuswerkruimtepaneel',
-  }),
-});
-
-function resolveCaseWorkspaceBridgeLocale(locale) {
-  if (typeof locale !== 'string' || locale.length === 0) {
-    return 'en';
-  }
-
-  return locale.toLowerCase().split('-')[0];
-}
-
-function getCaseWorkspaceBridgeLabels(locale) {
-  switch (resolveCaseWorkspaceBridgeLocale(locale)) {
-    case 'de':
-      return CASE_WORKSPACE_BRIDGE_LABELS.de;
-    case 'es':
-      return CASE_WORKSPACE_BRIDGE_LABELS.es;
-    case 'fr':
-      return CASE_WORKSPACE_BRIDGE_LABELS.fr;
-    case 'nl':
-      return CASE_WORKSPACE_BRIDGE_LABELS.nl;
-    default:
-      return CASE_WORKSPACE_BRIDGE_LABELS.en;
-  }
-}
-
-export {
-  CASE_WORKSPACE_BRIDGE_LABELS,
-  resolveCaseWorkspaceBridgeLocale,
-  getCaseWorkspaceBridgeLabels,
-};
-
 export default {
   name: 'PhenotypeCollectionPanel',
   props: {
@@ -395,9 +337,6 @@ export default {
       return this.phenotypes
         .filter((p) => this.normalizeAssertionStatus(p.assertion_status) !== 'negated')
         .map((p) => p.hpo_id);
-    },
-    bridgeLabels() {
-      return getCaseWorkspaceBridgeLabels(this.$i18n?.locale);
     },
   },
   methods: {

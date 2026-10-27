@@ -137,8 +137,8 @@
       }
     },
     "phenotypeCollection": {
-      "title": "Colección HPO",
-      "close": "Cerrar panel de colección HPO",
+      "title": "Espacio de trabajo del caso",
+      "close": "Cerrar el espacio de trabajo del caso",
       "count": "{count} fenotipo(s) recopilado(s)",
       "empty": "Aún no hay fenotipos recopilados",
       "instructions": "Haga clic en el botón junto a cualquier término HPO para añadirlo a su colección",
@@ -159,8 +159,8 @@
         "unknown": "Desconocido"
       },
       "aria": {
-        "openPanel": "Abrir panel de colección HPO",
-        "panel": "Colección de fenotipos",
+        "openPanel": "Abrir el espacio de trabajo del caso",
+        "panel": "Espacio de trabajo del caso",
         "toggleAssertion": "Cambiar estado de aserción de {label} ({id})",
         "removeItem": "Eliminar {label} ({id}) de la colección",
         "subjectId": "Introducir identificador de sujeto para Phenopacket",
