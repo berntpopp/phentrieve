@@ -69,3 +69,50 @@ def test_other_person_finding_is_retrieved_in_its_own_batch():
     _, tool_executor = _run()
 
     assert [q["phrases"] for q in tool_executor.queries] == [["asthma"], ["cataract"]]
+
+
+def test_other_person_mapping_pass_is_recorded_like_family():
+    """An other-person LLM mapping pass shows up in timings, counts and trace
+    under ``other_person_*`` keys, like the family path (#401)."""
+    neighbour = grounded_phenotype("cloudy lens", "Abnormal")
+    neighbour["experiencer"] = "other"
+    provider = FakeProvider(
+        responses=[
+            {"parsed": {"phenotypes": [neighbour]}, "request_count": 1},
+            {
+                "parsed": {"phrase": "cloudy lens", "hpo_id": "HP:0000518"},
+                "request_count": 1,
+            },
+        ]
+    )
+    tool_executor = PhraseKeyedToolExecutor(
+        {
+            "cloudy lens": [
+                {"hpo_id": "HP:0000518", "term_name": "Cataract", "score": 0.8}
+            ]
+        }
+    )
+    pipeline = pipeline_module.TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=tool_executor, mapping_batch_size=1
+    )
+
+    result = pipeline.run(
+        text=TEXT,
+        grounded_chunks=[{"chunk_id": 1, "text": TEXT}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert [t.term_id for t in result.other_person_findings] == ["HP:0000518"]
+    meta = result.meta
+    assert meta.request_count == 2
+    assert meta.phase_request_counts["other_person_phase2b_llm_requests"] == 1
+    assert meta.phase_counts["other_person_phrases"] == 1
+    assert meta.phase_counts["other_person_llm_mapped_phrases"] == 1
+    assert meta.phase_counts["other_person_local_fallbacks"] == 0
+    for key in (
+        "other_person_phase2a_seconds",
+        "other_person_phase2b_local_seconds",
+        "other_person_phase2b_llm_seconds",
+    ):
+        assert key in meta.phase_timings
+    assert "phase2b_llm" in meta.trace["other_person"]

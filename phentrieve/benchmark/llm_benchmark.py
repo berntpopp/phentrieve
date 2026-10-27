@@ -1389,11 +1389,13 @@ def _assertion_distribution(
         else:
             scored += 1
     family = list(getattr(pipeline_result, "family_history_findings", []) or [])
+    other_person = list(getattr(pipeline_result, "other_person_findings", []) or [])
     return {
         "proband_by_assertion": by_assertion,
         "proband_scored": scored,
         "proband_dropped_by_projection": dropped,
         "family_history_findings": len(family),
+        "other_person_findings": len(other_person),
     }
 
 
@@ -1411,6 +1413,7 @@ def _aggregate_assertion_distribution(
     scored = 0
     dropped = 0
     family = 0
+    other_person = 0
     counted = 0
     for record in prediction_records:
         dist = record.get("assertion_distribution")
@@ -1422,11 +1425,13 @@ def _aggregate_assertion_distribution(
         scored += int(dist.get("proband_scored", 0) or 0)
         dropped += int(dist.get("proband_dropped_by_projection", 0) or 0)
         family += int(dist.get("family_history_findings", 0) or 0)
+        other_person += int(dist.get("other_person_findings", 0) or 0)
     return {
         "proband_by_assertion": by_assertion,
         "proband_scored": scored,
         "proband_dropped_by_projection": dropped,
         "family_history_findings": family,
+        "other_person_findings": other_person,
         "documents_counted": counted,
         "documents_total": len(prediction_records),
     }

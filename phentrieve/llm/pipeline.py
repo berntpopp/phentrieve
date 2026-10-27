@@ -39,9 +39,6 @@ from phentrieve.llm.pipeline_phase1 import (
     expand_combined_phase1_extractions as _expand_combined_phase1_extractions,
 )
 from phentrieve.llm.pipeline_phase1 import (
-    merge_optional_bounds as _merge_optional_bounds,
-)
-from phentrieve.llm.pipeline_phase1 import (
     normalize_category as _normalize_category,
 )
 from phentrieve.llm.pipeline_phase1 import (
@@ -64,9 +61,6 @@ from phentrieve.llm.pipeline_phase1 import (
 )
 from phentrieve.llm.pipeline_phase1 import (
     sorted_chunk_ids as _sorted_chunk_ids,
-)
-from phentrieve.llm.pipeline_phase1 import (
-    spans_overlap as _spans_overlap,
 )
 from phentrieve.llm.pipeline_phase1 import (
     temporality_axis as _temporality_axis,
@@ -195,6 +189,44 @@ class _ItemResolutionOutcome:
     phase2b_local_trace: dict[str, Any]
     phase2b_llm_trace: dict[str, Any] | None
     mapping_ran: bool
+
+
+def _record_secondary_outcome(
+    *,
+    prefix: str,
+    item_count: int,
+    outcome: _ItemResolutionOutcome,
+    phase_timings: dict[str, float],
+    phase_counts: dict[str, int],
+    phase_request_counts: dict[str, int],
+) -> dict[str, Any]:
+    """Record a non-proband resolution outcome under ``{prefix}_*`` meta keys.
+
+    Shared by the family and other-person paths so both report timings, counts,
+    phase-2b requests and traces the same way. Returns the path's trace block.
+    """
+    phase_timings[f"{prefix}_phase2a_seconds"] = outcome.phase2a_seconds
+    phase_timings[f"{prefix}_phase2b_local_seconds"] = outcome.phase2b_local_seconds
+    phase_counts[f"{prefix}_phrases"] = item_count
+    phase_counts[f"{prefix}_candidate_sets"] = outcome.candidate_sets
+    phase_counts[f"{prefix}_unresolved_phrases"] = outcome.unresolved_phrases
+    phase_counts[f"{prefix}_local_matches"] = outcome.local_matches
+    phase_counts[f"{prefix}_resolved_phrases"] = len(outcome.resolved)
+    for key, value in outcome.routing_counts.items():
+        phase_counts[f"{prefix}_{key}"] = value
+    trace: dict[str, Any] = {
+        "phase2a": outcome.phase2a_trace,
+        "phase2b_local": outcome.phase2b_local_trace,
+    }
+    if outcome.mapping_ran:
+        phase_timings[f"{prefix}_phase2b_llm_seconds"] = outcome.phase2b_llm_seconds
+        phase_request_counts[f"{prefix}_phase2b_llm_requests"] = (
+            outcome.phase2b_llm_requests
+        )
+        phase_counts[f"{prefix}_local_fallbacks"] = outcome.local_fallbacks
+        phase_counts[f"{prefix}_llm_mapped_phrases"] = outcome.llm_mapped_phrases
+        trace["phase2b_llm"] = outcome.phase2b_llm_trace
+    return trace
 
 
 class TwoPhaseLLMPipeline:
@@ -547,85 +579,40 @@ class TwoPhaseLLMPipeline:
                 phase_counts["llm_mapped_phrases"] = proband_outcome.llm_mapped_phrases
                 trace["phase2b_llm"] = proband_outcome.phase2b_llm_trace
 
-        if family_items:
-            # Family path: resolve ALL family phrases through the SAME retrieve
-            # -> route -> map path (they are phenotype phrases regardless of the
-            # legacy category; they must NOT be re-dropped via
-            # ACTIONABLE_CATEGORIES). Family results land in the separate
-            # ``resolved_family`` list (Task 7 attaches it to the result); they
-            # are NEVER merged into ``resolved_terms``. Family cost ALWAYS folds
-            # into the shared token/request accumulators so a family LLM pass is
-            # not underreported; family-specific breakdowns use a ``family_*`` /
-            # ``trace["family"]`` namespace so proband metrics are never
-            # overwritten.
-            family_outcome = self._resolve_items(
-                family_items,
+        # Family path: resolve ALL family phrases through the SAME retrieve ->
+        # route -> map path (they are phenotype phrases regardless of the legacy
+        # category; they must NOT be re-dropped via ACTIONABLE_CATEGORIES).
+        # Family results land in the separate ``resolved_family`` list; they are
+        # NEVER merged into ``resolved_terms``. Findings of another person who
+        # is not a relative take the same path into ``resolved_other_person``.
+        # Their cost ALWAYS folds into the shared token/request accumulators so
+        # an extra LLM pass is not underreported; per-path breakdowns use a
+        # ``family_*`` / ``other_person_*`` namespace (and ``trace[prefix]``) so
+        # proband metrics are never overwritten.
+        for prefix, items, resolved_sink in (
+            ("family", family_items, resolved_family),
+            ("other_person", other_person_items, resolved_other_person),
+        ):
+            if not items:
+                continue
+            outcome = self._resolve_items(
+                items,
                 grounded_chunks=grounded_chunks,
                 language=language,
             )
-            resolved_family.extend(family_outcome.resolved)
-            prompt_tokens_total += family_outcome.prompt_tokens
-            completion_tokens_total += family_outcome.completion_tokens
-            token_usage_total = _sum_usage_dicts(
-                token_usage_total,
-                family_outcome.token_usage,
+            resolved_sink.extend(outcome.resolved)
+            prompt_tokens_total += outcome.prompt_tokens
+            completion_tokens_total += outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(token_usage_total, outcome.token_usage)
+            request_count_total += outcome.request_count
+            trace[prefix] = _record_secondary_outcome(
+                prefix=prefix,
+                item_count=len(items),
+                outcome=outcome,
+                phase_timings=phase_timings,
+                phase_counts=phase_counts,
+                phase_request_counts=phase_request_counts,
             )
-            request_count_total += family_outcome.request_count
-            phase_timings["family_phase2a_seconds"] = family_outcome.phase2a_seconds
-            phase_timings["family_phase2b_local_seconds"] = (
-                family_outcome.phase2b_local_seconds
-            )
-            phase_counts["family_phrases"] = len(family_items)
-            phase_counts["family_candidate_sets"] = family_outcome.candidate_sets
-            phase_counts["family_unresolved_phrases"] = (
-                family_outcome.unresolved_phrases
-            )
-            phase_counts["family_local_matches"] = family_outcome.local_matches
-            phase_counts["family_resolved_phrases"] = len(family_outcome.resolved)
-            for key, value in family_outcome.routing_counts.items():
-                phase_counts[f"family_{key}"] = value
-            family_trace: dict[str, Any] = {
-                "phase2a": family_outcome.phase2a_trace,
-                "phase2b_local": family_outcome.phase2b_local_trace,
-            }
-            if family_outcome.mapping_ran:
-                phase_timings["family_phase2b_llm_seconds"] = (
-                    family_outcome.phase2b_llm_seconds
-                )
-                phase_request_counts["family_phase2b_llm_requests"] = (
-                    family_outcome.phase2b_llm_requests
-                )
-                phase_counts["family_local_fallbacks"] = family_outcome.local_fallbacks
-                phase_counts["family_llm_mapped_phrases"] = (
-                    family_outcome.llm_mapped_phrases
-                )
-                family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
-            trace["family"] = family_trace
-
-        if other_person_items:
-            other_outcome = self._resolve_items(
-                other_person_items,
-                grounded_chunks=grounded_chunks,
-                language=language,
-            )
-            resolved_other_person.extend(other_outcome.resolved)
-            prompt_tokens_total += other_outcome.prompt_tokens
-            completion_tokens_total += other_outcome.completion_tokens
-            token_usage_total = _sum_usage_dicts(
-                token_usage_total,
-                other_outcome.token_usage,
-            )
-            request_count_total += other_outcome.request_count
-            phase_counts["other_person_phrases"] = len(other_person_items)
-            phase_counts["other_person_resolved_phrases"] = len(other_outcome.resolved)
-            if other_outcome.mapping_ran:
-                phase_request_counts["other_person_phase2b_llm_requests"] = (
-                    other_outcome.phase2b_llm_requests
-                )
-            trace["other_person"] = {
-                "phase2a": other_outcome.phase2a_trace,
-                "phase2b_local": other_outcome.phase2b_local_trace,
-            }
 
         # B3: map each resolved proband finding's negated qualifier Y (the
         # absent portion of an "X without Y" phrase) to a GENERATED excluded
@@ -1768,20 +1755,6 @@ class TwoPhaseLLMPipeline:
         if not (existing_chunk_ids & incoming_chunk_ids):
             return False
 
-        if (
-            existing.get("start_char") is not None
-            and existing.get("end_char") is not None
-            and incoming.get("start_char") is not None
-            and incoming.get("end_char") is not None
-            and not _spans_overlap(
-                int(existing["start_char"]),
-                int(existing["end_char"]),
-                int(incoming["start_char"]),
-                int(incoming["end_char"]),
-            )
-        ):
-            return False
-
         existing_evidence = _normalized_evidence_text(existing)
         incoming_evidence = _normalized_evidence_text(incoming)
         if not existing_evidence or not incoming_evidence:
@@ -1859,16 +1832,6 @@ class TwoPhaseLLMPipeline:
         existing["evidence_text"] = _prefer_richer_text(
             existing.get("evidence_text"),
             incoming.get("evidence_text"),
-        )
-        existing["start_char"] = _merge_optional_bounds(
-            existing.get("start_char"),
-            incoming.get("start_char"),
-            pick="min",
-        )
-        existing["end_char"] = _merge_optional_bounds(
-            existing.get("end_char"),
-            incoming.get("end_char"),
-            pick="max",
         )
 
     def _resolve_local_matches(

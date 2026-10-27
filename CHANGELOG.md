@@ -91,6 +91,13 @@ together:
   Custom templates without the new key keep the previous rendering. The prompt
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
+- **Other-person findings are fully accounted for** (#401). The LLM benchmark
+  assertion distribution counts `other_person_findings` next to the family
+  count, and the other-person resolution path records phase timings, the
+  phase-2b LLM trace, `local_fallbacks` and `llm_mapped_phrases` under
+  `other_person_*` keys through the same helper as the family path. The dead
+  span-overlap guard and bounds merge in phase-1 deduplication are removed
+  (phase-1 items carry no offsets until after deduplication).
 
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
