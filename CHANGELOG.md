@@ -20,6 +20,19 @@ together:
 
 ### Changed
 
+- **CI runs the full Python 3.11-3.13 matrix when dependencies change** (#424).
+  The `changes` job exposes a `deps` paths-filter output (`uv.lock`,
+  `pyproject.toml`); PRs and pushes that touch either file now test every
+  supported Python instead of only the 3.11 floor.
+- **CI runs the built API image** (#409). The `docker-build-test` job now runs
+  `phentrieve --version` and imports `api.main`, `langdetect`,
+  `de_core_news_sm` and `en_core_web_sm` inside the image, then starts the
+  container and polls `/api/v1/health`.
+- **`make security-python` and `make security-audit` match CI's pip-audit**
+  (#413). Both audit the exported lock with CI's ignore list
+  (`PIP_AUDIT_IGNORES`) instead of `pip-audit --strict`, which aborted on the
+  URL-pinned spaCy models before printing any advisory.
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -36,6 +49,21 @@ together:
   `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
 
 ### Fixed
+
+- **The API image ships the `phentrieve` CLI again** (#403). A new
+  `project-wheel` build stage builds the project wheel, and the runtime stage
+  installs it with `--no-deps`, restoring the console script and dist-info
+  (`BundleManifest` no longer records `phentrieve_version="unknown"`).
+  `phentrieve.cli` now reuses `phentrieve.__version__`, so `python -m phentrieve`
+  also works without an installed dist-info.
+- **langdetect and de_core_news_sm are locked** (#421). Both are declared in the
+  `api` extra (the German model as a URL dependency, like `en_core_web_sm`) and
+  pinned in `uv.lock`; the unpinned `uv pip install` in `api/Dockerfile` is gone,
+  so pip-audit now sees langdetect.
+- **Security floors** (#413): `authlib>=1.9.0` (CVE-2026-96760, via codecarbon),
+  `dnspython>=2.9.0` (CVE-2026-114605) and `msgpack>=1.2.3` (CVE-2026-114613).
+  The stale torch CVE-2025-3000 ignore is removed from `security.yml` and
+  `.trivyignore` (the locked torch 2.13.0 is not affected).
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans

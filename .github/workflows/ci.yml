@@ -26,7 +26,8 @@ on:
       - 'plan/**'
       - 'LICENSE'
       - '.github/workflows/deploy-docs.yml'
-  # Weekly + manual runs test every supported Python; PRs and pushes test the 3.11 floor.
+  # Weekly + manual runs, and any change to uv.lock or pyproject.toml, test every supported
+  # Python; other PRs and pushes test the 3.11 floor.
   schedule:
     - cron: '0 5 * * 1'
   workflow_dispatch:
@@ -55,7 +56,10 @@ jobs:
     outputs:
       python: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.python == 'true' }}
       frontend: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.frontend == 'true' }}
-      python-versions: ${{ steps.full.outputs.run == 'true' && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
+      deps: ${{ steps.filter.outputs.deps == 'true' }}
+      python-versions: >-
+        ${{ (steps.full.outputs.run == 'true' || steps.filter.outputs.deps == 'true')
+        && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
       images: ${{ steps.images.outputs.images }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -87,6 +91,10 @@ jobs:
             frontend:
               - 'frontend/**'
               - '.github/workflows/ci.yml'
+            # Dependency changes can break only newer Pythons: run the full matrix.
+            deps:
+              - 'uv.lock'
+              - 'pyproject.toml'
             api-image:
               - 'api/Dockerfile'
               - 'api/docker-entrypoint.sh'
@@ -319,6 +327,30 @@ jobs:
           ignore-unfixed: true
           trivyignores: .trivyignore
           exit-code: '1'
+
+      # Run the image, not just scan it: the CLI entry point and the runtime-only
+      # extras (language detection, spaCy models) must be importable (#403, #421).
+      - name: Smoke-test API image
+        if: matrix.service == 'api'
+        run: |
+          docker run --rm --entrypoint sh phentrieve-api:ci -c \
+            'phentrieve --version && python -c "import api.main, langdetect, de_core_news_sm, en_core_web_sm"'
+
+      - name: Start API container and wait for health
+        if: matrix.service == 'api'
+        run: |
+          docker run -d --name phentrieve-api-smoke -p 8000:8000 phentrieve-api:ci
+          for _ in $(seq 1 60); do
+            if curl -fsSL http://localhost:8000/api/v1/health; then
+              docker rm -f phentrieve-api-smoke >/dev/null
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::API container did not become healthy within 5 minutes"
+          docker logs phentrieve-api-smoke
+          docker rm -f phentrieve-api-smoke >/dev/null
+          exit 1
 
   dependency-review:
     name: Dependency Review
