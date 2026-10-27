@@ -29,6 +29,9 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-10-27-issue-batch-acceptance-checklist.md` - manual
+  acceptance checklist (E2E, Docker, real LLM, UI) for the 2026-10-27 issue
+  batch, PRs #437-#444; tested on branch `test/integration-2026-10-27`.
 - `analysis/2026-07-12-llm-benchmark-csc-gsc-f1-regression-check.md` -
   investigated a suspected F1 regression after running `benchmark llm`
   end-to-end on CSC/GSC (Llama 3.1 70B, Gemini 3.1 Flash Lite via
