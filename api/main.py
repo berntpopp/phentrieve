@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,6 +32,7 @@ from phentrieve.config import (
     DEFAULT_MODEL,
     DEFAULT_MULTI_VECTOR,
 )
+from phentrieve.retrieval.dense_retriever import DenseRetriever
 
 logger = logging.getLogger(__name__)
 # Configure logging for the API using config value
@@ -75,6 +77,19 @@ def _try_mount_mcp(target_app: FastAPI) -> None:
         logger.warning(f"Failed to mount MCP server: {e}")
 
 
+async def _warm_default_index(retriever: DenseRetriever) -> None:
+    """Run one throwaway query so the first real request does not pay for
+    loading the Chroma index into memory. Never fails startup."""
+    try:
+        await run_in_threadpool(retriever.query, "warmup", n_results=1)
+        logger.info("API startup: default Chroma index warmed.")
+    except Exception as e:
+        logger.warning(
+            "API startup: default index warm-up failed (continuing without it): %s",
+            e,
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Phentrieve API starting up. Attempting to pre-load default models...")
@@ -88,7 +103,7 @@ async def lifespan(app: FastAPI):
         )
         # Pre-load the retriever associated with the default SBERT model
         # Uses DEFAULT_MULTI_VECTOR to pre-load the correct index type
-        await get_dense_retriever_dependency(
+        default_retriever = await get_dense_retriever_dependency(
             sbert_model_name_for_retriever=DEFAULT_MODEL,
             multi_vector=DEFAULT_MULTI_VECTOR,
         )
@@ -96,6 +111,7 @@ async def lifespan(app: FastAPI):
             f"Default SBERT model '{DEFAULT_MODEL}' and its retriever "
             f"(multi_vector={DEFAULT_MULTI_VECTOR}) pre-loading tasks initiated."
         )
+        await _warm_default_index(default_retriever)
 
     except HTTPException as http_exc:
         if http_exc.status_code == 503 and "is being prepared" in str(http_exc.detail):
