@@ -18,6 +18,50 @@ together:
 
 ## [Unreleased]
 
+## [0.29.0] — 2026-10-28 (CLI 0.29.0 / API 0.19.0 / Frontend 0.19.0)
+
+UI/UX review: correct negated queries, cancellable requests, dark mode, a
+faster frontend and research-only copy in all five languages.
+
+### Fixed
+
+- **Negated queries find the right term.** "no seizures" embedded the cue and
+  ranked absence seizure first, with Seizure outside the top 10. Negated queries
+  now retrieve on the negated concept and stay marked negated (API and CLI).
+- **German negation in an English UI** was read as affirmed, because the UI
+  language was sent as the query language. Queries now default to auto-detect;
+  for short queries, assertion detection tries all five languages. Hyphenated
+  compounds ("non-progressive ataxia", "no-reflow") are no longer negations.
+- **Negated (amber) and manually edited (violet) note highlights** never
+  rendered: a base `mark` selector outranked them.
+- **Search spinner** was dimmed to 26% and invisible in dark mode.
+- Interrupted requests restored after a reload no longer spin forever; failed
+  full-text submits restore the note; unknown routes redirect home;
+  `<html lang>` follows the UI language; accessibility fixes (tooltip labels,
+  FAQ ARIA roles, WCAG AA status colours).
+
+### Added
+
+- **Dark mode** following the system setting, with a light/dark/system toggle
+  next to sign-in.
+- **Cancel and timeouts:** requests time out (60 s query, 120 s full text) and
+  can be cancelled. The API stops starting paid LLM calls when the client
+  disconnects; a cancel before any LLM call is refunded, after one it counts
+  like a timeout.
+- "Add all" asks for a confirming click; "Copy present HPO IDs"; two-step clear;
+  logo tooltip for starting over.
+- The LLM full-text path auto-detects the text language instead of assuming
+  English.
+
+### Changed
+
+- **Frontend icons are inline SVG** (`@mdi/js`) instead of the icon font: page
+  weight 750 -> 364 KiB, mobile Lighthouse performance 68 -> 84.
+- **Research-only wording in every language**, including the page title and
+  search description; no diagnostic claims. English is sentence case with
+  actionable error messages; de/es/fr/nl were reviewed against the official HPO
+  translations and caught up with the research-use rewrite (#245).
+
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 
 Smaller API image: CPU-only torch (#446).
