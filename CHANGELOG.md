@@ -18,6 +18,18 @@ together:
 
 ## [Unreleased]
 
+## [0.29.1] — 2026-10-28 (CLI 0.29.1 / API 0.19.0 / Frontend 0.19.1)
+
+Case workspace labels follow the UI language.
+
+### Fixed
+
+- **The case workspace drawer's title and labels are translated through the
+  locale files.** They came from a hard-coded per-language table (German spelled
+  without umlauts, e.g. "oeffnen") that overrode the "HPO collection" strings.
+  "Case workspace" now names the drawer in all five languages; "collection"
+  stays for the phenotype list inside it.
+
 ## [0.29.0] — 2026-10-28 (CLI 0.29.0 / API 0.19.0 / Frontend 0.19.0)
 
 UI/UX review: correct negated queries, cancellable requests, dark mode, a
