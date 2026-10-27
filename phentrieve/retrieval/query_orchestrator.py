@@ -357,6 +357,16 @@ def process_query(
             original_query_assertion_status = None
             original_query_assertion_details = {"error": str(e)}
 
+    # Lazy import: assertion_detection pulls in spaCy
+    from phentrieve.text_processing.assertion_detection import (
+        retrieval_text_for_assertion,
+    )
+
+    # Whole-text queries embed a negated concept without its cue ("no X" -> "X")
+    retrieval_text = retrieval_text_for_assertion(
+        text, original_query_assertion_status, original_query_assertion_details
+    )
+
     # If sentence_mode is True, split the text into sentences and process each one separately
     if sentence_mode:
         # Split into sentences and process
@@ -415,7 +425,7 @@ def process_query(
             if multi_vector:
                 query_result = _execute_multi_vector_query(
                     retriever=retriever,
-                    text=text,
+                    text=retrieval_text,
                     num_results=num_results,
                     aggregation_strategy=aggregation_strategy,
                     component_weights=component_weights,
@@ -434,7 +444,7 @@ def process_query(
                 return all_results
 
             # Single query mode, no sentence splitting
-            query_result = retriever.query(text, n_results=num_results)
+            query_result = retriever.query(retrieval_text, n_results=num_results)
 
             # Format the results into a structured format
             formatted_result = format_results(
@@ -466,7 +476,7 @@ def process_query(
             # Query using multi-vector aggregation via helper function (DRY)
             results = _execute_multi_vector_query(
                 retriever=retriever,
-                text=text,
+                text=retrieval_text,
                 num_results=num_results,
                 aggregation_strategy=aggregation_strategy,
                 component_weights=component_weights,
@@ -485,7 +495,7 @@ def process_query(
                 all_results.append(formatted_result)
             return all_results
 
-        results = retriever.query(text, n_results=num_results * 2)
+        results = retriever.query(retrieval_text, n_results=num_results * 2)
         formatted_result = format_results(
             results=results,
             threshold=similarity_threshold,
