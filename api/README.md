@@ -91,7 +91,8 @@ PHENTRIEVE_RESULTS_DIR=${PHENTRIEVE_DATA_ROOT_DIR}/results
 
 ### Health Check
 
-- `GET /api/v1/health/`: Health status of the API
+- `GET /api/v1/health`: Health status of the API (`/api/v1/health/` and
+  `/api/v1/system/health` remain as deprecated aliases)
 
 ### HPO Term Query
 

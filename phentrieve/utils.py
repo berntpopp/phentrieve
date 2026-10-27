@@ -285,21 +285,6 @@ def get_default_results_dir() -> Path:
     return get_user_config_dir() / "benchmark_results"
 
 
-def get_index_dir() -> Path:
-    """Return the path for the ChromaDB persistent storage.
-
-    Note: This is maintained for backward compatibility.
-    New code should use resolve_data_path with get_default_index_dir.
-
-    Returns:
-        Directory path
-    """
-    # Create the directory if it doesn't exist
-    index_dir = get_default_index_dir()
-    os.makedirs(index_dir, exist_ok=True)
-    return index_dir
-
-
 @functools.lru_cache(maxsize=1)  # Cache the config for a single run
 def load_user_config() -> dict:
     """Loads the user configuration from the YAML file."""
@@ -490,14 +475,6 @@ def load_translation_text(hpo_id: str, translation_dir: str) -> str | None:
     except (OSError, json.JSONDecodeError) as e:
         logger.error(f"Error loading translation for {hpo_id}: {str(e)}")
         return None
-
-
-# Alias for backward compatibility
-def load_german_translation_text(hpo_id: str, translation_dir: str) -> str | None:
-    """
-    Legacy function for backward compatibility. Use load_translation_text instead.
-    """
-    return load_translation_text(hpo_id, translation_dir)
 
 
 def detect_language(text: str, default_lang: str = "en") -> str:

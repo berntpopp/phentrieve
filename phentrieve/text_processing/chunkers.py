@@ -9,7 +9,7 @@ The primary semantic chunking is handled by SlidingWindowSemanticSplitter in a s
 import logging
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 # Lazy imports for heavy dependencies
 # This avoids loading torch/transformers at module import time
@@ -948,6 +948,11 @@ class SlidingWindowSemanticSplitter(TextChunker):
         )
         output_segments: list[str] = []
 
+        prepared: list[
+            tuple[
+                int, str, list[str] | None, list[str], list[str], list[tuple[int, int]]
+            ]
+        ] = []
         for i, segment in enumerate(text_segments):
             # Skip empty segments
             if not segment or not segment.strip():
@@ -955,8 +960,36 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 continue
 
             logger.debug("Processing segment #%s (length: %s chars)", i, len(segment))
-            # Process each segment with the sliding window approach
-            segment_splits = self._split_one_segment_by_sliding_window(segment)
+            prepared.append((i, segment, *self._prepare_sliding_windows(segment)))
+
+        # Encode the windows of all segments in one call (#410), then slice the
+        # embeddings back per segment. Encoding is per window, so each segment
+        # sees the same embeddings as with one encode call per segment.
+        all_window_texts = [
+            window
+            for _, _, early_result, _, window_texts, _ in prepared
+            if early_result is None
+            for window in window_texts
+        ]
+        all_window_embeddings: Any = (
+            self.model.encode(all_window_texts, show_progress_bar=False)
+            if all_window_texts
+            else []
+        )
+
+        offset = 0
+        for i, segment, early_result, tokens, window_texts, spans in prepared:
+            if early_result is not None:
+                segment_splits = early_result
+            else:
+                n_windows = len(window_texts)
+                segment_splits = self._split_with_window_embeddings(
+                    tokens,
+                    spans,
+                    all_window_embeddings[offset : offset + n_windows],
+                    current_text_segment=segment,
+                )
+                offset += n_windows
             logger.debug(
                 "Segment #%s was split into %s sub-segments", i, len(segment_splits)
             )
@@ -981,9 +1014,30 @@ class SlidingWindowSemanticSplitter(TextChunker):
         Returns:
             List of semantically split chunks derived from this segment
         """
-        # Lazy import for heavy dependency (sklearn)
-        from sklearn.metrics.pairwise import cosine_similarity
+        early_result, tokens, window_texts, window_token_spans = (
+            self._prepare_sliding_windows(current_text_segment)
+        )
+        if early_result is not None:
+            return early_result
+        window_embeddings = self.model.encode(window_texts, show_progress_bar=False)
+        return self._split_with_window_embeddings(
+            tokens,
+            window_token_spans,
+            window_embeddings,
+            current_text_segment=current_text_segment,
+        )
 
+    def _prepare_sliding_windows(
+        self, current_text_segment: str
+    ) -> tuple[list[str] | None, list[str], list[str], list[tuple[int, int]]]:
+        """
+        Tokenize a segment and build its sliding windows.
+
+        Returns:
+            ``(early_result, tokens, window_texts, window_token_spans)``.
+            ``early_result`` is the final split list when the segment is too
+            short to split (no encoding needed), otherwise ``None``.
+        """
         logger.debug(
             'SlidingWindow: Attempting to split segment: "%s..."',
             _sanitize(current_text_segment[:150]),
@@ -999,7 +1053,12 @@ class SlidingWindowSemanticSplitter(TextChunker):
                 "Segment too short ('%s' tokens) for window splitting, returning as is.",
                 len(tokens),
             )
-            return [current_text_segment] if current_text_segment.strip() else []
+            return (
+                [current_text_segment] if current_text_segment.strip() else [],
+                tokens,
+                [],
+                [],
+            )
 
         window_texts: list[str] = []
         window_token_spans: list[tuple[int, int]] = []
@@ -1017,10 +1076,26 @@ class SlidingWindowSemanticSplitter(TextChunker):
             logger.debug(
                 "Not enough windows generated from segment to perform similarity comparison."
             )
-            return [current_text_segment] if current_text_segment.strip() else []
+            return (
+                [current_text_segment] if current_text_segment.strip() else [],
+                tokens,
+                [],
+                [],
+            )
 
         logger.debug("Generated %s sliding windows for the segment.", len(window_texts))
-        window_embeddings = self.model.encode(window_texts, show_progress_bar=False)
+        return None, tokens, window_texts, window_token_spans
+
+    def _split_with_window_embeddings(
+        self,
+        tokens: list[str],
+        window_token_spans: list[tuple[int, int]],
+        window_embeddings: Any,
+        current_text_segment: str,
+    ) -> list[str]:
+        """Split a segment given the embeddings of its sliding windows."""
+        # Lazy import for heavy dependency (sklearn)
+        from sklearn.metrics.pairwise import cosine_similarity
 
         similarities_between_windows: list[float] = []
         for j in range(len(window_embeddings) - 1):

@@ -1,5 +1,7 @@
 # Extraction Contract v2 -- Phase 0 + Phase 1 Implementation Plan
 
+> **Status: SHIPPED** in PR #302 (released in v0.25.0). Moved from `active/` on 2026-10-27; the checkboxes below were not ticked during execution.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Clean the `.planning/` tree and make the extraction benchmark's no-regression gate real, deterministic, and un-foolable by a better polarity standard (opt-in `present-only` scoring), so the Phase 2 LLM behavior changes can be gated safely.

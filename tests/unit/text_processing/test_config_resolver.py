@@ -7,6 +7,7 @@ import yaml
 
 from phentrieve.text_processing.config_resolver import (
     ChunkingConfigError,
+    needs_semantic_model,
     resolve_chunking_config,
 )
 
@@ -302,3 +303,49 @@ class TestComplexScenarios:
         assert config[0]["type"] == "cleaner"
         assert config[1]["type"] == "sliding_window"
         assert config[2]["type"] == "post_processor"
+
+
+class TestNeedsSemanticModel:
+    """needs_semantic_model() replaces three copy-pasted CLI loops (#429)."""
+
+    @pytest.mark.parametrize(
+        "chunk_type",
+        [
+            "semantic",
+            "pre_chunk_semantic_grouper",
+            "sliding_window_semantic",
+            "sliding_window",
+        ],
+    )
+    def test_semantic_stage_needs_model(self, chunk_type):
+        config = [{"type": "paragraph"}, {"type": chunk_type, "config": {}}]
+        assert needs_semantic_model(config) is True
+
+    def test_bare_type_names_are_accepted(self):
+        assert needs_semantic_model(["paragraph", "sliding_window"]) is True
+        assert needs_semantic_model(["paragraph", "sentence"]) is False
+
+    def test_non_semantic_pipeline_needs_no_model(self):
+        config = [
+            {"type": "paragraph"},
+            {"type": "sentence"},
+            {"type": "final_chunk_cleaner", "config": {}},
+        ]
+        assert needs_semantic_model(config) is False
+        assert needs_semantic_model([]) is False
+
+    @pytest.mark.parametrize(
+        ("strategy", "expected"),
+        [
+            ("simple", False),
+            ("semantic", True),
+            ("detailed", True),
+            ("sliding_window", True),
+            ("sliding_window_cleaned", True),
+            ("sliding_window_punct_cleaned", True),
+            ("sliding_window_punct_conj_cleaned", True),
+        ],
+    )
+    def test_predefined_strategies(self, strategy, expected):
+        config = resolve_chunking_config(strategy_name=strategy)
+        assert needs_semantic_model(config) is expected

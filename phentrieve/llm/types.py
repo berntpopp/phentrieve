@@ -254,10 +254,6 @@ class LLMExtractionResult(BaseModel):
     meta: LLMMeta
 
 
-class LLMTermsResult(BaseModel):
-    terms: list[LLMPhenotype] = Field(default_factory=list)
-
-
 class LLMToolCall(BaseModel):
     name: str
     arguments: dict[str, Any] = Field(default_factory=dict)
