@@ -137,8 +137,8 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO-verzameling",
-      "close": "HPO-verzamelingspaneel sluiten",
+      "title": "Casuswerkruimte",
+      "close": "Casuswerkruimte sluiten",
       "count": "{count} fenotype(n) verzameld",
       "empty": "Nog geen fenotypen verzameld",
       "instructions": "Klik op de knop naast een HPO-term om deze aan uw verzameling toe te voegen",
@@ -159,8 +159,8 @@
         "unknown": "Onbekend"
       },
       "aria": {
-        "openPanel": "HPO-verzamelingspaneel openen",
-        "panel": "Fenotypeverzameling",
+        "openPanel": "Casuswerkruimte openen",
+        "panel": "Casuswerkruimte",
         "toggleAssertion": "Assertiestatus voor {label} ({id}) wijzigen",
         "removeItem": "{label} ({id}) uit verzameling verwijderen",
         "subjectId": "Deelnemer-ID invoeren voor Phenopacket",

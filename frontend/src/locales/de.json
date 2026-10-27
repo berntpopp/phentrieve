@@ -137,8 +137,8 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO-Sammlung",
-      "close": "HPO-Sammlung schließen",
+      "title": "Fallarbeitsbereich",
+      "close": "Fallarbeitsbereich schließen",
       "count": "{count} Phänotyp(en) gesammelt",
       "empty": "Noch keine Phänotypen gesammelt",
       "instructions": "Klicken Sie auf die Schaltfläche neben einem HPO-Begriff, um ihn zu Ihrer Sammlung hinzuzufügen",
@@ -159,8 +159,8 @@
         "unknown": "Unbekannt"
       },
       "aria": {
-        "openPanel": "HPO-Sammlung öffnen",
-        "panel": "Phänotypsammlung",
+        "openPanel": "Fallarbeitsbereich öffnen",
+        "panel": "Fallarbeitsbereich",
         "toggleAssertion": "Aussagestatus für {label} ({id}) umschalten",
         "removeItem": "{label} ({id}) aus der Sammlung entfernen",
         "subjectId": "Probanden-ID für das Phenopacket eingeben",
