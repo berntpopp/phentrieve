@@ -18,6 +18,24 @@ together:
 
 ## [Unreleased]
 
+## [0.28.6] — 2026-10-27 (CLI 0.28.6 / API 0.18.6 / Frontend 0.18.4)
+
+Dependency security patch and CI follow-ups to 0.28.5 (#436).
+
+### Fixed
+
+- **dnspython 2.9.0** (CVE-2026-114605), pulled in via email-validator. The
+  advisory was published after 0.28.5 and failed the Security Scanning workflow
+  on `main`. The floor is enforced by the dependency policy test.
+
+### Changed
+
+- **CI runs on every PR**, including docs-only ones. The `main` ruleset now
+  requires the "CI Summary" check, and the `pull_request` `paths-ignore` meant
+  docs-only PRs never reported it. `Detect Changes` still skips the heavy jobs.
+- The frontend image is rebuilt and scanned when
+  `frontend/nginx-security-headers.conf` changes.
+
 ## [0.28.5] — 2026-10-27 (CLI 0.28.5 / API 0.18.5 / Frontend 0.18.4)
 
 Security hardening and regression fixes from the v0.28.4 code review.
