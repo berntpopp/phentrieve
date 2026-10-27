@@ -41,6 +41,7 @@ __all__ = [
     "PHENTRIEVE_AUTH_COOKIE_SAMESITE",
     "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS",
     "PHENTRIEVE_AUTH_LOCKOUT_SECONDS",
+    "PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS",
     "PHENTRIEVE_AUTH_SEED_EMAIL",
     "PHENTRIEVE_AUTH_SEED_PASSWORD",
     "PHENTRIEVE_EMAIL_BACKEND",
@@ -53,6 +54,7 @@ __all__ = [
     "PHENTRIEVE_PUBLIC_BASE_URL",
     "PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT",
     "PHENTRIEVE_LLM_QUOTA_ENFORCE",
+    "PHENTRIEVE_LLM_QUOTA_PEPPER",
     "get_api_config_value",
 ]
 
@@ -273,6 +275,10 @@ DATA_ROOT_DIR: str = os.getenv(
 
 PHENTRIEVE_ENV: str = os.getenv("PHENTRIEVE_ENV", "development")
 PHENTRIEVE_TRUSTED_PROXY_CIDRS: str = os.getenv("PHENTRIEVE_TRUSTED_PROXY_CIDRS", "")
+# Concurrent full-text inference runs; each already uses all torch threads.
+PHENTRIEVE_MAX_CONCURRENT_INFERENCE: int = max(
+    1, _env_int("PHENTRIEVE_MAX_CONCURRENT_INFERENCE", 2)
+)
 PHENTRIEVE_LLM_DAILY_LIMIT: int = int(os.getenv("PHENTRIEVE_LLM_DAILY_LIMIT", "5"))
 PHENTRIEVE_LLM_QUOTA_DB_PATH: str = os.getenv(
     "PHENTRIEVE_LLM_QUOTA_DB_PATH",
@@ -308,6 +314,10 @@ PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS: int = _env_int(
     "PHENTRIEVE_AUTH_MAX_FAILED_ATTEMPTS", 5
 )
 PHENTRIEVE_AUTH_LOCKOUT_SECONDS: int = _env_int("PHENTRIEVE_AUTH_LOCKOUT_SECONDS", 900)
+# Replaying a refresh token revoked this recently is a multi-tab race, not theft.
+PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS: int = _env_int(
+    "PHENTRIEVE_AUTH_REFRESH_REUSE_GRACE_SECONDS", 30
+)
 
 # Optional dev convenience: seed a pre-verified account at startup so it can be
 # used immediately for testing. Leave empty in production. Both must be set.
@@ -338,3 +348,6 @@ PHENTRIEVE_LLM_AUTHENTICATED_DAILY_LIMIT: int = _env_int(
 PHENTRIEVE_LLM_QUOTA_ENFORCE: str = os.getenv(
     "PHENTRIEVE_LLM_QUOTA_ENFORCE", ""
 ).lower()
+# HMAC key for quota subject hashes (client IPs). Falls back to
+# PHENTRIEVE_AUTH_JWT_SECRET, then to a random per-process key.
+PHENTRIEVE_LLM_QUOTA_PEPPER: str = os.getenv("PHENTRIEVE_LLM_QUOTA_PEPPER", "")

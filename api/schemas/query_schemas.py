@@ -10,13 +10,15 @@ from phentrieve.config import (
     MIN_SIMILARITY_THRESHOLD,
 )
 
-# For assertion status type
+# Queries are phrases/sentences; longer input belongs on /text/process.
+MAX_QUERY_CHARS = 10_000
 
 
 class QueryRequest(BaseModel):
     text: str = Field(
         ...,
         min_length=1,
+        max_length=MAX_QUERY_CHARS,
         description="Research phenotype text to query for HPO terms.",
     )
     model_name: str | None = Field(

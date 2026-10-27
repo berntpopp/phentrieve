@@ -368,6 +368,7 @@
       "network": "Impossible de se connecter au serveur. Veuillez vérifier votre connexion Internet et réessayer.",
       "clientSide": "Une erreur s'est produite lors de {context}.",
       "badRequest": "Votre requête était invalide. Veuillez vérifier les données et réessayer. (Statut: {status})",
+      "validation": "La saisie a été refusée. Vérifiez-la et respectez les limites de taille : 50 000 caractères pour un texte complet, 10 000 pour une requête simple. (Statut: {status})",
       "badRequestModel": "Le modèle spécifié dans votre requête est invalide ou non pris en charge. (Statut: {status})",
       "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action. (Statut: {status})",
       "forbidden": "Vous n'avez pas la permission d'accéder à cette ressource. (Statut: {status})",

@@ -17,12 +17,16 @@ from phentrieve.config import (
 )
 from phentrieve.retrieval.adaptive_rechunker import AdaptiveRechunkingProfileBlock
 
+# ~70 kB took ~14 s on CPU; 50k chars keeps one request well under the 180 s timeout.
+MAX_TEXT_CHARS = 50_000
+
 
 class TextProcessingRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     text: str = Field(
         ...,
+        max_length=MAX_TEXT_CHARS,
         validation_alias=AliasChoices("text", "text_content"),
         description="The raw research phenotype text to process.",
     )
