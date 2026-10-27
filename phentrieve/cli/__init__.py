@@ -5,7 +5,6 @@ subcommands eagerly while lazily loading heavy command groups.
 """
 
 import importlib
-import importlib.metadata
 from pathlib import Path
 from typing import Annotated
 
@@ -13,6 +12,9 @@ import click
 import typer
 from typer.core import TyperGroup
 from typer.main import get_command
+
+# Falls back to pyproject.toml when the package metadata is not installed.
+from phentrieve import __version__
 
 # Import all command groups
 from phentrieve.cli import (
@@ -23,9 +25,6 @@ from phentrieve.cli import (
     query_commands,
 )
 from phentrieve.cli._profile import apply_profile_callback
-
-# Read version from pyproject.toml
-__version__ = importlib.metadata.version("phentrieve")
 
 
 class _LazyTyperProxy(click.Group):

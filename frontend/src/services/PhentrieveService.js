@@ -339,6 +339,9 @@ class PhentrieveService {
         key = 'errors.api.notFound';
         if (detail && detail.toLowerCase().includes('model')) key = 'errors.api.notFoundModel';
         break;
+      case 422:
+        key = 'errors.api.validation';
+        break;
       case 500:
         key = 'errors.api.serverError';
         break;

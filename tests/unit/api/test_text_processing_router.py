@@ -271,7 +271,7 @@ def test_text_processing_router_can_mark_standard_fallback_after_llm_exhaustion(
         AsyncMock(return_value=MagicMock(model_name="FremyCompany/BioLORD-2023-M")),
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.check_llm_quota_or_raise",
+        "api.routers.text_processing_router.reserve_llm_quota_or_raise",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             QuotaExceededError(
                 quota_used=5,
@@ -442,7 +442,7 @@ def test_text_processing_router_returns_429_when_quota_exhausted(client, monkeyp
         )
 
     monkeypatch.setattr(
-        "api.routers.text_processing_router.check_llm_quota_or_raise",
+        "api.routers.text_processing_router.reserve_llm_quota_or_raise",
         raise_quota,
     )
 
@@ -468,7 +468,7 @@ def test_text_processing_router_returns_503_when_subject_resolution_is_untrusted
         raising=False,
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router.resolve_subject_ip",
+        "api.llm_quota.resolve_subject_ip",
         lambda **kwargs: None,
     )
 

@@ -202,3 +202,37 @@ async def test_execute_llm_ignores_client_llm_target_overrides(monkeypatch) -> N
     assert captured_kwargs["llm_provider"] == "server-provider"
     assert captured_kwargs["llm_model"] == "server-model"
     assert captured_kwargs["llm_base_url"] is None
+
+
+@pytest.mark.asyncio
+async def test_full_text_service_runs_are_capped_by_semaphore(monkeypatch) -> None:
+    """With one inference slot, two concurrent requests never overlap (#406)."""
+    import time
+
+    import anyio
+
+    from api.services import text_processing_execution
+
+    active = 0
+    peak = 0
+
+    def fake_run_full_text_service(**_kwargs):
+        nonlocal active, peak
+        active += 1
+        peak = max(peak, active)
+        time.sleep(0.05)
+        active -= 1
+        return {}
+
+    monkeypatch.setattr(
+        text_processing_execution, "inference_slots", anyio.Semaphore(1)
+    )
+    monkeypatch.setattr(
+        text_processing_execution, "run_full_text_service", fake_run_full_text_service
+    )
+
+    async with anyio.create_task_group() as tg:
+        for _ in range(2):
+            tg.start_soon(text_processing_execution._run_full_text_service_limited)
+
+    assert peak == 1

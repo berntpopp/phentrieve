@@ -6,6 +6,8 @@ from typing import Annotated, Literal
 
 from pydantic import AfterValidator, Field
 
+from api.schemas.text_processing_schemas import MAX_TEXT_CHARS
+
 
 def _reject_blank_text(value: str) -> str:
     """Reject empty / whitespace-only text (defect L1: garbage-in was accepted)."""
@@ -50,6 +52,7 @@ TextArg = Annotated[
     str,
     Field(
         min_length=1,
+        max_length=MAX_TEXT_CHARS,
         description="Clinical or biomedical research text. Do not submit "
         "identifiable patient data to public demo instances.",
         examples=["progressive muscle weakness and seizures"],

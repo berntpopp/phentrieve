@@ -55,7 +55,8 @@ jobs:
     outputs:
       python: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.python == 'true' }}
       frontend: ${{ steps.full.outputs.run == 'true' || steps.filter.outputs.frontend == 'true' }}
-      python-versions: ${{ steps.full.outputs.run == 'true' && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
+      # Dependency changes also get the full matrix: a lock bump can break 3.12/3.13 only.
+      python-versions: ${{ (steps.full.outputs.run == 'true' || steps.filter.outputs.deps == 'true') && '["3.11", "3.12", "3.13"]' || '["3.11"]' }}
       images: ${{ steps.images.outputs.images }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -84,6 +85,9 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
+            deps:
+              - 'pyproject.toml'
+              - 'uv.lock'
             frontend:
               - 'frontend/**'
               - '.github/workflows/ci.yml'
@@ -319,6 +323,13 @@ jobs:
           ignore-unfixed: true
           trivyignores: .trivyignore
           exit-code: '1'
+
+      # Building is not enough: v0.28.4 built and scanned clean but shipped without the CLI.
+      - name: Smoke-test api image
+        if: matrix.service == 'api'
+        run: |
+          docker run --rm --entrypoint sh phentrieve-api:ci -c \
+            'phentrieve --version && python -c "import api.main, langdetect, de_core_news_sm, en_core_web_sm"'
 
   dependency-review:
     name: Dependency Review
