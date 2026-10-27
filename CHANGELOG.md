@@ -31,6 +31,12 @@ together:
   real request no longer pays for loading the index. A failed warm-up is
   logged and startup continues.
 
+- **The API LLM text path reuses the cached dense retriever** (#420) and its
+  model for semantic chunking, instead of opening a new Chroma collection per
+  request. `run_llm_backend` now forwards a supplied `retriever` to the
+  pipeline's tool executor.
+- **Removed the text router's re-exported private service aliases** and
+  `_process_text_internal` (#428); tests patch `api.services.text_processing_*`.
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -161,6 +167,10 @@ together:
   Custom templates without the new key keep the previous rendering. The prompt
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
+- **REST `allow_standard_fallback` now also covers LLM backend errors** (#418),
+  as on MCP: the request reruns on the standard backend with
+  `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
+  the failed LLM attempt's quota reservation is released.
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 

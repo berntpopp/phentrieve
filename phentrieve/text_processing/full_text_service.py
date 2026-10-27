@@ -36,6 +36,7 @@ from phentrieve.llm.preprocessing import (
 )
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.tools import ToolExecutor
 from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
 
 StableBackendResponse = dict[str, Any]
@@ -84,6 +85,14 @@ def _build_provider_factory_kwargs(
     }
 
 
+def _retriever_is_multi_vector(retriever: Any) -> bool:
+    """Whether a supplied retriever points at a multi-vector index."""
+    detect_index_type = getattr(retriever, "detect_index_type", None)
+    if callable(detect_index_type):
+        return bool(detect_index_type() == "multi_vector")
+    return True
+
+
 @dataclass(frozen=True)
 class _PreprocessedGroundedDocument:
     grounded_chunks: list[dict[str, Any]]
@@ -100,6 +109,7 @@ def preprocess_grounded_document(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> _PreprocessedGroundedDocument:
     grounded_chunks = build_grounded_chunks_from_text_pipeline(
         text=text,
@@ -108,6 +118,7 @@ def preprocess_grounded_document(
         assertion_config=assertion_config,
         retrieval_model_name=retrieval_model_name,
         include_positions=include_positions,
+        sbert_model_for_semantic_chunking=sbert_model_for_semantic_chunking,
     )
     extraction_groups: list[dict[str, Any]] = []
     token_count_fn = getattr(provider, "count_tokens", None)
@@ -866,6 +877,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
             assertion_config=kwargs.get("assertion_config"),
             retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            sbert_model_for_semantic_chunking=kwargs.get(
+                "sbert_model_for_semantic_chunking"
+            ),
         )
         grounded_chunks = preprocessed.grounded_chunks
         extraction_groups = preprocessed.extraction_groups
@@ -939,7 +953,22 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         except (AttributeError, NotImplementedError):
             logger.debug("Provider does not support token preflight counting")
 
-    pipeline = pipeline_factory(provider=provider)
+    retriever = kwargs.get("retriever")
+    if retriever is not None:
+        # Hand a caller-owned (e.g. API-cached) retriever to the tool executor so
+        # the pipeline does not open a new Chroma collection per request.
+        tool_executor = ToolExecutor(
+            retriever=retriever,
+            model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            multi_vector=_retriever_is_multi_vector(retriever),
+        )
+        pipeline = pipeline_factory(
+            **_build_provider_factory_kwargs(
+                pipeline_factory, provider=provider, tool_executor=tool_executor
+            )
+        )
+    else:
+        pipeline = pipeline_factory(provider=provider)
     resolved_provider_name = getattr(provider, "provider_name", None)
     if not isinstance(resolved_provider_name, str) or not resolved_provider_name:
         resolved_provider_name = llm_provider or DEFAULT_PROVIDER_NAME

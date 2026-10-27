@@ -7,21 +7,22 @@ import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from api.llm_quota import DailyQuotaStore, hash_subject_key
+from api.llm_quota import DailyQuotaStore, QuotaExceededError, hash_subject_key
 from api.main import app
-from api.routers.text_processing_router import (
-    QuotaExceededError,
-    _get_chunking_config_for_api,
-    _get_trust_remote_code_for_model,
-    _prepare_standard_request_context,
-    _process_text_via_shared_service,
-    _validate_response_chunk_references,
-)
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     ProcessedChunkAPI,
     TextAttributionSpanAPI,
     TextProcessingRequest,
+)
+from api.services.text_processing_context import (
+    get_chunking_config_for_api,
+    get_trust_remote_code_for_model,
+    prepare_standard_text_processing_context,
+)
+from api.services.text_processing_execution import (
+    process_text_via_shared_service,
+    validate_response_chunk_references,
 )
 from phentrieve.config import BENCHMARK_MODELS, DEFAULT_ASSERTION_CONFIG, DEFAULT_MODEL
 
@@ -32,6 +33,15 @@ pytestmark = pytest.mark.unit
 def client():
     with TestClient(app, raise_server_exceptions=False) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def _stub_llm_path_retriever(monkeypatch):
+    """Keep the LLM path from loading a real model/index for its cached retriever."""
+    monkeypatch.setattr(
+        "api.services.text_processing_execution.get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock(model=MagicMock())),
+    )
 
 
 def test_text_processing_router_returns_llm_meta(client, monkeypatch):
@@ -66,7 +76,6 @@ def test_text_processing_router_returns_llm_meta(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_llm_request_uses_server_owned_llm_target(monkeypatch) -> None:
-    from api.routers import text_processing_router
     from api.schemas.text_processing_schemas import TextProcessingRequest
     from api.services import text_processing_execution
 
@@ -100,7 +109,7 @@ async def test_llm_request_uses_server_owned_llm_target(monkeypatch) -> None:
         llm_internal_mode="whole_document_grounded",
     )
 
-    await text_processing_router._process_text_via_shared_service(request)
+    await text_processing_execution.process_text_via_shared_service(request)
 
     assert captured["llm_provider"] == "gemini"
     assert captured["llm_model"] == "gemini-3.1-flash-lite"
@@ -379,7 +388,7 @@ def test_text_processing_router_passes_assertion_config_to_public_llm(
         "preference": "dependency",
         "language": "en",
     }
-    assert captured["chunking_pipeline_config"] == _get_chunking_config_for_api(
+    assert captured["chunking_pipeline_config"] == get_chunking_config_for_api(
         TextProcessingRequest.model_validate(
             {
                 "text": "Patient has no macrocephaly.",
@@ -666,7 +675,7 @@ def test_text_processing_router_returns_standard_extraction_backend_contract(
 
 
 class TestGetChunkingConfigForApi:
-    """Test _get_chunking_config_for_api function."""
+    """Test get_chunking_config_for_api function."""
 
     @pytest.mark.parametrize(
         "strategy_name",
@@ -689,7 +698,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - config should be a non-empty list of dicts
         assert isinstance(config, list)
@@ -705,7 +714,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - should return valid config (default)
         assert isinstance(config, list)
@@ -724,7 +733,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - find sliding_window component
         sw_component = next(
@@ -748,7 +757,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - should have sliding_window component with applied params
         sw_component = next(
@@ -768,7 +777,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - should return valid config
         assert isinstance(config, list)
@@ -787,7 +796,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - params should be applied via config function
         sw_component = next(
@@ -810,7 +819,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - should work same as lowercase
         assert isinstance(config, list)
@@ -837,7 +846,7 @@ class TestGetChunkingConfigForApi:
         )
 
         # Act
-        config = _get_chunking_config_for_api(request)
+        config = get_chunking_config_for_api(request)
 
         # Assert - should have sliding_window with custom param
         sw_component = next(
@@ -889,7 +898,7 @@ class TestTextProcessingModelValidation:
                         side_effect=fake_run_in_threadpool,
                     ):
                         with pytest.raises(HTTPException) as exc_info:
-                            await _prepare_standard_request_context(request)
+                            await prepare_standard_text_processing_context(request)
 
         assert exc_info.value.status_code == 400
         assert "retrieval_model_name" in str(exc_info.value.detail)
@@ -929,7 +938,7 @@ class TestTextProcessingModelValidation:
                         "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _prepare_standard_request_context(request)
+                        await prepare_standard_text_processing_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=DEFAULT_MODEL,
@@ -972,11 +981,11 @@ class TestTextProcessingModelValidation:
                         "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _prepare_standard_request_context(request)
+                        await prepare_standard_text_processing_context(request)
 
         mock_get_model.assert_called_once_with(
             model_name_requested=self.SUPPORTED_NON_DEFAULT_MODEL,
-            trust_remote_code=_get_trust_remote_code_for_model(
+            trust_remote_code=get_trust_remote_code_for_model(
                 self.SUPPORTED_NON_DEFAULT_MODEL
             ),
         )
@@ -1018,13 +1027,13 @@ class TestTextProcessingModelValidation:
                         "api.services.text_processing_context.run_in_threadpool",
                         side_effect=fake_run_in_threadpool,
                     ):
-                        await _prepare_standard_request_context(request)
+                        await prepare_standard_text_processing_context(request)
 
         mock_get_model.assert_called_once()
         _, kwargs = mock_get_model.call_args
         assert kwargs == {
             "model_name_requested": self.SUPPORTED_NON_DEFAULT_MODEL,
-            "trust_remote_code": _get_trust_remote_code_for_model(
+            "trust_remote_code": get_trust_remote_code_for_model(
                 self.SUPPORTED_NON_DEFAULT_MODEL
             ),
         }
@@ -1032,8 +1041,7 @@ class TestTextProcessingModelValidation:
     def test_release_model_policy_allows_pinned_custom_code(self):
         """Pinned release models explicitly declare their custom-code requirement."""
         assert (
-            _get_trust_remote_code_for_model("Alibaba-NLP/gte-multilingual-base")
-            is True
+            get_trust_remote_code_for_model("Alibaba-NLP/gte-multilingual-base") is True
         )
 
     @pytest.mark.asyncio
@@ -1070,7 +1078,7 @@ class TestTextProcessingModelValidation:
                     }
                 ),
             ):
-                await _process_text_via_shared_service(request)
+                await process_text_via_shared_service(request)
 
         assert captured_kwargs["chunk_retrieval_threshold"] == 0.0
         assert captured_kwargs["min_confidence_for_aggregated"] == 0.0
@@ -1126,14 +1134,14 @@ class TestTextProcessingModelValidation:
                 with patch(
                     "api.services.text_processing_execution.validate_response_chunk_references"
                 ) as mock_validate:
-                    await _process_text_via_shared_service(request)
+                    await process_text_via_shared_service(request)
 
         # Invariant check runs for the aggregated, family and other-person lists.
         assert mock_validate.call_count == 3
 
 
 class TestValidateResponseChunkReferences:
-    """Test _validate_response_chunk_references validation function."""
+    """Test validate_response_chunk_references validation function."""
 
     def test_valid_references_pass_validation(self):
         """Test valid chunk references pass all checks."""
@@ -1188,7 +1196,7 @@ class TestValidateResponseChunkReferences:
         ]
 
         # Act - should not raise
-        _validate_response_chunk_references(chunks, terms)
+        validate_response_chunk_references(chunks, terms)
 
         # Assert - verify the data structures are intact after validation
         assert len(chunks) == 2
@@ -1215,7 +1223,7 @@ class TestValidateResponseChunkReferences:
 
         # Act & Assert
         with pytest.raises(AssertionError, match="Chunk IDs not sequential 1-based"):
-            _validate_response_chunk_references(chunks, terms)
+            validate_response_chunk_references(chunks, terms)
 
     def test_non_1_based_chunk_ids_fail_validation(self):
         """Test chunk IDs not starting at 1 trigger assertion."""
@@ -1236,7 +1244,7 @@ class TestValidateResponseChunkReferences:
 
         # Act & Assert
         with pytest.raises(AssertionError, match="Chunk IDs not sequential 1-based"):
-            _validate_response_chunk_references(chunks, terms)
+            validate_response_chunk_references(chunks, terms)
 
     def test_invalid_source_chunk_id_fails_validation(self):
         """Test invalid source_chunk_id triggers assertion."""
@@ -1264,7 +1272,7 @@ class TestValidateResponseChunkReferences:
         with pytest.raises(
             AssertionError, match="has invalid source_chunk_ids.*{2, 3}"
         ):
-            _validate_response_chunk_references(chunks, terms)
+            validate_response_chunk_references(chunks, terms)
 
     def test_invalid_text_attribution_chunk_id_fails_validation(self):
         """Test invalid text_attribution chunk_id triggers assertion."""
@@ -1300,7 +1308,7 @@ class TestValidateResponseChunkReferences:
             AssertionError,
             match="has text_attribution with invalid chunk_id 99",
         ):
-            _validate_response_chunk_references(chunks, terms)
+            validate_response_chunk_references(chunks, terms)
 
     def test_invalid_top_evidence_chunk_id_fails_validation(self):
         """Test invalid top_evidence_chunk_id triggers assertion."""
@@ -1330,7 +1338,7 @@ class TestValidateResponseChunkReferences:
             AssertionError,
             match="has invalid top_evidence_chunk_id 42",
         ):
-            _validate_response_chunk_references(chunks, terms)
+            validate_response_chunk_references(chunks, terms)
 
     def test_none_top_evidence_chunk_id_passes_validation(self):
         """Test None top_evidence_chunk_id is valid (optional field)."""
@@ -1356,7 +1364,7 @@ class TestValidateResponseChunkReferences:
         ]
 
         # Act - should not raise
-        _validate_response_chunk_references(chunks, terms)
+        validate_response_chunk_references(chunks, terms)
 
         # Assert - None top_evidence_chunk_id is accepted
         assert terms[0].top_evidence_chunk_id is None
@@ -1368,7 +1376,7 @@ class TestValidateResponseChunkReferences:
         terms: list[AggregatedHPOTermAPI] = []
 
         # Act - should not raise
-        _validate_response_chunk_references(chunks, terms)
+        validate_response_chunk_references(chunks, terms)
 
         # Assert - empty lists remain empty
         assert len(chunks) == 0
@@ -1415,7 +1423,7 @@ class TestValidateResponseChunkReferences:
         ]
 
         # Act - should not raise
-        _validate_response_chunk_references(chunks, terms)
+        validate_response_chunk_references(chunks, terms)
 
         # Assert - verify attributions span both chunks
         assert len(terms) == 1
