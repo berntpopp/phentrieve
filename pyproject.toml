@@ -122,6 +122,7 @@ constraint-dependencies = [
     "pyjwt>=2.15.0",             # alg/claim-verification bypasses (GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v, GHSA-gvp8-978c-rx2q); via mcp[crypto]
     "oauthlib>=4.0.0",           # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v; via chromadb -> kubernetes
     "authlib>=1.9.0",            # CVE-2026-96760; via codecarbon (energy extra) and fastmcp
+    "dnspython>=2.9.0",          # CVE-2026-114605; via email-validator (pydantic[email])
     "virtualenv>=21.14.9",       # GHSA-c978-59m8-c77v, GHSA-6w3r-xr62-4xcp, GHSA-394h-qwmc-48pf and friends; via pre-commit
     "pillow>=13.0.0",            # GHSA-5x8w-8jj5-q52h, GHSA-w889-685w-c8fh and ~40 more; via matplotlib
     "filelock>=4.2.1",           # GHSA-v4x8-3wr5-3wq8, GHSA-567q-5qvw-pf92, GHSA-9vhv-jxww-xfm5
