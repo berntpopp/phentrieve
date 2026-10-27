@@ -60,7 +60,7 @@ together:
   `api` extra (the German model as a URL dependency, like `en_core_web_sm`) and
   pinned in `uv.lock`; the unpinned `uv pip install` in `api/Dockerfile` is gone,
   so pip-audit now sees langdetect.
-- **Security floors** (#413): `authlib>=1.9.0` (CVE-2026-96760, via codecarbon),
+- **Security floors** (#413): `authlib>=1.9.1` (CVE-2026-96760, CVE-2026-114614..114620; via codecarbon),
   `dnspython>=2.9.0` (CVE-2026-114605) and `msgpack>=1.2.3` (CVE-2026-114613).
   The stale torch CVE-2025-3000 ignore is removed from `security.yml` and
   `.trivyignore` (the locked torch 2.13.0 is not affected).

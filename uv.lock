@@ -16,7 +16,7 @@ resolution-markers = [
 [manifest]
 constraints = [
     { name = "anyio", specifier = ">=4.14.2" },
-    { name = "authlib", specifier = ">=1.9.0" },
+    { name = "authlib", specifier = ">=1.9.1" },
     { name = "certifi", specifier = ">=2026.10.19" },
     { name = "cryptography", specifier = ">=50.0.0" },
     { name = "dnspython", specifier = ">=2.9.0" },

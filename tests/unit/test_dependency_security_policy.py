@@ -189,7 +189,7 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "fsspec": Version("2026.6.0"),  # GHSA-27vj-qcqg-25rc
         "opentelemetry-api": Version("1.45.1"),  # GHSA-xcq7-p3pf-p88h
         "certifi": Version("2026.10.19"),  # PYSEC-2026-4320
-        "authlib": Version("1.9.0"),  # CVE-2026-96760 / GHSA-6v38-4h7w-rj9h
+        "authlib": Version("1.9.1"),  # CVE-2026-96760, CVE-2026-114614..114620
         "dnspython": Version("2.9.0"),  # CVE-2026-114605
         "msgpack": Version("1.2.3"),  # CVE-2026-114613
     }
