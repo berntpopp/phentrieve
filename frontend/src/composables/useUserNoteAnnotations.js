@@ -305,6 +305,7 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
         termIds: [ann.hpoId],
         annotationIds: [ann.id],
         manual: ann.origin === 'manual',
+        negated: ann.status === 'negated',
       });
     });
   });
@@ -321,6 +322,8 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
       previous.termIds = [...new Set([...previous.termIds, ...range.termIds])];
       previous.annotationIds = [...new Set([...previous.annotationIds, ...range.annotationIds])];
       previous.manual = previous.manual || range.manual;
+      // A merged run reads as excluded only when every linked term is negated
+      previous.negated = previous.negated && range.negated;
     } else {
       merged.push({ ...range });
     }
@@ -343,6 +346,7 @@ export function buildSegmentsFromAnnotations(noteText, annotations) {
       termIds: range.termIds,
       annotationIds: range.annotationIds,
       manual: Boolean(range.manual),
+      negated: Boolean(range.negated),
       tooltip: range.termIds.map((id) => `${labelById.get(id) || id} (${id})`).join(', '),
     });
     cursor = range.end;

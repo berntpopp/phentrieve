@@ -58,6 +58,7 @@ function clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService) {
 
 export function useQueryInterfaceController({ getContext, service, logService }) {
   let hasAppliedInitialUrlParameters = false;
+  let activeRequest = null;
 
   function setFallbackModel() {
     const context = getContextOrThrow(getContext);
@@ -218,6 +219,10 @@ export function useQueryInterfaceController({ getContext, service, logService })
       context.setState({ queryText: '' });
     }
 
+    const abortController = new AbortController();
+    activeRequest = abortController;
+    const requestOptions = { signal: abortController.signal };
+
     try {
       let response;
       const latestState = context.getState();
@@ -254,7 +259,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
           includeDetails: latestState.includeDetails,
         };
         logService.info('Submitting text request', sanitizedLog);
-        response = await service.processText(textProcessPayload);
+        response = await service.processText(textProcessPayload, requestOptions);
       } else {
         const queryPayload = {
           text: currentQuery,
@@ -267,14 +272,26 @@ export function useQueryInterfaceController({ getContext, service, logService })
           include_details: latestState.includeDetails,
         };
         logService.info('Submitting text request', sanitizedLog);
-        response = await service.queryHpo(queryPayload);
+        response = await service.queryHpo(queryPayload, requestOptions);
       }
 
       context.conversationStore.updateQueryResponse(queryId, response);
     } catch (error) {
-      context.conversationStore.updateQueryResponse(queryId, null, error);
-      logService.error('Error submitting query/processing text', error);
+      if (error?.type === 'CANCELED') {
+        // A cancelled request leaves no error turn behind
+        const history = context.conversationStore.queryHistory;
+        const index = history.findIndex((item) => item.id === queryId);
+        if (index !== -1) history.splice(index, 1);
+      } else {
+        context.conversationStore.updateQueryResponse(queryId, null, error);
+        logService.error('Error submitting query/processing text', error);
+      }
+      // Give the text back on failure so a pasted note is not lost (unless the user typed anew)
+      if (!isAutoSubmit && !context.getState().queryText) {
+        context.setState({ queryText: currentQuery });
+      }
     } finally {
+      if (activeRequest === abortController) activeRequest = null;
       context.setState({ isLoading: false });
       clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
     }
@@ -293,7 +310,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
     const useTextProcessMode = state.isTextProcessModeActive;
     const piiReviewResult = context.piiReviewFlow.scanSubmissionForPii({
       text: queryTextTrimmed,
-      locale: state.selectedLanguage || 'en',
+      // Query language may be auto-detected server-side; the UI locale picks PII rules
+      locale: state.selectedLanguage || state.uiLocale || 'en',
       useTextProcessMode,
       isAutoSubmit,
     });
@@ -310,6 +328,10 @@ export function useQueryInterfaceController({ getContext, service, logService })
       piiScanResult: piiReviewResult.scanResult,
       redactionApplied: false,
     });
+  }
+
+  function cancelQuery() {
+    activeRequest?.abort();
   }
 
   async function continueWithPiiRedaction() {
@@ -333,6 +355,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
     setFallbackModel,
     applyUrlParametersAndAutoSubmit,
     submitQuery,
+    cancelQuery,
     continueWithPiiRedaction,
     redactPiiInInput,
   };

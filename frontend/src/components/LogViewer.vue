@@ -56,7 +56,7 @@
           append-inner-icon="mdi-magnify"
           hide-details
           class="mb-2"
-          bg-color="white"
+          bg-color="surface"
           color="primary"
         >
           <template #label>
@@ -74,7 +74,7 @@
           chips
           hide-details
           class="mb-2"
-          bg-color="white"
+          bg-color="surface"
           color="primary"
         >
           <template #label>
@@ -294,7 +294,7 @@ export default {
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(var(--v-theme-on-surface), 0.03);
   padding: 8px;
   border-radius: 4px;
   margin: 0;

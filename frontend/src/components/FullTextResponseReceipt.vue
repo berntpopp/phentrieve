@@ -1,6 +1,6 @@
 <template>
   <div class="full-text-receipt">
-    <div class="full-text-receipt__title">Full-text analysis ready</div>
+    <div class="full-text-receipt__title">{{ $t('queryInterface.fullTextReceipt.title') }}</div>
     <div class="text-caption text-medium-emphasis">
       {{ receiptMeta }}
     </div>
@@ -10,11 +10,18 @@
         size="small"
         rounded="pill"
         color="primary"
-        variant="tonal"
+        :variant="confirmingAddAll ? 'flat' : 'tonal'"
         @click="emitAddAll"
       >
         <v-icon start size="small">mdi-plus-circle</v-icon>
-        Add all
+        {{
+          $t(
+            confirmingAddAll
+              ? 'queryInterface.fullTextReceipt.addAllConfirm'
+              : 'queryInterface.fullTextReceipt.addAll',
+            { count: phenotypes.length }
+          )
+        }}
       </v-btn>
     </div>
     <v-list
@@ -58,7 +65,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ResultItem from './ResultItem.vue';
 import { useFullTextCuration } from '../composables/useFullTextCuration';
@@ -210,7 +217,19 @@ function isCollected(hpoId) {
   return props.collectedPhenotypes.some((entry) => entry.hpo_id === hpoId);
 }
 
+// Two-step add (mirrors the collection's clear): first click arms, a second within 4s adds
+const confirmingAddAll = ref(false);
+let confirmTimer = null;
+onBeforeUnmount(() => clearTimeout(confirmTimer));
+
 function emitAddAll() {
+  clearTimeout(confirmTimer);
+  if (!confirmingAddAll.value) {
+    confirmingAddAll.value = true;
+    confirmTimer = setTimeout(() => (confirmingAddAll.value = false), 4000);
+    return;
+  }
+  confirmingAddAll.value = false;
   emit(
     'add-all-to-collection',
     phenotypes.value.map((phenotype) => normalizeTextProcessPhenotype(phenotype))

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@berntpopp/phenopackets-js": "^1.0.2",
+    "@mdi/js": "^7.4.47",
     "axios": "^1.20.0",
     "google-protobuf": "^4.0.3",
     "libphonenumber-js": "^1.13.14",
@@ -38,7 +39,6 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^5.0.0",
-    "@mdi/font": "^7.3.67",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vitest/coverage-v8": "^5.0.0",
     "@vitest/ui": "^5.0.0",

@@ -9,14 +9,6 @@ body,
   height: 100%;
 }
 
-/* Font display setting for better loading performance */
-@font-face {
-  font-family: 'Material Design Icons';
-  /* The actual MDI font is loaded by the @mdi/font package import */
-  src: local('Material Design Icons');
-  font-display: swap;
-}
-
 /* Critical layout components */
 .v-application {
   font-family:
@@ -67,9 +59,4 @@ body,
 
 .font-weight-light {
   font-weight: 300 !important;
-}
-
-/* Background color for the main area */
-.bg-grey-lighten-4 {
-  background-color: #f5f5f5 !important;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="search-controls-row d-flex justify-end mt-2">
     <div class="search-controls-group d-flex align-center flex-wrap justify-end ga-2">
-      <div class="mode-switch" role="group" aria-label="Search mode switch">
+      <div class="mode-switch" role="group" :aria-label="$t('queryInterface.form.modeGroup')">
         <v-btn
           data-testid="mode-pill-query"
           size="small"
@@ -12,7 +12,7 @@
           @click="$emit('set-mode', 'query')"
         >
           <v-icon start size="small">mdi-magnify</v-icon>
-          Query
+          {{ $t('queryInterface.form.queryPill') }}
         </v-btn>
         <v-btn
           data-testid="mode-pill-text-process"
@@ -24,7 +24,7 @@
           @click="$emit('set-mode', 'textProcess')"
         >
           <v-icon start size="small">mdi-file-document-outline</v-icon>
-          Full Text
+          {{ $t('queryInterface.form.fullTextPill') }}
         </v-btn>
       </div>
 
@@ -36,7 +36,6 @@
         color="primary"
         class="search-controls-row__settings"
         :disabled="isLoading"
-        :aria-label="advancedOptionsToggleLabel"
         :aria-expanded="showAdvancedOptions.toString()"
         aria-controls="advanced-options-panel"
         data-tutorial-step="advanced-options"
@@ -45,7 +44,7 @@
         <v-icon start size="small">
           {{ showAdvancedOptions ? 'mdi-cog-outline' : 'mdi-tune-variant' }}
         </v-icon>
-        Settings
+        {{ $t('queryInterface.form.settings') }}
       </v-btn>
     </div>
   </div>
@@ -75,10 +74,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    advancedOptionsToggleLabel: {
-      type: String,
-      required: true,
-    },
     showAutoSwitchNotice: {
       type: Boolean,
       default: false,
@@ -105,10 +100,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 999px;
   padding: 2px;
-  background: rgba(245, 247, 252, 0.9);
+  background: rgba(var(--v-theme-on-surface), 0.03);
 }
 
 .mode-switch__pill {
@@ -122,8 +117,8 @@ export default {
   text-transform: none;
   letter-spacing: 0;
   min-height: 34px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(245, 247, 252, 0.9);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: rgba(var(--v-theme-on-surface), 0.03);
   font-size: 0.95rem;
 }
 

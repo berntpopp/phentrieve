@@ -1,4 +1,4 @@
-import { beforeEach, describe, it, expect } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
@@ -77,7 +77,11 @@ describe('FullTextResponseReceipt', () => {
       },
     });
 
-    await wrapper.get('[data-testid="full-text-response-add-all"]').trigger('click');
+    const addAll = wrapper.get('[data-testid="full-text-response-add-all"]');
+    await addAll.trigger('click');
+    // First click only arms the confirm step
+    expect(wrapper.emitted('add-all-to-collection')).toBeUndefined();
+    await addAll.trigger('click');
 
     expect(wrapper.emitted('add-all-to-collection')).toHaveLength(1);
     expect(wrapper.emitted('add-all-to-collection')[0][0]).toEqual([
@@ -87,6 +91,34 @@ describe('FullTextResponseReceipt', () => {
         assertion_status: 'affirmed',
       },
     ]);
+  });
+
+  it('disarms the add-all confirm step after 4s and keeps negated status', async () => {
+    vi.useFakeTimers();
+    try {
+      const wrapper = mountReceipt({
+        item: {
+          id: 'turn-confirm',
+          response: {
+            aggregated_hpo_terms: [{ hpo_id: 'HP:0001250', name: 'Seizure', status: 'absent' }],
+            processed_chunks: [{ chunk_id: 1, text: 'No seizures.' }],
+          },
+        },
+      });
+      const addAll = wrapper.get('[data-testid="full-text-response-add-all"]');
+
+      await addAll.trigger('click');
+      vi.advanceTimersByTime(4000);
+      await addAll.trigger('click');
+      expect(wrapper.emitted('add-all-to-collection')).toBeUndefined();
+
+      await addAll.trigger('click');
+      expect(wrapper.emitted('add-all-to-collection')[0][0]).toEqual([
+        { hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'negated' },
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('emits a normalized add-to-collection payload from a phenotype row', async () => {

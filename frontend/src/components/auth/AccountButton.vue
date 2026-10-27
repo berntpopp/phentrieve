@@ -5,13 +5,13 @@
       v-if="!authStore.isAuthenticated"
       location="bottom"
       :text="t('auth.account.loginRegister')"
+      :aria-label="t('auth.account.loginRegister')"
     >
       <template #activator="{ props: tip }">
         <v-btn
           v-bind="tip"
           icon="mdi-account-outline"
           variant="text"
-          density="comfortable"
           size="small"
           :aria-label="t('auth.account.loginRegister')"
           @click="openDialog('login')"
@@ -132,12 +132,3 @@ async function logout() {
 
 defineExpose({ openDialog });
 </script>
-
-<style scoped>
-.account-button {
-  position: fixed;
-  top: 8px;
-  right: 12px;
-  z-index: 2000;
-}
-</style>

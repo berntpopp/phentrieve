@@ -14,25 +14,24 @@
     <v-list-item-title class="pb-2">
       <div class="d-flex flex-wrap align-center">
         <div class="flex-grow-1">
-          <div class="d-flex align-center mb-1">
-            <a
-              :href="hpoTermUrl(hpoId)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="phenotype-card-row__hpo-link"
-              :title="`View ${hpoId} in HPO Browser`"
-              @click.stop
+          <div class="d-flex align-center flex-wrap ga-1 mb-1">
+            <span
+              class="text-body-1 font-weight-medium text-high-emphasis phenotype-card-row__label"
+              >{{ label }}</span
             >
-              <span class="phenotype-card-row__hpo-id font-weight-bold">{{ hpoId }}</span>
-              <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
-            </a>
             <slot name="inline-tools" />
           </div>
-          <div class="d-flex align-center">
-            <span class="text-body-2 text-high-emphasis phenotype-card-row__label">{{
-              label
-            }}</span>
-          </div>
+          <a
+            :href="hpoTermUrl(hpoId)"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="phenotype-card-row__hpo-link text-caption"
+            :title="`View ${hpoId} in HPO Browser`"
+            @click.stop
+          >
+            <span class="phenotype-card-row__hpo-id">{{ hpoId }}</span>
+            <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
+          </a>
         </div>
 
         <div v-if="$slots.actions" class="d-flex align-center ml-auto phenotype-card-row__actions">
@@ -68,20 +67,22 @@ function hpoTermUrl(hpoId) {
 
 <style scoped>
 .phenotype-card-row__hpo-id {
-  font-weight: bold;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .phenotype-card-row__hpo-link {
   text-decoration: none;
-  color: inherit;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
   display: inline-flex;
   align-items: center;
   transition: color 0.2s;
 }
 
 .phenotype-card-row__hpo-link:hover {
-  color: var(--v-theme-primary);
+  color: rgb(var(--v-theme-primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .phenotype-card-row__label {
@@ -91,6 +92,11 @@ function hpoTermUrl(hpoId) {
 
 .phenotype-card-row__actions {
   gap: 4px;
+}
+
+/* Vuetify's default prepend spacer leaves a wide gap after the rank badge */
+.phenotype-card-row :deep(.v-list-item__prepend .v-list-item__spacer) {
+  width: 8px;
 }
 
 .phenotype-card-row--clickable {
