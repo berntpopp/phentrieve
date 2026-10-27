@@ -98,6 +98,15 @@ together:
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
 
+### Removed
+
+- **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
+  script still parsed `QueryInterface.vue` after the defaults moved to
+  `frontend/src/constants/defaults.js`, so it always failed;
+  `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
+  `AdvancedOptionsPanel.vue` now takes its prop defaults from
+  `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
+
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
 Security patch release: clears every open Dependabot and Trivy alert, makes the
