@@ -371,6 +371,7 @@
       "network": "Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
       "clientSide": "Beim {context} ist ein Fehler aufgetreten.",
       "badRequest": "Ihre Anfrage war ungültig. Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut. (Status: {status})",
+      "validation": "Die Eingabe wurde abgelehnt. Bitte prüfen Sie sie und beachten Sie die Größenlimits: 50.000 Zeichen für Volltext, 10.000 für eine einzelne Abfrage. (Status: {status})",
       "badRequestModel": "Das in Ihrer Anfrage angegebene Modell ist ungültig oder wird nicht unterstützt. (Status: {status})",
       "unauthorized": "Sie sind nicht berechtigt, diese Aktion durchzuführen. (Status: {status})",
       "forbidden": "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen. (Status: {status})",

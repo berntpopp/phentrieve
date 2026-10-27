@@ -9,17 +9,21 @@ adapters hold only the domain logic (including the LLM quota / fallback policy).
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
+
+from fastmcp.server.dependencies import get_http_request
 
 import api.config as api_config
 from api.llm_quota import (
-    DailyQuotaStore,
     QuotaExceededError,
     QuotaStatus,
+    QuotaStoreUnavailableError,
+    anonymous_subject_key,
     hash_subject_key,
+    quota_enforced,
     quota_reset_at_iso,
+    release_llm_quota,
+    reserve_llm_quota,
 )
 from api.mcp.envelope import McpToolError
 from api.mcp.projection import cap_response_synonyms
@@ -49,40 +53,24 @@ McpResult = dict[str, Any]
 
 
 # --------------------------------------------------------------------------- #
-# LLM quota helpers (ported from the previous facade)
+# LLM quota subject
 # --------------------------------------------------------------------------- #
-def _is_production_environment() -> bool:
-    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
-
-
-def _get_llm_quota_store() -> DailyQuotaStore:
-    return DailyQuotaStore(
-        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
-        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
-    )
-
-
-def _check_mcp_llm_quota_or_raise() -> QuotaStatus:
-    usage_date_utc = datetime.now(UTC).date().isoformat()
-    quota_status = _get_llm_quota_store().get_status(
-        subject_key=hash_subject_key("mcp:streamable-http"),
-        usage_date_utc=usage_date_utc,
-    )
-    if quota_status.quota_remaining <= 0:
-        raise QuotaExceededError(
-            quota_used=quota_status.quota_used,
-            quota_limit=quota_status.quota_limit,
-            quota_remaining=quota_status.quota_remaining,
-            usage_date_utc=quota_status.usage_date_utc,
+def _mcp_quota_subject_key() -> str:
+    """Key MCP callers by trusted client IP, exactly like the REST endpoint."""
+    try:
+        request = get_http_request()
+    except RuntimeError:
+        # stdio transport: a single local operator, one bucket.
+        return hash_subject_key("mcp:stdio")
+    subject_key = anonymous_subject_key(request)
+    if subject_key is None:
+        raise McpToolError(
+            "temporarily_unavailable",
+            "Unable to resolve a trusted anonymous subject for LLM quota "
+            "enforcement. Verify proxy forwarding headers and "
+            "PHENTRIEVE_TRUSTED_PROXY_CIDRS.",
         )
-    return quota_status
-
-
-def _record_mcp_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
-    return _get_llm_quota_store().record_success(
-        subject_key=quota_status.subject_key,
-        usage_date_utc=quota_status.usage_date_utc,
-    )
+    return subject_key
 
 
 # --------------------------------------------------------------------------- #
@@ -218,9 +206,15 @@ def extract_hpo_terms_llm_service(
     }
 
     quota_status: QuotaStatus | None = None
-    if _is_production_environment():
+    if quota_enforced():
         try:
-            quota_status = _check_mcp_llm_quota_or_raise()
+            # Reserve before the LLM call so parallel requests cannot all pass.
+            quota_status = reserve_llm_quota(
+                subject_key=_mcp_quota_subject_key(),
+                daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+            )
+        except QuotaStoreUnavailableError as exc:
+            raise McpToolError("temporarily_unavailable", str(exc)) from exc
         except QuotaExceededError as exc:
             if not allow_standard_fallback:
                 raise
@@ -236,6 +230,8 @@ def extract_hpo_terms_llm_service(
     try:
         result: McpResult = service(**llm_kwargs)
     except Exception as exc:
+        if quota_status is not None:
+            release_llm_quota(quota_status)
         if not allow_standard_fallback:
             raise
         return _standard_fallback_result(
@@ -247,13 +243,12 @@ def extract_hpo_terms_llm_service(
         )
 
     if quota_status is not None:
-        updated = _record_mcp_llm_quota_success(quota_status)
         result.setdefault("meta", {})
         result["meta"].update(
             {
-                "quota_limit": updated.quota_limit,
-                "quota_remaining": updated.quota_remaining,
-                "quota_reset_at": quota_reset_at_iso(updated.usage_date_utc),
+                "quota_limit": quota_status.quota_limit,
+                "quota_remaining": quota_status.quota_remaining,
+                "quota_reset_at": quota_reset_at_iso(quota_status.usage_date_utc),
             }
         )
     return result

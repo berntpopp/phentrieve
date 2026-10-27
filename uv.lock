@@ -16,7 +16,7 @@ resolution-markers = [
 [manifest]
 constraints = [
     { name = "anyio", specifier = ">=4.14.2" },
-    { name = "authlib", specifier = ">=1.9.1" },
+    { name = "authlib", specifier = ">=1.9.0" },
     { name = "certifi", specifier = ">=2026.10.19" },
     { name = "cryptography", specifier = ">=50.0.0" },
     { name = "dnspython", specifier = ">=2.9.0" },
@@ -1087,6 +1087,14 @@ wheels = [
 ]
 
 [[package]]
+name = "de-core-news-sm"
+version = "3.8.0"
+source = { url = "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl" }
+wheels = [
+    { url = "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl", hash = "sha256:fec69fec52b1780f2d269d5af7582a5e28028738bd3190532459aeb473bfa3e7" },
+]
+
+[[package]]
 name = "defusedxml"
 version = "0.7.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2041,6 +2049,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/2c/8f/85bf51ad4150f64e8
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0c/70/05b685ea2dffcb2adbf3cdcea5d8865b7bc66f67249084cf845012a0ff13/kubernetes-35.0.0-py2.py3-none-any.whl", hash = "sha256:39e2b33b46e5834ef6c3985ebfe2047ab39135d41de51ce7641a7ca5b372a13d", size = 2017602, upload-time = "2026-01-16T01:05:25.991Z" },
 ]
+
+[[package]]
+name = "langdetect"
+version = "1.0.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0e/72/a3add0e4eec4eb9e2569554f7c70f4a3c27712f40e3284d483e88094cc0e/langdetect-1.0.9.tar.gz", hash = "sha256:cbc1fef89f8d062739774bd51eda3da3274006b3661d199c2655f6b3f6d605a0", size = 981474, upload-time = "2021-05-07T07:54:13.562Z" }
 
 [[package]]
 name = "librt"
@@ -3454,7 +3471,7 @@ wheels = [
 
 [[package]]
 name = "phentrieve"
-version = "0.28.4"
+version = "0.28.7"
 source = { editable = "." }
 dependencies = [
     { name = "cachetools" },
@@ -3488,7 +3505,9 @@ analysis = [
     { name = "umap-learn" },
 ]
 api = [
+    { name = "de-core-news-sm" },
     { name = "fastapi" },
+    { name = "langdetect" },
     { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -3544,12 +3563,14 @@ requires-dist = [
     { name = "cachetools", specifier = ">=6.2.2" },
     { name = "chromadb", specifier = ">=1.5.9,<2.0.0" },
     { name = "codecarbon", marker = "extra == 'energy'", specifier = ">=3.2,<4.0" },
+    { name = "de-core-news-sm", marker = "extra == 'api'", url = "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl" },
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.137.2" },
     { name = "fastapi", marker = "extra == 'mcp'", specifier = ">=0.137.2" },
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=3.4.10,<5.0.0" },
     { name = "google-genai", marker = "extra == 'llm'", specifier = ">=1.22.0,<3.0.0" },
     { name = "jsonschema", marker = "extra == 'phenopackets'", specifier = ">=4.25.1,<5.0.0" },
+    { name = "langdetect", marker = "extra == 'api'", specifier = ">=1.0.9" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'mcp'", specifier = ">=1.30.0,<3.0.0" },
     { name = "networkx", specifier = ">=3.0" },

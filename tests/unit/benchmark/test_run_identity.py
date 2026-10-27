@@ -508,6 +508,12 @@ def test_asset_identity_rejects_incomplete_bundle_inventory(tmp_path) -> None:
         load_retrieval_asset_identity(tmp_path)
 
 
+def test_asset_identity_missing_manifest_says_how_to_recover(tmp_path) -> None:
+    with pytest.raises(ValueError, match="phentrieve data download") as exc_info:
+        load_retrieval_asset_identity(tmp_path)
+    assert str(tmp_path) in str(exc_info.value)
+
+
 def test_asset_identity_detects_tampered_bundle_content(tmp_path) -> None:
     _write_installed_bundle(tmp_path)
     (tmp_path / "indexes" / "vectors.bin").write_bytes(b"tampered")
