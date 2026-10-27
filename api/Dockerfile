@@ -160,13 +160,24 @@ ENV UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1
 # --inexact keeps the venv's pip, which the data-bundle stage still uses.
-# langdetect and the German spaCy model are runtime extras outside pyproject.
+# The api extra also carries langdetect and the German spaCy model (de_core_news_sm).
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --inexact --no-dev --no-install-project \
-        --extra api --extra mcp --extra llm && \
-    uv pip install --python "$VIRTUAL_ENV/bin/python" \
-        langdetect \
-        https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl
+        --extra api --extra mcp --extra llm
+
+# ============================================================================
+# STAGE 2b: Project wheel - Build the phentrieve distribution itself
+# ============================================================================
+# Kept separate from python-builder so source edits never invalidate the large
+# dependency layer. The runtime stage installs this wheel with --no-deps, which
+# provides the `phentrieve` console script and the package dist-info (#403).
+FROM python-builder AS project-wheel
+WORKDIR /src
+COPY pyproject.toml README.md LICENSE ./
+COPY phentrieve/ ./phentrieve/
+COPY api/ ./api/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv build --wheel --out-dir /dist
 
 # ============================================================================
 # STAGE 3: Data Bundle - Download pre-built data OR build indexes from scratch
@@ -352,6 +363,13 @@ COPY --chown=phentrieve:phentrieve api/ ./api/
 # Copy root pyproject.toml for CLI version detection at runtime
 # Note: api/pyproject.toml is already copied with api/ directory above
 COPY --chown=phentrieve:phentrieve pyproject.toml ./
+
+# Install the project itself (no deps: the venv already holds the locked set) so the
+# image ships the `phentrieve` CLI and its dist-info (#403). uv is bind-mounted for
+# this step only, so no package manager remains in the runtime image.
+RUN --mount=type=bind,from=ghcr.io/astral-sh/uv:0.11.28@sha256:0f36cb9361a3346885ca3677e3767016687b5a170c1a6b88465ec14aefec90aa,source=/uv,target=/usr/local/bin/uv \
+    --mount=type=bind,from=project-wheel,source=/dist,target=/dist \
+    uv pip install --python /opt/venv/bin/python --no-deps --no-cache /dist/*.whl
 
 # Copy entrypoint script (must be executable)
 # The entrypoint handles runtime permission fixing for bind mounts

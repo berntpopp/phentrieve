@@ -12,6 +12,11 @@ Following best practices:
 - Clear Arrange-Act-Assert structure
 """
 
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
 import pytest
 import typer
 
@@ -163,6 +168,40 @@ class TestCliAppConfiguration:
         assert len(__version__) > 0
         # Version should follow semantic versioning pattern (e.g., "0.1.0")
         assert "." in __version__
+
+    def test_version_falls_back_to_pyproject_without_dist_info(self):
+        """The CLI must import when phentrieve has no installed dist-info (#403).
+
+        The API image runs from source on PYTHONPATH; an unguarded
+        importlib.metadata.version("phentrieve") raised PackageNotFoundError.
+        """
+        repo_root = Path(__file__).resolve().parents[3]
+        expected = tomllib.loads((repo_root / "pyproject.toml").read_text())["project"][
+            "version"
+        ]
+        script = (
+            "import importlib.metadata as md\n"
+            "_real = md.version\n"
+            "def _version(name):\n"
+            "    if name == 'phentrieve':\n"
+            "        raise md.PackageNotFoundError(name)\n"
+            "    return _real(name)\n"
+            "md.version = _version\n"
+            "from phentrieve.cli import __version__\n"
+            "print(__version__)\n"
+        )
+
+        result = subprocess.run(  # noqa: S603 - fixed interpreter, test-only script
+            [sys.executable, "-c", script],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            timeout=120,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip().splitlines()[-1] == expected
 
     def test_all_command_groups_registered(self):
         """Test that all command groups are registered with the app."""
