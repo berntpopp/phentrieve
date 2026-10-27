@@ -1049,7 +1049,9 @@ class TwoPhaseLLMPipeline:
                         "status": "failed",
                         "error_code": "phase1_group_error",
                         "error": "Grouped phase 1 extraction failed",
-                        "error_type": "pipeline_phase_error",
+                        "error_type": type(
+                            group_error.__cause__ or group_error
+                        ).__name__,
                         "failure_class": _classify_phase1_failure(group_error),
                         "extracted_count": 0,
                         "extracted": [],

@@ -215,14 +215,25 @@ def test_chromadb_posthog_transitive_dependency_uses_compatible_api() -> None:
         assert Version("2.4.0") <= posthog < Version("6.0.0")
 
 
-def test_torch_vulnerability_exception_is_explicitly_limited_to_no_patch() -> None:
-    """Torch remains necessary for SentenceTransformers until a patched release exists."""
+def test_torch_cve_2025_3000_is_patched_not_ignored() -> None:
+    """CVE-2025-3000 affects torch <= 2.12.0; the lock ships a fixed torch, so the
+    pip-audit and Trivy exceptions are gone and must not come back."""
     security_workflow = (
         REPO_ROOT / ".github" / "workflows" / "security.yml"
     ).read_text(encoding="utf-8")
+    trivyignore = (REPO_ROOT / ".trivyignore").read_text(encoding="utf-8")
 
-    assert "CVE-2025-3000" in security_workflow
-    assert "no patched release" in security_workflow
+    assert _uv_packages()["torch"] >= Version("2.13.0")
+    assert "CVE-2025-3000" not in security_workflow
+    assert "CVE-2025-3000" not in trivyignore
+
+
+def test_authlib_uses_the_patched_cve_2026_96760_release() -> None:
+    """authlib arrives transitively via codecarbon (energy extra) and fastmcp."""
+    constraints = _pyproject()["tool"]["uv"]["constraint-dependencies"]
+
+    assert any(c.startswith("authlib>=1.9.0") for c in constraints)
+    assert _uv_packages()["authlib"] >= Version("1.9.0")
 
 
 def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:

@@ -268,7 +268,12 @@ def load_retrieval_asset_identity(
 
     manifest = get_installed_bundle_info(data_dir)
     if manifest is None:
-        raise ValueError("No installed retrieval bundle manifest was found.")
+        raise ValueError(
+            "No installed retrieval bundle manifest was found in "
+            f"{data_dir or _default_data_dir()}. Run 'phentrieve data download' "
+            "to install a pre-built bundle, or set PHENTRIEVE_DATA_ROOT_DIR to an "
+            "installed one."
+        )
     if manifest.model is None:
         raise ValueError("Installed retrieval bundle manifest has no embedding model.")
     if not isinstance(manifest.hpo_version, str) or not manifest.hpo_version.strip():
