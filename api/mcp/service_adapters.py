@@ -10,17 +10,17 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 import api.config as api_config
 from api.llm_quota import (
-    DailyQuotaStore,
     QuotaExceededError,
     QuotaStatus,
+    check_llm_quota,
     hash_subject_key,
+    is_production_environment,
     quota_reset_at_iso,
+    record_llm_quota_success,
 )
 from api.mcp.envelope import McpToolError
 from api.mcp.projection import cap_response_synonyms
@@ -49,40 +49,9 @@ McpResult = dict[str, Any]
 
 
 # --------------------------------------------------------------------------- #
-# LLM quota helpers (ported from the previous facade)
+# LLM quota (shared helpers live in api.llm_quota)
 # --------------------------------------------------------------------------- #
-def _is_production_environment() -> bool:
-    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
-
-
-def _get_llm_quota_store() -> DailyQuotaStore:
-    return DailyQuotaStore(
-        db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
-        daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
-    )
-
-
-def _check_mcp_llm_quota_or_raise() -> QuotaStatus:
-    usage_date_utc = datetime.now(UTC).date().isoformat()
-    quota_status = _get_llm_quota_store().get_status(
-        subject_key=hash_subject_key("mcp:streamable-http"),
-        usage_date_utc=usage_date_utc,
-    )
-    if quota_status.quota_remaining <= 0:
-        raise QuotaExceededError(
-            quota_used=quota_status.quota_used,
-            quota_limit=quota_status.quota_limit,
-            quota_remaining=quota_status.quota_remaining,
-            usage_date_utc=quota_status.usage_date_utc,
-        )
-    return quota_status
-
-
-def _record_mcp_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
-    return _get_llm_quota_store().record_success(
-        subject_key=quota_status.subject_key,
-        usage_date_utc=quota_status.usage_date_utc,
-    )
+_MCP_QUOTA_SUBJECT_KEY = hash_subject_key("mcp:streamable-http")
 
 
 # --------------------------------------------------------------------------- #
@@ -218,9 +187,12 @@ def extract_hpo_terms_llm_service(
     }
 
     quota_status: QuotaStatus | None = None
-    if _is_production_environment():
+    if is_production_environment():
         try:
-            quota_status = _check_mcp_llm_quota_or_raise()
+            quota_status = check_llm_quota(
+                subject_key=_MCP_QUOTA_SUBJECT_KEY,
+                daily_limit=api_config.PHENTRIEVE_LLM_DAILY_LIMIT,
+            )
         except QuotaExceededError as exc:
             if not allow_standard_fallback:
                 raise
@@ -247,7 +219,7 @@ def extract_hpo_terms_llm_service(
         )
 
     if quota_status is not None:
-        updated = _record_mcp_llm_quota_success(quota_status)
+        updated = record_llm_quota_success(quota_status)
         result.setdefault("meta", {})
         result["meta"].update(
             {

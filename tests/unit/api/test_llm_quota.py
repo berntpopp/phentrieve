@@ -95,3 +95,44 @@ def test_daily_quota_store_enables_sqlite_wal_mode(tmp_path):
 
 def test_quota_reset_at_iso_returns_next_midnight_utc():
     assert quota_reset_at_iso("2026-04-22") == "2026-04-23T00:00:00+00:00"
+
+
+# --------------------------------------------------------------------------- #
+# Shared REST/MCP quota helpers (#434)
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize(
+    ("override", "env", "expected"),
+    [
+        ("true", "development", True),
+        ("false", "production", False),
+        ("", "production", True),
+        ("", "development", False),
+    ],
+)
+def test_quota_enforced_tri_state(monkeypatch, override, env, expected):
+    import api.config as api_config
+    from api.llm_quota import quota_enforced
+
+    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_QUOTA_ENFORCE", override)
+    monkeypatch.setattr(api_config, "PHENTRIEVE_ENV", env)
+    assert quota_enforced() is expected
+
+
+def test_check_and_record_llm_quota_use_today(tmp_path, monkeypatch):
+    import api.config as api_config
+    from api.llm_quota import check_llm_quota, record_llm_quota_success
+
+    monkeypatch.setattr(
+        api_config, "PHENTRIEVE_LLM_QUOTA_DB_PATH", str(tmp_path / "quota.db")
+    )
+
+    status = check_llm_quota(subject_key="subject", daily_limit=1)
+    assert status.quota_remaining == 1
+    updated = record_llm_quota_success(status)
+    assert updated.quota_used == 1
+    assert updated.quota_remaining == 0
+    assert updated.usage_date_utc == status.usage_date_utc
+
+    with pytest.raises(QuotaExceededError) as exc_info:
+        check_llm_quota(subject_key="subject", daily_limit=1)
+    assert exc_info.value.quota_limit == 1
