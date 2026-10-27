@@ -281,13 +281,27 @@ def create_app() -> FastAPI:
         return RedirectResponse(url=application.docs_url or f"{API_V1_PREFIX}/docs")
 
     if api_config.PHENTRIEVE_AUTH_ENABLED:
+        if api_config.PHENTRIEVE_ENV.strip().lower() == "production":
+            if len(api_config.PHENTRIEVE_AUTH_JWT_SECRET) < 32:
+                raise RuntimeError(
+                    "PHENTRIEVE_AUTH_ENABLED=true in production requires "
+                    "PHENTRIEVE_AUTH_JWT_SECRET of at least 32 characters "
+                    "(e.g. `openssl rand -hex 32`), or set "
+                    "PHENTRIEVE_AUTH_ENABLED=false."
+                )
+            if api_config.PHENTRIEVE_EMAIL_BACKEND != "smtp":
+                # console backend writes verify/reset links (bearer secrets) to logs
+                raise RuntimeError(
+                    "PHENTRIEVE_AUTH_ENABLED=true in production requires "
+                    "PHENTRIEVE_EMAIL_BACKEND=smtp (plus PHENTRIEVE_SMTP_HOST etc.); "
+                    f"got {api_config.PHENTRIEVE_EMAIL_BACKEND!r}. "
+                    "Or set PHENTRIEVE_AUTH_ENABLED=false."
+                )
         if not api_config.PHENTRIEVE_AUTH_JWT_SECRET:
             message = (
                 "PHENTRIEVE_AUTH_ENABLED is set but PHENTRIEVE_AUTH_JWT_SECRET is "
                 "empty. Set a strong secret to enable authentication."
             )
-            if api_config.PHENTRIEVE_ENV.strip().lower() == "production":
-                raise RuntimeError(message)
             logger.error(
                 "%s Auth routes will be mounted but tokens will fail.", message
             )

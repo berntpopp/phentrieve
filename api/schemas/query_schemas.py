@@ -12,6 +12,9 @@ from phentrieve.config import (
 )
 from phentrieve.retrieval.aggregation import AggregationStrategy
 
+# Queries are phrases/sentences; longer input belongs on /text/process.
+MAX_QUERY_CHARS = 10_000
+
 # Validate against the AggregationStrategy enum but keep the inline string-enum
 # JSON schema the API has always published (no separate $ref component).
 AggregationStrategyField = Annotated[
@@ -26,6 +29,7 @@ class QueryRequest(BaseModel):
     text: str = Field(
         ...,
         min_length=1,
+        max_length=MAX_QUERY_CHARS,
         description="Research phenotype text to query for HPO terms.",
     )
     model_name: str | None = Field(

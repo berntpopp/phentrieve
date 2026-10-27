@@ -371,6 +371,7 @@
       "network": "No se pudo conectar al servidor. Por favor, compruebe su conexión a Internet e inténtelo de nuevo.",
       "clientSide": "Se ha producido un error al {context}.",
       "badRequest": "Su solicitud no es válida. Por favor, compruebe los datos e inténtelo de nuevo. (Estado: {status})",
+      "validation": "La entrada fue rechazada. Revísela y tenga en cuenta los límites de tamaño: 50.000 caracteres para texto completo, 10.000 para una consulta individual. (Estado: {status})",
       "badRequestModel": "El modelo especificado en su solicitud no es válido o no está soportado. (Estado: {status})",
       "unauthorized": "No está autorizado para realizar esta acción. (Estado: {status})",
       "forbidden": "No tiene permiso para acceder a este recurso. (Estado: {status})",
