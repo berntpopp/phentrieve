@@ -45,6 +45,12 @@ together:
   `{"status": "ok"}`. `/api/v1/health/` and `/api/v1/system/health` stay as
   undocumented aliases with the same payload, and the frontend connection
   poll now calls `/api/v1/health`.
+- **Batched embedding and spaCy calls in standard text processing** (#410).
+  The sliding-window splitter encodes the windows of all segments in one
+  `model.encode` call instead of one call per segment, and assertion detection
+  parses all chunks of a document with one `nlp.pipe` call
+  (`AssertionDetector.detect_batch`, `DependencyAssertionDetector.detect_doc`)
+  instead of one `nlp()` call per chunk. Output is unchanged.
 
 ### Fixed
 
