@@ -19,13 +19,8 @@ on:
     branches:
       - main
       - develop
-    paths-ignore:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - '*.md'
-      - 'plan/**'
-      - 'LICENSE'
-      - '.github/workflows/deploy-docs.yml'
+    # No paths-ignore on PRs: "CI Summary" is a required check, so it must report on
+    # every PR. Detect Changes skips the heavy jobs when only docs changed.
   # Weekly + manual runs test every supported Python; PRs and pushes test the 3.11 floor.
   schedule:
     - cron: '0 5 * * 1'
@@ -103,6 +98,7 @@ jobs:
               - 'frontend/Dockerfile'
               - 'frontend/.dockerignore'
               - 'frontend/nginx.conf'
+              - 'frontend/nginx-security-headers.conf'
               - 'frontend/package.json'
               - 'frontend/package-lock.json'
               - 'docker-compose*.yml'

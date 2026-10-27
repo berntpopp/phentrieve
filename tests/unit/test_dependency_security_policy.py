@@ -236,6 +236,14 @@ def test_authlib_uses_the_patched_cve_2026_96760_release() -> None:
     assert _uv_packages()["authlib"] >= Version("1.9.0")
 
 
+def test_dnspython_uses_the_patched_cve_2026_114605_release() -> None:
+    """dnspython arrives transitively; pip-audit flags 2.8.0 (fixed in 2.9.0)."""
+    constraints = _pyproject()["tool"]["uv"]["constraint-dependencies"]
+
+    assert any(c.startswith("dnspython>=2.9.0") for c in constraints)
+    assert _uv_packages()["dnspython"] >= Version("2.9.0")
+
+
 def test_setuptools_uses_the_patched_pysec_2026_3447_release() -> None:
     """The pip-audit requirement set must not resolve vulnerable setuptools 81."""
     dev_dependencies = _pyproject()["dependency-groups"]["dev"]
