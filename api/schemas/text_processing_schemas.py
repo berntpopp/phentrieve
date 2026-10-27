@@ -281,7 +281,9 @@ class TextProcessingResponseAPI(BaseModel):
             "Metadata about the request and processing parameters used. "
             "Common keys include extraction_backend, quota_limit, "
             "quota_remaining, quota_reset_at, fallback_reason, "
-            "llm_quota_limit, and llm_quota_reset_at."
+            "llm_quota_limit, and llm_quota_reset_at. An LLM result that "
+            "is missing findings because an extraction group failed for good "
+            "carries incomplete=true and a short incomplete_reason."
         ),
         json_schema_extra={
             "examples": [

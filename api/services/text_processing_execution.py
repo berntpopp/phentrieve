@@ -27,6 +27,7 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
+from phentrieve.llm.pipeline_trace import incomplete_extraction_signal
 from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
@@ -226,6 +227,8 @@ def adapt_shared_service_response_to_api(
     else:
         meta.setdefault("num_processed_chunks", len(processed_chunks))
         meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
+        # A partial LLM result is flagged at the top level of meta (#395).
+        meta.update(incomplete_extraction_signal(meta.get("observability")))
 
     response = TextProcessingResponseAPI.model_validate(
         {

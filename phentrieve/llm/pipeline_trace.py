@@ -15,6 +15,28 @@ def sum_usage_dicts(*usage_dicts: dict[str, int]) -> dict[str, int]:
     return totals
 
 
+def incomplete_extraction_signal(observability: Any) -> dict[str, Any]:
+    """Top-level warning keys for a successful but partial LLM extraction.
+
+    ``observability`` is the LLM backend's ``meta.observability`` block. When a
+    phase-1 group failed and no fallback recovered it, the result still
+    succeeds without that group's findings (#395); REST and MCP responses add
+    the returned keys so callers can tell. Returns ``{}`` for a complete result.
+    """
+    if not isinstance(observability, dict):
+        return {}
+    unrecovered = int(observability.get("phase1_unrecovered_groups", 0) or 0)
+    if unrecovered <= 0:
+        return {}
+    return {
+        "incomplete": True,
+        "incomplete_reason": (
+            f"LLM phase-1 extraction failed for {unrecovered} chunk group(s) "
+            "after all retries; findings from that text may be missing."
+        ),
+    }
+
+
 def phase1_extracted_trace_items(
     extracted: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:

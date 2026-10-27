@@ -246,19 +246,6 @@ def prefer_richer_text(current: str | None, incoming: str | None) -> str | None:
     return incoming_text if len(incoming_text) > len(current_text) else current_text
 
 
-def merge_optional_bounds(
-    current: int | None,
-    incoming: int | None,
-    *,
-    pick: str,
-) -> int | None:
-    if current is None:
-        return incoming
-    if incoming is None:
-        return current
-    return min(current, incoming) if pick == "min" else max(current, incoming)
-
-
 def _clone_split_phase1_item(item: dict[str, Any], phrase: str) -> dict[str, Any]:
     split_item = dict(item)
     split_item["phrase"] = phrase
@@ -327,20 +314,3 @@ def expand_combined_phase1_extractions(
             for split_phrase in split_phrases
         )
     return expanded
-
-
-def spans_overlap(
-    start_a: int | None,
-    end_a: int | None,
-    start_b: int | None,
-    end_b: int | None,
-) -> bool:
-    if None in (start_a, end_a, start_b, end_b):
-        return False
-    assert start_a is not None
-    assert end_a is not None
-    assert start_b is not None
-    assert end_b is not None
-    if end_a <= start_a or end_b <= start_b:
-        return False
-    return max(start_a, start_b) < min(end_a, end_b)
