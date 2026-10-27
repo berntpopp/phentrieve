@@ -37,6 +37,12 @@ together:
 
 ### Fixed
 
+- **Full-text "normal" findings are no longer collected as present** (#404).
+  The frontend mapped a `status: "normal"` term (and any term the API flags
+  `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out
+  findings as present phenotypes. They now map to `negated` when the curation
+  model is seeded and in the findings receipt.
+
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
   did not point into the document. The pipeline now locates `evidence_text`

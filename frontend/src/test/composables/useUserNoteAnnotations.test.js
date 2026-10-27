@@ -245,6 +245,22 @@ describe('seedAnnotationsFromResponse', () => {
     });
     expect(r[0].spans[0]).toMatchObject({ start: 8, end: 20 });
   });
+
+  it('seeds ruled-out findings (normal, absent, excluded) as negated (#404)', () => {
+    const r = seedAnnotationsFromResponse({
+      note: 'Normal intellect. No seizures. Mild hypotonia.',
+      response: {
+        processed_chunks: [],
+        aggregated_hpo_terms: [
+          { hpo_id: 'HP:0001249', name: 'Intellectual disability', status: 'normal' },
+          { hpo_id: 'HP:0001250', name: 'Seizure', status: 'absent' },
+          { hpo_id: 'HP:0001252', name: 'Hypotonia', status: 'present', excluded: true },
+          { hpo_id: 'HP:0001263', name: 'Global developmental delay', status: 'present' },
+        ],
+      },
+    });
+    expect(r.map((a) => a.status)).toEqual(['negated', 'negated', 'negated', 'affirmed']);
+  });
 });
 
 describe('buildSegmentsFromAnnotations', () => {
