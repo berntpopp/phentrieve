@@ -34,6 +34,10 @@ together:
   `unknown`, and an `unknown` twin of a term with a known temporality is merged
   into it. The phase-1 schema no longer asks for character offsets.
   `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
+- **One `needs_semantic_model()` check for chunking pipelines** (#429). The
+  "does this chunking pipeline need a sentence-transformer model" loop that was
+  copy-pasted in `text process`, `text chunk` and `text interactive` now lives
+  in `phentrieve.text_processing.config_resolver.needs_semantic_model`.
 
 ### Fixed
 

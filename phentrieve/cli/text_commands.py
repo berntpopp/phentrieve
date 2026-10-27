@@ -41,6 +41,7 @@ from phentrieve.llm import config as llm_config
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
 )
+from phentrieve.text_processing.config_resolver import needs_semantic_model
 
 logger = logging.getLogger(__name__)
 
@@ -663,23 +664,7 @@ def process_text_for_hpo_command(
 
     sbert_model_for_chunking = None
     if extraction_backend == "standard":
-        needs_semantic_model = False
-        for chunk_config in chunking_pipeline_config:
-            chunk_type = (
-                chunk_config.get("type")
-                if isinstance(chunk_config, dict)
-                else chunk_config
-            )
-            if chunk_type in [
-                "semantic",
-                "pre_chunk_semantic_grouper",
-                "sliding_window_semantic",
-                "sliding_window",
-            ]:
-                needs_semantic_model = True
-                break
-
-        if needs_semantic_model:
+        if needs_semantic_model(chunking_pipeline_config):
             from phentrieve.embeddings import load_embedding_model
 
             semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
@@ -993,24 +978,9 @@ def chunk_text_command(
         min_segment_length=min_segment_length,
     )
 
-    # Determine if we need a semantic model for chunking
-    needs_semantic_model = False
-    for chunk_config in chunking_pipeline_config:
-        chunk_type = (
-            chunk_config.get("type") if isinstance(chunk_config, dict) else chunk_config
-        )
-        if chunk_type in [
-            "semantic",
-            "pre_chunk_semantic_grouper",
-            "sliding_window_semantic",
-            "sliding_window",
-        ]:
-            needs_semantic_model = True
-            break
-
-    # Load the SBERT model if needed
+    # Load the SBERT model if the chunking pipeline needs one
     sbert_model = None
-    if needs_semantic_model:
+    if needs_semantic_model(chunking_pipeline_config):
         # Lazy import - only load heavy ML dependencies when actually needed
         from phentrieve.embeddings import load_embedding_model
 

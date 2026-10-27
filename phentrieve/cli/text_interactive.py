@@ -21,6 +21,7 @@ from phentrieve.config import (
     DEFAULT_TOP_K,
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
+from phentrieve.text_processing.config_resolver import needs_semantic_model
 from phentrieve.text_processing.hpo_extraction_orchestrator import (
     orchestrate_hpo_extraction,
 )
@@ -375,19 +376,7 @@ def interactive_text_mode(
     }
 
     # Determine if we need a semantic model for chunking
-    needs_semantic_model = False
-    for chunk_config in chunking_pipeline_config:
-        chunk_type = (
-            chunk_config.get("type") if isinstance(chunk_config, dict) else chunk_config
-        )
-        if chunk_type in [
-            "semantic",
-            "pre_chunk_semantic_grouper",
-            "sliding_window_semantic",
-            "sliding_window",
-        ]:
-            needs_semantic_model = True
-            break
+    uses_semantic_model = needs_semantic_model(chunking_pipeline_config)
 
     # Determine model names
     semantic_model_name = semantic_chunker_model or DEFAULT_MODEL
@@ -401,16 +390,14 @@ def interactive_text_mode(
 
     # Optimization: If same model is needed for both chunking and retrieval,
     # load it once and share the instance
-    use_same_model = (
-        needs_semantic_model and semantic_model_name == retrieval_model_name
-    )
+    use_same_model = uses_semantic_model and semantic_model_name == retrieval_model_name
 
     # Initialize models once at startup
     console.print("[dim]Loading models...[/dim]")
 
     # Load the SBERT model for chunking if needed
     sbert_model_for_chunking = None
-    if needs_semantic_model:
+    if uses_semantic_model:
         from phentrieve.embeddings import load_embedding_model
 
         try:
