@@ -13,7 +13,7 @@ export default [
 
   // Global ignores
   {
-    ignores: ['dist/**', 'node_modules/**', 'build/**', '.vite/**'],
+    ignores: ['dist/**', 'node_modules/**', 'build/**', '.vite/**', 'coverage/**'],
   },
 
   // Main configuration

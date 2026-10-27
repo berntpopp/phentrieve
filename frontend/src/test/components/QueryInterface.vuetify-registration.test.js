@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { createI18n } from 'vue-i18n';
+import { routeLocationKey, routerKey } from 'vue-router';
 import en from '../../locales/en.json';
 import vuetify from '../../plugins/vuetify';
 
@@ -47,9 +48,9 @@ async function mountQueryInterfaceWithAppVuetify() {
         ConversationSkeleton: true,
         'v-navigation-drawer': true,
       },
-      mocks: {
-        $route: { query: {} },
-        $router: { replace: vi.fn().mockResolvedValue(undefined) },
+      provide: {
+        [routeLocationKey]: { query: {} },
+        [routerKey]: { replace: vi.fn().mockResolvedValue(undefined) },
       },
     },
   });
