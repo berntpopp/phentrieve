@@ -355,7 +355,7 @@ describe('PhentrieveService', () => {
         text: 'Email jane@example.org with seizures',
         extractionBackend: 'standard',
       })
-    ).rejects.toMatchObject({ status: 422 });
+    ).rejects.toMatchObject({ status: 422, userMessageKey: 'errors.api.validation' });
 
     const logs = serializedServiceLogs();
     expect(logs).not.toContain('jane@example.org');

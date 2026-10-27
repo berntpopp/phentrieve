@@ -52,3 +52,12 @@ def test_api_image_installs_dependencies_from_uv_lock() -> None:
     text = (REPO_ROOT / "api" / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY pyproject.toml uv.lock ./" in text
     assert "uv sync --frozen" in text
+
+
+def test_api_image_ships_cpu_torch_of_the_locked_version() -> None:
+    """The CPU-only deployment must not carry the ~4.6 GB CUDA wheels."""
+    text = (REPO_ROOT / "api" / "Dockerfile").read_text(encoding="utf-8")
+    assert "--no-install-package" in text
+    assert "nvidia-[a-z0-9-]+" in text
+    assert "https://download.pytorch.org/whl/cpu" in text
+    assert '"torch==${TORCH}+cpu"' in text

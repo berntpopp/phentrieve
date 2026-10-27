@@ -6,7 +6,11 @@ B3: a blank-text rejection must surface as a value-level validation envelope
 parameter names in allowed_values.
 """
 
+import asyncio
+from types import SimpleNamespace
+
 import pytest
+from fastmcp.exceptions import ValidationError as FastMCPValidationError
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from api.mcp.envelope import build_arg_error_envelope
@@ -26,6 +30,13 @@ def test_blank_text_rejected(blank):
 
 def test_real_text_accepted():
     assert _TA.validate_python("progressive ataxia") == "progressive ataxia"
+
+
+def test_over_long_text_rejected():
+    from api.schemas.text_processing_schemas import MAX_TEXT_CHARS
+
+    with pytest.raises(ValidationError):
+        _TA.validate_python("a" * (MAX_TEXT_CHARS + 1))
 
 
 def test_extract_default_num_results_per_chunk_is_three():
@@ -84,3 +95,34 @@ def test_blank_text_error_result_is_value_level(blank):
     allowed = env.get("allowed_values", [])
     assert "text" not in allowed
     assert "language" not in allowed
+
+
+def _call_tool_raising(exc: Exception):
+    """Drive on_call_tool with a call_next that raises *exc* (schema pre-cached)."""
+    name = "phentrieve_search_hpo_terms"
+    middleware = ArgValidationMiddleware()
+    middleware._schema_cache[name] = _ToolArgs.model_json_schema()
+    context = SimpleNamespace(message=SimpleNamespace(name=name, arguments={}))
+
+    async def call_next(_context):
+        raise exc
+
+    return asyncio.run(middleware.on_call_tool(context, call_next))
+
+
+def test_fastmcp_validation_error_with_pydantic_cause_becomes_envelope():
+    """FastMCP >=3.4.10 wraps the pydantic error; the middleware unwraps it."""
+    with pytest.raises(ValidationError) as ei:
+        _ToolArgs(text="   ")
+    wrapped = FastMCPValidationError("bad args")
+    wrapped.__cause__ = ei.value
+
+    env = _call_tool_raising(wrapped).structured_content
+    assert env["error_code"] == "validation_failed"
+    assert env["field"] == "text"
+
+
+def test_fastmcp_validation_error_without_pydantic_cause_is_reraised():
+    wrapped = FastMCPValidationError("not an argument-binding failure")
+    with pytest.raises(FastMCPValidationError, match="not an argument-binding"):
+        _call_tool_raising(wrapped)
