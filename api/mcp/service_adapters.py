@@ -14,6 +14,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from fastapi.concurrency import run_in_threadpool
+
 import api.config as api_config
 from api.llm_quota import (
     DailyQuotaStore,
@@ -102,7 +104,8 @@ async def search_hpo_terms_service(
         sbert_model_name_for_retriever=DEFAULT_MODEL,
         multi_vector=DEFAULT_MULTI_VECTOR,
     )
-    result = await execute_hpo_retrieval_for_api(
+    result = await run_in_threadpool(
+        execute_hpo_retrieval_for_api,
         text=text,
         language=language or DEFAULT_LANGUAGE,
         retriever=retriever,

@@ -20,6 +20,17 @@ together:
 
 ### Changed
 
+- **Query schema uses the shared strategy types** (#427). `QueryRequest`
+  validates `aggregation_strategy` against the `AggregationStrategy` enum and
+  `query_assertion_preference` against one shared `AssertionPreference` alias
+  (`phentrieve.config`); the router casts and hand-copied `Literal`s are gone
+  and `benchmark compare-vectors` derives its valid strategies from the enum.
+  The published request JSON schema and accepted values are unchanged.
+- **API warms the default Chroma index at startup** (#419). The lifespan runs
+  one throwaway query after preloading the model and retriever, so the first
+  real request no longer pays for loading the index. A failed warm-up is
+  logged and startup continues.
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -36,6 +47,22 @@ together:
   `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
 
 ### Fixed
+
+- **`/api/v1/query` no longer blocks the event loop** (#405).
+  `execute_hpo_retrieval_for_api` is now synchronous and both the REST router
+  and the MCP `search_hpo_terms` adapter run it via `run_in_threadpool`, so one
+  query no longer stalls health checks, MCP and text processing.
+- **`GET /api/v1/query` returns 422 for invalid parameters and uses the
+  requested model's retriever** (#408). The retriever dependency binds
+  `model_name` directly (no more un-awaited coroutine or stray `?model=`
+  parameter), `QueryRequest` validation errors become 422 instead of 500, and
+  the retriever-mismatch re-initialization and second model-policy resolution
+  are removed.
+- **API model caches no longer expire hourly or race** (#416). The SBERT model,
+  retriever, status and lock caches are plain dicts (bounded by the model
+  allowlist) read once with `.get()`, a failed model load is retried after a
+  30 s cooldown instead of sticking for an hour, and `cleanup_model_caches`
+  also clears the embedding model registry so models are actually freed.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
