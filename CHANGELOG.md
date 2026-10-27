@@ -20,6 +20,12 @@ together:
 
 ### Changed
 
+- **`QueryInterface.vue` uses `<script setup>`** (#430). The
+  `getContext()`/`getState()`/`setState()` bridge is gone:
+  `useQueryInterfaceController` now takes the component's refs, the
+  conversation store, the PII review flow and the route/router directly, and has
+  its own unit tests with plain refs. Behaviour is unchanged.
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
