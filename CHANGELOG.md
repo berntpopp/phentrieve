@@ -18,6 +18,21 @@ together:
 
 ## [Unreleased]
 
+## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
+
+Smaller API image: CPU-only torch (#446).
+
+### Changed
+
+- **The API image ships CPU-only torch: 6.9 GB -> 2.8 GB.** The deployment has
+  no GPU, but the image installed the locked CUDA build of torch plus triton and
+  15 `nvidia-*` wheels (~4.6 GB). The build now installs the CPU build of the
+  same locked torch version (2.13.0+cpu). `pyproject.toml` and `uv.lock` are
+  unchanged, so local and benchmark installs keep CUDA.
+- **CI:** the API image smoke test fails if CUDA wheels or non-CPU torch reach
+  the image. The PR image job no longer frees runner disk space, which took
+  4.5 minutes of a 12-minute job.
+
 ## [0.28.6] — 2026-10-27 (CLI 0.28.6 / API 0.18.6 / Frontend 0.18.4)
 
 Dependency security patch and CI follow-ups to 0.28.5 (#436).
