@@ -44,6 +44,16 @@ together:
   conversation store, the PII review flow and the route/router directly, and has
   its own unit tests with plain refs. Behaviour is unchanged.
 
+- **One term-similarity implementation for REST and MCP**
+  ([#415](https://github.com/berntpopp/phentrieve/issues/415)). The similarity
+  router and the MCP `phentrieve_compare_hpo_terms` tool both call
+  `phentrieve.evaluation.term_similarity.compute_term_similarity` and only
+  translate its errors. Response shapes are unchanged. Differences: labels in
+  both now come from the same `hpo_data.db` as the graph data; MCP reports
+  missing ontology data as `temporarily_unavailable` instead of `not_found`;
+  the REST 404/400/500 error details now serialize (`formula_used` was an enum
+  and failed JSON encoding).
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -150,6 +160,34 @@ together:
   `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out
   findings as present phenotypes. They now map to `negated` when the curation
   model is seeded and in the findings receipt.
+
+- **Long notes no longer silently return zero HPO terms**
+  ([#402](https://github.com/berntpopp/phentrieve/issues/402)).
+  `DenseRetriever.query_batch` sent every chunk embedding to Chroma in one
+  query, which exceeded SQLite's bound-variable limit ("too many SQL
+  variables") for notes of a few hundred chunks; the error was logged and every
+  chunk got empty results, so the API answered HTTP 200 with no terms. Chroma is
+  now queried in slices of `CHROMA_QUERY_BATCH_SIZE` (64) embeddings. A failed
+  index query raises `RetrievalError` instead of returning empty results
+  (`query_batch_multi_vector` no longer swallows errors either, and an invalid
+  aggregation strategy raises `ValueError`), so API, CLI and MCP callers report
+  an error.
+
+- **Bundle verification no longer accepts a corrupted SQLite index**
+  ([#398](https://github.com/berntpopp/phentrieve/issues/398)). The
+  lock-row-tolerant "stable" `indexes/` checksum hashes the SQLite dump, which
+  never reads index pages. It is now accepted only if `PRAGMA integrity_check`
+  reports `ok`. The verified inventory (and so the benchmark retrieval-asset
+  `content_sha256`) records the checksum computed from the data rather than the
+  manifest hash: for a directory holding `chroma.sqlite3` this is its stable
+  checksum, which does not change when Chroma adds lock rows. Benchmark
+  checkpoints written before this change therefore do not resume.
+
+- **Similarity recovers once HPO data is prepared**
+  ([#417](https://github.com/berntpopp/phentrieve/issues/417)). A missing or
+  empty HPO database was cached as empty graph data (and the REST router cached
+  an empty label map), so similarity answered 503 until the process restarted.
+  Failed graph loads are no longer cached and labels are looked up per request.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans

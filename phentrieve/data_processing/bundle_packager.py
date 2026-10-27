@@ -563,6 +563,9 @@ def _reject_symlink_components(target_dir: Path, target: Path) -> None:
 # ``chroma.sqlite3``, so the raw ``indexes/`` checksum stops matching after the
 # first query. A stable checksum that ignores those rows is recorded next to the
 # bundle while the raw checksum still matches and accepted for later runs.
+# ``iterdump`` only reads table rows, never index pages, so the stable checksum
+# is accepted only if ``PRAGMA integrity_check`` (which, unlike ``quick_check``,
+# also verifies index-vs-table consistency) reports ``ok`` (issue #398).
 _CHROMA_SQLITE_FILENAME = "chroma.sqlite3"
 _CHROMA_LOCK_ROW_PREFIX = 'INSERT INTO "acquire_write"'
 STABLE_CHECKSUMS_FILENAME = ".bundle_stable_checksums.json"
@@ -579,6 +582,23 @@ def _chroma_sqlite_logical_checksum(path: Path) -> str:
     finally:
         connection.close()
     return hasher.hexdigest()
+
+
+def _sqlite_integrity_ok(path: Path) -> bool:
+    """Return True if ``PRAGMA integrity_check`` reports a healthy database."""
+    try:
+        connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+        try:
+            rows = connection.execute("PRAGMA integrity_check").fetchall()
+        finally:
+            connection.close()
+    except sqlite3.DatabaseError as exc:
+        logger.warning("SQLite integrity check failed for %s: %s", path.name, exc)
+        return False
+    if rows != [("ok",)]:
+        logger.warning("SQLite integrity check failed for %s: %s", path.name, rows[:5])
+        return False
+    return True
 
 
 def _stable_directory_checksum(dir_path: Path) -> str:
@@ -606,34 +626,58 @@ def _load_stable_checksums(root: Path) -> dict[str, dict[str, str]]:
     return data if isinstance(data, dict) else {}
 
 
+def _is_sha256(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+
 def _record_stable_checksum(
     root: Path, key: str, expected_hash: str, directory: Path
-) -> None:
+) -> str | None:
+    """Record the stable checksum of a raw-verified directory and return it.
+
+    Returns None when the directory holds no Chroma SQLite file.
+    """
     if not (directory / _CHROMA_SQLITE_FILENAME).is_file():
-        return
+        return None
     stable = _load_stable_checksums(root)
     entry = stable.get(key)
-    if isinstance(entry, dict) and entry.get("expected") == expected_hash:
-        return
-    stable[key] = {
-        "expected": expected_hash,
-        "stable": _stable_directory_checksum(directory),
-    }
+    if (
+        isinstance(entry, dict)
+        and entry.get("expected") == expected_hash
+        and _is_sha256(entry.get("stable"))
+    ):
+        return entry["stable"]
+    stable_hash = _stable_directory_checksum(directory)
+    stable[key] = {"expected": expected_hash, "stable": stable_hash}
     try:
         (root / STABLE_CHECKSUMS_FILENAME).write_text(
             json.dumps(stable, indent=2, sort_keys=True), encoding="utf-8"
         )
     except OSError as exc:  # read-only data dir: raw verification still works
         logger.warning("Could not record stable bundle checksum: %s", exc)
+    return stable_hash
 
 
-def _matches_stable_checksum(
+def _verified_stable_checksum(
     root: Path, key: str, expected_hash: str, directory: Path
-) -> bool:
+) -> str | None:
+    """Return the actual stable checksum if it matches the recorded one.
+
+    The stable checksum hashes table rows only, so every SQLite file in the
+    directory must also pass ``PRAGMA integrity_check``; otherwise a corrupted
+    index page would go unnoticed.
+    """
     entry = _load_stable_checksums(root).get(key)
     if not isinstance(entry, dict) or entry.get("expected") != expected_hash:
-        return False
-    return entry.get("stable") == _stable_directory_checksum(directory)
+        return None
+    if not all(
+        _sqlite_integrity_ok(path)
+        for path in sorted(directory.rglob(_CHROMA_SQLITE_FILENAME))
+        if path.is_file()
+    ):
+        return None
+    actual_stable = _stable_directory_checksum(directory)
+    return actual_stable if entry.get("stable") == actual_stable else None
 
 
 def _verify_bundle_checksums(
@@ -685,18 +729,24 @@ def _verify_bundle_checksums(
                     raise ValueError(
                         f"Bundle checksum directory must not contain symlinks: {filename}"
                     )
+                # The inventory records hashes actually computed from the
+                # data. Directories holding chroma.sqlite3 report their stable
+                # (lock-row tolerant) checksum on both paths, so the identity
+                # does not change every time Chroma opens the index.
                 actual_hash = compute_directory_checksum(resolved_target)
                 if actual_hash == expected_hash:
-                    verified[normalized] = actual_hash
-                    _record_stable_checksum(
+                    stable_hash = _record_stable_checksum(
                         root, normalized, expected_hash, resolved_target
                     )
-                elif _matches_stable_checksum(
-                    root, normalized, expected_hash, resolved_target
-                ):
-                    verified[normalized] = expected_hash
+                    verified[normalized] = stable_hash or actual_hash
                 else:
-                    failed.append(filename)
+                    stable_hash = _verified_stable_checksum(
+                        root, normalized, expected_hash, resolved_target
+                    )
+                    if stable_hash is not None:
+                        verified[normalized] = stable_hash
+                    else:
+                        failed.append(filename)
             else:
                 failed.append(f"{filename} (missing)")
         else:
