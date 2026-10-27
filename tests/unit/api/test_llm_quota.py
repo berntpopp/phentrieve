@@ -1,8 +1,12 @@
+import hashlib
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 
 from api.llm_quota import (
     DailyQuotaStore,
     QuotaExceededError,
+    hash_subject_key,
     quota_reset_at_iso,
     resolve_subject_ip,
 )
@@ -11,7 +15,7 @@ from api.llm_quota import (
 def test_daily_quota_store_counts_successful_requests_only(tmp_path):
     store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=3)
 
-    outcome = store.record_success(
+    outcome = store.reserve(
         subject_key="hash1",
         usage_date_utc="2026-04-15",
     )
@@ -23,7 +27,7 @@ def test_daily_quota_store_counts_successful_requests_only(tmp_path):
 def test_daily_quota_store_persists_record_success_across_fresh_reads(tmp_path):
     store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=3)
 
-    store.record_success(subject_key="hash1", usage_date_utc="2026-04-15")
+    store.reserve(subject_key="hash1", usage_date_utc="2026-04-15")
 
     refreshed = store.get_status(subject_key="hash1", usage_date_utc="2026-04-15")
 
@@ -34,11 +38,11 @@ def test_daily_quota_store_persists_record_success_across_fresh_reads(tmp_path):
 def test_daily_quota_store_prevents_overrun_when_limit_is_reached(tmp_path):
     store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=1)
 
-    first = store.record_success(subject_key="hash1", usage_date_utc="2026-04-15")
+    first = store.reserve(subject_key="hash1", usage_date_utc="2026-04-15")
     assert first.quota_used == 1
 
     with pytest.raises(QuotaExceededError):
-        store.record_success(subject_key="hash1", usage_date_utc="2026-04-15")
+        store.reserve(subject_key="hash1", usage_date_utc="2026-04-15")
 
     refreshed = store.get_status(subject_key="hash1", usage_date_utc="2026-04-15")
     assert refreshed.quota_used == 1
@@ -97,42 +101,47 @@ def test_quota_reset_at_iso_returns_next_midnight_utc():
     assert quota_reset_at_iso("2026-04-22") == "2026-04-23T00:00:00+00:00"
 
 
-# --------------------------------------------------------------------------- #
-# Shared REST/MCP quota helpers (#434)
-# --------------------------------------------------------------------------- #
-@pytest.mark.parametrize(
-    ("override", "env", "expected"),
-    [
-        ("true", "development", True),
-        ("false", "production", False),
-        ("", "production", True),
-        ("", "development", False),
-    ],
-)
-def test_quota_enforced_tri_state(monkeypatch, override, env, expected):
-    import api.config as api_config
-    from api.llm_quota import quota_enforced
+def test_concurrent_reservations_admit_exactly_one_at_limit_one(tmp_path):
+    store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=1)
 
-    monkeypatch.setattr(api_config, "PHENTRIEVE_LLM_QUOTA_ENFORCE", override)
-    monkeypatch.setattr(api_config, "PHENTRIEVE_ENV", env)
-    assert quota_enforced() is expected
+    def attempt(_: int) -> bool:
+        try:
+            store.reserve(subject_key="hash1", usage_date_utc="2026-04-15")
+        except QuotaExceededError:
+            return False
+        return True
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        outcomes = list(pool.map(attempt, range(8)))
+
+    assert outcomes.count(True) == 1
+    status = store.get_status(subject_key="hash1", usage_date_utc="2026-04-15")
+    assert status.quota_used == 1
 
 
-def test_check_and_record_llm_quota_use_today(tmp_path, monkeypatch):
-    import api.config as api_config
-    from api.llm_quota import check_llm_quota, record_llm_quota_success
+def test_release_refunds_a_reservation_and_floors_at_zero(tmp_path):
+    store = DailyQuotaStore(tmp_path / "quota.db", daily_limit=1)
+    store.reserve(subject_key="hash1", usage_date_utc="2026-04-15")
 
-    monkeypatch.setattr(
-        api_config, "PHENTRIEVE_LLM_QUOTA_DB_PATH", str(tmp_path / "quota.db")
+    store.release(subject_key="hash1", usage_date_utc="2026-04-15")
+    store.release(subject_key="hash1", usage_date_utc="2026-04-15")
+
+    assert (
+        store.get_status(subject_key="hash1", usage_date_utc="2026-04-15").quota_used
+        == 0
+    )
+    # The refunded unit can be reserved again.
+    assert (
+        store.reserve(subject_key="hash1", usage_date_utc="2026-04-15").quota_used == 1
     )
 
-    status = check_llm_quota(subject_key="subject", daily_limit=1)
-    assert status.quota_remaining == 1
-    updated = record_llm_quota_success(status)
-    assert updated.quota_used == 1
-    assert updated.quota_remaining == 0
-    assert updated.usage_date_utc == status.usage_date_utc
 
-    with pytest.raises(QuotaExceededError) as exc_info:
-        check_llm_quota(subject_key="subject", daily_limit=1)
-    assert exc_info.value.quota_limit == 1
+def test_hash_subject_key_is_keyed_hmac(monkeypatch):
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_QUOTA_PEPPER", "pepper-a")
+    first = hash_subject_key("203.0.113.5")
+
+    assert first != hashlib.sha256(b"203.0.113.5").hexdigest()
+    assert hash_subject_key(" 203.0.113.5 ") == first
+
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_QUOTA_PEPPER", "pepper-b")
+    assert hash_subject_key("203.0.113.5") != first

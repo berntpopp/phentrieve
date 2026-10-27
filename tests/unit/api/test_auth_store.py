@@ -94,3 +94,74 @@ def test_expired_refresh_session_inactive(store):
     past = datetime.now(UTC) - timedelta(seconds=1)
     store.create_refresh_session("old", user_id=u.id, expires_at=past)
     assert store.get_active_refresh_user("old") is None
+
+
+def test_expired_lockout_resets_counter(store):
+    u = store.create_user(email="a@ex.com", password_hash="h")
+    for _ in range(5):
+        store.record_failed_login(u.id, max_attempts=5, lockout_seconds=-1)
+    # Lockout already served (negative duration): one more typo must not re-lock.
+    store.record_failed_login(u.id, max_attempts=5, lockout_seconds=900)
+    refreshed = store.get_by_id(u.id)
+    assert refreshed.failed_attempts == 1
+    assert store.is_locked(refreshed) is False
+
+
+def test_rotate_refresh_session_single_use_and_reuse_revokes_all(store):
+    u = store.create_user(email="a@ex.com", password_hash="h")
+    exp = datetime.now(UTC) + timedelta(days=1)
+    store.create_refresh_session("old", user_id=u.id, expires_at=exp)
+    assert store.rotate_refresh_session("old", reuse_grace_seconds=0) == u.id
+    store.create_refresh_session("new", user_id=u.id, expires_at=exp)
+    # Replay after the grace window is theft: rejected, and the newer session dies.
+    assert store.rotate_refresh_session("old", reuse_grace_seconds=0) is None
+    assert store.get_active_refresh_user("new") is None
+    assert store.rotate_refresh_session("missing", reuse_grace_seconds=0) is None
+
+
+def test_rotate_refresh_session_reuse_within_grace_keeps_newer_session(store):
+    u = store.create_user(email="a@ex.com", password_hash="h")
+    exp = datetime.now(UTC) + timedelta(days=1)
+    store.create_refresh_session("old", user_id=u.id, expires_at=exp)
+    assert store.rotate_refresh_session("old", reuse_grace_seconds=30) == u.id
+    store.create_refresh_session("new", user_id=u.id, expires_at=exp)
+    # A second tab racing with the same cookie: rejected, newer session survives.
+    assert store.rotate_refresh_session("old", reuse_grace_seconds=30) is None
+    assert store.get_active_refresh_user("new") == u.id
+
+
+def test_rotate_refresh_session_concurrent_claims_once(store):
+    from concurrent.futures import ThreadPoolExecutor
+
+    u = store.create_user(email="a@ex.com", password_hash="h")
+    exp = datetime.now(UTC) + timedelta(days=1)
+    store.create_refresh_session("tok", user_id=u.id, expires_at=exp)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(
+            pool.map(
+                lambda _: store.rotate_refresh_session("tok", reuse_grace_seconds=30),
+                range(8),
+            )
+        )
+    assert results.count(u.id) == 1
+
+
+def test_update_password_sets_changed_at_and_migrates_old_db(tmp_path):
+    import sqlite3
+
+    db = tmp_path / "old.db"
+    with sqlite3.connect(db) as conn:  # schema as shipped before password_changed_at
+        conn.execute(
+            "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "email_lower TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, "
+            "is_verified INTEGER NOT NULL DEFAULT 0, failed_attempts INTEGER NOT "
+            "NULL DEFAULT 0, locked_until TEXT, created_at TEXT NOT NULL, "
+            "updated_at TEXT NOT NULL)"
+        )
+    store = UserStore(db)
+    u = store.create_user(email="a@ex.com", password_hash="h")
+    assert u.password_changed_at is None
+    store.mark_verified(u.id)
+    assert store.get_by_id(u.id).password_changed_at is None
+    store.update_password(u.id, "h2")
+    assert store.get_by_id(u.id).password_changed_at is not None

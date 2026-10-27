@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import ipaddress
 import logging
+import secrets
 import sqlite3
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import api.config as api_config
+
+if TYPE_CHECKING:
+    from starlette.requests import Request
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +34,14 @@ __all__ = [
     "DailyQuotaStore",
     "QuotaExceededError",
     "QuotaStatus",
-    "check_llm_quota",
-    "get_llm_quota_store",
+    "QuotaStoreUnavailableError",
+    "anonymous_subject_key",
     "hash_subject_key",
-    "is_production_environment",
     "quota_enforced",
     "quota_reset_at_iso",
-    "record_llm_quota_success",
+    "read_llm_quota",
+    "release_llm_quota",
+    "reserve_llm_quota",
     "resolve_subject_ip",
 ]
 
@@ -85,6 +91,10 @@ class QuotaExceededError(Exception):
         }
 
 
+class QuotaStoreUnavailableError(RuntimeError):
+    """The quota DB could not be read or written; callers answer 503."""
+
+
 def quota_reset_at_iso(usage_date_utc: str) -> str:
     current_day = date.fromisoformat(usage_date_utc)
     next_day = current_day + timedelta(days=1)
@@ -95,9 +105,33 @@ def _utc_now_date_string() -> str:
     return datetime.now(UTC).date().isoformat()
 
 
+_PROCESS_HASH_KEY = secrets.token_bytes(32)
+_warned_process_hash_key = False
+
+
+def _subject_hash_key() -> bytes:
+    global _warned_process_hash_key
+    secret = (
+        api_config.PHENTRIEVE_LLM_QUOTA_PEPPER or api_config.PHENTRIEVE_AUTH_JWT_SECRET
+    )
+    if secret:
+        return secret.encode("utf-8")
+    if not _warned_process_hash_key:
+        _warned_process_hash_key = True
+        logger.warning(
+            "Neither PHENTRIEVE_LLM_QUOTA_PEPPER nor PHENTRIEVE_AUTH_JWT_SECRET is "
+            "set; using a random per-process key for LLM quota subject hashes. "
+            "Quota counts reset on restart and are not shared across workers."
+        )
+    return _PROCESS_HASH_KEY
+
+
 def hash_subject_key(subject_ip: str) -> str:
+    # Keyed HMAC: a plain SHA-256 of an IPv4 address is reversible by brute force.
     normalized_subject = subject_ip.strip()
-    return hashlib.sha256(normalized_subject.encode("utf-8")).hexdigest()
+    return hmac.new(
+        _subject_hash_key(), normalized_subject.encode("utf-8"), hashlib.sha256
+    ).hexdigest()
 
 
 def _parse_ip(
@@ -259,7 +293,7 @@ class DailyQuotaStore:
             success_count=success_count,
         )
 
-    def record_success(
+    def reserve(
         self,
         *,
         subject_key: str,
@@ -333,24 +367,17 @@ class DailyQuotaStore:
             success_count=success_count,
         )
 
-    def get_today_status(self, *, subject_key: str) -> QuotaStatus:
-        return self.get_status(
-            subject_key=subject_key,
-            usage_date_utc=_utc_now_date_string(),
-        )
-
-    def record_today_success(self, *, subject_key: str) -> QuotaStatus:
-        return self.record_success(
-            subject_key=subject_key,
-            usage_date_utc=_utc_now_date_string(),
-        )
-
-
-# --------------------------------------------------------------------------- #
-# Shared helpers for the REST router and the MCP adapter
-# --------------------------------------------------------------------------- #
-def is_production_environment() -> bool:
-    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
+    def release(self, *, subject_key: str, usage_date_utc: str) -> None:
+        with closing(self._connect()) as connection:
+            connection.execute(
+                """
+                UPDATE llm_daily_quota
+                SET success_count = MAX(success_count - 1, 0), updated_at = ?
+                WHERE subject_key = ? AND usage_date_utc = ?
+                """,
+                (datetime.now(UTC).isoformat(), subject_key, usage_date_utc),
+            )
+            connection.commit()
 
 
 def quota_enforced() -> bool:
@@ -364,37 +391,68 @@ def quota_enforced() -> bool:
         return True
     if override == "false":
         return False
-    return is_production_environment()
+    return api_config.PHENTRIEVE_ENV.strip().lower() == "production"
 
 
-def get_llm_quota_store(daily_limit: int) -> DailyQuotaStore:
+def anonymous_subject_key(request: Request) -> str | None:
+    """Hashed trusted client IP of an HTTP request, or None if untrusted."""
+    subject_ip = resolve_subject_ip(
+        client_host=request.client.host if request.client else None,
+        x_forwarded_for=request.headers.get("x-forwarded-for"),
+        trusted_proxy_cidrs=[
+            cidr.strip()
+            for cidr in api_config.PHENTRIEVE_TRUSTED_PROXY_CIDRS.split(",")
+            if cidr.strip()
+        ],
+    )
+    return hash_subject_key(subject_ip) if subject_ip is not None else None
+
+
+def _quota_store(daily_limit: int) -> DailyQuotaStore:
     return DailyQuotaStore(
         db_path=Path(api_config.PHENTRIEVE_LLM_QUOTA_DB_PATH),
         daily_limit=daily_limit,
     )
 
 
-def check_llm_quota(*, subject_key: str, daily_limit: int) -> QuotaStatus:
-    """Return today's quota status, raising ``QuotaExceededError`` when spent.
+_STORE_UNAVAILABLE_MESSAGE = (
+    "Unable to evaluate LLM quota state. Verify "
+    "PHENTRIEVE_LLM_QUOTA_DB_PATH and filesystem permissions."
+)
 
-    Store failures (e.g. an unwritable DB path) propagate unchanged so each
-    caller can map them to its own error contract.
-    """
-    quota_status = get_llm_quota_store(daily_limit).get_today_status(
-        subject_key=subject_key
-    )
-    if quota_status.quota_remaining <= 0:
-        raise QuotaExceededError(
-            quota_used=quota_status.quota_used,
-            quota_limit=quota_status.quota_limit,
-            quota_remaining=quota_status.quota_remaining,
-            usage_date_utc=quota_status.usage_date_utc,
+
+def read_llm_quota(*, subject_key: str, daily_limit: int) -> QuotaStatus:
+    """Today's quota status without consuming it."""
+    try:
+        return _quota_store(daily_limit).get_status(
+            subject_key=subject_key, usage_date_utc=_utc_now_date_string()
         )
-    return quota_status
+    except Exception as exc:  # noqa: BLE001
+        raise QuotaStoreUnavailableError(_STORE_UNAVAILABLE_MESSAGE) from exc
 
 
-def record_llm_quota_success(quota_status: QuotaStatus) -> QuotaStatus:
-    """Record one successful LLM request for the subject of ``quota_status``."""
-    return get_llm_quota_store(quota_status.quota_limit).record_today_success(
-        subject_key=quota_status.subject_key
-    )
+def reserve_llm_quota(*, subject_key: str, daily_limit: int) -> QuotaStatus:
+    """Atomically take one unit of today's quota before the LLM call.
+
+    Raises QuotaExceededError when exhausted, QuotaStoreUnavailableError when
+    the store fails. The returned status already counts this reservation.
+    """
+    try:
+        return _quota_store(daily_limit).reserve(
+            subject_key=subject_key, usage_date_utc=_utc_now_date_string()
+        )
+    except QuotaExceededError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise QuotaStoreUnavailableError(_STORE_UNAVAILABLE_MESSAGE) from exc
+
+
+def release_llm_quota(reservation: QuotaStatus) -> None:
+    """Give back a reservation whose LLM call failed before producing a result."""
+    try:
+        _quota_store(reservation.quota_limit).release(
+            subject_key=reservation.subject_key,
+            usage_date_utc=reservation.usage_date_utc,
+        )
+    except Exception:  # noqa: BLE001 - already on an error path; keep the original
+        logger.exception("Failed to release LLM quota reservation")

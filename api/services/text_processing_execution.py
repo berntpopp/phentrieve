@@ -1,9 +1,11 @@
+from collections.abc import Callable
 from typing import Any
 
+import anyio
 from fastapi.concurrency import run_in_threadpool
 
+from api.config import PHENTRIEVE_MAX_CONCURRENT_INFERENCE
 from api.dependencies import get_dense_retriever_dependency
-from api.inference_limits import INFERENCE_SLOTS
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -30,6 +32,21 @@ from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
 )
 from phentrieve.text_processing.full_text_service import run_full_text_service
+
+# anyio's Semaphore binds to the running loop lazily, so module level is safe.
+inference_slots = anyio.Semaphore(PHENTRIEVE_MAX_CONCURRENT_INFERENCE)
+
+
+async def _run_full_text_service_limited(**service_kwargs: Any) -> Any:
+    """Run the CPU-bound service in a thread, capped at N concurrent runs."""
+    async with inference_slots:
+        return await run_in_threadpool(run_full_text_service, **service_kwargs)
+
+
+async def run_inference_in_thread(fn: Callable[[], Any]) -> Any:
+    """Run a CPU-bound callable in a worker thread under the same cap (MCP path)."""
+    async with inference_slots:
+        return await anyio.to_thread.run_sync(fn)
 
 
 def _coerce_response_items(value: Any) -> list[Any]:
@@ -288,10 +305,7 @@ async def execute_standard_text_processing(
             cli_overrides=None,
         )
 
-    async with INFERENCE_SLOTS:
-        service_result = await run_in_threadpool(
-            run_full_text_service, **service_kwargs
-        )
+    service_result = await _run_full_text_service_limited(**service_kwargs)
     return adapt_shared_service_response_to_api(
         service_result,
         request=request,
@@ -334,10 +348,7 @@ async def execute_llm_text_processing(
         "sbert_model_for_semantic_chunking": retriever.model,
     }
 
-    async with INFERENCE_SLOTS:
-        service_result = await run_in_threadpool(
-            run_full_text_service, **service_kwargs
-        )
+    service_result = await _run_full_text_service_limited(**service_kwargs)
     return adapt_shared_service_response_to_api(service_result, request=request)
 
 

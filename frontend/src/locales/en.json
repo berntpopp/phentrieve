@@ -345,6 +345,7 @@
       "network": "Could not connect to the server. Please check your internet connection and try again.",
       "clientSide": "An error occurred while {context}.",
       "badRequest": "Your request was invalid. Please check the input and try again. (Status: {status})",
+      "validation": "The input was rejected. Check it and note the size limits: 50,000 characters for full text, 10,000 for a single query. (Status: {status})",
       "badRequestModel": "The model specified in your request is invalid or not supported. (Status: {status})",
       "unauthorized": "You are not authorized to perform this action. (Status: {status})",
       "forbidden": "You do not have permission to access this resource. (Status: {status})",
