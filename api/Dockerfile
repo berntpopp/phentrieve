@@ -160,9 +160,19 @@ ENV UV_PROJECT_ENVIRONMENT=$VIRTUAL_ENV \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1
 # --inexact keeps the venv's pip, which the data-bundle stage still uses.
+# The deployment is CPU-only: skip the locked CUDA torch, triton and nvidia-* wheels
+# (~4.6 GB) and install the CPU build of the same locked torch version instead.
+# ponytail: the CPU torch wheel is pinned by exact version over HTTPS, not by hash.
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --inexact --no-dev --no-install-project \
-        --extra api --extra mcp --extra llm
+    set -eu; \
+    EXTRAS="--extra api --extra mcp --extra llm"; \
+    REQS="$(uv export --frozen --no-dev --no-hashes --no-emit-project $EXTRAS)"; \
+    TORCH="$(printf '%s\n' "$REQS" | sed -nE 's/^torch==([^ ;]+).*/\1/p')"; \
+    SKIP="$(printf '%s\n' "$REQS" | sed -nE 's/^(torch|triton|nvidia-[a-z0-9-]+)==.*/--no-install-package \1/p')"; \
+    test -n "$TORCH"; \
+    uv sync --frozen --inexact --no-dev --no-install-project $SKIP $EXTRAS; \
+    uv pip install --python "$VIRTUAL_ENV/bin/python" --no-deps \
+        --index-url https://download.pytorch.org/whl/cpu "torch==${TORCH}+cpu"
 
 # ============================================================================
 # STAGE 3: Data Bundle - Download pre-built data OR build indexes from scratch
