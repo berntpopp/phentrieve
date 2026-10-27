@@ -92,6 +92,27 @@ together:
   identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
   to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
 
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
+
+### Removed
+
+- **Unused evaluation code** (#414). Deleted the unreferenced
+  `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
+  `hierarchical_matching`, `threshold_optimization`, `full_text_runner` and
+  `semantic_metrics` (with its tests), the unused `result_analyzer` dataframe
+  helpers, the `ExtractionReporter.plot_*` methods, and the dead helpers
+  `utils.get_index_dir`, `utils.load_german_translation_text`,
+  `config.get_sliding_window_config`,
+  `evaluation.runner.compare_models_with_statistics`,
+  `query_orchestrator._format_structured_results_to_text_display`,
+  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
+
 ## [0.28.4] — 2026-10-27 (CLI 0.28.4 / API 0.18.4 / Frontend 0.18.3)
 
 Security patch release: clears every open Dependabot and Trivy alert, makes the

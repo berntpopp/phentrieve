@@ -16,10 +16,6 @@ from phentrieve.utils import sanitize_log_value as _sanitize
 logger = logging.getLogger(__name__)
 
 
-class DatabaseNotFoundError(FileNotFoundError):
-    """Raised when HPO database file doesn't exist."""
-
-
 @lru_cache(maxsize=1)
 def get_shared_database(db_path_str: str) -> HPODatabase:
     """

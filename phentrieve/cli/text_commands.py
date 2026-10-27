@@ -104,6 +104,18 @@ def _stable_chunks_to_chunk_level_results(
     return chunk_level_results
 
 
+def _warn_deprecated_noop_options(options: dict[str, Any]) -> None:
+    """Warn on stderr for each deprecated no-op option that was passed."""
+    for flag, value in options.items():
+        if value is not None:
+            typer.secho(
+                f"Warning: {flag} is deprecated and has no effect; "
+                "it will be removed in a future release.",
+                fg=typer.colors.YELLOW,
+                err=True,
+            )
+
+
 # Create the Typer app for this command group
 app = typer.Typer()
 
@@ -469,21 +481,25 @@ def process_text_for_hpo_command(
             help="Write the annotation sidecar to this file when using phenopacket output.",
         ),
     ] = None,
+    # Deprecated no-op options (#414): hidden, kept so existing scripts don't
+    # break; passing any of them only emits a deprecation warning.
     cross_language_hpo_retrieval: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--cross-language-hpo-retrieval",
             "--xlhpo",
-            help="Use cross-language HPO term retrieval (if text is not in English)",
+            hidden=True,
+            help="Deprecated; has no effect.",
         ),
-    ] = True,
+    ] = None,
     use_cached_index: Annotated[
-        bool,
+        bool | None,
         typer.Option(
             "--use-cached-index",
-            help="Use cached HPO term index if available",
+            hidden=True,
+            help="Deprecated; has no effect.",
         ),
-    ] = True,
+    ] = None,
     debug: Annotated[
         bool,
         typer.Option("--debug", help="Enable debug logging"),
@@ -493,7 +509,8 @@ def process_text_for_hpo_command(
         typer.Option(
             "--chunk-confidence",
             "-cc",
-            help="Minimum confidence score for a term to be included in a chunk result",
+            hidden=True,
+            help="Deprecated; has no effect.",
         ),
     ] = None,
     aggregated_term_confidence: Annotated[
@@ -568,6 +585,13 @@ def process_text_for_hpo_command(
     start_time = time.time()
     setup_logging_cli(debug=debug)
     emit_research_use_notice()
+    _warn_deprecated_noop_options(
+        {
+            "--cross-language-hpo-retrieval": cross_language_hpo_retrieval,
+            "--use-cached-index": use_cached_index,
+            "--chunk-confidence": chunk_confidence,
+        }
+    )
 
     # Optional: print resolved configuration to stderr for debugging.
     import click as _click

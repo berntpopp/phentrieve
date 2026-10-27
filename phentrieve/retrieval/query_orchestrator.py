@@ -239,41 +239,6 @@ def format_results(
     }
 
 
-def _format_structured_results_to_text_display(results: dict[str, Any]) -> str:
-    """
-    Format structured results into a human-readable text string.
-
-    Args:
-        results: Structured results dictionary
-
-    Returns:
-        Formatted text string for display
-    """
-    output_lines = []
-
-    # Get the formatted results
-    header = results.get("header_info", "")
-    results_list = results.get("results", [])
-
-    # Add the header
-    if header:
-        output_lines.append(header)
-
-    # Format each result
-    for entry in results_list:
-        hpo_id = entry.get("hpo_id", "")
-        label = entry.get("label", "")
-        similarity = entry.get("similarity", 0.0)
-        similarity_str = f"{similarity:.2f}"
-        rank_display = f"{entry.get('rank', '?')}."
-
-        output_lines.append(
-            f"{rank_display:3} {hpo_id:11} {label} (similarity: {similarity_str})"
-        )
-
-    return "\n".join(output_lines)
-
-
 def process_query(
     text: str,
     retriever: DenseRetriever,
