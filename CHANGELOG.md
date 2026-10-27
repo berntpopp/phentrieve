@@ -48,6 +48,12 @@ together:
   and `aggregated_hpo_terms` only if still over budget, so a large secondary
   list no longer pushes the patient's own terms out of the response.
 
+- **Auth: passwords over 72 UTF-8 bytes are rejected with a 422** (#412).
+  Register and password-reset validation counted characters, so a 72-character
+  non-ASCII password passed and bcrypt then raised a 500. Password reset now
+  hashes the new password before consuming the single-use token, so a failure
+  no longer burns the reset link without changing the password.
+
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
   did not point into the document. The pipeline now locates `evidence_text`

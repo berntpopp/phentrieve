@@ -282,12 +282,15 @@ async def password_reset_request(body: EmailRequest) -> MessageResponse:
 @router.post("/password-reset/confirm", response_model=MessageResponse)
 async def password_reset_confirm(body: PasswordResetConfirm) -> MessageResponse:
     store = get_user_store()
+    # Hash before consuming the single-use token: if hashing fails, the link
+    # must stay usable rather than being burnt without changing the password.
+    new_password_hash = hash_password(body.new_password)
     user_id = store.consume_token(tokens.hash_token(body.token), purpose="reset")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token.",
         )
-    store.update_password(user_id, hash_password(body.new_password))
+    store.update_password(user_id, new_password_hash)
     store.revoke_all_for_user(user_id)
     return MessageResponse(message=_RESET_OK)

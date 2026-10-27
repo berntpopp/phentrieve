@@ -215,3 +215,78 @@ def test_password_reset_survives_email_send_failure(auth_client, monkeypatch, ca
     )
     assert r.status_code == 200
     assert "a@ex.com" in caplog.text
+
+
+# "ue"-umlaut x36 + "1" x36: 72 characters (passes max_length) but 108 UTF-8 bytes,
+# which bcrypt>=5 rejects with ValueError (#412).
+_LONG_UTF8_PASSWORD = "\u00fc" * 36 + "1" * 36
+
+
+def test_register_rejects_password_over_72_bytes(auth_client):
+    assert len(_LONG_UTF8_PASSWORD) == 72
+    assert len(_LONG_UTF8_PASSWORD.encode("utf-8")) > 72
+    r = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "long@ex.com", "password": _LONG_UTF8_PASSWORD},
+    )
+    assert r.status_code == 422
+    assert "72 bytes" in r.text
+
+
+def test_password_reset_confirm_rejects_password_over_72_bytes(auth_client, caplog):
+    token = _register(auth_client, caplog)
+    auth_client.post("/api/v1/auth/verify", json={"token": token})
+    auth_client.post("/api/v1/auth/password-reset/request", json={"email": "a@ex.com"})
+    reset_token = _link_token(caplog, "reset-password")
+
+    r = auth_client.post(
+        "/api/v1/auth/password-reset/confirm",
+        json={"token": reset_token, "new_password": _LONG_UTF8_PASSWORD},
+    )
+    assert r.status_code == 422
+    assert "72 bytes" in r.text
+
+    # The rejected request did not consume the token.
+    r = auth_client.post(
+        "/api/v1/auth/password-reset/confirm",
+        json={"token": reset_token, "new_password": "Br4ndNewPass"},
+    )
+    assert r.status_code == 200
+
+
+def test_password_reset_hash_failure_keeps_token_usable(
+    auth_client, monkeypatch, caplog
+):
+    """#412: the new password is hashed before the reset token is consumed."""
+    import api.auth.router as auth_router
+
+    token = _register(auth_client, caplog)
+    auth_client.post("/api/v1/auth/verify", json={"token": token})
+    auth_client.post("/api/v1/auth/password-reset/request", json={"email": "a@ex.com"})
+    reset_token = _link_token(caplog, "reset-password")
+
+    real_hash = auth_router.hash_password
+
+    def _boom(_password):
+        raise ValueError("password cannot be longer than 72 bytes")
+
+    monkeypatch.setattr(auth_router, "hash_password", _boom)
+    with pytest.raises(ValueError):
+        auth_client.post(
+            "/api/v1/auth/password-reset/confirm",
+            json={"token": reset_token, "new_password": "Br4ndNewPass"},
+        )
+
+    monkeypatch.setattr(auth_router, "hash_password", real_hash)
+    r = auth_client.post(
+        "/api/v1/auth/password-reset/confirm",
+        json={"token": reset_token, "new_password": "Br4ndNewPass"},
+    )
+    assert r.status_code == 200
+    assert (
+        auth_client.post(
+            "/api/v1/auth/login",
+            json={"email": "a@ex.com", "password": "Br4ndNewPass"},
+        ).status_code
+        == 200
+    )
