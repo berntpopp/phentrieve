@@ -18,6 +18,12 @@ together:
 
 ## [Unreleased]
 
+### Removed
+
+- **Unused `TwoPhaseLLMPipeline` helpers** (#414). Removed the
+  `_resolve_local_matches`, `_optional_float` and `_select_candidate_id`
+  wrappers, which had no callers; this completes the #414 dead-code cleanup.
+
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
 LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
@@ -288,9 +294,7 @@ Chroma query failures raise instead of returning empty results;
   `config.get_sliding_window_config`,
   `evaluation.runner.compare_models_with_statistics`,
   `query_orchestrator._format_structured_results_to_text_display`,
-  `llm.types.LLMTermsResult`, `details_enrichment.DatabaseNotFoundError`, and the
-  unused `TwoPhaseLLMPipeline._resolve_local_matches`, `_optional_float` and
-  `_select_candidate_id` wrappers.
+  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
 
 ### Deprecated
 
