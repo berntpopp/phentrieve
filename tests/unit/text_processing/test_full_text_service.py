@@ -12,6 +12,7 @@ from phentrieve.text_processing.full_text_service import (
     MAX_GROUNDED_PHASE1_INPUT_TOKENS,
     FullTextService,
     _adapt_llm_aggregated_terms,
+    _infer_text_attribution_offsets,
     adapt_standard_response,
     preprocess_grounded_document,
     run_llm_backend,
@@ -663,6 +664,137 @@ def test_llm_text_attributions_split_a_span_over_its_cited_chunks() -> None:
             "end_char": 31,
             "matched_text_in_chunk": "Patient had recurrent seizures.",
         },
+    ]
+
+
+def test_llm_text_attributions_skip_a_chunk_span_fallback() -> None:
+    # A chunk_span basis means the evidence was not found; the span is the whole
+    # chunk and must not be shown as an exact quote (#397).
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [2],
+                    "evidence_text": "repeated fits",
+                    "start_char": 7,
+                    "end_char": 38,
+                    "offset_basis": "chunk_span",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == []
+
+
+def test_llm_text_attributions_search_the_chunk_after_a_chunk_span_fallback() -> None:
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1, 2],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 0,
+                    "end_char": 6,
+                    "offset_basis": "chunk_span",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
+def test_inferred_attribution_offsets_survive_non_ascii_case_folding() -> None:
+    # "İ".lower() is two code points, which shifted offsets found in the
+    # lowered string (#411).
+    chunk_text = "İnfant with Seizures"
+
+    start, end = _infer_text_attribution_offsets(
+        chunk_text=chunk_text, matched_text="seizures"
+    )
+
+    assert (start, end) == (12, 20)
+    assert chunk_text[start:end] == "Seizures"
+
+
+def test_run_llm_backend_maps_other_person_offsets_into_cleaned_chunk_text(
+    mocker,
+):
+    # Chunk text has whitespace runs collapsed; without document_text the
+    # document span drifted by the removed whitespace (#394).
+    document = "Intro.\n\n   Her   roommate  has   hypothyroidism."
+    second = document.index("Her")
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Intro.", "start_char": 0, "end_char": 6},
+            {
+                "chunk_id": 2,
+                "text": "Her roommate has hypothyroidism.",
+                "start_char": second,
+                "end_char": len(document),
+            },
+        ],
+        extraction_groups=[],
+    )
+    evidence_start = document.index("hypothyroidism")
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        other_person_findings=[
+            LLMPhenotype(
+                term_id="HP:0000821",
+                label="Hypothyroidism",
+                evidence="hypothyroidism",
+                assertion="present",
+                experiencer="other",
+                evidence_records=[
+                    {
+                        "phrase": "hypothyroidism",
+                        "evidence_text": "hypothyroidism",
+                        "chunk_ids": [2],
+                        "start_char": evidence_start,
+                        "end_char": evidence_start + len("hypothyroidism"),
+                        "offset_basis": "evidence_in_chunk",
+                    }
+                ],
+            )
+        ],
+        meta=LLMMeta(llm_model="gpt-4o-mini", llm_mode="two_phase"),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=mocker.Mock(),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text=document, llm_model="gpt-4o-mini", llm_mode="two_phase"
+    )
+
+    assert result["other_person_findings"][0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 17,
+            "end_char": 31,
+            "matched_text_in_chunk": "hypothyroidism",
+        }
     ]
 
 
