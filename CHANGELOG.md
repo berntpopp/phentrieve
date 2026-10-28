@@ -18,6 +18,17 @@ together:
 
 ## [Unreleased]
 
+## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
+
+LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
+findings, temporality), evidence offsets computed in code, bounded and capped phase-1
+retries, REST LLM-error fallback, non-blocking `/query`, bundle integrity checks, and a
+batch of API, retrieval and frontend fixes from the 2026-10-27 review.
+
+Behaviour changes: `GET /api/v1/health/` returns `"status": "healthy"` (was `"ok"`);
+Chroma query failures raise instead of returning empty results;
+`PROMPT_BEHAVIOR_VERSION` is `5`, so earlier LLM benchmark checkpoints do not match.
+
 ### Changed
 
 - **The API LLM text path reuses the cached dense retriever** (#420) and its
@@ -289,16 +300,6 @@ together:
   `AdvancedOptionsPanel.vue` now takes its prop defaults from
   `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
 
-### Deprecated
-
-- **No-op `phentrieve text process` options** (#414).
-  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
-  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
-  `--help` and print a deprecation warning when passed; they will be removed in
-  a future release.
-
-### Removed
-
 - **Unused evaluation code** (#414). Deleted the unreferenced
   `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
   `hierarchical_matching`, `threshold_optimization`, `full_text_runner` and
@@ -309,6 +310,14 @@ together:
   `evaluation.runner.compare_models_with_statistics`,
   `query_orchestrator._format_structured_results_to_text_display`,
   `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
+
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
 
 ## [0.29.1] — 2026-10-28 (CLI 0.29.1 / API 0.19.0 / Frontend 0.19.1)
 
