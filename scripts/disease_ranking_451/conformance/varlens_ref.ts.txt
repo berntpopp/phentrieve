@@ -1,0 +1,46 @@
+// Throwaway: expected VarLens v2 scores for reference profiles (not committed anywhere).
+import { readFileSync, writeFileSync } from 'node:fs'
+import { loadPhenotypeIndex } from '/home/bernt-popp/development/VarLens/src/main/services/phenotype/hpo-similarity-db'
+import { scoreCase } from '/home/bernt-popp/development/VarLens/src/shared/phenotype/phenotype-score'
+import { jsonFiles, parsePhenopacket } from '/home/bernt-popp/development/VarLens/scripts/shortlist-sim/phenotype/phenopackets'
+
+const [db, ppDir, out] = process.argv.slice(2)
+const ix = loadPhenotypeIndex(db)!
+const files = [...jsonFiles(ppDir)].sort()
+const dIndex = new Map(ix.diseaseIds.map((d, i) => [d, i]))
+const genes = [...ix.genes.keys()]
+// Universe: gene-linked diseases only (locus-only diseases are indexed but never gene-linked).
+const linked = new Set(ix.geneDiseases)
+const rankOf = (s: Float64Array, i: number) => {
+  let gt = 0, eq = 0
+  s.forEach((v) => { if (v > s[i]) gt++; else if (v === s[i]) eq++ })
+  return gt + (eq + 1) / 2
+}
+const top = (s: Float64Array, ids: readonly string[], n: number) =>
+  [...s.keys()].sort((a, b) => s[b] - s[a] || (ids[a] < ids[b] ? -1 : 1)).slice(0, n).map((i) => [ids[i], s[i]])
+const profiles = []
+for (let i = 0; profiles.length < 30 && i < files.length; i += 97) {
+  const c = parsePhenopacket(JSON.parse(readFileSync(files[i], 'utf8')))
+  if (c === null) continue
+  const d = c.diseases.find((x) => dIndex.has(x) && linked.has(dIndex.get(x)!))
+  if (d === undefined) continue
+  const keyed = profiles.length >= 25 // last 5 mark the first two observed terms key (weight 2)
+  const terms = [
+    ...c.observed.map((t, j) => ({ hpoId: t, excluded: false, key: keyed && j < 2 })),
+    ...c.excluded.map((t) => ({ hpoId: t, excluded: true, key: false }))
+  ]
+  const cs = scoreCase(ix, terms)
+  if (cs === null) continue
+  const di = dIndex.get(d)!
+  const g = ix.genes.get(c.gene)
+  profiles.push({
+    id: c.id, terms, disease: d, gene: c.gene,
+    disease_score: cs.diseaseScore[di], disease_rank: rankOf(cs.diseaseScore.map((v, j) => (linked.has(j) ? v : -1)), di),
+    gene_score: g === undefined ? null : cs.geneScore[g],
+    gene_rank: g === undefined ? null : rankOf(cs.geneScore, g),
+    top_diseases: top(cs.diseaseScore.map((v, j) => (linked.has(j) ? v : -1)), ix.diseaseIds, 50),
+    top_genes: top(cs.geneScore, genes, 20)
+  })
+}
+writeFileSync(out, JSON.stringify({ n_diseases: linked.size, n_genes: genes.length, profiles }, null, 1))
+console.log(`wrote ${profiles.length} profiles; diseases ${ix.diseaseIds.length}, genes ${genes.length}`)

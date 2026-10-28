@@ -1834,3 +1834,23 @@ def test_build_grounded_chunks_uses_supplied_semantic_model(mocker) -> None:
         pipeline_cls.call_args.kwargs["sbert_model_for_semantic_chunking"]
         is sbert_model
     )
+
+
+def test_cancelled_run_starts_no_further_llm_calls() -> None:
+    from phentrieve.text_processing.full_text_service import (
+        LLMCancelToken,
+        LLMRequestCancelledError,
+        _stop_when_cancelled,
+    )
+
+    calls: list[str] = []
+    cancel_event = LLMCancelToken()
+    guarded = _stop_when_cancelled(lambda prompt: calls.append(prompt), cancel_event)
+
+    guarded("phase1")
+    cancel_event.set()
+    with pytest.raises(LLMRequestCancelledError):
+        guarded("phase2")
+
+    assert calls == ["phase1"]
+    assert cancel_event.llm_calls_started == 1

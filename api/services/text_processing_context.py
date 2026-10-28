@@ -91,24 +91,30 @@ def get_chunking_config_for_api(
     )
 
 
+async def resolve_text_language(request: TextProcessingRequest) -> str:
+    """Return the requested language, auto-detecting it when absent or 'auto'."""
+    if request.language and request.language.lower() != "auto":
+        return request.language
+    try:
+        detected = await run_in_threadpool(
+            detect_language, request.text, default_lang=DEFAULT_LANGUAGE
+        )
+        logger.info("API: Auto-detected language: %s", _sanitize(detected))
+        return str(detected)
+    except Exception as lang_e:  # noqa: BLE001
+        logger.warning(
+            "API: Language detection failed: %s. Defaulting to %s.",
+            _sanitize(lang_e),
+            DEFAULT_LANGUAGE,
+        )
+        return str(DEFAULT_LANGUAGE)
+
+
 async def prepare_standard_text_processing_context(
     request: TextProcessingRequest,
 ) -> dict[str, Any]:
     """Prepare standard-backend dependencies and config for text processing."""
-    actual_language = request.language
-    if not actual_language or actual_language.lower() == "auto":
-        try:
-            actual_language = await run_in_threadpool(
-                detect_language, request.text, default_lang=DEFAULT_LANGUAGE
-            )
-            logger.info("API: Auto-detected language: %s", _sanitize(actual_language))
-        except Exception as lang_e:  # noqa: BLE001
-            logger.warning(
-                "API: Language detection failed: %s. Defaulting to %s.",
-                _sanitize(lang_e),
-                DEFAULT_LANGUAGE,
-            )
-            actual_language = DEFAULT_LANGUAGE
+    actual_language = await resolve_text_language(request)
 
     retrieval_model_name_to_load = validate_model_name(
         "retrieval_model_name", request.retrieval_model_name

@@ -52,9 +52,7 @@ function handleResetAll() {
           <v-tooltip
             activator="parent"
             location="top"
-            :content-props="{
-              'aria-label': t('conversationSettings.tooltip', 'Conversation Settings'),
-            }"
+            :aria-label="t('conversationSettings.tooltip', 'Conversation Settings')"
           >
             {{ t('conversationSettings.tooltip', 'Conversation Settings') }}
           </v-tooltip>

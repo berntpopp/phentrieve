@@ -49,36 +49,27 @@
 
         <!-- FAQ Categories -->
         <v-card variant="outlined" role="region" aria-label="FAQ Categories">
-          <v-expansion-panels variant="accordion" role="tablist">
+          <v-expansion-panels variant="accordion">
             <v-expansion-panel
               v-for="category in filteredCategories"
               :key="category.id"
               class="faq-panel"
-              role="tab"
-              :aria-label="category.title + ' category'"
             >
               <v-expansion-panel-title class="text-subtitle-1 text-primary-darken-1">
                 {{ t(`faq.categories.${category.id}.title`) }}
               </v-expansion-panel-title>
-              <v-expansion-panel-text role="tabpanel">
+              <v-expansion-panel-text>
                 <v-expansion-panels variant="accordion">
-                  <v-expansion-panel
-                    v-for="(qa, index) in category.questions"
-                    :key="index"
-                    role="listitem"
-                    :aria-label="'Question: ' + qa.question"
-                  >
+                  <v-expansion-panel v-for="(qa, index) in category.questions" :key="index">
                     <v-expansion-panel-title class="text-body-1">
                       {{ t(`faq.categories.${category.id}.questions.${qa.id}.question`) }}
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                       <div
                         class="answer-content text-body-1"
-                        role="region"
-                        :aria-label="'Answer to: ' + qa.question"
                         :style="{
-                          color: 'rgba(0, 0, 0, 0.87)',
-                          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                          color: 'rgba(var(--v-theme-on-surface), 0.87)',
+                          backgroundColor: 'rgba(var(--v-theme-on-surface), 0.02)',
                           padding: '16px 20px',
                           lineHeight: '1.6',
                           borderRadius: '4px',
@@ -189,7 +180,7 @@ export default {
   margin-top: 1em;
   margin-bottom: 0.5em;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.9);
+  color: rgba(var(--v-theme-on-surface), 0.9);
 }
 
 .answer-content :deep(ul),
@@ -207,7 +198,7 @@ export default {
 }
 
 .answer-content :deep(code) {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(var(--v-theme-on-surface), 0.05);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: monospace;
@@ -231,7 +222,7 @@ export default {
 
 .answer-content :deep(strong) {
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.95);
+  color: rgba(var(--v-theme-on-surface), 0.95);
 }
 
 /* FAQ panel styling */
@@ -247,7 +238,7 @@ export default {
 }
 
 :deep(.v-expansion-panel-title:hover) {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
 }
 
 :deep(.v-expansion-panel-text__wrapper) {

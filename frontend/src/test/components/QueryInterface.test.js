@@ -130,6 +130,16 @@ describe('QueryInterface (characterization)', () => {
     expect(wrapper.vm.queryText).toBe('');
   });
 
+  it('defaults query language to auto-detect instead of the UI locale', async () => {
+    i18n.global.locale.value = 'de';
+    try {
+      const wrapper = await mountQueryInterface();
+      expect(wrapper.vm.selectedLanguage).toBeNull();
+    } finally {
+      i18n.global.locale.value = 'en';
+    }
+  });
+
   it('initializes with loading false', async () => {
     const wrapper = await mountQueryInterface();
     expect(wrapper.vm.isLoading).toBe(false);
@@ -151,7 +161,7 @@ describe('QueryInterface (characterization)', () => {
   it('renders the closed input for the forced processing mode', async () => {
     const wrapper = await mountQueryInterface();
     const queryModeLabel = 'Phenotype query';
-    const documentModeLabel = 'Clinical note';
+    const documentModeLabel = 'Research note';
 
     await setVmState(wrapper, { forceEndpointMode: 'query' });
 
@@ -375,9 +385,53 @@ describe('QueryInterface (characterization)', () => {
         language: 'de',
         similarity_threshold: 0.65,
         include_details: wrapper.vm.includeDetails,
-      })
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
     expect(wrapper.vm.queryText).toBe('');
+  });
+
+  it('cancelling a running request restores the note without an error turn', async () => {
+    PhentrieveService.processText.mockImplementationOnce(
+      (_payload, { signal }) =>
+        new Promise((_resolve, reject) =>
+          signal.addEventListener('abort', () => reject({ type: 'CANCELED' }))
+        )
+    );
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+    await setVmState(wrapper, {
+      queryText: 'Patient had recurrent seizures.',
+      forceEndpointMode: 'textProcess',
+      selectedModel: 'test-model',
+    });
+    const historyLength = wrapper.vm.conversationStore.queryHistory.length;
+
+    const pending = wrapper.vm.submitQuery();
+    await flushPromises();
+    expect(wrapper.vm.queryText).toBe('');
+    wrapper.vm.queryInterfaceController.cancelQuery();
+    await pending;
+
+    expect(wrapper.vm.queryText).toBe('Patient had recurrent seizures.');
+    expect(wrapper.vm.isLoading).toBe(false);
+    expect(wrapper.vm.conversationStore.queryHistory).toHaveLength(historyLength);
+  });
+
+  it('restores the submitted note into the input when processing fails', async () => {
+    PhentrieveService.processText.mockRejectedValueOnce(new Error('503 LLM unavailable'));
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    await setVmState(wrapper, {
+      queryText: 'Patient had recurrent seizures.',
+      forceEndpointMode: 'textProcess',
+      selectedModel: 'test-model',
+    });
+
+    await wrapper.vm.submitQuery();
+
+    expect(wrapper.vm.queryText).toBe('Patient had recurrent seizures.');
   });
 
   it('submits text-process requests through processText with controller-managed options', async () => {
@@ -413,9 +467,23 @@ describe('QueryInterface (characterization)', () => {
         semanticModelForChunking: 'test-model',
         retrievalModelForTextProcess: 'test-model',
         includeDetails: wrapper.vm.includeDetails,
-      })
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
     expect(PhentrieveService.processText.mock.calls[0][0]).not.toHaveProperty('trustRemoteCode');
+  });
+
+  it('does not reopen the collection drawer over the results after the first add', async () => {
+    const wrapper = await mountQueryInterface();
+    await flushPromises();
+
+    wrapper.vm.handleAddToCollection({ hpo_id: 'HP:0001250', label: 'Seizure' });
+    wrapper.vm.conversationStore.showCollectionPanel = false;
+    wrapper.vm.handleAddToCollection({ hpo_id: 'HP:0004322', label: 'Short stature' });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.conversationStore.showCollectionPanel).toBe(false);
+    expect(wrapper.vm.conversationStore.collectedPhenotypes).toHaveLength(2);
   });
 
   it('adds a phenotype from a collection action payload and opens the collection panel', async () => {
@@ -747,6 +815,7 @@ describe('QueryInterface (characterization)', () => {
     await wrapper.vm.$nextTick();
 
     await wrapper.get('[data-testid="full-text-response-add-all"]').trigger('click');
+    await wrapper.get('[data-testid="full-text-response-add-all"]').trigger('click');
 
     expect(wrapper.vm.conversationStore.showCollectionPanel).toBe(true);
     expect(wrapper.vm.conversationStore.collectedPhenotypes).toEqual(
@@ -776,7 +845,7 @@ describe('QueryInterface (characterization)', () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find('[data-testid="user-note-summary"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="user-note-summary"]').text()).toContain('Clinical note');
+    expect(wrapper.find('[data-testid="user-note-summary"]').text()).toContain('Research note');
     expect(wrapper.find('[data-testid="user-note-summary"]').text()).not.toContain(longNote);
   });
 
@@ -1226,7 +1295,8 @@ describe('QueryInterface (characterization)', () => {
     expect(PhentrieveService.queryHpo).toHaveBeenCalledWith(
       expect.objectContaining({
         text: expect.stringContaining('[REDACTED_MRN]'),
-      })
+      }),
+      expect.anything()
     );
     expect(wrapper.vm.conversationStore.queryHistory[0]).toMatchObject({
       query: '[redacted]',

@@ -205,6 +205,7 @@ defineExpose({ chunkPanelRefs, flashChunkText, openChunkPanels });
   border-radius: 3px;
   padding: 0.5px 2px;
   box-shadow: 0 0 3px rgba(255, 210, 50, 0.5);
+  color: rgba(0, 0, 0, 0.87); /* fixed light highlight: keep dark text in dark mode */
 }
 
 .flash-highlight {

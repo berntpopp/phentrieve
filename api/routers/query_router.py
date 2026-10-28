@@ -218,7 +218,9 @@ async def run_hpo_query(
     query_results_dict = await run_in_threadpool(
         execute_hpo_retrieval_for_api,
         text=request.text,
-        language=language_to_use,
+        # Raw request language: None lets assertion detection try all languages,
+        # since detection on short queries is unreliable.
+        language=request.language,
         retriever=retriever,
         num_results=request.num_results,
         similarity_threshold=request.similarity_threshold,

@@ -44,11 +44,11 @@
                 <v-tooltip
                   activator="parent"
                   location="top"
-                  :content-props="{
-                    'aria-label': expandedTerms.has(term.hpo_id)
+                  :aria-label="
+                    expandedTerms.has(term.hpo_id)
                       ? $t('resultsDisplay.hideDetails', 'Hide details')
-                      : $t('resultsDisplay.showDetails', 'Show details'),
-                  }"
+                      : $t('resultsDisplay.showDetails', 'Show details')
+                  "
                 >
                   {{
                     expandedTerms.has(term.hpo_id)
@@ -120,12 +120,12 @@
                 <v-tooltip
                   activator="parent"
                   location="top"
-                  :content-props="{
-                    'aria-label': $t(
+                  :aria-label="
+                    $t(
                       'resultsDisplay.textProcess.evidenceTooltip',
                       'Source chunks. Click to see top evidence chunk.'
-                    ),
-                  }"
+                    )
+                  "
                 >
                   {{
                     $t(
@@ -147,12 +147,12 @@
                 <v-tooltip
                   activator="parent"
                   location="top"
-                  :content-props="{
-                    'aria-label': $t(
+                  :aria-label="
+                    $t(
                       'resultsDisplay.textProcess.evidenceCountTooltip',
                       'Number of chunks providing evidence'
-                    ),
-                  }"
+                    )
+                  "
                 >
                   {{
                     $t(
@@ -328,15 +328,15 @@ function assertionStatusLabel(status) {
 }
 
 .details-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  background-color: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
   padding: 8px 12px;
   border-radius: 4px;
 }
 
 .definition-text {
   line-height: 1.6;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgba(var(--v-theme-on-surface), 0.87);
 }
 
 .synonym-chip {

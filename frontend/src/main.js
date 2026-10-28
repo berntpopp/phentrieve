@@ -14,7 +14,6 @@ import { logService } from './services/logService';
 
 // Vuetify (tree-shaken via plugin - only used components imported)
 import 'vuetify/styles';
-import '@mdi/font/css/materialdesignicons.css';
 import vuetify from './plugins/vuetify';
 
 const app = createApp(App);

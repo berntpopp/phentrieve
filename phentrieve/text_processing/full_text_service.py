@@ -10,6 +10,7 @@ import inspect
 import logging
 import os
 import re
+import threading
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from typing import Any
@@ -861,6 +862,11 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         llm_base_url=llm_base_url,
     )
     provider = provider_factory(**provider_factory_kwargs)
+    cancel_event = kwargs.get("cancel_event")
+    if cancel_event is not None:
+        provider.run_structured_prompt = _stop_when_cancelled(  # type: ignore[method-assign]
+            provider.run_structured_prompt, cancel_event
+        )
     extraction_prompt = get_prompt(
         AnnotationMode.TWO_PHASE,
         kwargs.get("language") or DEFAULT_LANGUAGE,
@@ -1156,6 +1162,33 @@ _DEFAULT_FULL_TEXT_SERVICE = FullTextService(
     standard_backend=run_standard_backend,
     llm_backend=run_llm_backend,
 )
+
+
+class LLMRequestCancelledError(RuntimeError):
+    """The caller went away; remaining paid LLM calls are skipped."""
+
+
+class LLMCancelToken(threading.Event):
+    """Set when the caller goes away; counts the paid LLM calls already started."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.llm_calls_started = 0
+
+
+def _stop_when_cancelled(
+    call: Callable[..., Any], cancel_event: LLMCancelToken
+) -> Callable[..., Any]:
+    """Wrap a provider call so no new LLM request starts after cancellation."""
+
+    def guarded(*args: Any, **kwargs: Any) -> Any:
+        if cancel_event.is_set():
+            raise LLMRequestCancelledError("LLM request cancelled by caller")
+        # ponytail: unlocked += from parallel phase-1 threads may undercount; only > 0 matters
+        cancel_event.llm_calls_started += 1
+        return call(*args, **kwargs)
+
+    return guarded
 
 
 def run_full_text_service(
