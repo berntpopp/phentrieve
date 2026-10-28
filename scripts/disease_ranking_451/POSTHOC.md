@@ -2,7 +2,7 @@
 
 Everything here was done after the registered test run. The LLM step that reorders the
 scorer's candidate list is called "reorder" in code and file names; the repository's policy
-test (`tests/unit/test_reranker_removed.py`) reserves the other name for a removed feature. None of it changes the registered
+test for a removed second-stage ranking feature bans the more common name. None of it changes the registered
 decision (`REPORT.md`, `PROTOCOL.md`). Research use only.
 
 All numbers are on non-cited test cases (n = 289 per language) unless marked "dev". Intervals
