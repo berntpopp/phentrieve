@@ -49,6 +49,15 @@ DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS = 65536
 DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS = 2048
 DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS = 1024
 DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK = 256
+# A grouped_small group (the last fallback level) that still truncates at the
+# scaled budget is retried ONCE at the old fixed ceiling before it is given up,
+# so a legitimately dense group survives while runaways stay bounded.
+DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS = (
+    DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+)
+# At most this many ceiling retries per phase-1 request, so a model that runs
+# away in every group of a long note cannot cost N x 65,536 output tokens.
+DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES = 2
 DEFAULT_PHASE1_MAX_PHENOTYPES = 128
 DEFAULT_SIMILARITY_THRESHOLD = 0.35
 DEFAULT_MIN_UNIQUE_CANDIDATES = 5
