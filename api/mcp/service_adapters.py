@@ -398,7 +398,14 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
-        assertion_status="negated" if is_excluded(assertion) else "affirmed",
+        # The extractor's ``excluded`` flag is authoritative; the assertion
+        # string is checked too so negation synonyms are never exported as
+        # present (#407).
+        assertion_status=(
+            "negated"
+            if p.get("excluded") is True or is_excluded(assertion)
+            else "affirmed"
+        ),
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
         match_method=match_method,

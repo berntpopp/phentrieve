@@ -37,6 +37,17 @@ together:
 
 ### Fixed
 
+- **Phenopacket export honours every negation synonym and `excluded: true`**
+  (#407). `denied`, `no`, `negative` and `excluded` now export as excluded
+  features (they previously normalized to `unknown`, i.e. present); an explicit
+  `excluded: true` wins over any `status`/`assertion` string; and the MCP
+  export reads the extractor's `excluded` flag.
+
+- **MCP response budget keeps the patient's findings** (#396). The extract
+  tools now trim `other_person_findings` first, then `family_history_findings`,
+  and `aggregated_hpo_terms` only if still over budget, so a large secondary
+  list no longer pushes the patient's own terms out of the response.
+
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
   did not point into the document. The pipeline now locates `evidence_text`
