@@ -12,11 +12,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
-from api.routers.text_processing_router import (
-    _process_text_internal,
-    process_text_extract_hpo,
-)
+from api.routers.text_processing_router import process_text_extract_hpo
 from api.schemas.text_processing_schemas import TextProcessingRequest
+from api.services.text_processing_execution import process_text_via_shared_service
 from phentrieve.config import DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
@@ -46,7 +44,7 @@ class TestAdaptiveTimeout:
 
         # Mock the internal processing to verify timeout value
         with patch(
-            "api.routers.text_processing_router._process_text_internal"
+            "api.services.text_processing_execution.process_text_via_shared_service"
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
@@ -70,7 +68,7 @@ class TestAdaptiveTimeout:
         )
 
         with patch(
-            "api.routers.text_processing_router._process_text_internal"
+            "api.services.text_processing_execution.process_text_via_shared_service"
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
@@ -93,7 +91,7 @@ class TestAdaptiveTimeout:
         )
 
         with patch(
-            "api.routers.text_processing_router._process_text_internal"
+            "api.services.text_processing_execution.process_text_via_shared_service"
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
@@ -116,7 +114,7 @@ class TestAdaptiveTimeout:
         )
 
         with patch(
-            "api.routers.text_processing_router._process_text_internal"
+            "api.services.text_processing_execution.process_text_via_shared_service"
         ) as mock_internal:
             mock_internal.return_value = {"test": "result"}
 
@@ -235,7 +233,7 @@ class TestModelCaching:
                         mock_pipeline.sbert_model = MagicMock()
                         mock_pipeline_cls.return_value = mock_pipeline
 
-                        await _process_text_internal(request)
+                        await process_text_via_shared_service(request)
 
                         # Verify cached dependency was called
                         mock_get_model.assert_called()
@@ -275,7 +273,7 @@ class TestModelCaching:
                         mock_pipeline.sbert_model = MagicMock()
                         mock_pipeline_cls.return_value = mock_pipeline
 
-                        await _process_text_internal(request)
+                        await process_text_via_shared_service(request)
 
                         # Verify cached retriever was requested
                         mock_get_retriever.assert_called_once()
@@ -322,7 +320,7 @@ class TestModelReuse:
                         mock_pipeline.sbert_model = MagicMock()
                         mock_pipeline_cls.return_value = mock_pipeline
 
-                        await _process_text_internal(request)
+                        await process_text_via_shared_service(request)
 
                         # Should call get_sbert_model_dependency at least once
                         # (may be called twice: once for retrieval check, once for actual use)
