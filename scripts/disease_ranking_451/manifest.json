@@ -1,0 +1,63 @@
+{
+ "issue": "berntpopp/phentrieve#451",
+ "releases": {
+  "hpo": "v2026-09-01",
+  "phentrieve_data": "berntpopp/phentrieve-data hpo-v2026-09-01-r1 (biolord-multivec)",
+  "phenopacket_store": "0.1.27",
+  "hpo_translations": "obophenotype/hpo-translations@735ab350d1b1f8ea9e8833f6505c8c973df4280b",
+  "rarebench": "huggingface chenxz/RareBench@6f054e04071953ef2c1779b279074245f2ab398c"
+ },
+ "code": {
+  "phentrieve_commit": "8db60d13de3f183c9485836e68418adf86ff86dc",
+  "phentrieve_library_base": "main@02f8fea (library code unchanged)",
+  "varlens_commit_reference": "779a6d256f2e573ee20f84152d33e83f1433f91f",
+  "varlens_hpo_db_builder_version": 6
+ },
+ "generator": {
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "version": "3.7-flash-08-2026",
+  "temperature": 0.0,
+  "seed": "451 + attempt"
+ },
+ "packages": {
+  "phentrieve": "0.29.1",
+  "numpy": "2.4.4",
+  "scipy": "1.17.1",
+  "chromadb": "1.5.9",
+  "sentence-transformers": "6.0.1",
+  "google-genai": "1.73.1"
+ },
+ "python": "3.13.6",
+ "inputs_sha256": {
+  "hpo-v2026-09-01": {
+   "genes_to_disease.txt": "7937a1b92779dc8614e39ace623b443c7c71dd15e4de11d5e52b14e331ab5978",
+   "genes_to_phenotype.txt": "507a17bff9c49e6329fbd88b1f91734fa7e9fdea5c06304044c0892eb6ab248c",
+   "hp.json": "a7b3a012e7b4007a35a7cf8da35f2373b54cc16907f80d13d62470d31f833501",
+   "phenotype.hpoa": "e89aa39c8f97bf5a52c5d160f9250a603681d630ade8ec2679d84ac5aece1f72"
+  },
+  "phentrieve-data-v2026-09-01": {
+   "SHA256SUMS": "2289a6df4192862e7b66c4ce8fb06ad79c8d9935fdb0f1dc9c7724255b733d43",
+   "phentrieve-data-v2026-09-01-biolord-multivec.tar.gz": "3cb5d60a4726337cbfe91a5803822047ab31b1caee0a24248a3057a00f5fabe8",
+   "release-manifest.json": "4beeccaf0fb678bdbe677966cfb18a5ff16efe320ab66d100054e99eb4d6262b",
+   "verification-report.json": "1dd061a79aeacc66db84f19f81915d1d68ac20284fce57b4b7ffbe7fe2659708"
+  },
+  "phenopacket-store-0.1.27": {
+   "all_phenopackets.zip": "d0c70005bb09b87035087516252b6b539fbc0415be7c664b73c9cde7eedf205a"
+  },
+  "hpo-translations-735ab35": {
+   "hp-de.babelon.tsv": "f7926d08e383a645bd4dc824df1d6b74325892363cfdeadd60a361886c16245b",
+   "hp-de.synonyms.tsv": "0f316fc4a65f4d3c49f3ade53715beb071ee2dd7836a5ec4cee641e1ba91e83e"
+  },
+  "rarebench-6f054e0": {
+   "data.zip": "458ebbbd7b8f2975aa9c3a1773e9c1fb103563a291775b6fd5e979375ed1ab3c"
+  }
+ },
+ "derived_sha256": {
+  "cases.jsonl": "058b76ed810871dfa69b1bbf95a7e3428347c25b7ee80c66ac908887a51786f5",
+  "letters/": "cbf761b4fb4f538df599a5a029d28b2a3b6bbd3dae15c802fb3dd688bf12572a",
+  "results/extractions_de.jsonl": "31894a9fcb8631dd9ac667fd45b7b3767aceeebcdea69c17a414f56fc234555a",
+  "results/extractions_en.jsonl": "67c9f9b5c7767f31328b2552e16aafd1c2ff343b3c739231127c044e5779a9b6",
+  "conformance/varlens_reference.json": "5e2a7bd2d815312ddb2f0a4989eb6b9d81aefa63b1b726e3f1a1fb48f36e9163"
+ }
+}
