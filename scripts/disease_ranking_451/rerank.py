@@ -35,6 +35,9 @@ from analysis import LANGS, RESULTS, load_jsonl  # noqa: E402
 from phentrieve.llm.providers.gemini import GeminiStructuredOutputProvider  # noqa: E402
 
 SEED, N_PHENO = 451, 10
+EXTRACT_TAG = __import__("os").environ.get(
+    "EXTRACT_TAG", ""
+)  # which LLM extraction run
 TOP_N = int(__import__("os").environ.get("RERANK_TOP_N", "20"))  # candidate pool size
 
 
@@ -416,10 +419,13 @@ def main(hpo_dir: Path, split: str, model: str) -> None:
         cases = [c for c in cases if c["split"] == split]
     for lang in LANGS:
         ext = {
-            e["case"]: e for e in load_jsonl(RESULTS / f"extractions_{lang}_llm.jsonl")
+            e["case"]: e
+            for e in load_jsonl(RESULTS / f"extractions_{lang}_llm{EXTRACT_TAG}.jsonl")
         }
-        suffix = ("" if PROMPT == "v1" else f"_{PROMPT}") + (
-            f"_p{PASSES}" if PASSES > 1 else ""
+        suffix = (
+            EXTRACT_TAG
+            + ("" if PROMPT == "v1" else f"_{PROMPT}")
+            + (f"_p{PASSES}" if PASSES > 1 else "")
         )
         out_path = RESULTS / f"rerank_{model}_top{TOP_N}{suffix}_{lang}.jsonl"
         done = {r["case"] for r in load_jsonl(out_path)} if out_path.exists() else set()

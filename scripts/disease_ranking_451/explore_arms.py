@@ -4,6 +4,7 @@
 
 - top_term: `--top-term-per-chunk`, affirmed aggregated terms (extract.py --top-term-per-chunk)
 - llm: LLM full-text backend, terms with status `present` and not excluded (extract_llm.py)
+- llm_negfix: the same with the grounded-negation fix of PR #453 (EXTRACT_TAG=_negfix)
 
 Per language and split: Hit@10 and median rank of every arm, the exploratory arms' Hit@10
 differences to gold / default / soft and ratio to gold (PMID-clustered bootstrap), and term
@@ -36,6 +37,8 @@ HERE = Path(__file__).resolve().parent
 EXTRA = {
     "top_term": ("_top_term", lambda t: t[1] == "affirmed"),
     "llm": ("_llm", lambda t: t[1] == "present" and not t[2]),
+    # LLM backend with the grounded negation fix (PR #453)
+    "llm_negfix": ("_llm_negfix", lambda t: t[1] == "present" and not t[2]),
 }
 
 

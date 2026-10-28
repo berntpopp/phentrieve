@@ -23,7 +23,10 @@ HERE = Path(__file__).resolve().parent
 
 
 def main(lang: str, limit: int | None = None) -> None:
-    out_path = HERE / "results" / f"extractions_{lang}_llm.jsonl"
+    tag = __import__("os").environ.get(
+        "EXTRACT_TAG", ""
+    )  # e.g. "_negfix" for PR #453 code
+    out_path = HERE / "results" / f"extractions_{lang}_llm{tag}.jsonl"
     done = set()
     if out_path.exists():
         done = {
@@ -50,6 +53,11 @@ def main(lang: str, limit: int | None = None) -> None:
                 "FAILED", letter["case"], type(exc).__name__, str(exc)[:200], flush=True
             )
             return
+        if not res[
+            "aggregated_hpo_terms"
+        ]:  # retrieval glitch (ChromaDB race): retry next run
+            print("FAILED", letter["case"], "no terms", flush=True)
+            return
         meta = res.get("meta", {})
         record = {
             "case": letter["case"],
@@ -65,8 +73,12 @@ def main(lang: str, limit: int | None = None) -> None:
         with lock, out_path.open("a", encoding="utf-8") as out:
             out.write(json.dumps(record) + "\n")
 
+    if (
+        todo
+    ):  # one call first, so the index client is initialised before threads share it
+        run(todo[0])
     with ThreadPoolExecutor(max_workers=6) as pool:
-        list(pool.map(run, todo))
+        list(pool.map(run, todo[1:]))
 
 
 if __name__ == "__main__":
