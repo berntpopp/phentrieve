@@ -24,8 +24,14 @@ system_prompt: |
   2. assertion: whether it is present, absent, or uncertain in that experiencer.
   Map the two axes to the category: proband+present -> Abnormal, proband+absent -> Normal, proband+uncertain -> Suspected, family_history -> Family_History, other -> Other.
 
+  Assertion source: decide present / absent / uncertain from the clinical text, not from the chunk
+  index alone. Chunk lines are fragments and can lose their negation cue ("He has no seizures" may
+  appear as the chunk "seizures"); always check the sentence the chunk comes from.
+
   Negation scope:
   - A negation cue negates ONLY the noun phrase it directly modifies, not the whole sentence.
+  - Exception, coordinated lists: a negation cue that introduces a list negates EVERY item of that list, e.g. "no A, B or C", "no A, B, and C", "neither A nor B", "without A or B", "A, B and C were absent / not present / normal", and the same in other languages ("kein A, B oder C", "weder A noch B", "ohne A oder B"). Extract each item as its own phrase with assertion absent (category Normal).
+  - The list ends at the end of the clause, at a contrastive word ("but", "however", "whereas", "aber", "jedoch") or where a finding is affirmed again; items after that point are not negated.
   - In "X without Y", X is present (Abnormal) and only Y is absent: keep X as the phenotype and set negated_qualifier to Y. Do NOT negate X.
   - Example: "severe intellectual disability without regression" -> phrase "severe intellectual disability", category Abnormal, negated_qualifier "regression".
   - "no family history of Z" is Family_History (a relative is mentioned), not a proband finding about Z.
@@ -110,6 +116,21 @@ few_shot_examples:
         "phenotypes": [
           {"phrase": "enlarged mediastinal lymph nodes", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "enlarged mediastinal lymph nodes"},
           {"phrase": "bilateral pleural effusions", "category": "Abnormal", "chunk_ids": [1], "evidence_text": "bilateral pleural effusions"}
+        ]
+      }
+  - input: |
+      Extract all phenotype phrases from the following clinical text.
+
+      ---
+      Echocardiography showed no mitral valve prolapse, pulmonic stenosis or atrial septal defect, but a mildly dilated aortic root.
+      ---
+    output: |
+      {
+        "phenotypes": [
+          {"phrase": "mitral valve prolapse", "experiencer": "proband", "assertion": "absent", "negated_qualifier": null, "category": "Normal", "chunk_ids": [1], "evidence_text": "no mitral valve prolapse"},
+          {"phrase": "pulmonic stenosis", "experiencer": "proband", "assertion": "absent", "negated_qualifier": null, "category": "Normal", "chunk_ids": [1], "evidence_text": "no mitral valve prolapse, pulmonic stenosis"},
+          {"phrase": "atrial septal defect", "experiencer": "proband", "assertion": "absent", "negated_qualifier": null, "category": "Normal", "chunk_ids": [1], "evidence_text": "no mitral valve prolapse, pulmonic stenosis or atrial septal defect"},
+          {"phrase": "mildly dilated aortic root", "experiencer": "proband", "assertion": "present", "negated_qualifier": null, "category": "Abnormal", "chunk_ids": [1], "evidence_text": "but a mildly dilated aortic root"}
         ]
       }
   - input: |

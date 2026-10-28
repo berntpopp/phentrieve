@@ -398,3 +398,49 @@ def test_prompt_security_rules_cover_required_attack_classes() -> None:
         "clinical decision",
     ]:
         assert required in joined
+
+
+def test_grounded_phase1_prompt_includes_source_sentence_for_assertion() -> None:
+    """Chunking strips negation cues; phase 1 must still see the source sentence."""
+    template = loader.get_prompt(AnnotationMode.TWO_PHASE, "en")
+    note = "Brain MRI was normal. He has no seizures. Gait is unsteady."
+    start = note.index("seizures")
+    rendered = pipeline_module._render_phase1_user_prompt(
+        extraction_prompt=template,
+        text=note,
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "seizures",
+                "start_char": start,
+                "end_char": start + len("seizures"),
+            }
+        ],
+    )
+
+    clinical = rendered.split("UNTRUSTED_CLINICAL_TEXT_BEGIN")[1]
+    assert "He has no seizures." in clinical
+    assert (
+        "Brain MRI" not in clinical
+    )  # only the chunk's own sentence, not the full note
+    assert "chunk_id=1: seizures" in rendered
+
+
+def test_grounded_source_window_spans_group_sentences() -> None:
+    from phentrieve.llm.pipeline_phase1 import grounded_source_window
+
+    note = "Intro line.\nNo ptosis, strabismus or myopia. Normal hearing."
+    a = note.index("strabismus")
+    b = note.index("myopia") + len("myopia")
+    window = grounded_source_window(
+        note,
+        [{"start_char": a, "end_char": a + 10}, {"start_char": b - 6, "end_char": b}],
+    )
+    assert window == "No ptosis, strabismus or myopia."
+    assert grounded_source_window(note, [{"text": "x"}]) == ""
+    # chunks with the unknown-position sentinel (-1) are ignored, not used as offsets
+    unknown = {"start_char": -1, "end_char": -1}
+    assert (
+        grounded_source_window(note, [unknown, {"start_char": a, "end_char": a + 10}])
+        == "No ptosis, strabismus or myopia."
+    )

@@ -87,6 +87,39 @@ def clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
+_SENTENCE_BREAKS = (". ", "! ", "? ", "\n", "; ")
+
+
+def grounded_source_window(text: str, grounded_chunks: list[dict[str, Any]]) -> str:
+    """The note sentences behind these chunks, so phase 1 can judge assertion.
+
+    Chunking strips negation cues ("He has no seizures" -> chunk "seizures"), so the chunk
+    lines alone cannot tell present from absent. Empty when the chunks carry no offsets.
+    """
+    spans = [
+        (chunk["start_char"], chunk["end_char"])
+        for chunk in grounded_chunks
+        if isinstance(chunk.get("start_char"), int)
+        and isinstance(chunk.get("end_char"), int)
+        and 0
+        <= chunk["start_char"]
+        <= chunk["end_char"]  # -1 marks an unknown position
+    ]
+    if not text or not spans:
+        return ""
+    start = min(a for a, _ in spans)
+    end = max(b for _, b in spans)
+    found = [
+        i + len(sep)
+        for sep in _SENTENCE_BREAKS
+        if (i := text.rfind(sep, 0, start)) >= 0
+    ]
+    start = max(found, default=0)
+    breaks = [i for i in (text.find(sep, end) for sep in _SENTENCE_BREAKS) if i >= 0]
+    end = min(breaks) + 1 if breaks else len(text)
+    return text[start:end].strip()
+
+
 def render_phase1_user_prompt(
     *,
     extraction_prompt: PromptTemplate,
@@ -97,7 +130,7 @@ def render_phase1_user_prompt(
     if chunk_index_text is not None:
         chunk_index = chunk_index_text or "[]"
         return extraction_prompt.render_user_prompt(
-            "",
+            grounded_source_window(text, grounded_chunks),
             chunk_index=chunk_index,
         )
     if grounded_chunks:
@@ -109,7 +142,7 @@ def render_phase1_user_prompt(
             or "[]"
         )
         return extraction_prompt.render_user_prompt(
-            "",
+            grounded_source_window(text, grounded_chunks),
             chunk_index=chunk_index,
         )
     return extraction_prompt.render_user_prompt(text, chunk_index="[]")
