@@ -41,10 +41,7 @@ from phentrieve.evaluation.metrics import (
     precision_at_k,
     recall_at_k,
 )
-from phentrieve.evaluation.statistics import (
-    calculate_bootstrap_ci_for_metrics,
-    compare_models_with_significance,
-)
+from phentrieve.evaluation.statistics import calculate_bootstrap_ci_for_metrics
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.utils import convert_multi_vector_to_chromadb_format
 from phentrieve.utils import calculate_similarity, get_model_slug
@@ -794,39 +791,3 @@ def compare_models(results_list: list[dict[str, Any]]) -> pd.DataFrame:
         df = df.sort_values("MRR (Dense)", ascending=False)
 
     return df
-
-
-def compare_models_with_statistics(
-    results_list: list[dict[str, Any]],
-) -> tuple[pd.DataFrame, list[dict]]:
-    """
-    Compare results across different models with statistical significance testing.
-
-    Args:
-        results_list: List of benchmark result dictionaries
-
-    Returns:
-        Tuple of (comparison_dataframe, significance_tests_list)
-    """
-    if len(results_list) < 2:
-        return compare_models(results_list), []
-
-    # Get the basic comparison table
-    comparison_df = compare_models(results_list)
-
-    # Perform pairwise significance tests
-    significance_tests = []
-    for i in range(len(results_list)):
-        for j in range(i + 1, len(results_list)):
-            model_a = results_list[i]
-            model_b = results_list[j]
-            model_a_name = model_a.get("model_slug", f"Model {i + 1}")
-            model_b_name = model_b.get("model_slug", f"Model {j + 1}")
-
-            # Perform significance testing
-            significance = compare_models_with_significance(
-                model_a, model_b, model_a_name, model_b_name
-            )
-            significance_tests.append(significance)
-
-    return comparison_df, significance_tests

@@ -36,6 +36,20 @@ together:
   one throwaway query after preloading the model and retriever, so the first
   real request no longer pays for loading the index. A failed warm-up is
   logged and startup continues.
+- **`QueryInterface.vue` uses `<script setup>`** (#430). The
+  `getContext()`/`getState()`/`setState()` bridge is gone:
+  `useQueryInterfaceController` now takes the component's refs, the
+  conversation store, the PII review flow and the route/router directly, and has
+  its own unit tests with plain refs. Behaviour is unchanged.
+- **One term-similarity implementation for REST and MCP**
+  ([#415](https://github.com/berntpopp/phentrieve/issues/415)). The similarity
+  router and the MCP `phentrieve_compare_hpo_terms` tool both call
+  `phentrieve.evaluation.term_similarity.compute_term_similarity` and only
+  translate its errors. Response shapes are unchanged. Differences: labels in
+  both now come from the same `hpo_data.db` as the graph data; MCP reports
+  missing ontology data as `temporarily_unavailable` instead of `not_found`;
+  the REST 404/400/500 error details now serialize (`formula_used` was an enum
+  and failed JSON encoding).
 
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
@@ -58,6 +72,23 @@ together:
   in `phentrieve.llm.evidence_offsets`, and a rendered chunk's evidence search
   region is exactly the source text its phase-1 line shows (before, it extended
   over the whole gap to the next chunk).
+- **One `needs_semantic_model()` check for chunking pipelines** (#429). The
+  "does this chunking pipeline need a sentence-transformer model" loop that was
+  copy-pasted in `text process`, `text chunk` and `text interactive` now lives
+  in `phentrieve.text_processing.config_resolver.needs_semantic_model`.
+- **One health route: `GET /api/v1/health`** (#433). It now answers directly
+  (the Docker health checks used to get a 307 to `/api/v1/health/`) and
+  returns `{"status": "healthy", "service", "version", "timestamp"}`, the shape
+  `/api/v1/system/health` already returned; the old body was
+  `{"status": "ok"}`. `/api/v1/health/` and `/api/v1/system/health` stay as
+  undocumented aliases with the same payload, and the frontend connection
+  poll now calls `/api/v1/health`.
+- **Batched embedding and spaCy calls in standard text processing** (#410).
+  The sliding-window splitter encodes the windows of all segments in one
+  `model.encode` call instead of one call per segment, and assertion detection
+  parses all chunks of a document with one `nlp.pipe` call
+  (`AssertionDetector.detect_batch`, `DependencyAssertionDetector.detect_doc`)
+  instead of one `nlp()` call per chunk. Output is unchanged.
 
 ### Fixed
 
@@ -110,6 +141,45 @@ together:
   tools now trim `other_person_findings` first, then `family_history_findings`,
   and `aggregated_hpo_terms` only if still over budget, so a large secondary
   list no longer pushes the patient's own terms out of the response.
+- **Frontend health poll and response logging are cheaper** (#431). The API
+  health poll skips its interval tick while the tab is hidden, and API response
+  logs read the size from `Content-Length` instead of `JSON.stringify`-ing every
+  response body.
+
+- **ESLint no longer lints the generated `frontend/coverage/` directory** (#432).
+
+- **Full-text "normal" findings are no longer collected as present** (#404).
+  The frontend mapped a `status: "normal"` term (and any term the API flags
+  `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out
+  findings as present phenotypes. They now map to `negated` when the curation
+  model is seeded and in the findings receipt.
+- **Long notes no longer silently return zero HPO terms**
+  ([#402](https://github.com/berntpopp/phentrieve/issues/402)).
+  `DenseRetriever.query_batch` sent every chunk embedding to Chroma in one
+  query, which exceeded SQLite's bound-variable limit ("too many SQL
+  variables") for notes of a few hundred chunks; the error was logged and every
+  chunk got empty results, so the API answered HTTP 200 with no terms. Chroma is
+  now queried in slices of `CHROMA_QUERY_BATCH_SIZE` (64) embeddings. A failed
+  index query raises `RetrievalError` instead of returning empty results
+  (`query_batch_multi_vector` no longer swallows errors either, and an invalid
+  aggregation strategy raises `ValueError`), so API, CLI and MCP callers report
+  an error.
+
+- **Bundle verification no longer accepts a corrupted SQLite index**
+  ([#398](https://github.com/berntpopp/phentrieve/issues/398)). The
+  lock-row-tolerant "stable" `indexes/` checksum hashes the SQLite dump, which
+  never reads index pages. It is now accepted only if `PRAGMA integrity_check`
+  reports `ok`. The verified inventory (and so the benchmark retrieval-asset
+  `content_sha256`) records the checksum computed from the data rather than the
+  manifest hash: for a directory holding `chroma.sqlite3` this is its stable
+  checksum, which does not change when Chroma adds lock rows. Benchmark
+  checkpoints written before this change therefore do not resume.
+
+- **Similarity recovers once HPO data is prepared**
+  ([#417](https://github.com/berntpopp/phentrieve/issues/417)). A missing or
+  empty HPO database was cached as empty graph data (and the REST router cached
+  an empty label map), so similarity answered 503 until the process restarted.
+  Failed graph loads are no longer cached and labels are looked up per request.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
@@ -189,6 +259,56 @@ together:
   as on MCP: the request reruns on the standard backend with
   `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
   the failed LLM attempt's quota reservation is released.
+- **Other-person findings are fully accounted for** (#401). The LLM benchmark
+  assertion distribution counts `other_person_findings` next to the family
+  count, and the other-person resolution path records phase timings, the
+  phase-2b LLM trace, `local_fallbacks` and `llm_mapped_phrases` under
+  `other_person_*` keys through the same helper as the family path. The dead
+  span-overlap guard and bounds merge in phase-1 deduplication are removed
+  (phase-1 items carry no offsets until after deduplication).
+- **A truncated phase-1 group is no longer dropped silently** (#395). A
+  `grouped_small` group (the last fallback level) that truncates at its scaled
+  output budget is retried once at a fixed 65,536-token ceiling
+  (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
+  keep the scaled budget, so runaway generations are still cut early. At most
+  two such retries run per request
+  (`DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES`), so a model that runs away
+  in every group of a long note cannot cost one ceiling call per group. A group
+  that still fails is counted in `phase1_unrecovered_groups`, and REST
+  responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
+  (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
+  Retries are traced per group (`truncation_retry`) and counted in
+  `phase1_truncation_retries`. The frontend does not display the flag yet.
+
+### Removed
+
+- **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
+  script still parsed `QueryInterface.vue` after the defaults moved to
+  `frontend/src/constants/defaults.js`, so it always failed;
+  `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
+  `AdvancedOptionsPanel.vue` now takes its prop defaults from
+  `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
+
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
+
+### Removed
+
+- **Unused evaluation code** (#414). Deleted the unreferenced
+  `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
+  `hierarchical_matching`, `threshold_optimization`, `full_text_runner` and
+  `semantic_metrics` (with its tests), the unused `result_analyzer` dataframe
+  helpers, the `ExtractionReporter.plot_*` methods, and the dead helpers
+  `utils.get_index_dir`, `utils.load_german_translation_text`,
+  `config.get_sliding_window_config`,
+  `evaluation.runner.compare_models_with_statistics`,
+  `query_orchestrator._format_structured_results_to_text_display`,
+  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 

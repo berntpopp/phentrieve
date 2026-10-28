@@ -28,11 +28,10 @@ Phentrieve uses two distinct caching patterns, each for a different purpose. Thi
 **Where**:
 - `phentrieve/utils.py::load_user_config` (maxsize=1) — the YAML config dict, loaded once per process
 - `phentrieve/utils.py::normalize_id` (maxsize=512) — HPO ID normalization results (e.g. `HP:0001250` → `HP:0001250`); bounded by the HPO term count
-- `phentrieve/evaluation/metrics.py::_load_hpo_graph_data_impl` (maxsize=1) — the ~2M ontology ancestor graph, loaded once; `load_hpo_graph_data()` is a thin wrapper that normalises its `db_path` argument before delegating here
+- `phentrieve/evaluation/metrics.py::_load_hpo_graph_data_impl` (maxsize=1) — the ~2M ontology ancestor graph, loaded once; `load_hpo_graph_data()` is a thin wrapper that normalises its `db_path` argument before delegating here. A missing or empty database raises inside the cached function, so the failure is not cached and data prepared later is picked up
 - `phentrieve/retrieval/details_enrichment.py::get_shared_database` (maxsize=1) — one SQLite `HPODatabase` connection per db path
 - `phentrieve/config.py::_load_yaml_config` (maxsize=1) — wraps `load_user_config()` with a lazy import to avoid circular imports
 - `phentrieve/retrieval/aggregation.py::_parse_formula` (maxsize=32) — parsed AST for custom scoring formulas; bounded by the number of distinct formula strings
-- `api/routers/similarity_router.py::_get_hpo_label_map_api` (maxsize=1) — HPO label map for the similarity API router, loaded once on first request
 - `api/version.py::get_api_version`, `get_cli_version` (maxsize=1 each) — package version strings read from `pyproject.toml` files
 
 **Why `@lru_cache` and not TTL**:

@@ -182,8 +182,10 @@
   </div>
 </template>
 
-<script>
-import { getCurrentInstance } from 'vue';
+<script setup>
+import { computed, nextTick, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import ResultsDisplay from './ResultsDisplay.vue';
 import ConversationSkeleton from './ConversationSkeleton.vue';
 import AdvancedOptionsPanel from './AdvancedOptionsPanel.vue';
@@ -203,459 +205,381 @@ import { useQueryInterfaceController } from '../composables/useQueryInterfaceCon
 import { usePiiReviewFlow } from '../composables/usePiiReviewFlow';
 import { useFullTextCurationStore } from '../stores/fullTextCuration';
 
+defineOptions({
+  name: 'QueryInterface',
+});
+
 const DEFAULT_TEXT_PROCESS_LLM_OPTIONS = Object.freeze({
   llmModel: 'gemini-3.1-flash-lite',
   llmMode: 'two_phase',
 });
 const REDACTED_QUERY_PLACEHOLDER = '[redacted]';
 
-export default {
-  name: 'QueryInterface',
-  components: {
-    ResultsDisplay,
-    ConversationSkeleton,
-    AdvancedOptionsPanel,
-    FullTextResponseReceipt,
-    PiiReviewDialog,
-    QueryForm,
-    FullTextNoteCurator,
-    QueryModeControls,
-    QueryResultActions,
+const { t, locale } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const conversationStore = useConversationStore();
+const fullTextCurationStore = useFullTextCurationStore();
+const queryPreferencesStore = useQueryPreferencesStore();
+const piiReviewFlow = usePiiReviewFlow({ logService });
+const { piiReviewDialogVisible, pendingPiiSubmission } = piiReviewFlow;
+
+const {
+  showAdvancedOptions,
+  numResults,
+  similarityThreshold,
+  splitThreshold,
+  chunkRetrievalThreshold,
+  aggregatedTermConfidence,
+  inputTextLengthThreshold,
+  windowSize,
+  stepSize,
+  minSegmentLength,
+  numResultsPerChunk,
+  resetToDefaults,
+} = useAdvancedOptions();
+
+const {
+  phenopacketSubjectId,
+  phenopacketSex,
+  phenopacketDateOfBirth,
+  addPhenotype: addToPhenotypeCollection,
+  removePhenotype,
+  toggleAssertionStatus,
+  clearCollection: clearPhenotypeCollection,
+  toggleCollectionPanel,
+  exportCollectionAsText: exportPhenotypes,
+  exportAsPhenopacket: exportPhenotypesAsPhenopacket,
+} = usePhenotypeCollection();
+
+// Component state
+const conversationContainer = ref(null);
+const queryText = ref('');
+const selectedModel = ref(null); // Will be set from API config
+const availableModels = ref([]); // Populated from API /info endpoint
+const modelsLoading = ref(true); // Track model loading state
+const selectedLanguage = ref(null); // Set to the current locale below
+const availableLanguages = ref([
+  { text: t('common.auto'), value: null },
+  { text: 'English', value: 'en' },
+  { text: 'German (Deutsch)', value: 'de' },
+  { text: 'French (Français)', value: 'fr' },
+  { text: 'Spanish (Español)', value: 'es' },
+  { text: 'Dutch (Nederlands)', value: 'nl' },
+]);
+const isLoading = ref(false);
+const userHasScrolled = ref(false);
+const shouldScrollToTop = ref(false);
+const sexOptions = ref([
+  { title: t('phenopacket.sexUnknown'), value: 0 },
+  { title: t('phenopacket.sexFemale'), value: 1 },
+  { title: t('phenopacket.sexMale'), value: 2 },
+  { title: t('phenopacket.sexOther'), value: 3 },
+]);
+const forceEndpointMode = ref(null);
+const modeSelectionSource = ref(null);
+const autoSwitchSuppressed = ref(false);
+const expandedUserNotes = ref({});
+const defaultTextProcessLlmOptions = DEFAULT_TEXT_PROCESS_LLM_OPTIONS;
+const textProcessOptions = ref({
+  extractionBackend: 'llm',
+  ...DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
+});
+const chunkingStrategy = ref('sliding_window_punct_conj_cleaned');
+const semanticModelForChunking = ref(null);
+const retrievalModelForTextProcess = ref(null);
+const noAssertionDetectionForTextProcess = ref(false);
+const assertionPreferenceForTextProcess = ref('dependency');
+const topTermPerChunkForAggregation = ref(false);
+// Phenopacket export error surface (snackbar feedback)
+const exportErrorVisible = ref(false);
+const exportErrorMessage = ref('');
+const hoveredTextProcessPhenotypes = ref({});
+
+// Determine if text processing mode is active based on text length or user force setting
+const isTextProcessModeActive = computed(() => {
+  if (forceEndpointMode.value) {
+    return forceEndpointMode.value === 'textProcess';
+  }
+  return queryText.value.length > inputTextLengthThreshold.value;
+});
+const showAutoSwitchNotice = computed(
+  () => modeSelectionSource.value === 'auto' && forceEndpointMode.value === 'textProcess'
+);
+// Query parameters reused when a curator re-queries a single span / selection.
+const curationQueryOptions = computed(() => ({
+  model_name: selectedModel.value,
+  language: selectedLanguage.value,
+  num_results: 8,
+  similarity_threshold: similarityThreshold.value,
+}));
+// Access includeDetails from Pinia store (persisted in localStorage)
+const includeDetails = computed({
+  get: () => queryPreferencesStore.includeDetails,
+  set: (value) => queryPreferencesStore.setIncludeDetails(value),
+});
+
+const queryInterfaceController = useQueryInterfaceController({
+  state: {
+    queryText,
+    selectedModel,
+    availableModels,
+    modelsLoading,
+    isLoading,
+    shouldScrollToTop,
+    userHasScrolled,
+    showAdvancedOptions,
+    forceEndpointMode,
+    isTextProcessModeActive,
+    selectedLanguage,
+    similarityThreshold,
+    numResults,
+    includeDetails,
+    expandedUserNotes,
+    textProcessOptions,
+    chunkingStrategy,
+    windowSize,
+    stepSize,
+    splitThreshold,
+    minSegmentLength,
+    semanticModelForChunking,
+    retrievalModelForTextProcess,
+    chunkRetrievalThreshold,
+    numResultsPerChunk,
+    noAssertionDetectionForTextProcess,
+    assertionPreferenceForTextProcess,
+    aggregatedTermConfidence,
+    topTermPerChunkForAggregation,
   },
-  setup() {
-    const instance = getCurrentInstance();
-    const conversationStore = useConversationStore();
-    const fullTextCurationStore = useFullTextCurationStore();
-    const piiReviewFlow = usePiiReviewFlow({ logService });
+  conversationStore,
+  piiReviewFlow,
+  route,
+  router,
+  nextTick,
+  service: PhentrieveService,
+  logService,
+});
 
-    const {
-      showAdvancedOptions,
-      numResults,
-      similarityThreshold,
-      splitThreshold,
-      chunkRetrievalThreshold,
-      aggregatedTermConfidence,
-      inputTextLengthThreshold,
-      windowSize,
-      stepSize,
-      minSegmentLength,
-      numResultsPerChunk,
-      resetToDefaults,
-    } = useAdvancedOptions();
-
-    const {
-      phenopacketSubjectId,
-      phenopacketSex,
-      phenopacketDateOfBirth,
-      addPhenotype: addToPhenotypeCollection,
-      removePhenotype,
-      toggleAssertionStatus,
-      clearCollection: clearPhenotypeCollection,
-      toggleCollectionPanel,
-      exportCollectionAsText: exportPhenotypes,
-      exportAsPhenopacket: exportPhenotypesAsPhenopacket,
-    } = usePhenotypeCollection();
-    const queryInterfaceController = useQueryInterfaceController({
-      getContext: () => {
-        const vm = instance?.proxy;
-        if (!vm) {
-          return null;
-        }
-
-        return {
-          routeQuery: vm.$route.query,
-          nextTick: vm.$nextTick.bind(vm),
-          replaceRouteQuery(query) {
-            return vm.$router.replace({ query });
-          },
-          getState() {
-            return {
-              availableModels: vm.availableModels,
-              selectedModel: vm.selectedModel,
-              queryText: vm.queryText,
-              similarityThreshold: vm.similarityThreshold,
-              forceEndpointMode: vm.forceEndpointMode,
-              chunkingStrategy: vm.chunkingStrategy,
-              showAdvancedOptions: vm.showAdvancedOptions,
-              modelsLoading: vm.modelsLoading,
-              isLoading: vm.isLoading,
-              shouldScrollToTop: vm.shouldScrollToTop,
-              userHasScrolled: vm.userHasScrolled,
-              isTextProcessModeActive: vm.isTextProcessModeActive,
-              selectedLanguage: vm.selectedLanguage,
-              textProcessOptions: vm.textProcessOptions,
-              windowSize: vm.windowSize,
-              stepSize: vm.stepSize,
-              splitThreshold: vm.splitThreshold,
-              minSegmentLength: vm.minSegmentLength,
-              semanticModelForChunking: vm.semanticModelForChunking,
-              retrievalModelForTextProcess: vm.retrievalModelForTextProcess,
-              chunkRetrievalThreshold: vm.chunkRetrievalThreshold,
-              numResultsPerChunk: vm.numResultsPerChunk,
-              noAssertionDetectionForTextProcess: vm.noAssertionDetectionForTextProcess,
-              assertionPreferenceForTextProcess: vm.assertionPreferenceForTextProcess,
-              aggregatedTermConfidence: vm.aggregatedTermConfidence,
-              topTermPerChunkForAggregation: vm.topTermPerChunkForAggregation,
-              includeDetails: vm.includeDetails,
-              numResults: vm.numResults,
-              pendingPiiSubmission: vm.pendingPiiSubmission,
-            };
-          },
-          setState(patch) {
-            Object.assign(vm, patch);
-          },
-          setExpandedUserNote(turnId, expanded) {
-            vm.expandedUserNotes = {
-              ...vm.expandedUserNotes,
-              [turnId]: expanded,
-            };
-          },
-          piiReviewFlow,
-          conversationStore: vm.conversationStore,
-        };
-      },
-      service: PhentrieveService,
-      logService,
+watch(
+  () => conversationStore.queryHistory.length,
+  (newLength) => {
+    logService.debug('Query history updated', {
+      newHistoryLength: newLength,
     });
-    return {
-      conversationStore,
-      fullTextCurationStore,
-      piiReviewDialogVisible: piiReviewFlow.piiReviewDialogVisible,
-      pendingPiiSubmission: piiReviewFlow.pendingPiiSubmission,
-      piiReviewFlow,
-      queryInterfaceController,
-      // Advanced options
-      showAdvancedOptions,
-      numResults,
-      similarityThreshold,
-      splitThreshold,
-      chunkRetrievalThreshold,
-      aggregatedTermConfidence,
-      inputTextLengthThreshold,
-      windowSize,
-      stepSize,
-      minSegmentLength,
-      numResultsPerChunk,
-      resetToDefaults,
-      // Phenotype collection
-      phenopacketSubjectId,
-      phenopacketSex,
-      phenopacketDateOfBirth,
-      addToPhenotypeCollection,
-      removePhenotype,
-      toggleAssertionStatus,
-      clearPhenotypeCollection,
-      toggleCollectionPanel,
-      exportPhenotypes,
-      exportPhenotypesAsPhenopacket,
-    };
-  },
-  data() {
-    return {
-      queryText: '',
-      selectedModel: null, // Will be set from API config
-      availableModels: [], // Populated from API /info endpoint
-      modelsLoading: true, // Track model loading state
-      selectedLanguage: null, // Will be set to current locale in created()
-      availableLanguages: [
-        { text: this.$t('common.auto'), value: null },
-        { text: 'English', value: 'en' },
-        { text: 'German (Deutsch)', value: 'de' },
-        { text: 'French (Français)', value: 'fr' },
-        { text: 'Spanish (Español)', value: 'es' },
-        { text: 'Dutch (Nederlands)', value: 'nl' },
-      ],
-      isLoading: false,
-      lastUserScrollPosition: 0,
-      userHasScrolled: false,
-      shouldScrollToTop: false,
-      sexOptions: [
-        { title: this.$t('phenopacket.sexUnknown'), value: 0 },
-        { title: this.$t('phenopacket.sexFemale'), value: 1 },
-        { title: this.$t('phenopacket.sexMale'), value: 2 },
-        { title: this.$t('phenopacket.sexOther'), value: 3 },
-      ],
-      forceEndpointMode: null,
-      modeSelectionSource: null,
-      autoSwitchSuppressed: false,
-      expandedUserNotes: {},
-      defaultTextProcessLlmOptions: DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
-      textProcessOptions: {
-        extractionBackend: 'llm',
-        ...DEFAULT_TEXT_PROCESS_LLM_OPTIONS,
-      },
-      chunkingStrategy: 'sliding_window_punct_conj_cleaned',
-      semanticModelForChunking: null,
-      retrievalModelForTextProcess: null,
-      noAssertionDetectionForTextProcess: false,
-      assertionPreferenceForTextProcess: 'dependency',
-      topTermPerChunkForAggregation: false,
-      // Phenopacket export error surface (snackbar feedback)
-      exportErrorVisible: false,
-      exportErrorMessage: '',
-      hoveredTextProcessPhenotypes: {},
-    };
-  },
-  computed: {
-    // Determine if text processing mode is active based on text length or user force setting
-    isTextProcessModeActive() {
-      if (this.forceEndpointMode) {
-        return this.forceEndpointMode === 'textProcess';
+    // Drop curation state for turns evicted from history (maxHistoryLength)
+    // so the persisted curation store does not accumulate orphaned entries.
+    const liveIds = new Set((conversationStore.queryHistory || []).map((entry) => entry.id));
+    Object.keys(fullTextCurationStore.turns || {}).forEach((turnId) => {
+      if (!liveIds.has(turnId)) {
+        fullTextCurationStore.dropTurn(turnId);
       }
-      return this.queryText.length > this.inputTextLengthThreshold;
-    },
-    showAutoSwitchNotice() {
-      return this.modeSelectionSource === 'auto' && this.forceEndpointMode === 'textProcess';
-    },
-    // Query parameters reused when a curator re-queries a single span / selection.
-    curationQueryOptions() {
-      return {
-        model_name: this.selectedModel,
-        language: this.selectedLanguage,
-        num_results: 8,
-        similarity_threshold: this.similarityThreshold,
-      };
-    },
-    // Access includeDetails from Pinia store (persisted in localStorage)
-    includeDetails: {
-      get() {
-        const store = useQueryPreferencesStore();
-        return store.includeDetails;
-      },
-      set(value) {
-        const store = useQueryPreferencesStore();
-        store.setIncludeDetails(value);
-      },
-    },
-  },
-  watch: {
-    'conversationStore.queryHistory.length': {
-      handler(newLength) {
-        logService.debug('Query history updated', {
-          newHistoryLength: newLength,
-        });
-        // Drop curation state for turns evicted from history (maxHistoryLength)
-        // so the persisted curation store does not accumulate orphaned entries.
-        const liveIds = new Set(
-          (this.conversationStore.queryHistory || []).map((entry) => entry.id)
-        );
-        Object.keys(this.fullTextCurationStore.turns || {}).forEach((turnId) => {
-          if (!liveIds.has(turnId)) {
-            this.fullTextCurationStore.dropTurn(turnId);
-          }
-        });
-        this.$nextTick(() => {
-          if (this.shouldScrollToTop && !this.userHasScrolled) {
-            this.scrollToTop();
-          }
-        });
-      },
-    },
-    selectedModel(newModel, oldModel) {
-      if (oldModel !== null) {
-        // Avoid resetting on initial mount
-        logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
-        // Reset some query-specific settings to defaults when model changes
-        this.resetToDefaults();
-        logService.info('Reset query-specific settings to defaults due to model change.');
+    });
+    nextTick(() => {
+      if (shouldScrollToTop.value && !userHasScrolled.value) {
+        scrollToTop();
       }
-    },
-    queryText(newValue, oldValue) {
-      if (typeof newValue !== 'string') {
-        return;
-      }
+    });
+  }
+);
 
-      if (newValue.length <= this.inputTextLengthThreshold) {
-        this.autoSwitchSuppressed = false;
-      }
+watch(selectedModel, (newModel, oldModel) => {
+  if (oldModel !== null) {
+    // Avoid resetting on initial mount
+    logService.info('Model changed', { newModel: newModel, oldModel: oldModel });
+    // Reset some query-specific settings to defaults when model changes
+    resetToDefaults();
+    logService.info('Reset query-specific settings to defaults due to model change.');
+  }
+});
 
-      if (
-        !this.autoSwitchSuppressed &&
-        this.forceEndpointMode !== 'textProcess' &&
-        newValue.length > this.inputTextLengthThreshold &&
-        oldValue.length <= this.inputTextLengthThreshold
-      ) {
-        this.forceEndpointMode = 'textProcess';
-        this.modeSelectionSource = 'auto';
-      }
-    },
-  },
-  created() {
-    // Fetch available models from API
-    this.fetchAvailableModels();
+watch(queryText, (newValue, oldValue) => {
+  if (typeof newValue !== 'string') {
+    return;
+  }
 
-    // Set selectedLanguage based on current locale
-    const currentLocale = this.$i18n.locale;
-    // Only set if it's one of our supported languages
-    const supportedLanguages = this.availableLanguages
-      .filter((lang) => lang.value !== null)
-      .map((lang) => lang.value);
+  if (newValue.length <= inputTextLengthThreshold.value) {
+    autoSwitchSuppressed.value = false;
+  }
 
-    if (currentLocale && supportedLanguages.includes(currentLocale)) {
-      this.selectedLanguage = currentLocale;
-      logService.info(
-        `Using UI locale '${currentLocale}' as default language for queries and text processing`
-      );
-    } else {
-      // Keep the auto-detect (null) as fallback if locale is not supported
-      logService.info(
-        `Current locale '${currentLocale}' not in supported languages, using auto-detect`
-      );
+  if (
+    !autoSwitchSuppressed.value &&
+    forceEndpointMode.value !== 'textProcess' &&
+    newValue.length > inputTextLengthThreshold.value &&
+    oldValue.length <= inputTextLengthThreshold.value
+  ) {
+    forceEndpointMode.value = 'textProcess';
+    modeSelectionSource.value = 'auto';
+  }
+});
+
+/**
+ * Wrapper around usePhenotypeCollection.exportAsPhenopacket that surfaces
+ * errors via a snackbar instead of letting them propagate unhandled.
+ * The composable throws on failure (intentionally, so it stays testable
+ * and accessibility-friendly); this function catches and renders.
+ */
+function onExportPhenopacket() {
+  try {
+    exportPhenotypesAsPhenopacket();
+  } catch (error) {
+    exportErrorMessage.value = t('queryInterface.phenotypeCollection.exportError');
+    exportErrorVisible.value = true;
+    // The composable already logs via logService.error; no need to re-log.
+    void error;
+  }
+}
+
+function handleAddToCollection(phenotype) {
+  addToPhenotypeCollection(phenotype);
+  conversationStore.showCollectionPanel = true;
+}
+
+function handleAddAllToCollection(phenotypes) {
+  if (!Array.isArray(phenotypes)) {
+    return;
+  }
+
+  phenotypes.forEach((phenotype) => {
+    addToPhenotypeCollection(phenotype);
+  });
+  conversationStore.showCollectionPanel = true;
+}
+
+/**
+ * Fetch available embedding models from API /info endpoint
+ * Falls back to BioLORD if API is unavailable
+ */
+function fetchAvailableModels() {
+  return queryInterfaceController.fetchAvailableModels();
+}
+
+function scrollToTop() {
+  nextTick(() => {
+    const container = conversationContainer.value;
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
     }
-  },
-  methods: {
-    /**
-     * Wrapper around usePhenotypeCollection.exportAsPhenopacket that surfaces
-     * errors via a snackbar instead of letting them propagate unhandled.
-     * The composable throws on failure (intentionally, so it stays testable
-     * and accessibility-friendly); this method catches and renders.
-     */
-    onExportPhenopacket() {
-      try {
-        this.exportPhenotypesAsPhenopacket();
-      } catch (error) {
-        this.exportErrorMessage = this.$t('queryInterface.phenotypeCollection.exportError');
-        this.exportErrorVisible = true;
-        // The composable already logs via logService.error; no need to re-log.
-        void error;
-      }
-    },
-    handleAddToCollection(phenotype) {
-      this.addToPhenotypeCollection(phenotype);
-      this.conversationStore.showCollectionPanel = true;
-    },
-    handleAddAllToCollection(phenotypes) {
-      if (!Array.isArray(phenotypes)) {
-        return;
-      }
+  });
+}
 
-      phenotypes.forEach((phenotype) => {
-        this.addToPhenotypeCollection(phenotype);
-      });
-      this.conversationStore.showCollectionPanel = true;
-    },
-    /**
-     * Fetch available embedding models from API /info endpoint
-     * Falls back to BioLORD if API is unavailable
-     */
-    async fetchAvailableModels() {
-      return this.queryInterfaceController.fetchAvailableModels();
-    },
+function getTextProcessInputDescription() {
+  const base = t('queryInterface.accessibility.textProcessInputDescription');
+  return isLoading.value
+    ? `${base} ${t('queryInterface.accessibility.processingInProgress')}`
+    : base;
+}
 
-    /**
-     * Set fallback model when API is unavailable
-     */
-    setFallbackModel() {
-      return this.queryInterfaceController.setFallbackModel();
-    },
+function getQueryInputDescription() {
+  const base = t('queryInterface.accessibility.queryInputDescription');
+  return isLoading.value ? `${base} ${t('queryInterface.accessibility.searchInProgress')}` : base;
+}
 
-    applyUrlParametersAndAutoSubmit() {
-      return this.queryInterfaceController.applyUrlParametersAndAutoSubmit();
-    },
-    handleUserScroll() {
-      const container = this.$refs.conversationContainer;
-      if (container) {
-        if (Math.abs(container.scrollTop - this.lastUserScrollPosition) > 5) {
-          // Threshold to detect actual scroll
-          this.userHasScrolled = true;
-        }
-        this.lastUserScrollPosition = container.scrollTop;
-      }
-    },
-    scrollToTop() {
-      this.$nextTick(() => {
-        const container = this.$refs.conversationContainer;
-        if (container) {
-          container.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
-        }
-      });
-    },
-    getTextProcessInputDescription() {
-      const base = this.$t('queryInterface.accessibility.textProcessInputDescription');
-      return this.isLoading
-        ? `${base} ${this.$t('queryInterface.accessibility.processingInProgress')}`
-        : base;
-    },
-    getQueryInputDescription() {
-      const base = this.$t('queryInterface.accessibility.queryInputDescription');
-      return this.isLoading
-        ? `${base} ${this.$t('queryInterface.accessibility.searchInProgress')}`
-        : base;
-    },
-    getAdvancedOptionsToggleLabel() {
-      return this.showAdvancedOptions
-        ? this.$t('queryInterface.accessibility.closeAdvancedOptions')
-        : this.$t('queryInterface.accessibility.openAdvancedOptions');
-    },
-    getAutoSwitchNoticeLabel() {
-      const translated = this.$t('queryInterface.modeSwitch.autoFullTextNotice');
-      return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
-        ? translated
-        : 'Switched to Full Text for longer clinical text';
-    },
-    getHistoryDisplayQuery(item) {
-      const redactedQuery = typeof item?.redactedQuery === 'string' ? item.redactedQuery : '';
-      if (redactedQuery.trim() && redactedQuery !== REDACTED_QUERY_PLACEHOLDER) {
-        return redactedQuery;
-      }
+function getAdvancedOptionsToggleLabel() {
+  return showAdvancedOptions.value
+    ? t('queryInterface.accessibility.closeAdvancedOptions')
+    : t('queryInterface.accessibility.openAdvancedOptions');
+}
 
-      const rawQuery =
-        typeof item?.rawQuerySessionOnly === 'string' ? item.rawQuerySessionOnly : '';
-      if (rawQuery.trim()) {
-        return rawQuery;
-      }
+function getAutoSwitchNoticeLabel() {
+  const translated = t('queryInterface.modeSwitch.autoFullTextNotice');
+  return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
+    ? translated
+    : 'Switched to Full Text for longer clinical text';
+}
 
-      return typeof item?.query === 'string' ? item.query : '';
-    },
-    isUserNoteExpanded(turnId) {
-      return Boolean(Reflect.get(this.expandedUserNotes, turnId));
-    },
-    toggleUserNote(turnId) {
-      const nextExpandedUserNotes = { ...this.expandedUserNotes };
-      Reflect.set(nextExpandedUserNotes, turnId, !Reflect.get(this.expandedUserNotes, turnId));
-      this.expandedUserNotes = nextExpandedUserNotes;
-    },
-    getHoveredNotePhenotype(turnId) {
-      return Reflect.get(this.hoveredTextProcessPhenotypes, turnId) || null;
-    },
-    setHoveredNotePhenotype(turnId, phenotypeId) {
-      const nextHoveredTextProcessPhenotypes = { ...this.hoveredTextProcessPhenotypes };
-      Reflect.set(nextHoveredTextProcessPhenotypes, turnId, phenotypeId);
-      this.hoveredTextProcessPhenotypes = nextHoveredTextProcessPhenotypes;
-    },
-    clearHoveredNotePhenotype(turnId) {
-      const nextHoveredTextProcessPhenotypes = { ...this.hoveredTextProcessPhenotypes };
-      Reflect.set(nextHoveredTextProcessPhenotypes, turnId, null);
-      this.hoveredTextProcessPhenotypes = nextHoveredTextProcessPhenotypes;
-    },
-    handleAnnotatedTextHover(turnId, termIds) {
-      if (!Array.isArray(termIds) || termIds.length === 0) {
-        return;
-      }
+function getHistoryDisplayQuery(item) {
+  const redactedQuery = typeof item?.redactedQuery === 'string' ? item.redactedQuery : '';
+  if (redactedQuery.trim() && redactedQuery !== REDACTED_QUERY_PLACEHOLDER) {
+    return redactedQuery;
+  }
 
-      this.setHoveredNotePhenotype(turnId, termIds[0]);
-    },
-    setMode(mode) {
-      if (mode === 'query' && this.showAutoSwitchNotice) {
-        this.autoSwitchSuppressed = true;
-      }
-      this.forceEndpointMode = mode;
-      this.modeSelectionSource = 'manual';
-    },
-    async submitQuery(isAutoSubmit = false) {
-      return this.queryInterfaceController.submitQuery(isAutoSubmit);
-    },
-    cancelPiiReview() {
-      this.piiReviewFlow.cancelPiiReview();
-    },
-    redactPiiInInput() {
-      return this.queryInterfaceController.redactPiiInInput();
-    },
-    continueWithPiiRedaction() {
-      return this.queryInterfaceController.continueWithPiiRedaction();
-    },
-  },
-};
+  const rawQuery = typeof item?.rawQuerySessionOnly === 'string' ? item.rawQuerySessionOnly : '';
+  if (rawQuery.trim()) {
+    return rawQuery;
+  }
+
+  return typeof item?.query === 'string' ? item.query : '';
+}
+
+function isUserNoteExpanded(turnId) {
+  return Boolean(Reflect.get(expandedUserNotes.value, turnId));
+}
+
+function toggleUserNote(turnId) {
+  const nextExpandedUserNotes = { ...expandedUserNotes.value };
+  Reflect.set(nextExpandedUserNotes, turnId, !Reflect.get(expandedUserNotes.value, turnId));
+  expandedUserNotes.value = nextExpandedUserNotes;
+}
+
+function getHoveredNotePhenotype(turnId) {
+  return Reflect.get(hoveredTextProcessPhenotypes.value, turnId) || null;
+}
+
+function setHoveredNotePhenotype(turnId, phenotypeId) {
+  const nextHoveredTextProcessPhenotypes = { ...hoveredTextProcessPhenotypes.value };
+  Reflect.set(nextHoveredTextProcessPhenotypes, turnId, phenotypeId);
+  hoveredTextProcessPhenotypes.value = nextHoveredTextProcessPhenotypes;
+}
+
+function clearHoveredNotePhenotype(turnId) {
+  const nextHoveredTextProcessPhenotypes = { ...hoveredTextProcessPhenotypes.value };
+  Reflect.set(nextHoveredTextProcessPhenotypes, turnId, null);
+  hoveredTextProcessPhenotypes.value = nextHoveredTextProcessPhenotypes;
+}
+
+function handleAnnotatedTextHover(turnId, termIds) {
+  if (!Array.isArray(termIds) || termIds.length === 0) {
+    return;
+  }
+
+  setHoveredNotePhenotype(turnId, termIds[0]);
+}
+
+function setMode(mode) {
+  if (mode === 'query' && showAutoSwitchNotice.value) {
+    autoSwitchSuppressed.value = true;
+  }
+  forceEndpointMode.value = mode;
+  modeSelectionSource.value = 'manual';
+}
+
+function submitQuery(isAutoSubmit = false) {
+  return queryInterfaceController.submitQuery(isAutoSubmit);
+}
+
+function cancelPiiReview() {
+  piiReviewFlow.cancelPiiReview();
+}
+
+function redactPiiInInput() {
+  return queryInterfaceController.redactPiiInInput();
+}
+
+function continueWithPiiRedaction() {
+  return queryInterfaceController.continueWithPiiRedaction();
+}
+
+// Initialization (formerly created())
+fetchAvailableModels();
+
+// Set selectedLanguage based on current locale
+const currentLocale = locale.value;
+// Only set if it's one of our supported languages
+const supportedLanguages = availableLanguages.value
+  .filter((lang) => lang.value !== null)
+  .map((lang) => lang.value);
+
+if (currentLocale && supportedLanguages.includes(currentLocale)) {
+  selectedLanguage.value = currentLocale;
+  logService.info(
+    `Using UI locale '${currentLocale}' as default language for queries and text processing`
+  );
+} else {
+  // Keep the auto-detect (null) as fallback if locale is not supported
+  logService.info(
+    `Current locale '${currentLocale}' not in supported languages, using auto-detect`
+  );
+}
 </script>
 
 <style scoped>

@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
+import { routeLocationKey, routerKey } from 'vue-router';
 import en from '../../locales/en.json';
 import PhentrieveService from '../../services/PhentrieveService';
 import { logService } from '../../services/logService';
@@ -62,7 +63,8 @@ async function mountQueryInterface({
   routeQuery = {},
   routerReplace = vi.fn().mockResolvedValue(undefined),
 } = {}) {
-  // QueryInterface uses Options API with setup() hook, has no props.
+  // QueryInterface is a <script setup> component with no props; the route and
+  // router are injected through vue-router's provide keys.
   // It renders a search container with query input.
   const pinia = createPinia();
   setActivePinia(pinia);
@@ -78,9 +80,9 @@ async function mountQueryInterface({
         ConversationSkeleton: true,
         'v-navigation-drawer': true,
       },
-      mocks: {
-        $route: { query: routeQuery },
-        $router: { replace: routerReplace },
+      provide: {
+        [routeLocationKey]: { query: routeQuery },
+        [routerKey]: { replace: routerReplace },
       },
     },
   });

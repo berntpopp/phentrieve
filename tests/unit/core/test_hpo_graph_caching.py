@@ -154,7 +154,10 @@ class TestThreadSafety:
         # Mock dependencies to avoid actual DB loading
         mocker.patch("phentrieve.evaluation.metrics.os.path.exists", return_value=True)
         mock_db = mocker.MagicMock()
-        mock_db.load_graph_data.return_value = ({}, {})
+        mock_db.load_graph_data.return_value = (
+            {"HP:0000001": {"HP:0000001"}},
+            {"HP:0000001": 0},
+        )
         mocker.patch("phentrieve.evaluation.metrics.HPODatabase", return_value=mock_db)
 
         # Clear cache and reset stats
@@ -175,6 +178,31 @@ class TestThreadSafety:
         info_after_second = _load_hpo_graph_data_impl.cache_info()
         assert info_after_second.hits == 1
         assert info_after_second.misses == 1  # Still 1 miss
+
+    @pytest.mark.parametrize("missing_db", [True, False])
+    def test_unavailable_data_is_not_cached(self, mocker, missing_db):
+        """#417: an empty/missing-data result must not stick in the cache."""
+        mocker.patch(
+            "phentrieve.evaluation.metrics.os.path.exists",
+            return_value=not missing_db,
+        )
+        mock_db = mocker.MagicMock()
+        mock_db.load_graph_data.return_value = ({}, {})
+        mocker.patch("phentrieve.evaluation.metrics.HPODatabase", return_value=mock_db)
+        _load_hpo_graph_data_impl.cache_clear()
+
+        assert load_hpo_graph_data() == ({}, {})
+        assert _load_hpo_graph_data_impl.cache_info().currsize == 0
+
+        # Data is prepared later: the next call loads it.
+        mocker.patch("phentrieve.evaluation.metrics.os.path.exists", return_value=True)
+        mock_db.load_graph_data.return_value = (
+            {"HP:0000001": {"HP:0000001"}},
+            {"HP:0000001": 0},
+        )
+        _ancestors, depths = load_hpo_graph_data()
+        assert depths == {"HP:0000001": 0}
+        _load_hpo_graph_data_impl.cache_clear()
 
 
 class TestBackwardCompatibility:

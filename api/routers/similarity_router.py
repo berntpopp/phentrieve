@@ -6,7 +6,6 @@ between HPO terms using the Human Phenotype Ontology graph structure.
 """
 
 import logging
-from functools import lru_cache
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -14,50 +13,20 @@ from fastapi import Path as FastApiPath
 
 from api.schemas.similarity_schemas import HPOTermSimilarityResponseAPI, LCADetailAPI
 from phentrieve.config import DEFAULT_SIMILARITY_FORMULA
-from phentrieve.data_processing.document_creator import load_hpo_terms
+from phentrieve.evaluation.metrics import SimilarityFormula
 
-# Core Phentrieve logic imports
-from phentrieve.evaluation.metrics import (
-    SimilarityFormula,
-    calculate_semantic_similarity,
-    find_lowest_common_ancestor,
-    load_hpo_graph_data,
+# Shared similarity computation (also used by the MCP compare tool, #415)
+from phentrieve.evaluation.term_similarity import (
+    HPODataUnavailableError,
+    HPOTermNotFoundError,
+    compute_term_similarity,
+    load_hpo_labels,
 )
 from phentrieve.utils import normalize_id
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()  # Prefix will be added in main.py
-
-
-@lru_cache(maxsize=1)  # Cache the HPO labels once loaded
-def _get_hpo_label_map_api() -> dict[str, str]:
-    """
-    Initialize and cache HPO label mapping for the API.
-
-    Returns:
-        Dictionary mapping HPO IDs to their English labels
-    """
-    logger.info("API Router: Initializing HPO label map cache...")
-    # This is a synchronous call. If load_hpo_terms() is very slow,
-    # consider FastAPI's application startup events or a dependency injection for this.
-    hpo_terms_data = load_hpo_terms()
-    if not hpo_terms_data:
-        logger.warning("API Router: No HPO terms data loaded for labels.")
-        return {}
-    label_map = {
-        term_data["id"]: term_data["label"]
-        for term_data in hpo_terms_data
-        if term_data.get("id") and term_data.get("label")
-    }
-    logger.info(
-        "API Router: HPO label map cache initialized with %s terms.", len(label_map)
-    )
-    return label_map
-
-
-# HPO graph data is loaded lazily on first use via @lru_cache in load_hpo_graph_data().
-# No eager loading needed at import time.
 
 
 @router.get(
@@ -110,8 +79,14 @@ async def get_hpo_term_similarity(
         _sanitize(formula_enum.value),
     )
 
-    ancestors, depths = load_hpo_graph_data()  # Relies on its internal cache
-    if not ancestors or not depths:
+    norm_term1 = normalize_id(term1_id)
+    norm_term2 = normalize_id(term2_id)
+
+    try:
+        result = compute_term_similarity(
+            norm_term1, norm_term2, formula_enum, with_lca=True
+        )
+    except HPODataUnavailableError:
         logger.error(
             "API Error: HPO graph data (ancestors or depths) is critically unavailable."
         )
@@ -119,64 +94,23 @@ async def get_hpo_term_similarity(
             status_code=503,
             detail="Ontology data is currently unavailable. Please try again later or contact support.",
         )
-
-    labels = _get_hpo_label_map_api()  # Relies on its internal cache
-
-    norm_term1 = normalize_id(term1_id)
-    norm_term2 = normalize_id(term2_id)
-
-    label1 = labels.get(norm_term1)
-    label2 = labels.get(norm_term2)
-
-    response_kwargs: dict[str, Any] = {
-        "term1_id": norm_term1,
-        "term1_label": label1,
-        "term2_id": norm_term2,
-        "term2_label": label2,
-        "formula_used": formula_enum,  # FastAPI will use enum's value
-        "similarity_score": 0.0,  # Default in case of early exit
-    }
-
-    # Check if terms exist in the ontology
-    if norm_term1 not in depths or norm_term2 not in depths:
-        missing = []
-        if norm_term1 not in depths:
-            missing.append(norm_term1)
-        if norm_term2 not in depths:
-            missing.append(norm_term2)
-        sanitized_missing = [_sanitize(m) for m in missing]
+    except HPOTermNotFoundError as nf:
+        sanitized_missing = [_sanitize(m) for m in nf.missing]
         error_detail = f"One or both HPO terms not found in ontology data: {', '.join(sanitized_missing)}. Ensure terms are valid and data is prepared."
         logger.warning("API: %s", _sanitize(error_detail))
-        response_kwargs["error_message"] = error_detail
         # For term not found, 404 is appropriate
-        raise HTTPException(status_code=404, detail=response_kwargs)
-
-    try:
-        similarity_score = calculate_semantic_similarity(
-            norm_term1, norm_term2, formula=formula_enum
+        raise HTTPException(
+            status_code=404,
+            detail=_error_detail(norm_term1, norm_term2, formula_enum, error_detail),
         )
-        response_kwargs["similarity_score"] = similarity_score
-
-        lca_id, lca_depth = find_lowest_common_ancestor(
-            norm_term1, norm_term2, ancestors_dict=ancestors
-        )
-
-        if lca_id and lca_depth != -1:
-            lca_label = labels.get(lca_id)
-            response_kwargs["lca_details"] = LCADetailAPI(
-                id=lca_id, label=lca_label, depth=int(lca_depth)
-            )
-
-        return HPOTermSimilarityResponseAPI(**response_kwargs)
-
-    except (
-        ValueError
-    ) as ve:  # Catch specific errors from core logic if they signal bad input
+    except ValueError as ve:  # Core logic signalling bad input
         logger.warning(
             "API: Value error during similarity calculation: %s", _sanitize(ve)
         )
-        response_kwargs["error_message"] = str(ve)
-        raise HTTPException(status_code=400, detail=response_kwargs)
+        raise HTTPException(
+            status_code=400,
+            detail=_error_detail(norm_term1, norm_term2, formula_enum, str(ve)),
+        )
     except Exception as e:
         logger.error(
             "API: Unexpected error during similarity calculation for %s, %s: %s",
@@ -185,5 +119,47 @@ async def get_hpo_term_similarity(
             _sanitize(e),
             exc_info=True,
         )
-        response_kwargs["error_message"] = "An internal server error occurred."
-        raise HTTPException(status_code=500, detail=response_kwargs)
+        raise HTTPException(
+            status_code=500,
+            detail=_error_detail(
+                norm_term1,
+                norm_term2,
+                formula_enum,
+                "An internal server error occurred.",
+            ),
+        )
+
+    lca_details = None
+    if result.lca_id is not None:
+        lca_details = LCADetailAPI(
+            id=result.lca_id, label=result.lca_label, depth=result.lca_depth
+        )
+    return HPOTermSimilarityResponseAPI(
+        term1_id=result.term1_id,
+        term1_label=result.term1_label,
+        term2_id=result.term2_id,
+        term2_label=result.term2_label,
+        formula_used=result.formula,
+        similarity_score=result.similarity_score,
+        lca_details=lca_details,
+    )
+
+
+def _error_detail(
+    term1_id: str,
+    term2_id: str,
+    formula: SimilarityFormula,
+    error_message: str,
+) -> dict[str, Any]:
+    """Error payload: the response fields known so far plus ``error_message``."""
+    labels = load_hpo_labels([term1_id, term2_id])
+    return {
+        "term1_id": term1_id,
+        "term1_label": labels.get(term1_id),
+        "term2_id": term2_id,
+        "term2_label": labels.get(term2_id),
+        # .value: an Enum in the detail dict is not JSON serializable
+        "formula_used": formula.value,
+        "similarity_score": 0.0,
+        "error_message": error_message,
+    }

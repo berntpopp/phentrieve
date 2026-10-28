@@ -244,6 +244,7 @@ class TextProcessingPipeline:
         final_raw_chunks_text_only: list[str] = current_segments_for_stage
 
         processed_chunks_with_assertion: list[dict[str, Any]] = []
+        assertion_inputs: list[str] = []
         search_start = 0  # Track position for sequential search (handles duplicates)
 
         for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
@@ -287,9 +288,7 @@ class TextProcessingPipeline:
                 if context_text:
                     assertion_input = context_text
 
-            assertion_status, assertion_details = self.assertion_detector.detect(
-                assertion_input
-            )
+            assertion_inputs.append(assertion_input)
 
             source_info_for_chunk = (
                 current_source_info_list[idx]
@@ -297,10 +296,12 @@ class TextProcessingPipeline:
                 else ["unknown_source"]
             )
 
+            # "status" and "assertion_details" are filled in below, after one
+            # batched assertion-detection call for all chunks (#410).
             chunk_data: dict[str, Any] = {
                 "text": cleaned_final_chunk,
-                "status": assertion_status,
-                "assertion_details": assertion_details,
+                "status": None,
+                "assertion_details": None,
                 "source_indices": {"processing_stages": source_info_for_chunk},
             }
 
@@ -310,6 +311,13 @@ class TextProcessingPipeline:
                 chunk_data["end_char"] = end_char
 
             processed_chunks_with_assertion.append(chunk_data)
+
+        assertion_results = self.assertion_detector.detect_batch(assertion_inputs)
+        for chunk_data, (assertion_status, assertion_details) in zip(
+            processed_chunks_with_assertion, assertion_results, strict=True
+        ):
+            chunk_data["status"] = assertion_status
+            chunk_data["assertion_details"] = assertion_details
 
         logger.info(
             "TextProcessingPipeline processed text into %s final asserted chunks.",

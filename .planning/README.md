@@ -29,6 +29,9 @@ execution context.
 
 ## Recent Analysis
 
+- `analysis/2026-10-27-issue-batch-acceptance-checklist.md` - manual
+  acceptance checklist (E2E, Docker, real LLM, UI) for the 2026-10-27 issue
+  batch, PRs #437-#444; tested on branch `test/integration-2026-10-27`.
 - `analysis/2026-07-12-llm-benchmark-csc-gsc-f1-regression-check.md` -
   investigated a suspected F1 regression after running `benchmark llm`
   end-to-end on CSC/GSC (Llama 3.1 70B, Gemini 3.1 Flash Lite via
@@ -92,12 +95,8 @@ execution context.
 
 ## Current Active Work
 
-- `active/2026-07-03-extraction-contract-v2-phase-0-1-plan.md` - Phase 0
-  (planning-tree cleanup, this pass) + Phase 1 (extraction benchmark
-  safeguard: `normalize_for_scoring` present-only projection, seeded bootstrap
-  CIs, `--scoring-mode` CLI option, assertion-labelled golden fixture, and an
-  `assert-no-regression` gate) of the LLM extraction contract v2 effort. See
-  `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md`.
+None. `active/` is empty as of 2026-10-27; open work is tracked in GitHub
+issues. `STATUS.md` only points back here.
 
 ## Current Specs
 
@@ -144,6 +143,20 @@ execution context.
 
 ## Recently Completed
 
+- `completed/2026-07-15-hpo-data-release-separation-plan.md` - separated HPO
+  data releases from software releases: immutable release contract, provenance
+  checks, `scripts/verify_data_release.py`, and publication from
+  `berntpopp/phentrieve-data` (PRs #309-#312).
+- `completed/2026-07-03-extraction-contract-v2-phase-2-plan.md` - LLM
+  extraction contract v2 Phase 2: load-bearing assertion/experiencer axes,
+  family-history findings, and qualifier-derived excluded findings across
+  service, REST, MCP and Vue (PR #303, v0.25.0).
+- `completed/2026-07-03-extraction-contract-v2-phase-0-1-plan.md` - Phase 0
+  (planning-tree cleanup) + Phase 1 (extraction benchmark safeguard:
+  `normalize_for_scoring` present-only projection, seeded bootstrap CIs,
+  `--scoring-mode`, assertion-labelled golden fixture, `assert-no-regression`
+  gate) of the extraction contract v2 effort (PR #302, v0.25.0). See
+  `specs/2026-07-03-extraction-contract-v2-and-finalization-design.md`.
 - `completed/2026-09-18-hpo-v2026-09-01-r1-data-release-plan.md` -
   completed computation, verification, and publication plan for HPO
   `v2026-09-01-r1` data release across all 8 retrieval models (17 bundles)

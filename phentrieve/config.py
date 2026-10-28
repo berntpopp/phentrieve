@@ -237,10 +237,6 @@ def get_detailed_chunking_config():
     return copy.deepcopy(DETAILED_CHUNKING_CONFIG)
 
 
-def get_sliding_window_config():
-    return copy.deepcopy(SLIDING_WINDOW_CONFIG)
-
-
 # Strategy: "sliding_window_cleaned" - Adds FinalChunkCleaner to the sliding window strategy
 SLIDING_WINDOW_CLEANED_CONFIG = [
     {"type": "paragraph"},  # First split by paragraphs

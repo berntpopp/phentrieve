@@ -361,7 +361,7 @@ def create_app() -> FastAPI:
                     "description": "API health monitoring",
                     "endpoints": [
                         {
-                            "path": "/api/v1/health/",
+                            "path": "/api/v1/health",
                             "methods": ["GET"],
                             "description": "Check API health status",
                         }
