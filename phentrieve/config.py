@@ -12,7 +12,7 @@ import copy
 import functools
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     import chromadb
@@ -70,6 +70,7 @@ __all__ = [
     "DEFAULT_MIN_CONFIDENCE_AGGREGATED",
     "DEFAULT_CHUNK_CONFIDENCE",
     "DEFAULT_ASSERTION_PREFERENCE",
+    "AssertionPreference",
     # CLI symmetry alias
     "DEFAULT_NUM_RESULTS",
     # Output format defaults
@@ -130,7 +131,10 @@ DEFAULT_MIN_SEGMENT_LENGTH_WORDS = 2
 _DEFAULT_CHUNK_RETRIEVAL_THRESHOLD_FALLBACK = 0.7
 _DEFAULT_MIN_CONFIDENCE_AGGREGATED_FALLBACK = 0.75
 _DEFAULT_CHUNK_CONFIDENCE_FALLBACK = 0.2
-_DEFAULT_ASSERTION_PREFERENCE_FALLBACK = "dependency"
+# Query assertion detection strategies (single source of truth for the API
+# request schema and the GET query parameter).
+AssertionPreference = Literal["dependency", "keyword", "any_negative"]
+_DEFAULT_ASSERTION_PREFERENCE_FALLBACK: AssertionPreference = "dependency"
 
 # Output format defaults (used by CLI commands)
 _DEFAULT_OUTPUT_FORMAT_QUERY_FALLBACK = "text"
@@ -522,7 +526,7 @@ DEFAULT_MIN_CONFIDENCE_AGGREGATED: float = get_config_value(
 DEFAULT_CHUNK_CONFIDENCE: float = get_config_value(
     "extraction", _DEFAULT_CHUNK_CONFIDENCE_FALLBACK, "chunk_confidence"
 )
-DEFAULT_ASSERTION_PREFERENCE: str = get_config_value(
+DEFAULT_ASSERTION_PREFERENCE: AssertionPreference = get_config_value(
     "extraction", _DEFAULT_ASSERTION_PREFERENCE_FALLBACK, "assertion_preference"
 )
 
