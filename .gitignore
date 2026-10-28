@@ -123,3 +123,4 @@ data/hp.json
 !scripts/disease_ranking_451/results/
 scripts/disease_ranking_451/results/extractions_*.jsonl
 !scripts/disease_ranking_451/results/extractions_*_llm.jsonl
+scripts/disease_ranking_451/results/rerank_*_p3_*.jsonl
