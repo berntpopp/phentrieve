@@ -35,8 +35,11 @@ SETTINGS = {
 ASSERTION = {"disable": False, "preference": "dependency"}
 
 
-def main(lang: str) -> None:
-    out_path = HERE / "results" / f"extractions_{lang}.jsonl"
+def main(lang: str, top_term: bool = False) -> None:
+    """top_term: exploratory arm with `--top-term-per-chunk` (REPORT.md follow-up), own output file."""
+    settings = {**SETTINGS, "top_term_per_chunk": top_term}
+    suffix = "_top_term" if top_term else ""
+    out_path = HERE / "results" / f"extractions_{lang}{suffix}.jsonl"
     done = set()
     if out_path.exists():
         done = {
@@ -70,7 +73,7 @@ def main(lang: str) -> None:
                 retriever=retriever,
                 retrieval_model_name=MODEL,
                 include_positions=True,
-                **SETTINGS,
+                **settings,
             )
             record = {
                 "case": letter["case"],
@@ -93,4 +96,4 @@ def main(lang: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], top_term="--top-term-per-chunk" in sys.argv[2:])

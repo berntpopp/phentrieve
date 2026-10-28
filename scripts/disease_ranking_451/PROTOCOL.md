@@ -279,3 +279,17 @@ recommended next step is rework (see `REPORT.md`).
   the 8,192-token output budget, so the letter text was cut off.
 - **Fix.** A truncated letter now counts as a failed attempt. The budget was raised to 16,384
   tokens, and only these three letters were regenerated. No disease rank had been computed.
+
+## Post-hoc exploratory analyses (2026-10-28, after the test run; not registered)
+
+These analyses were run after the test results were known, at the owner's request. They do
+not change the registered decision.
+
+- **Error profile** (`errors.py`). Counterfactual profiles separate the cost of missing terms
+  from the cost of wrong terms. Wrong terms are classified as exact, ancestor, descendant or
+  unrelated, and also counted as negation failures. Misses are broken down by organ system.
+- **The existing `--top-term-per-chunk` flag** (`explore_top_term.py`; extraction with
+  `extract.py --top-term-per-chunk`). On German non-cited test cases, Hit@10 is 0.370
+  [0.306, 0.438], a ratio of 0.665 to gold.
+
+Details are in `REPORT.md`, under "Post-hoc".

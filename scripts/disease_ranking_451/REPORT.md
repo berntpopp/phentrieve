@@ -63,7 +63,8 @@ the noise dilutes the true signal. VarLens already saw this weakness of tau = 1 
 profiles (its spec, §7). Keeping one candidate per chunk removes part of the noise and
 recovers about 5 pp.
 
-**Rework before rebuilding (cheap: letters and extractions are cached).**
+**Rework before rebuilding (cheap: letters and extractions are cached; see the error profile
+below).**
 
 1. Fix precision first. Options:
    - one term per span by default;
@@ -74,6 +75,62 @@ recovers about 5 pp.
    threshold.
 3. Optionally test the scorer's tau = 0 on noisy profiles. That would change the frozen
    scorer, so it needs its own protocol.
+
+## Post-hoc: error profile and the existing `--top-term-per-chunk` flag
+
+This section is exploratory. It was done after the test run and does not change the
+decision. Code: `errors.py` and `explore_top_term.py`; output: `results/errors_*.csv` and
+`results/explore_top_term.csv`.
+
+**Noise costs far more than misses.** Counterfactual German Hit@10 on non-cited test cases,
+default output:
+
+| Profile | Hit@10 | Effect |
+|---|---|---|
+| Gold terms | 0.557 | |
+| Gold terms Phentrieve recovered (misses only, no noise) | 0.516 | misses cost 4 pp |
+| Gold plus Phentrieve's wrong terms (noise only) | 0.388 | noise costs 17 pp |
+| Phentrieve's related terms only (wrong terms removed) | 0.377 | term choice costs another 14 pp |
+| Phentrieve default output | 0.311 | |
+
+**What the wrong terms are.** Of the 26,666 affirmed terms extracted from German test
+letters:
+
+- 6% match gold exactly;
+- 7.5% are vaguer ancestors of a gold term;
+- 12% are more specific than a gold term;
+- **75% are unrelated to any gold term.**
+
+A chunk yields a median of 7 affirmed candidates, and 44% of chunks hit the cap of 10. The
+most frequent wrong terms come from normal findings and distractors that get mapped to the
+abnormal concept. "Normal development, doing well at school" becomes *Cognitive
+impairment*, *Developmental regression* and *Global developmental delay*; "growth on the
+50th centile" becomes *Postnatal growth retardation*; "normocephalic" becomes *Sloping
+forehead*, *Dolichocephaly* or *Turricephaly*; "pleasant, cheerful" becomes *Euphoria*.
+Negation failures, where an excluded finding is extracted as present, account for 13% of
+wrong terms.
+
+**Misses are spread across organ systems.** On average 17% of gold terms are not recovered,
+even with ancestor credit. The rate is highest for the ear (29%), limbs (24%) and skin
+(23%), and lowest for metabolism (7%) and blood (10%).
+
+**The existing flag** (`--top-term-per-chunk`, `top_term_per_chunk_for_aggregation` in the
+API):
+
+| | German Hit@10 | Ratio to gold | Terms per letter |
+|---|---|---|---|
+| Flag on | 0.370 [0.306, 0.438] | 0.67 | 18 |
+| Default | 0.311 | | 90 |
+| Soft k = 1 | 0.360 | | |
+
+In English the flag reaches 0.391 (ratio 0.70). It is about as good as soft k = 1, still
+well short of 0.8, and Hit@10 on dev overstated it (ratio 0.81). Fewer terms per chunk alone
+do not close the gap, because most of the remaining terms come from chunks that should not
+produce an abnormal term at all.
+
+**Fix first:** stop normal or reassuring statements from producing abnormal terms (the
+normality cue lexicon and assertion handling of distractor sentences). Next, improve
+negation coverage. Then take one term per span.
 
 ## Data, attrition and leakage
 
