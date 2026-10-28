@@ -122,3 +122,4 @@ data/hp.json
 # Issue #451 evaluation: case-level results are versioned
 !scripts/disease_ranking_451/results/
 scripts/disease_ranking_451/results/extractions_*.jsonl
+!scripts/disease_ranking_451/results/extractions_*_llm.jsonl
