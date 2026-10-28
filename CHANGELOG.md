@@ -102,7 +102,10 @@ together:
   `grouped_small` group (the last fallback level) that truncates at its scaled
   output budget is retried once at a fixed 65,536-token ceiling
   (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
-  keep the scaled budget, so runaway generations are still cut early. A group
+  keep the scaled budget, so runaway generations are still cut early. At most
+  two such retries run per request
+  (`DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES`), so a model that runs away
+  in every group of a long note cannot cost one ceiling call per group. A group
   that still fails is counted in `phase1_unrecovered_groups`, and REST
   responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
   (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.

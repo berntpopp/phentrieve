@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
@@ -10,6 +11,7 @@ from typing import Any
 from phentrieve.llm.config import (
     DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS,
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+    DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES,
     DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS,
     DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK,
     DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS,
@@ -1042,11 +1044,16 @@ class TwoPhaseLLMPipeline:
             ]
         ] = []
         max_workers = min(len(indexed_groups), DEFAULT_PHASE1_GROUP_MAX_WORKERS) or 1
+        retry_budget = (
+            threading.Semaphore(DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES)
+            if retry_truncated_groups
+            else None
+        )
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(
                     self._run_phase1_group_with_truncation_retry,
-                    retry_truncated=retry_truncated_groups,
+                    retry_budget=retry_budget,
                     extraction_group=group,
                     text=text,
                     extraction_prompt=extraction_prompt,
@@ -1210,7 +1217,7 @@ class TwoPhaseLLMPipeline:
     def _run_phase1_group_with_truncation_retry(
         self,
         *,
-        retry_truncated: bool,
+        retry_budget: threading.Semaphore | None,
         **group_kwargs: Any,
     ) -> tuple[
         list[dict[str, Any]], dict[str, int], int, float, dict[str, Any] | None, bool
@@ -1222,11 +1229,17 @@ class TwoPhaseLLMPipeline:
         findings legitimately exceed the scaled budget would be dropped (#395).
         The first request keeps the scaled budget, so a runaway generation is
         still cut early, and the retry is bounded by the fixed ceiling.
+        ``retry_budget`` is shared by all groups of one request and caps the
+        number of ceiling retries; ``None`` disables retries.
         """
         try:
             return (*self._run_phase1_group(**group_kwargs), False)
         except LLMPipelinePhaseError as exc:
-            if not (retry_truncated and exc.output_truncated):
+            if not (
+                retry_budget is not None
+                and exc.output_truncated
+                and retry_budget.acquire(blocking=False)
+            ):
                 raise
             first_error = exc
         extraction_group = group_kwargs["extraction_group"]

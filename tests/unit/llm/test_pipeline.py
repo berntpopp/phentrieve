@@ -1849,6 +1849,24 @@ def test_group_still_truncated_after_retry_is_reported_unrecovered(
     assert failed_group["chunk_ids"] == [3, 4]
 
 
+def test_truncation_retries_stop_when_the_request_budget_is_spent(
+    monkeypatch,
+) -> None:
+    """The per-request cap wins: no ceiling retry once the budget is used up."""
+    monkeypatch.setattr(
+        pipeline_module, "DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES", 0
+    )
+    result, provider = _run_truncation_scenario(monkeypatch, [_truncated_response()])
+
+    assert 65536 not in [
+        call["max_output_tokens"] for call in provider.structured_calls
+    ]
+    assert provider.responses == []
+    counts = result.meta.phase_counts
+    assert counts["phase1_truncation_retries"] == 0
+    assert counts["phase1_unrecovered_groups"] == 1
+
+
 def test_grouped_large_truncation_is_not_retried_at_the_ceiling(monkeypatch) -> None:
     """A truncated grouped_large window falls back to smaller groups instead."""
     monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
