@@ -1,6 +1,6 @@
-"""Exploratory step 3 (post hoc, RUO): LLM rerank of the scorer's top diseases (issue #451).
+"""Exploratory step 3 (post hoc, RUO): LLM reorder of the scorer's top diseases (issue #451).
 
-    python rerank.py <hpo_dir> <dev|test|all> <model>
+    python reorder.py <hpo_dir> <dev|test|all> <model>
     model: gemini-3.1-flash-lite (Phentrieve's default LLM), claude-opus-5-5 (Anthropic API) or
     cc-claude-opus-5-5 (same model through local Claude Code, `claude -p`)
 
@@ -11,8 +11,8 @@ Pipeline per letter:
    candidate's most frequent annotated phenotypes.
 
 The true disease keeps its scorer rank when it is outside the top N; inside, it gets its
-reranked position (a missing or invalid answer falls back to scorer order). Cached in
-results/rerank_<model>_top<N>_<lang>.jsonl (RERANK_TOP_N, default 20).
+reordered position (a missing or invalid answer falls back to scorer order). Cached in
+results/reorder_<model>_top<N>_<lang>.jsonl (REORDER_TOP_N, default 20).
 """
 
 from __future__ import annotations
@@ -38,11 +38,11 @@ SEED, N_PHENO = 451, 10
 EXTRACT_TAG = __import__("os").environ.get(
     "EXTRACT_TAG", ""
 )  # which LLM extraction run
-TOP_N = int(__import__("os").environ.get("RERANK_TOP_N", "20"))  # candidate pool size
+TOP_N = int(__import__("os").environ.get("REORDER_TOP_N", "20"))  # candidate pool size
 
 
 def ask(model: str, system: str, prompt: str) -> str:
-    """One reranking call. Gemini: temperature 0 + seed. Claude 5.x accepts no temperature/seed.
+    """One reordering call. Gemini: temperature 0 + seed. Claude 5.x accepts no temperature/seed.
     "cc-<model>": headless local Claude Code (`claude -p`) on the user's Claude Code login, no
     tools, no MCP or settings, run from an empty directory so no project context is loaded."""
     if model.startswith("cc-"):
@@ -139,7 +139,7 @@ def candidates_text(ix: scorer.PhenotypeIndex, order: list[int], s: np.ndarray) 
     return "\n".join(lines)
 
 
-PROMPT = __import__("os").environ.get("RERANK_PROMPT", "v1")  # prompt / input version
+PROMPT = __import__("os").environ.get("REORDER_PROMPT", "v1")  # prompt / input version
 
 SYSTEM_V2 = """You are a clinical geneticist supporting research (not clinical care) on rare-disease
 phenotype matching. A phenotype-similarity ranker has scored every disease against the patient's
@@ -311,7 +311,7 @@ Answer with JSON only:
  "changes": [{"id": "<disease id>", "from": <ranker rank>, "to": <new rank>, "reason": "<short>"}]}"""
 
 PASSES = int(
-    __import__("os").environ.get("RERANK_PASSES", "1")
+    __import__("os").environ.get("REORDER_PASSES", "1")
 )  # shuffled consensus passes
 
 
@@ -427,7 +427,7 @@ def main(hpo_dir: Path, split: str, model: str) -> None:
             + ("" if PROMPT == "v1" else f"_{PROMPT}")
             + (f"_p{PASSES}" if PASSES > 1 else "")
         )
-        out_path = RESULTS / f"rerank_{model}_top{TOP_N}{suffix}_{lang}.jsonl"
+        out_path = RESULTS / f"reorder_{model}_top{TOP_N}{suffix}_{lang}.jsonl"
         done = {r["case"] for r in load_jsonl(out_path)} if out_path.exists() else set()
         lock = threading.Lock()
 
@@ -448,7 +448,7 @@ def main(hpo_dir: Path, split: str, model: str) -> None:
                     "case": case["id"],
                     "lang": lang,
                     "scorer_rank": (len(ix.disease_ids) + 1) / 2,
-                    "rerank_rank": None,
+                    "reorder_rank": None,
                 }
             else:
                 order = [int(d) for d in np.argsort(-s, kind="stable")[:TOP_N]]
@@ -571,7 +571,7 @@ def main(hpo_dir: Path, split: str, model: str) -> None:
                     "case": case["id"],
                     "lang": lang,
                     "scorer_rank": scorer.avg_rank(s, true),
-                    "rerank_rank": final.index(true) + 1 if true in final else None,
+                    "reorder_rank": final.index(true) + 1 if true in final else None,
                     "valid_ids": len(valid),
                     "scorer_order": [ix.disease_ids[d] for d in order],
                     "final": [ix.disease_ids[d] for d in final],

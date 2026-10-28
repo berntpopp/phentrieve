@@ -8,16 +8,16 @@ matches the curated gold terms on non-cited test cases (n = 289 per language):
 
 1. Phentrieve LLM full-text extraction, with the grounded-negation fix of PR #453;
 2. the VarLens scorer;
-3. a Claude Opus 5.5 rerank of the scorer's top 50 (prompt frozen on dev).
+3. a Claude Opus 5.5 reorder of the scorer's top 50 (prompt frozen on dev).
 
 | Non-cited test | DE Hit@1 | DE Hit@10 | EN Hit@1 | EN Hit@10 |
 |---|---|---|---|---|
 | Gold terms -> scorer | 0.232 | 0.557 | 0.232 | 0.557 |
 | LLM extraction (fixed) -> scorer | 0.173 | 0.471 | 0.145 | 0.474 |
-| **+ Opus rerank** | **0.277** [0.22, 0.35] | **0.550** [0.48, 0.62] | **0.280** [0.22, 0.35] | **0.564** [0.50, 0.64] |
+| **+ Opus reorder** | **0.277** [0.22, 0.35] | **0.550** [0.48, 0.62] | **0.280** [0.22, 0.35] | **0.564** [0.50, 0.64] |
 
-What these rows compare: the rerank reads the letter and uses the LLM's own disease
-knowledge, while the gold arm is not reranked. "Matches gold" therefore means the full
+What these rows compare: the reorder reads the letter and uses the LLM's own disease
+knowledge, while the gold arm is not reordered. "Matches gold" therefore means the full
 pipeline ranks as well as curated terms put through the plain scorer, not that the
 extraction is perfect. The LLM may also have seen the published case reports.
 

@@ -1,13 +1,13 @@
-"""Single test evaluation of the frozen rerank pipeline (exploratory, issue #451).
+"""Single test evaluation of the frozen reorder pipeline (exploratory, issue #451).
 
-    python -I rerank_test.py <hpo_dir>
+    python -I reorder_test.py <hpo_dir>
 
 Arms per language on the non-cited test split (n = 289):
 - gold: curated phenopacket terms through the scorer;
-- scorer: frozen LLM extraction (EXTRACT_TAG from results/rerank_frozen.json) through the scorer;
-- rerank: the frozen rerank of the scorer's top 50 (results/rerank_frozen.json).
+- scorer: frozen LLM extraction (EXTRACT_TAG from results/reorder_frozen.json) through the scorer;
+- reorder: the frozen reorder of the scorer's top 50 (results/reorder_frozen.json).
 Hit@1/3/10 and MRR, exact disease and gene level, PMID-clustered bootstrap 95% CIs (2,000
-replicates), paired differences and exact McNemar. Writes results/rerank_test.csv.
+replicates), paired differences and exact McNemar. Writes results/reorder_test.csv.
 """
 
 from __future__ import annotations
@@ -36,9 +36,9 @@ KS = (1, 3, 10)
 
 def main(hpo_dir: Path) -> None:
     ix = scorer.build_index(hpo_dir)
-    frozen = json.loads((RESULTS / "rerank_frozen.json").read_text())
+    frozen = json.loads((RESULTS / "reorder_frozen.json").read_text())
     tag = frozen["env"].split("EXTRACT_TAG=")[1].split()[0]
-    prompt = frozen["rerank"]["prompt"]
+    prompt = frozen["reorder"]["prompt"]
     gene_ds = {g: {ix.disease_ids[d] for d in ds} for g, ds in ix.gene_diseases.items()}
     cases = [
         c
@@ -50,11 +50,11 @@ def main(hpo_dir: Path) -> None:
         rr = {
             r["case"]: r
             for r in load_jsonl(
-                RESULTS / f"rerank_cc-claude-opus-5-5_top50{tag}_{prompt}_{lang}.jsonl"
+                RESULTS / f"reorder_cc-claude-opus-5-5_top50{tag}_{prompt}_{lang}.jsonl"
             )
         }
         missing = [c["id"] for c in cases if c["id"] not in rr]
-        assert not missing, f"{lang}: {len(missing)} test cases not reranked"
+        assert not missing, f"{lang}: {len(missing)} test cases not reordered"
         ranks: dict[str, dict[str, list[float]]] = {"exact": {}, "gene": {}}
         for c in cases:
             r = rr[c["id"]]
@@ -69,7 +69,7 @@ def main(hpo_dir: Path) -> None:
             arms = {
                 "gold": (gold_rank, gold_gene),
                 "scorer": (r["scorer_rank"], r.get("scorer_order")),
-                "rerank": (r["rerank_rank"] or r["scorer_rank"], r.get("final")),
+                "reorder": (r["reorder_rank"] or r["scorer_rank"], r.get("final")),
             }
             for arm, (exact, order) in arms.items():
                 ranks["exact"].setdefault(arm, []).append(exact)
@@ -94,11 +94,11 @@ def main(hpo_dir: Path) -> None:
                     h = {a: float((v[idx] <= k).mean()) for a, v in r.items()}
                     for a in r:
                         reps.setdefault((a, k), []).append(h[a])
-                    reps.setdefault(("rerank-scorer", k), []).append(
-                        h["rerank"] - h["scorer"]
+                    reps.setdefault(("reorder-scorer", k), []).append(
+                        h["reorder"] - h["scorer"]
                     )
-                    reps.setdefault(("rerank/gold", k), []).append(
-                        h["rerank"] / h["gold"] if h["gold"] else np.nan
+                    reps.setdefault(("reorder/gold", k), []).append(
+                        h["reorder"] / h["gold"] if h["gold"] else np.nan
                     )
             for k in KS:
                 point = {a: float((v <= k).mean()) for a, v in r.items()}
@@ -106,20 +106,20 @@ def main(hpo_dir: Path) -> None:
                 row = {"lang": lang, "level": level, "k": k, "n": len(cases)}
                 for a in r:
                     row[a], (row[f"{a}_lo"], row[f"{a}_hi"]) = point[a], ci((a, k))
-                row["rerank_minus_scorer"] = point["rerank"] - point["scorer"]
-                row["diff_lo"], row["diff_hi"] = ci(("rerank-scorer", k))
-                row["mcnemar_p"] = mcnemar(r["rerank"], r["scorer"], k)
-                row["rerank_over_gold"] = (
-                    point["rerank"] / point["gold"] if point["gold"] else np.nan
+                row["reorder_minus_scorer"] = point["reorder"] - point["scorer"]
+                row["diff_lo"], row["diff_hi"] = ci(("reorder-scorer", k))
+                row["mcnemar_p"] = mcnemar(r["reorder"], r["scorer"], k)
+                row["reorder_over_gold"] = (
+                    point["reorder"] / point["gold"] if point["gold"] else np.nan
                 )
-                row["ratio_lo"], row["ratio_hi"] = ci(("rerank/gold", k))
+                row["ratio_lo"], row["ratio_hi"] = ci(("reorder/gold", k))
                 rows.append(row)
             if level == "exact":
-                sc, re_ = r["scorer"], r["rerank"]
+                sc, re_ = r["scorer"], r["reorder"]
                 print(
                     f"{lang}: #1 lost {int(((sc == 1) & (re_ > 1)).sum())}, gained {int(((sc > 1) & (re_ == 1)).sum())}"
                 )
-    write_csv(RESULTS / "rerank_test.csv", rows)
+    write_csv(RESULTS / "reorder_test.csv", rows)
     for row in rows:
         print(
             {

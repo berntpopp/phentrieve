@@ -71,6 +71,11 @@ def main(data: Path, varlens: Path) -> None:
             "temperature": 0.0,
             "seed": "451 + attempt",
         },
+        "posthoc": {
+            "llm_extraction": "Phentrieve two_phase whole_document_grounded, gemini-3.1-flash-lite (DEFAULT_LLM_MODEL)",
+            "negation_fix": "PR #453, branch fix/llm-list-negation-scope, commit d0f431b (EXTRACT_TAG=_negfix)",
+            "reorder": "claude-opus-5-5 via local Claude Code (claude -p), effort medium; frozen in results/reorder_frozen.json",
+        },
         "packages": {
             p: version(p)
             for p in (
@@ -93,6 +98,12 @@ def main(data: Path, varlens: Path) -> None:
                     HERE / "results" / f"extractions_{lang}.jsonl"
                 )
                 for lang in ("de", "en")
+            },
+            **{
+                f"results/{p.name}": sha256(p)
+                for p in sorted(HERE.glob("results/*"))
+                if p.name.startswith(("extractions_", "reorder_"))
+                and p.suffix in (".jsonl", ".gz", ".json")
             },
             "conformance/varlens_reference.json": sha256(
                 HERE / "conformance" / "varlens_reference.json"

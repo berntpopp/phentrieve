@@ -1,9 +1,9 @@
-"""Compare rerank variants (exploratory, issue #451): Hit@1/3/10, exact and gene-level.
+"""Compare reorder variants (exploratory, issue #451): Hit@1/3/10, exact and gene-level.
 
-    python -I rerank_eval.py <hpo_dir> [split]
+    python -I reorder_eval.py <hpo_dir> [split]
 
 Gene-level: a candidate counts when it is a disease of the case's causal gene (OMIM/ORPHA
-twins and allelic diseases of one gene). Every results/rerank_*_<lang>.jsonl is evaluated on
+twins and allelic diseases of one gene). Every results/reorder_*_<lang>.jsonl is evaluated on
 the cases it shares with the others, so variants are compared on the same cases.
 """
 
@@ -28,9 +28,9 @@ def main(hpo_dir: Path, split: str = "dev") -> None:
     }
     rows = []
     for lang in LANGS:
-        files = sorted(RESULTS.glob(f"rerank_*_{lang}.jsonl"))
+        files = sorted(RESULTS.glob(f"reorder_*_{lang}.jsonl"))
         runs = {
-            re.sub(rf"^rerank_|_{lang}\.jsonl$", "", f.name): {
+            re.sub(rf"^reorder_|_{lang}\.jsonl$", "", f.name): {
                 r["case"]: r for r in load_jsonl(f)
             }
             for f in files
@@ -50,7 +50,7 @@ def main(hpo_dir: Path, split: str = "dev") -> None:
                 e = (
                     rec["scorer_rank"]
                     if recs is None
-                    else (rec["rerank_rank"] or rec["scorer_rank"])
+                    else (rec["reorder_rank"] or rec["scorer_rank"])
                 )
                 exact.append(e)
                 order = rec.get("scorer_order") if recs is None else rec.get("final")
@@ -82,7 +82,7 @@ def main(hpo_dir: Path, split: str = "dev") -> None:
             print(
                 {k: round(v, 3) if isinstance(v, float) else v for k, v in row.items()}
             )
-    write_csv(RESULTS / f"rerank_eval_{split}.csv", rows)
+    write_csv(RESULTS / f"reorder_eval_{split}.csv", rows)
 
 
 if __name__ == "__main__":

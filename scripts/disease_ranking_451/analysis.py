@@ -34,11 +34,15 @@ HITS = (1, 3, 10)
 
 
 def load_jsonl(path: Path) -> list[dict]:
-    return [
-        json.loads(line)
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if line
-    ]
+    """JSON lines; falls back to `<path>.gz` (large result files are committed gzipped)."""
+    gz = path.with_name(path.name + ".gz")
+    if not path.exists() and gz.exists():
+        import gzip
+
+        text = gzip.decompress(gz.read_bytes()).decode("utf-8")
+    else:
+        text = path.read_text(encoding="utf-8")
+    return [json.loads(line) for line in text.splitlines() if line]
 
 
 def soft_weights(chunks: list, k: int, weighting: str | float) -> dict[str, float]:
