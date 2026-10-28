@@ -41,8 +41,8 @@ class TextProcessingRequest(BaseModel):
     allow_standard_fallback: bool = Field(
         default=False,
         description=(
-            "When true, production LLM quota exhaustion falls back to the standard "
-            "backend instead of returning a quota error."
+            "When true, LLM quota exhaustion or an LLM backend error falls back "
+            "to the standard backend instead of returning an error."
         ),
     )
     language: str | None = Field(

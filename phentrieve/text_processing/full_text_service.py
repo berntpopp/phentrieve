@@ -28,6 +28,7 @@ from phentrieve.llm.config import (
     DEFAULT_LLM_MODEL,
     DEFAULT_PROVIDER_NAME,
 )
+from phentrieve.llm.evidence_offsets import is_located
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
 from phentrieve.llm.preprocessing import (
     build_extraction_groups,
@@ -35,6 +36,7 @@ from phentrieve.llm.preprocessing import (
 )
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.tools import ToolExecutor
 from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
 
 StableBackendResponse = dict[str, Any]
@@ -83,6 +85,14 @@ def _build_provider_factory_kwargs(
     }
 
 
+def _retriever_is_multi_vector(retriever: Any) -> bool:
+    """Whether a supplied retriever points at a multi-vector index."""
+    detect_index_type = getattr(retriever, "detect_index_type", None)
+    if callable(detect_index_type):
+        return bool(detect_index_type() == "multi_vector")
+    return True
+
+
 @dataclass(frozen=True)
 class _PreprocessedGroundedDocument:
     grounded_chunks: list[dict[str, Any]]
@@ -99,6 +109,7 @@ def preprocess_grounded_document(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> _PreprocessedGroundedDocument:
     grounded_chunks = build_grounded_chunks_from_text_pipeline(
         text=text,
@@ -107,6 +118,7 @@ def preprocess_grounded_document(
         assertion_config=assertion_config,
         retrieval_model_name=retrieval_model_name,
         include_positions=include_positions,
+        sbert_model_for_semantic_chunking=sbert_model_for_semantic_chunking,
     )
     extraction_groups: list[dict[str, Any]] = []
     token_count_fn = getattr(provider, "count_tokens", None)
@@ -306,11 +318,12 @@ def _infer_text_attribution_offsets(
 ) -> tuple[int | None, int | None]:
     if not matched_text:
         return None, None
-
-    start_idx = chunk_text.lower().find(matched_text.lower())
-    if start_idx < 0:
+    # Search the original string: lowering it first can change its length
+    # ("İ" lowers to two code points) and shift every later offset (#411).
+    match = re.search(re.escape(matched_text), chunk_text, re.IGNORECASE)
+    if match is None:
         return None, None
-    return start_idx, start_idx + len(matched_text)
+    return match.start(), match.end()
 
 
 def _chunk_relative_span(
@@ -320,7 +333,7 @@ def _chunk_relative_span(
     if not (
         isinstance(start_char, int)
         and isinstance(end_char, int)
-        and _is_located_chunk(chunk)
+        and is_located(chunk.get("start_char"), chunk.get("end_char"))
     ):
         return None
     chunk_start, chunk_end = int(chunk["start_char"]), int(chunk["end_char"])
@@ -328,16 +341,6 @@ def _chunk_relative_span(
     if start >= end:
         return None
     return start - chunk_start, end - chunk_start
-
-
-def _is_located_chunk(chunk: Mapping[str, Any]) -> bool:
-    """Chunks the text pipeline could not locate carry ``-1`` positions."""
-    chunk_start, chunk_end = chunk.get("start_char"), chunk.get("end_char")
-    return (
-        isinstance(chunk_start, int)
-        and isinstance(chunk_end, int)
-        and 0 <= chunk_start <= chunk_end
-    )
 
 
 _WHITESPACE_RUN = re.compile(r"\s+")
@@ -380,6 +383,11 @@ def _adapt_llm_text_attributions(
             _coerce_chunk_id(chunk_id) for chunk_id in record.get("chunk_ids", [])
         ]
         record_start, record_end = record.get("start_char"), record.get("end_char")
+        if record.get("offset_basis") == "chunk_span":
+            # The evidence was not found and the span is the whole cited chunk;
+            # showing it would look like an exact quote (#397). Search the
+            # chunk for the evidence instead and skip it when absent.
+            record_start = record_end = None
         for chunk_id in chunk_ids:
             if chunk_id is None or chunk_id not in chunk_by_id:
                 continue
@@ -401,7 +409,9 @@ def _adapt_llm_text_attributions(
                     )
                 start_char, end_char = span
                 matched_text = chunk_text[start_char:end_char]
-            elif isinstance(record_start, int) and _is_located_chunk(chunk):
+            elif isinstance(record_start, int) and is_located(
+                chunk.get("start_char"), chunk.get("end_char")
+            ):
                 # The evidence span lies outside this cited chunk.
                 continue
             else:
@@ -867,6 +877,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
             assertion_config=kwargs.get("assertion_config"),
             retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            sbert_model_for_semantic_chunking=kwargs.get(
+                "sbert_model_for_semantic_chunking"
+            ),
         )
         grounded_chunks = preprocessed.grounded_chunks
         extraction_groups = preprocessed.extraction_groups
@@ -940,7 +953,22 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         except (AttributeError, NotImplementedError):
             logger.debug("Provider does not support token preflight counting")
 
-    pipeline = pipeline_factory(provider=provider)
+    retriever = kwargs.get("retriever")
+    if retriever is not None:
+        # Hand a caller-owned (e.g. API-cached) retriever to the tool executor so
+        # the pipeline does not open a new Chroma collection per request.
+        tool_executor = ToolExecutor(
+            retriever=retriever,
+            model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            multi_vector=_retriever_is_multi_vector(retriever),
+        )
+        pipeline = pipeline_factory(
+            **_build_provider_factory_kwargs(
+                pipeline_factory, provider=provider, tool_executor=tool_executor
+            )
+        )
+    else:
+        pipeline = pipeline_factory(provider=provider)
     resolved_provider_name = getattr(provider, "provider_name", None)
     if not isinstance(resolved_provider_name, str) or not resolved_provider_name:
         resolved_provider_name = llm_provider or DEFAULT_PROVIDER_NAME
@@ -984,6 +1012,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     adapted_other = _adapt_llm_aggregated_terms(
         getattr(result, "other_person_findings", []),
         grounded_chunks=grounded_chunks,
+        document_text=text,
     )
     adapted_chunks = _adapt_llm_processed_chunks(grounded_chunks, adapted_terms)
 

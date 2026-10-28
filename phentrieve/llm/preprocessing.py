@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
+from phentrieve.llm.evidence_offsets import rendered_regions
 from phentrieve.llm.types import ExtractionGroup, GroundedChunk
 
 
@@ -57,9 +58,6 @@ def _render_group_text(chunks: list[GroundedChunk]) -> str:
     )
 
 
-_SEPARATORS = " \t\r\n.,;:!?)]"
-
-
 def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
     """Render each chunk with the source text that cleanup removed around it.
 
@@ -69,34 +67,26 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
     that follows it in the source, so a coordinated list split into several
     chunks ("no A," / "B," / "or C.") stays recognisable (#375). Separators
     are shown once, after the chunk they follow, and whitespace runs in the
-    prefix are collapsed so it stays on its chunk-index line. ``None`` when
-    nothing differs from the cleaned chunk text.
+    prefix are collapsed so it stays on its chunk-index line. A chunk after an
+    unlocated chunk gets no prefix, which would repeat that chunk's text
+    (#397). ``None`` when nothing differs from the cleaned chunk text.
     """
-    # Chunks the text pipeline could not locate carry -1 positions.
-    positioned = [
-        (index, chunk["start_char"], chunk["end_char"])
-        for index, chunk in enumerate(chunks)
-        if isinstance(chunk.get("start_char"), int)
-        and isinstance(chunk.get("end_char"), int)
-        and 0 <= chunk["start_char"] <= chunk["end_char"]
-    ]
     prompt_texts: list[str | None] = [None] * len(chunks)
-    previous_end = 0
-    for position, (index, start_char, end_char) in enumerate(positioned):
-        gap = text[min(previous_end, start_char) : start_char].lstrip(_SEPARATORS)
+    for region in rendered_regions(
+        text, [(chunk.get("start_char"), chunk.get("end_char")) for chunk in chunks]
+    ):
+        gap = text[region.start : region.chunk_start]
         if gap:
             gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
-        next_start = (
-            positioned[position + 1][1] if position + 1 < len(positioned) else len(text)
-        )
-        following = text[end_char : max(end_char, next_start)]
-        trailing = following[: len(following) - len(following.lstrip(_SEPARATORS))]
         trailing = "".join(
-            character for character in trailing if not character.isspace()
+            character
+            for character in text[region.chunk_end : region.end]
+            if not character.isspace()
         )
         if gap or trailing:
-            prompt_texts[index] = f"{gap}{chunks[index].get('text', '')}{trailing}"
-        previous_end = max(previous_end, end_char)
+            prompt_texts[region.index] = (
+                f"{gap}{chunks[region.index].get('text', '')}{trailing}"
+            )
     return prompt_texts
 
 
@@ -108,6 +98,7 @@ def build_grounded_chunks_from_text_pipeline(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> list[GroundedChunk]:
     from phentrieve.config import get_default_chunk_pipeline_config
     from phentrieve.embeddings import load_embedding_model
@@ -123,7 +114,11 @@ def build_grounded_chunks_from_text_pipeline(
         assertion_config=(
             {"disable": True} if assertion_config is None else assertion_config
         ),
-        sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
+        sbert_model_for_semantic_chunking=(
+            sbert_model_for_semantic_chunking
+            if sbert_model_for_semantic_chunking is not None
+            else load_embedding_model(retrieval_model_name)
+        ),
     )
     processed_chunks = text_pipeline.process(text, include_positions=include_positions)
     prompt_texts = _prompt_texts(text, processed_chunks)

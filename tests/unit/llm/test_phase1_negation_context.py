@@ -160,6 +160,25 @@ def test_prompt_text_skips_chunks_without_a_located_position() -> None:
     assert _prompt_texts(text, chunks) == ["Fever.", None]
 
 
+def test_prompt_text_does_not_repeat_an_unlocated_chunk() -> None:
+    # The gap before chunk 3 still holds the text of unlocated chunk 2; showing
+    # it would let the model cite chunk 3 for Kopfschmerz (#397).
+    text = "Fieber. Kopfschmerz. Keine Krampfanfaelle, kein Erbrechen."
+    chunks = [
+        {"text": "Fieber", "start_char": 0, "end_char": 6},
+        {"text": "Kopfschmerz", "start_char": -1, "end_char": -1},
+        {"text": "Krampfanfaelle", "start_char": 27, "end_char": 41},
+        {"text": "Erbrechen", "start_char": 48, "end_char": 57},
+    ]
+
+    assert _prompt_texts(text, chunks) == [
+        "Fieber.",
+        None,
+        "Krampfanfaelle,",
+        "kein Erbrechen.",
+    ]
+
+
 def test_prompt_text_is_none_without_positions(monkeypatch) -> None:
     class _NoPositions(_FakeTextProcessingPipeline):
         def process(self, raw_text: str, include_positions: bool = False):

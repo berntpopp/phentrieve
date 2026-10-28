@@ -30,7 +30,7 @@ from phentrieve.llm.config import (
     NEGATED_ASSERTION,
     PRESENT_ASSERTION,
 )
-from phentrieve.llm.evidence_offsets import locate_evidence
+from phentrieve.llm.evidence_offsets import EvidenceLocator, rendered_regions
 from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
@@ -1867,47 +1867,32 @@ class TwoPhaseLLMPipeline:
         """Replace model-reported offsets with document offsets of the evidence.
 
         A chunk whose phase-1 rendering (``prompt_text``) carries the text that
-        cleanup dropped around it is searched from the end of the previous chunk
-        to the start of the next one, because the model may quote that text.
+        cleanup dropped around it is searched over exactly the source text that
+        rendering shows, because the model may quote that text.
         """
-        # Unlocated chunks carry -1 positions from the text pipeline.
-        positioned = [
-            (
-                int(chunk["chunk_id"]),
-                int(chunk["start_char"]),
-                int(chunk["end_char"]),
-                bool(chunk.get("prompt_text")),
-            )
-            for chunk in grounded_chunks
-            if chunk.get("start_char") is not None
-            and chunk.get("end_char") is not None
-            and 0 <= int(chunk["start_char"]) <= int(chunk["end_char"])
-        ]
         chunk_spans: dict[int, tuple[int, int]] = {}
         search_spans: dict[int, tuple[int, int]] = {}
-        previous_end = 0
-        for position, (chunk_id, start, end, rendered) in enumerate(positioned):
-            chunk_spans[chunk_id] = (start, end)
-            next_start = (
-                positioned[position + 1][1]
-                if position + 1 < len(positioned)
-                else len(text)
-            )
+        for region in rendered_regions(
+            text,
+            [
+                (chunk.get("start_char"), chunk.get("end_char"))
+                for chunk in grounded_chunks
+            ],
+        ):
+            chunk = grounded_chunks[region.index]
+            chunk_id = int(chunk["chunk_id"])
+            chunk_spans[chunk_id] = (region.chunk_start, region.chunk_end)
             # A rendered chunk also shows the text dropped before it and the
-            # punctuation after it, so its search region spans both gaps.
+            # punctuation after it, so its search region covers both.
             search_spans[chunk_id] = (
-                (min(previous_end, start), max(end, next_start))
-                if rendered
-                else (start, end)
+                (region.start, region.end)
+                if chunk.get("prompt_text")
+                else (region.chunk_start, region.chunk_end)
             )
-            previous_end = max(previous_end, end)
+        locator = EvidenceLocator(text, chunk_spans, search_spans=search_spans)
         for item in extracted:
-            located = locate_evidence(
-                text,
-                item.get("evidence_text"),
-                item.get("chunk_ids") or [],
-                chunk_spans,
-                search_spans=search_spans,
+            located = locator.locate(
+                item.get("evidence_text"), item.get("chunk_ids") or []
             )
             item["start_char"] = located.start
             item["end_char"] = located.end

@@ -170,18 +170,20 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped = apply_response_mode(
                 raw, mode, keep_detail_fields=_detail_keep(include_details)
             )
-            shaped, trunc = enforce_budget(
-                shaped, mode, list_field="aggregated_hpo_terms"
+            # Trim in reverse clinical priority toward the SAME total-payload
+            # char budget (enforce_budget measures the whole payload each call):
+            # other-person findings first, then family history, and the
+            # patient's own aggregated terms only if still over budget. A large
+            # secondary list must never push the patient's findings out (#396).
+            # Every list stays budgeted and disclosed, never exempted (B2).
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
             )
-            # Budget the family list after the aggregated list and toward the
-            # SAME total-payload char budget (enforce_budget measures the whole
-            # payload each call), so it is never silently trimmed nor exempted
-            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )
-            shaped, other_trunc = enforce_budget(
-                shaped, mode, list_field="other_person_findings"
+            shaped, trunc = enforce_budget(
+                shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(
@@ -261,18 +263,20 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped = apply_response_mode(
                 raw, mode, keep_detail_fields=_detail_keep(include_details)
             )
-            shaped, trunc = enforce_budget(
-                shaped, mode, list_field="aggregated_hpo_terms"
+            # Trim in reverse clinical priority toward the SAME total-payload
+            # char budget (enforce_budget measures the whole payload each call):
+            # other-person findings first, then family history, and the
+            # patient's own aggregated terms only if still over budget. A large
+            # secondary list must never push the patient's findings out (#396).
+            # Every list stays budgeted and disclosed, never exempted (B2).
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
             )
-            # Budget the family list after the aggregated list and toward the
-            # SAME total-payload char budget (enforce_budget measures the whole
-            # payload each call), so it is never silently trimmed nor exempted
-            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
             )
-            shaped, other_trunc = enforce_budget(
-                shaped, mode, list_field="other_person_findings"
+            shaped, trunc = enforce_budget(
+                shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(

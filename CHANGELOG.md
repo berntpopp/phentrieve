@@ -20,6 +20,23 @@ together:
 
 ### Changed
 
+- **The API LLM text path reuses the cached dense retriever** (#420) and its
+  model for semantic chunking, instead of opening a new Chroma collection per
+  request. `run_llm_backend` now forwards a supplied `retriever` to the
+  pipeline's tool executor.
+- **Removed the text router's re-exported private service aliases** and
+  `_process_text_internal` (#428); tests patch `api.services.text_processing_*`.
+- **Query schema uses the shared strategy types** (#427). `QueryRequest`
+  validates `aggregation_strategy` against the `AggregationStrategy` enum and
+  `query_assertion_preference` against one shared `AssertionPreference` alias
+  (`phentrieve.config`); the router casts and hand-copied `Literal`s are gone
+  and `benchmark compare-vectors` derives its valid strategies from the enum.
+  The published request JSON schema and accepted values are unchanged.
+- **API warms the default Chroma index at startup** (#419). The lifespan runs
+  one throwaway query after preloading the model and retriever, so the first
+  real request no longer pays for loading the index. A failed warm-up is
+  logged and startup continues.
+
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
   negation cue applies to every item of the coordinated list it introduces (also
@@ -34,8 +51,65 @@ together:
   `unknown`, and an `unknown` twin of a term with a known temporality is merged
   into it. The phase-1 schema no longer asks for character offsets.
   `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
+- **One helper for located chunks and the gaps between them** (#401). The
+  "chunk has a document position" check and the walk over the text cleanup
+  dropped between chunks were written several times (evidence offsets, full-text
+  adapter, phase-1 prompt rendering, pipeline offset attachment). They now live
+  in `phentrieve.llm.evidence_offsets`, and a rendered chunk's evidence search
+  region is exactly the source text its phase-1 line shows (before, it extended
+  over the whole gap to the next chunk).
 
 ### Fixed
+
+- **`/api/v1/query` no longer blocks the event loop** (#405).
+  `execute_hpo_retrieval_for_api` is now synchronous and both the REST router
+  and the MCP `search_hpo_terms` adapter run it via `run_in_threadpool`, so one
+  query no longer stalls health checks, MCP and text processing.
+- **`GET /api/v1/query` returns 422 for invalid parameters and uses the
+  requested model's retriever** (#408). The retriever dependency binds
+  `model_name` directly (no more un-awaited coroutine or stray `?model=`
+  parameter), `QueryRequest` validation errors become 422 instead of 500, and
+  the retriever-mismatch re-initialization and second model-policy resolution
+  are removed.
+- **API model caches no longer expire hourly or race** (#416). The SBERT model,
+  retriever, status and lock caches are plain dicts (bounded by the model
+  allowlist) read once with `.get()`, a failed model load is retried after a
+  30 s cooldown instead of sticking for an hour, and `cleanup_model_caches`
+  also clears the embedding model registry so models are actually freed.
+- **Other-person findings get correct highlight offsets** (#394). The full-text
+  adapter mapped their document spans without the document text, so offsets
+  drifted by the whitespace that chunk cleanup collapsed.
+- **Full-text attribution offsets on non-ASCII text** (#411). The fallback
+  search for evidence inside a chunk ran on the lowered chunk text, whose length
+  can differ ("İ" lowers to two code points), shifting the offsets. It now
+  searches the original text case-insensitively. (The other points of #411 do
+  not apply on this branch: attribution offsets are computed in code and
+  clipped to the chunk, not taken from the model.)
+- **LLM evidence offsets** (#397):
+  - A `chunk_span` fallback (evidence not found in the cited chunks) is no
+    longer shown as an exact highlight of the whole chunk. The adapter searches
+    the cited chunks for the evidence text and adds no attribution when it is
+    absent, as before the evidence-offset rework; the frontend then falls back
+    to the label. The evidence record keeps `offset_basis="chunk_span"`.
+  - Soft hyphens (U+00AD) and words hyphenated at a line break
+    (`"Hämo-\nglobin"`), common in text pasted from PDFs, no longer prevent a
+    match.
+  - A chunk that follows a chunk the text pipeline could not locate no longer
+    repeats that chunk's text in its phase-1 line, so the model cannot cite it
+    for the unlocated finding. This changes the phase-1 prompt content for such
+    notes; `PROMPT_BEHAVIOR_VERSION` is bumped to `5`.
+  - Each search region is normalized once per document instead of once per
+    finding.
+- **Phenopacket export honours every negation synonym and `excluded: true`**
+  (#407). `denied`, `no`, `negative` and `excluded` now export as excluded
+  features (they previously normalized to `unknown`, i.e. present); an explicit
+  `excluded: true` wins over any `status`/`assertion` string; and the MCP
+  export reads the extractor's `excluded` flag.
+
+- **MCP response budget keeps the patient's findings** (#396). The extract
+  tools now trim `other_person_findings` first, then `family_history_findings`,
+  and `aggregated_hpo_terms` only if still over budget, so a large secondary
+  list no longer pushes the patient's own terms out of the response.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
@@ -111,6 +185,10 @@ together:
   (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
   Retries are traced per group (`truncation_retry`) and counted in
   `phase1_truncation_retries`. The frontend does not display the flag yet.
+- **REST `allow_standard_fallback` now also covers LLM backend errors** (#418),
+  as on MCP: the request reruns on the standard backend with
+  `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
+  the failed LLM attempt's quota reservation is released.
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 
