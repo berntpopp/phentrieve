@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_V_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 331,
+  "total_tokens": 1717,
+  "thoughts_tokens": 1030,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate Chloe Miller, a 6-year-old girl who first presented to clinical attention at 19 months of age. I would appreciate your neurodevelopmental assessment and guidance on her ongoing management.\n\nAround 19 months old, Chloe began having generalized convulsive episodes characterized by sudden bilateral tonic posturing followed by rhythmic clonic extremity movements. These events have generally been self-limited, lasting under two minutes; she has never experienced status epilepticus. She is currently taking weight-adjusted levetiracetam, which has provided fair seizure control.\n\nCognitively, psychoeducational testing indicates mild learning deficits consistent with a mild intellectual disability. Her challenges are distinctly within this mild category, with testing confirming she does not have moderate or severe intellectual disability. Her early speech and language milestones were met on schedule, and her expressive and receptive communication abilities remain age-appropriate. Behaviorally, she shows warm social reciprocity, imaginative play, and normal eye contact, with no autistic features or repetitive mannerisms. There have been no signs of psychosis, thought disorganization, or hallucinatory experiences.\n\nOn examination today, she was alert and cooperative. Cranial nerves II through XII were grossly intact. Motor bulk, tone, and strength were normal and symmetric throughout, and deep tendon reflexes were 2+ bilaterally. Her gait was steady, and coordination was intact. She lives with both parents, and family history is non-contributory for neurological conditions.\n\nThank you again for providing your specialist evaluation for Chloe and her family.\n\nSincerely,\n\nDr. Arthur Pendelton\nGeneral Pediatrics"
+}

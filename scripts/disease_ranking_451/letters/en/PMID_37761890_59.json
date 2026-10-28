@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_59",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 360,
+  "total_tokens": 4779,
+  "thoughts_tokens": 3997,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Albright,\n\nThank you for agreeing to evaluate this female patient regarding her complex neurological picture. \n\nHer parents initially sought care because of a diffuse delay across all developmental spheres. She demonstrates a pronounced lag in her gross and fine motor skills, accompanied by severely delayed speech and language acquisition; she remains non-verbal at this stage. On physical examination, her head circumference remains below the second percentile, with no macrocephaly. Axial examination demonstrates marked central hypotonicity, and she has recently experienced unprovoked generalized convulsions. In addition, her parents report persistent oral feeding struggles from early on. Notably, there is no gastroesophageal reflux, she has no dependency on parenteral nutrition, and no gastrostomy tube feeding in infancy was required.\n\nNeuroimaging revealed a complete failure of callosal commissure formation. This was a total agenesis, with no hypoplasia of the corpus callosum. The lateral and third ventricles were normal in caliber, and ventriculomegaly was absent. There was no hydrocephalus, and brain parenchyma demonstrated no periventricular leukomalacia. The gyral pattern was age-appropriate; pachygyria was ruled out. Furthermore, the hippocampus showed no dysgenesis, and the olfactory bulbs were clearly visualized with no aplasia of the olfactory bulb noted. \n\nHer general examination is otherwise reassuring. Heart sounds are normal, peripheral pulses are intact, and respiratory effort is unlabored. Routine laboratory evaluations, including basic metabolic panels and thyroid function tests, were unremarkable. She lives at home with both parents, who are non-consanguineous, and her older brother is healthy. \n\nI would welcome your clinical assessment and suggestions for further diagnostic workup and supportive management.\n\nSincerely,\n\nDr. Marcus Reed, MD"
+}

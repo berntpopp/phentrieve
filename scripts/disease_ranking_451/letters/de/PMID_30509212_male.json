@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30509212_male",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 399,
+  "total_tokens": 2362,
+  "thoughts_tokens": 1583,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den heute drei Monate alten Felix zur konsiliarischen Vorstellung und weiteren Abklärung. Bereits im pränatalen Ultraschall fiel eine signifikante Weitstellung beider Seitenventrikel auf, postnatal manifestierte sich ein manifester Hydrozephalus. \n\nKlinisch zeigt sich der Säugling deutlich muskulär hypoton mit schwacher Spontanmotorik. Seit der Geburt kam es zu einer unzureichenden Gewichts- und Längenentwicklung, Felix rutschte unter die dritte Perzentile ab, sodass eine postnatale Wachstumsverzögerung imponiert. Die enterale Ernährung erfolgt derzeit problemlos mit Spezialnahrung.\n\nIm Rahmen der kraniofazialen Inspektion fallen auffallend weit geschnittene Lidspalten auf, kombiniert mit einem leichten Ektropionieren des lateralen Drittels der Unterlider sowie lateral stark ausgedünnten Augenbrauen. Die Nasenspitze zeigt sich abgeflacht und herabgezogen. Ferner besteht eine Spaltbildung des harten und weichen Gaumens bei ausgeprägter mandibulärer Hypoplasie mit kleinem, zurückweichendem Kinn. Die Ohren sind tief angesetzt und auffällig abstehend. \n\nDie internistische Basisuntersuchung war ansonsten unauffällig. Die Auskultation von Herz und Lunge erbrachte regelrechte Befunde, das Abdomen ist weich und ohne Resistenzen, die Leber ist nicht vergrößert tastbar. Die Familienanamnese bezüglich angeborener Fehlbildungen ist leer, die Eltern sind gesund und nicht konsanguin.\n\nWir bitten Sie um eine pädiatrisch-genetische Mitbeurteilung des Knaben und bedanken uns für Ihre geschätzte kollegiale Unterstützung.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22258530_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 314,
+  "total_tokens": 2192,
+  "thoughts_tokens": 1511,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 11-year-old boy who presents for comprehensive neurological consultation. His difficulties were first noted in early infancy, characterized by generalized muscular floppiness and marked developmental delays spanning motor, cognitive, and social milestones. He has never acquired expressive language and remains entirely non-verbal, communicating solely through non-linguistic vocalizations and gestures.\n\nHis clinical course has been complicated by a difficult-to-control seizure disorder. He experiences recurrent generalized convulsive episodes with synchronous bilateral limb jerking, alongside frequent daily episodes of brief unresponsiveness and vacant staring consistent with absence events. Reassuringly, the family has documented no tonic seizures or unprovoked rigid paroxysms. He is currently maintained on levetiracetam and clobazam.\n\nOn examination, he demonstrates diffuse central low tone, though deep tendon reflexes are present and symmetric. His cranial circumference measures at the 50th percentile, with no indication of microcephaly. General physical examination is otherwise unremarkable: he has clear breath sounds, normal heart sounds, soft abdomen, and intact, lesion-free skin. Family history is non-contributory, and routine metabolic screening to date has been unrevealing. \n\nRecent neuroimaging demonstrated marked volume reduction affecting both the vermis and cerebellar hemispheres, as well as progressive degenerative thinning across the brainstem. \n\nI would be grateful for your expert assessment and guidance on next diagnostic steps or therapeutic adjustments for this young man.\n\nSincerely,\nDr. Marcus Vance"
+}

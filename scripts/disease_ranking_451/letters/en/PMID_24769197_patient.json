@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24769197_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 440,
+  "completion_tokens": 338,
+  "total_tokens": 3053,
+  "thoughts_tokens": 2275,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Clara Davies, a 24-year-old woman whom I am referring for further clinical assessment. She lives at home with her family, works part-time at a local library, and currently takes no daily medications.\n\nClara has demonstrated mild cognitive delays since childhood, though she manages her daily living activities independently. On examination, she presents with a distinct, coarsened facial appearance featuring widely set eyes, shortened palpebral apertures, and prominently arched eyebrows. Her nasal bridge is flattened with a wide nasal tip, and she has an enlarged oral aperture accompanied by notably thickened lips and prominent gaps between her teeth. She also has a shortened neck and established bilateral conductive hearing loss. Slit-lamp inspection showed clear corneas without clouding, and dilated fundoscopic review revealed no cherry-red spots on the macula.\n\nHer stature is significantly reduced, tracking well below the third percentile. Musculoskeletal examination shows an inward depression of her sternum along with an exaggerated posterior curvature of her thoracic spine. Her recent radiographic series demonstrated diffuse, extensive dysostotic changes involving the vertebrae, pelvis, and long bones. \n\nCardiovascular evaluation identified a stenotic aortic valve, which currently remains compensated. Her abdomen was soft and non-tender, with no enlargement of the liver or spleen. Neurologically, her gait was balanced and steady, showing no ataxia. A full skin survey revealed normal pigmentation and a complete absence of angiokeratomas. Basic laboratory screens, including urinary amino acid excretion, were entirely unremarkable.\n\nI would greatly appreciate your specialized assessment and guidance regarding her ongoing care.\n\nWarm regards,\n\nDr. Evelyn Vance"
+}

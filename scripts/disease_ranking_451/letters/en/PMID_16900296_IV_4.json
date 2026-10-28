@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 323,
+  "completion_tokens": 265,
+  "total_tokens": 1656,
+  "thoughts_tokens": 1068,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this young female patient in your clinic for a specialized assessment. She was referred to my practice due to lifelong concerns regarding her neurodevelopment and cranial features, which have been present since birth.\n\nHer cranial circumference has been markedly reduced since delivery, tracking persistently well below the first percentile for her age and sex. On physical evaluation, there is a distinct receding, posteriorly slanted contour of her forehead. Developmental evaluations confirm profound cognitive limitations and significant intellectual impairment, leaving her dependent on caregivers for all daily adaptive functions. \n\nThe remainder of her clinical examination is otherwise normal. Her height and weight are tracking appropriately along the 25th percentile. Cardiovascular and respiratory examinations are unremarkable, with normal heart sounds and clear lung fields. Abdominal examination reveals no organomegaly. Neurologically, her cranial nerves are grossly intact, and she exhibits symmetric tone and normal deep tendon reflexes across all four extremities. Vision and hearing screenings were reviewed and are entirely normal. She takes no regular medications. Family history is negative for any developmental or neurological issues, and both parents are healthy.\n\nGiven the constellation of her congenital cranial restriction, frontal morphology, and cognitive challenges, I would appreciate your formal assessment and any recommendations for an appropriate diagnostic workup.\n\nSincerely,\nDr. Eleanor Vance"
+}

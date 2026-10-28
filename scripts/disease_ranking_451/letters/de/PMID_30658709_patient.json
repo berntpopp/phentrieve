@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30658709_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 404,
+  "completion_tokens": 414,
+  "total_tokens": 2686,
+  "thoughts_tokens": 1868,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die heute 1 Jahr und 11 Monate alte Patientin zur weiterführenden differentialdiagnostischen Abklärung. \n\nErste Auffälligkeiten zeigten sich bereits im Säuglingsalter. Bei der aktuellen Vorstellung imponiert ein deutlicher Ikterus des Hautkolorits und der Skleren. Das Mädchen leidet unter ausgeprägtem Pruritus mit multiplen Kratzartefakten am gesamten Integument. Palpatorisch zeigt sich eine Hepatosplenomegalie mit Leber- und Milzpolen je drei Zentimeter unter dem Rippenbogen. Zudem besteht ein chronischer Wachstumsrückstand mit einer Körperlänge deutlich unterhalb der dritten Perzentile. Bei der Inspektion des Skeletts und der Morphologie fällt eine thorakale Skoliose auf, an den Ohrmuscheln zeigt sich beidseits eine spitz zulaufende Helix. Die Familienanamnese ist bezüglich Leber- und Stoffwechselerkrankungen bland, die motorische Entwicklung war bisher abgesehen vom Längenwachstum unauffällig.\n\nLaborchemisch finden sich deutlich erhöhte Transaminasen (GOT und GPT). Das Gesamtbilirubin ist ebenfalls merklich gesteigert mit führend konjugierter Hyperbilirubinämie. Die Serumgallensäuren sind massiv erhöht. Die Parameter der plasmatischen Gerinnung waren stets regelrecht. Die zirkulierenden Aminosäuren zeigten sich im Plasma unauffällig, und auch die quantitative Bestimmung der Immunglobuline erbrachte normale Befunde. Eine sonographische und echokardiographische Untersuchung des Herzens ergab eine regelrechte Anatomie ohne morphologische Fehlbildungen.\n\nIch bitte um Ihre geschätzte Mitbeurteilung und Empfehlungen bezüglich des weiteren diagnostischen Vorgehens bei dieser Befundkonstellation.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34612517_F1_II_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 427,
+  "total_tokens": 2867,
+  "thoughts_tokens": 2029,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 5 Monate alten Knaben zur weiteren Abklärung. Erste Befunde fielen bereits im zweiten Trimenon pränatal auf, unter anderem zeigte sich eine singuläre Nabelschnurarterie.\n\nKardiologisch besteht postnatal ein gemeinsamer arterieller Gefäßstamm, der über einem großen membranösen Ventrikelseptumdefekt reitet, begleitet von einer Verengung des rechtsventrikulären Ausflusstrakts im Bereich des Pulmonalstumpfes. Ein unterbrochener Aortenbogen konnte ausgeschlossen werden; die Aorta zieht regelrecht linksdeszendierend, womit auch ein rechter Aortenbogen nicht vorliegt. Eine klassische Fallot-Tetralogie ist nicht gegeben. Die Pulmonalvenen drainieren vollständig in den linken Vorhof, und der Trikuspidalklappenapparat ist unauffällig und regelrecht eröffnet. Klinisch wie laborchemisch gibt es bei stabilen Serumproteinen keinen Anhalt für einen enteralen Eiweißverlust.\n\nAbdominalsonografisch imponiert eine Verschmelzung der unteren Nierenpole vor der Wirbelsäule im Sinne einer Hufeisenniere, wobei das Parenchym seitengleich homogen aufgebaut und frei von Nierenzysten ist.\n\nDer Junge zeigt ein gutes Gedeihen bei altersgerechter Entwicklung. Der Kopfumfang liegt mit 42 cm stabil auf der Medianen, eine Mikrozephalie liegt nicht vor. In der transfontanellären ZNS-Sonografie stellte sich der Balken vollständig und unauffällig dar. An beiden Händen zeigen sich jeweils fünf orthotope Strahlen ohne postaxiale Überzähligkeit, und auch an den Füßen finden sich keine übereinanderstehenden Zehenglieder. Die Familienanamnese der nicht konsanguinen Eltern ist diesbezüglich leer. \n\nIch bedanke mich für Ihre geschätzte Beurteilung des Patienten.\n\nMit freundlichen Grüßen\nDr. med. Tobias Weber"
+}

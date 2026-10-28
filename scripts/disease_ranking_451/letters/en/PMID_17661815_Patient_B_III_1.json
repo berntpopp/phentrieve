@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_B_III_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 470,
+  "completion_tokens": 325,
+  "total_tokens": 2754,
+  "thoughts_tokens": 1959,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davis,\n\nThank you for seeing this 19-day-old boy delivered at 39 weeks. Maternal history was non-contributory, and prenatal ultrasound was negative for polyhydramnios.\n\nOn examination, he demonstrates diffuse floppiness and marked low muscle tone throughout. Craniofacial inspection reveals a recessed mandible, bilateral cupped auricles, a bifurcated uvula, and distinct right-sided facial weakness when crying. Ophthalmology identified a retinal defect consistent with an inferior chorioretinal cleft. Both testes are undescended into the scrotum, though stretched phallic length is within normal limits. While his suck reflex is robust, he exhibits significant difficulty coordinating swallowing, requiring careful feeding support; he remains free from gastroesophageal reflux. \n\nBrain MRI documented a noticeably slender corpus callosum alongside complete non-visualization of the olfactory bulbs. The internal carotid arteries are symmetric and well-formed without caliber hypoplasia. Temporal bone CT showed normally developed inner ears with no cochlear incomplete partition type II and semicircular canals that are not hypoplastic; he has experienced no middle ear infections to date. Cardiology assessment confirmed a moderate interatrial communication; however, the ventricular septum remains intact, with no aortic overriding and no Ebstein malformation of the tricuspid valve. He shows no signs of cardiac failure, and continuous rhythm monitoring has recorded no supraventricular tachycardias.\n\nGiven this spectrum of congenital anomalies, I would appreciate your formal assessment and recommendations for further workup and care.\n\nSincerely,\nDr. Arthur Vance, MD\nDepartment of Pediatrics"
+}

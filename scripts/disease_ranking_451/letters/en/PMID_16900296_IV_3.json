@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 299,
+  "total_tokens": 1820,
+  "thoughts_tokens": 1195,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davis,\n\nThank you for evaluating this 13-year-old young man, whom I have followed in our general pediatric clinic. I would appreciate your expert assessment regarding his long-standing developmental and craniofacial features.\n\nHe was born at 39 weeks following an uncomplicated pregnancy, though his cranial circumference was notably reduced at delivery, measuring more than three standard deviations below the mean, and it has tracked along this diminished percentile ever since. On physical examination, his cranial vault displays a prominent posteriorly inclined, receding frontal contour. Over the years, he has exhibited severe, lifelong cognitive limitations. He attends a specialized life-skills curriculum, requires substantial assistance with daily activities of living, and communicates primarily through basic vocalizations and simple gestures. \n\nThe remainder of his physical examination is unrevealing. He is interactive and cooperative. Cranial nerves II through XII appear intact, and motor testing demonstrates normal strength, tone, and symmetric deep tendon reflexes throughout all four limbs. He ambulates with a steady, independent gait. Recent audiology and ophthalmology assessments were within normal limits. Cardiopulmonary auscultation is clear, and his abdomen is soft without organomegaly. \n\nHe currently takes no prescription medications. His family history is unremarkable, with non-consanguineous parents and a younger sister who is developing typically. \n\nI would be very grateful for your comprehensive evaluation and guidance on further clinical management.\n\nSincerely,\nDr. Robert Sterling"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33875846_individual_row_24",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 410,
+  "total_tokens": 2592,
+  "thoughts_tokens": 1834,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung unseres kleinen Patientenkindes, welches sich zur Abklärung einer seit dem Säuglingsalter bestehenden Entwicklungsauffälligkeit in unserer kinderärztlichen Sprechstunde vorstellte.\n\nPränatal war die Schwangerschaft weitgehend unauffällig verlaufen; in den frühen Vorsorgeuntersuchungen zeigte sich insbesondere keine erhöhte Nackentransparenz. Die Familienanamnese ist bezüglich chronischer oder neurologischer Vorerkrankungen unergiebig, die Eltern sind gesund und nicht blutsverwandt. Das Neugeborenenscreening einschließlich Hörtest war regelrecht.\n\nAktuell imponiert eine deutliche globale psychomotorische Entwicklungsverzögerung. Die motorischen Meilensteine wurden verspätet erreicht, und auch der Spracherwerb hinkt stark hinterher; das Kind äußert bisher kaum gezielte Worte, sodass ein deutlicher Sprachrückstand besteht. Im klinischen Untersuchungsbefund zeigt sich zudem ein auffallend schlaffer Muskeltonus im Sinne einer ausgeprägten Hypotonie der Rumpf- und Extremitätenmuskulatur.\n\nKraniofazial fällt eine dreieckig konfigurierte Gesichtsform mit zartem Untergesicht auf. Die knöcherne Nasenwurzel ist sehr schmal angelegt, und die Augenbulbi präsentieren sich beidseits tief liegend. Die übrigen Organbefunde inklusive Cor und Pulmo sind unauffällig, die Vitalparameter altersentsprechend stabil. Dauermedikamente werden derzeit nicht eingenommen.\n\nAufgrund dieser Befundkonstellation bitten wir um Ihre geschätzte differentialdiagnostische Einschätzung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

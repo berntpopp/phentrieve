@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27250695_Family_15_patient_20",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 421,
+  "total_tokens": 2270,
+  "thoughts_tokens": 1503,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute das 9 Monate alte Mädchen Emily zur neuropädiatrischen Mitbeurteilung.\n\nIm Rahmen der aktuellen Vorsorgeuntersuchung imponiert vor allem eine ausgeprägte kognitive und psychomotorische Entwicklungsretardierung. Emily zeigt im sozialen Kontakt ein stark verzögertes Ansprechverhalten, lautiert kaum und hat deutliche Defizite in der geistigen Auffassungsgabe und Interaktionsfähigkeit. Zudem fällt ein auffallend verminderter Schädelumfang auf; das Kopfumfangswachstum stagniert und liegt mit aktuell 40,2 cm weit unterhalb der dritten Perzentile.\n\nDas übrige Gedeihen ist unauffällig. Die Körperlänge liegt stabil auf der 45. Perzentile, sodass kein Kleinwuchs vorliegt. Auch das Körpergewicht bewegt sich im mittleren Normbereich, ein Untergewicht oder eine Dystrophie sind nicht festzustellen. Klinisch gab es bisher keinerlei Anhalt für zerebrale Krampfanfälle oder myoklonische Zuckungen. Im Verhalten wirkt das Mädchen eher ruhig; eine Hyperaktivität oder motorische Rastlosigkeit ist nicht zu beobachten. Ebenso finden sich im interaktiven Spiel keinerlei Anzeichen für selbstverletzende Verhaltensweisen oder aggressive Verhaltensmuster.\n\nDie somatische Basisuntersuchung erbrachte regelrechte Herz- und Lungengeräusche, das Abdomen ist weich ohne tastbare Resistenzen. Das Neugeborenenscreening war seinerzeit unauffällig. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, die Eltern sind gesund und nicht blutsverwandt. Außer der üblichen Gabe von Vitamin D besteht keine Medikation.\n\nÜber Ihre fachärztliche Einschätzung und Empfehlungen zum weiteren diagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

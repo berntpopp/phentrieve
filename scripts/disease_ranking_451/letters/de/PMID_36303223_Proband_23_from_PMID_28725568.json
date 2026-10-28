@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_23_from_PMID_28725568",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 461,
+  "total_tokens": 2437,
+  "thoughts_tokens": 1595,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 2 Jahre und 8 Monate alten Jungen zur neuropädiatrischen Mitbeurteilung. \n\nDie Symptomatik begann bereits früh am 21. Lebenstag mit erstmalig aufgetretenen zerebralen Krampfanfällen. Im weiteren Verlauf fiel zudem ein unzureichendes Schädelwachstum auf; das okzipitofrontale Maß liegt seither persistent weit unterhalb der 3. Perzentile. \n\nErfreulicherweise verlief die sonstige Reifung bislang stabil, eine globale Entwicklungsverzögerung besteht nicht. Auch ein Verlust früher erlernter Fähigkeiten oder sonstige Entwicklungsrückschritte waren zu keinem Zeitpunkt zu verzeichnen. In der neurologischen Statuserhebung präsentiert sich der Junge aufmerksam, der Muskeltonus ist seitengleich regelrecht und es bestehen keinerlei extrapyramidale Bewegungsstörungen oder Dyskinesien. Die internistische Untersuchung, die kardiopulmonale Auskultation sowie die Familienanamnese bezüglich früher neurologischer Erkrankungen erbrachten unauffällige Befunde. Aktuell erhält er außer einer leichten antikonvulsiven Medikation keine Dauertherapie.\n\nIn den metabolischen Laboranalysen imponierte wiederholt eine ausgeprägte Verminderung der Harnsäurekonzentration im Serum. Das zirkulierende Gesamthomocystein im Blut war auffallend stark erniedrigt; eine Hyperhomocysteinämie lag zu keinem Zeitpunkt vor. Begleitend zeigte sich auch der Cystinspiegel im Plasma deutlich unterhalb des altersentsprechenden Referenzbereichs. Im Urin fiel eine signifikant gesteigerte Ausscheidung von Taurin auf, zudem ließ sich dort labordiagnostisch freies S-Sulfocystein nachweisen. \n\nAufgrund dieser Befundkonstellation aus frühkindlichem Anfallsleiden, kleinem Schädelumfang und den spezifischen laborchemischen Auffälligkeiten bitte ich um Ihre geschätzte konsiliarische Beurteilung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

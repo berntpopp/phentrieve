@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27180139_case_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 313,
+  "total_tokens": 2583,
+  "thoughts_tokens": 1881,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for agreeing to evaluate this 12-year-old boy whom I have followed in our pediatric clinic. His parents first noted developmental concerns at around 8 months of age when he struggled to attain anticipated early motor and pre-linguistic milestones.\n\nHe exhibits significant lifelong cognitive limitation and marked expressive and receptive linguistic delays, communicating primarily through gestures and a picture board. Audiologic testing previously identified an inner-ear neurosensory hearing deficit, for which he uses amplification. Neuroimaging demonstrated incomplete formation of the corpus callosum alongside an extra-axial fluid collection of arachnoidal origin.\n\nOn physical examination today, he is pleasant and interactive. His vital signs are normal, and chest, cardiac, and abdominal examinations are entirely unremarkable. Craniofacial inspection reveals an inverted-triangle facial contour, eyes that are deeply inset beneath the supraorbital ridges, scant and thin hair along the superciliary arches, and pinnae that are tilted backward. Musculoskeletal assessment is notable for marked generalized ligamentous laxity, featuring significant overextension at the elbow joints and noticeable recurvatum of the knees bilaterally. He also has soft tissue webbing joining his second and third toes on both feet. \n\nHe lives with his parents and younger sister, all of whom are healthy with no similar medical issues. He attends a specialized education program and takes no chronic medications aside from pediatric multivitamins.\n\nI would appreciate your expert opinion regarding his presentation and recommendations for any additional workup. \n\nWarm regards,\n\nDr. Evelyn Vance"
+}

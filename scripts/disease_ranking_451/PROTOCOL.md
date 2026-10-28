@@ -193,3 +193,35 @@ cached in `letters/`, so a rerun does not call the LLM unless a letter is missin
 ## Results
 
 (appended after the test run)
+
+## Deviations
+
+### 2026-10-28: generator prompt tightened after a 3-case pilot
+
+- **What the pilot showed.** We generated 3 cases (6 letters) with the registered prompt. The
+  model added abnormal findings that were not in the phenopacket, e.g. dyspnoea, myocardial
+  hypertrophy and NT-proBNP in an amyloidosis case. Such findings are inferred disease
+  knowledge: they leak the diagnosis and add noise terms that are not gold.
+- **Change.** The distractor rule now requires every distractor to be normal or non-medical,
+  with no unlisted abnormal finding and no test that hints at a condition (`generate.py`,
+  `SYSTEM`).
+- **Consequence.** The pilot letters were discarded. No disease rank of any arm had been
+  computed, so no outcome informed the change.
+
+### 2026-10-28: sample cut to 400 cases for the proof of concept
+
+- **Change.** At the owner's request the 200 cited test cases are dropped; 400 cases remain.
+  All 289 non-cited test cases and the full dev split (60 non-cited, 51 cited) are kept.
+- **Effect on endpoints.** The primary endpoint (German Hit@10, non-cited test) is unchanged
+  and keeps its full sample. The secondary cited / all-test subsets are not reported. Tuning
+  still uses all 111 dev cases.
+- **Timing.** Decided after generating 109 letters, before any letter was run through
+  Phentrieve and before any disease rank was computed. Letters already generated for the
+  dropped cases were deleted.
+
+### 2026-10-28: truncated letters regenerated
+
+- **Problem.** Three English letters stopped at `MAX_TOKENS`: the model's thinking used up
+  the 8,192-token output budget, so the letter text was cut off.
+- **Fix.** A truncated letter now counts as a failed attempt. The budget was raised to 16,384
+  tokens, and only these three letters were regenerated. No disease rank had been computed.

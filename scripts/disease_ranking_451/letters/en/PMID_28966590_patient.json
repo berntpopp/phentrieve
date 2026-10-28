@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28966590_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 318,
+  "total_tokens": 3747,
+  "thoughts_tokens": 3033,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 31-year-old female for continuing multidisciplinary guidance. Her history began in infancy with a notable slowness in achieving early motor milestones, leading to an early characterization of a static congenital motor encephalopathy. During childhood, her family and teachers also noted prominent restlessness, impulsivity, and severe executive inattention. \n\nShe has a long-standing history of generalized convulsive episodes involving bilateral stiffening and rhythmic jerking, complemented by sudden, brief shock-like twitches and an involuntary shaking of her arms when held against gravity. She lives at home with her family, participates in an assisted clerical program, and currently takes levetiracetam. Recent routine complete blood counts and metabolic panels were completely unremarkable.\n\nOn examination, she demonstrates a persistent dystonic cervical tilt and marked accentuation of her lumbar lordosis. Examination of the lower extremities shows significant bilateral knock-knee alignment, secondary to chronic acetabular underdevelopment and malformed hip joints. Neurologically, her cranial nerves and light touch sensation are intact. There was no abnormal muscle tone appreciated across any limb. Her deep tendon reflexes were physiological with no hyperreflexia, and plantar responses were downward going with no Babinski sign. \n\nPrior neuroimaging demonstrated prominent expansion of the lateral ventricles, broadened cerebral gyri with reduced sulcal depth, and clear structural maldevelopment of the cerebellar architecture. \n\nI would be most grateful for your specialized assessment and advice regarding her ongoing neurological and physical management.\n\nSincerely,\nDr. Julian Vance"
+}

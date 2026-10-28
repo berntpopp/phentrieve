@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 512,
+  "completion_tokens": 389,
+  "total_tokens": 5547,
+  "thoughts_tokens": 4646,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Chen,\n\nThank you for evaluating this 8-year-old girl in your clinic. She is in second grade and receives academic support due to diffuse milestone delays across motor, speech, and cognitive domains since early childhood. In the classroom, she has marked trouble sustaining focus for more than a few moments. Her parents describe a cheerful demeanor at home with no hyperactive tendencies, aggressive outbursts, anxious mood, or features along the autism spectrum. Her sleep is restful, infancy was free of any feeding troubles, and she has never experienced epileptic events.\n\nOn examination, her stature and weight track near the 50th percentile with no stunted growth or excessive weight. Her head shape is normocephalic with no occipital flattening or reduced head circumference. She demonstrates normal muscle tone without floppiness, although she displays significant articular hyperlaxity. Her digits taper distally toward the tips.\n\nCraniofacial inspection shows an attenuated, pencil-thin upper lip margin with a completely flattened, featureless space between the columella and vermilion. This midline trough is neither abnormally short, elongated, nor widened. Her oral aperture is not constricted, and the lower lip vermilion is not rolled outward. The root and bridge of her nose are broadened, but her nasal tip is not bulbous, the wings are fully formed, nostrils do not point upward, and the dorsal profile lacks any convex curve. Her ears are not set low, and her forehead is not overly wide. Her eyes exhibit prominent inner canthal folds, palpebral apertures that slant obliquely upward, and an inward squint. There is no drooping of the upper eyelids, globes are not sunken into the orbits, eyelashes are not excessively long, eye openings are not elongated, and intercanthal distance is normal, lacking either increased or unusually narrow spacing.\n\nThank you for your expert opinion.\n\nSincerely,\nDr. Laura Miller, MD"
+}

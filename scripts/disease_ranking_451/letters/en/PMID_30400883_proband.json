@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30400883_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 305,
+  "total_tokens": 2182,
+  "thoughts_tokens": 1513,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 5-year-old boy who presents for comprehensive assessment of significant neurodevelopmental difficulties. His parents first noted concerns around 6 months of age when he began failing to meet key milestones, establishing a pattern of profound, generalized developmental delays across multiple functional domains.\n\nHis motor progression has been distinctly sluggish, achieving unassisted walking only around three years of age. Expressive communication is severely restricted; he does not use functional words and relies on basic vocalizations and gestures. Behaviorally, he demonstrates poor social reciprocity, fleeting eye contact, and frequent repetitive hand posturing. At age three, he developed unprovoked generalized convulsions, which are currently managed with daily levetiracetam. He also battles longstanding, intractable constipation necessitating high doses of polyethylene glycol, coupled with frequent episodes of queasiness and nausea.\n\nOn physical examination today, he is a well-nourished child. Cranial nerves are intact, tone is symmetric, deep tendon reflexes are 2+ bilaterally, and cardiac auscultation is normal. He lives with both parents and a healthy older sister, and the family history is negative for neurological concerns.\n\nNeuroimaging revealed a markedly slender, hypoplastic-appearing corpus callosum. Subsequent proton MR spectroscopy of the brain demonstrated a depleted cerebral creatine resonance. Additional metabolic testing demonstrated abnormally high levels of creatine in his urine. \n\nI would greatly appreciate your specialist input regarding his presentation and further management.\n\nSincerely,\nDr. Rachel Adams"
+}

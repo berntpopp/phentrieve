@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34521999_Individual_22",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 743,
+  "completion_tokens": 505,
+  "total_tokens": 4617,
+  "thoughts_tokens": 3369,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to see Maya, who is currently 13 years and 2 months old, for clinical assessment. She is accompanied by her mother and is on no regular medications other than an over-the-counter multivitamin. Her vital signs today were normal.\n\nMaya’s birth weight fell below the 10th percentile for gestational age, though the prenatal course and delivery were entirely uncomplicated, and she experienced no feeding difficulties as an infant. She had delayed gross motor milestones and has cognitive impairment, though her muscle tone is intact without hypotonia, joint hypermobility, or flat feet. She has no history of seizures, and a past electroencephalogram was unremarkable. Sleep patterns and behavior are normal, and there is no oncologic history.\n\nOn physical examination, she demonstrates a bossed forehead, a low frontal hairline, straight horizontal brows lacking synophrys or lateral rarefaction, an atypical nasal bridge, and flared alae nasi. An eyelid defect consistent with coloboma is present. Vision is intact without ptosis, proptosis, deep-set globes, strabismus, epicanthus, or slanting/elongation of the palpebral fissures; fundoscopy confirmed normal optic nerves. Her ears are low-placed but not posteriorly rotated, with no history of otitis media. Cranial shape is normal, without midface retrusion. Her mouth rests closed and appears narrow, with an attenuated upper lip vermilion; her lower lip is neither thick nor everted, and she has no downturned oral corners, smooth philtrum, cleft palate, bifid uvula, tongue-tie, dental abnormalities, or swallowing issues.\n\nSkeletally, she has an increased carrying angle at both elbows, a dimple over the sacrum, and normal digits. Radiographs demonstrate delayed bone age. Serum testing confirmed reduced circulating levels of growth hormone. Cerebral MRI revealed callosal hypoplasia and dysmorphic cerebral ventricles, but excluded ventriculomegaly, cortical dysplasia, heterotopias, polymicrogyria, simplified gyration, arachnoid cysts, atrophy, leukomalacia, gliosis, cavum septum pellucidum, cerebellar malformations, stroke, delayed myelination, and widened subarachnoid or extra-axial spaces. Renal imaging and echocardiogram (no atrial or ventricular septal defects) were normal.\n\nThank you again for your diagnostic insights.\n\nSincerely,\nDr. Laura Adams"
+}

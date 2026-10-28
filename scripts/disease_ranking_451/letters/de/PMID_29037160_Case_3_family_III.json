@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29037160_Case_3_family_III",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 422,
+  "total_tokens": 1941,
+  "thoughts_tokens": 1189,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute den fünfjährigen Julian zur weiteren fachärztlichen Beurteilung.\n\nDer Junge befindet sich bereits seit dem auffälligen Neugeborenen-Hörscreening in pädaudiologischer Betreuung. Es besteht eine bilaterale, von Geburt an nachgewiesene Schallempfindungsschwerhörigkeit, die derzeit mit beidseitigen Hörgeräten versorgt wird. Abgesehen von einer leichten Sprachentwicklungsverzögerung ist er motorisch altersgerecht entwickelt und besucht aktiv den Kindergarten.\n\nIm Rahmen einer präoperativen Vorbereitung vor einer geplanten Adenotomie leiteten wir ein 12-Kanal-EKG ab. Hierbei zeigte sich für das Alter eine ausgeprägte Sinusbradykardie mit einer Ruhefrequenz von lediglich 52 Schlägen pro Minute. Zudem fiel eine deutliche Repolarisationsverlängerung auf; die rechnerische QTc-Zeit lag bei 520 ms. Die orientierende transthorakale Echokardiographie zeigte regelrechte kardiale Dimensionen, eine normale linksventrikuläre Ejektionsfraktion sowie keinen Anhalt für strukturelle Vitien. \n\nKörperlich präsentiert sich Julian in gutem Allgemeinzustand. Die Herztöne sind rein, periphere Pulse seitengleich tastbar, die Lunge ist seitengleich belüftet, das Abdomen palpatorisch unauffällig. Anamnestisch gab es im bisherigen Lebensverlauf keine Kollapszustände, Krampfanfälle oder Schwindelsymptome. In der Familie sind keine frühen plötzlichen Todesfälle oder rhythmologischen Auffälligkeiten bekannt. Der Junge nimmt aktuell keine Medikamente ein.\n\nIch wäre Ihnen für eine rhythmologische Abklärung sowie eine Empfehlung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Brandner"
+}

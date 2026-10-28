@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39056049_Case_Presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 417,
+  "completion_tokens": 500,
+  "total_tokens": 2600,
+  "thoughts_tokens": 1683,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 51-jährige Patientin Frau Becker zur konsiliarischen Beurteilung und Beratung bezüglich des weiteren Vorgehens.\n\nIm Rahmen einer internistischen Abklärung fand sich laborchemisch ein wiederholt erhöhtes Serumkalzium von 2,86 mmol/l bei konsekutiv überschießendem Parathormonspiegel. Sonographisch konnte zervikal ein umschriebenes Nebenschilddrüsenadenom nachgewiesen werden. Das Abdomen-Ultraschall zeigte zudem Zeichen einer beidseitigen Nierenparenchymkalzinose. Die daraufhin veranlasste Knochendichtemessung ergab im Bereich der Lendenwirbelsäule Werte im osteoporotischen Bereich (T-Score -2,9) und am Femur Zeichen einer Osteopenie. An der Wirbelsäule imponiert eine thorakale Verkrümmung zur Seite.\n\nKörperlich fallen bei der Patientin ein verlängerter Nasenrücken, dichte, breite Brauen, ungewöhnlich große Ohrmuscheln sowie eine auffällig spitze Kinnregion auf. Der harte Gaumen ist steil und hochbogig gestaltet. Auffallend ist ein langer Abstand zwischen Nasensteg und Lippe; das Philtrum ist dabei keineswegs verstrichen, sondern deutlich konturiert. Die Lippenkontur zeigt ein kräftiges, volles Lippenrot, eine schmale Oberlippe liegt nicht vor. Die Nahrungsaufnahme war stets unproblematisch, Schluck- oder Fütterstörungen sind nicht zu erfragen. Am Stamm finden sich neben einzelnen flachen, milchkaffeefarbenen Flecken auch mehrere melanozytäre Nävi.\n\nSeit ihrer Jugend besteht eine milde kognitive Beeinträchtigung; die Patientin bewältigt ihren Alltag in einer betreuten Wohngruppe gut. Vitalparameter, Lunge und Abdomen waren bei der heutigen Untersuchung unauffällig, die Familienanamnese ist bezüglich endokriner Störungen leer. Aktuell nimmt sie lediglich Bedarfsmedikation gegen gelegentliche Kopfschmerzen ein.\n\nÜber Ihre fachliche Einschätzung und Empfehlungen zur weiteren Diagnostik und Therapieplanung würde ich mich sehr freuen.\n\nMit kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18412284_Patient_II_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 312,
+  "total_tokens": 2429,
+  "thoughts_tokens": 1765,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Eleanor Vance, a 67-year-old female who presents for further assessment of long-standing visual difficulties. She reports profound trouble seeing in dim lighting that initially manifested during childhood around age ten. Over the decades, she has experienced a progressive constriction of her peripheral fields, and more recently, she has noted an encroaching decline in her central vision.\n\nOn examination, her best-corrected visual acuity was diminished to 20/80 in the right eye and 20/100 in the left. Anterior segment evaluation was unremarkable bilaterally, with clear corneas and quiet anterior chambers. Intraocular pressures measured 15 mmHg in both eyes. Dilated fundus examination revealed striking thinning and narrowing of the retinal vasculature, accompanied by dense bone-spicule pigment accumulations throughout the mid-peripheral fundus. Visual field testing confirmed advanced, progressive bilateral loss. A full-field ERG was performed last week, demonstrating non-recordable, completely extinguished waveforms across all scotopic and photopic testing protocols.\n\nHer general medical history is notable only for mild primary hypertension, well controlled on lisinopril 10 mg daily. She takes no other medications and is a non-smoker. Her systemic review of systems was completely unremarkable, and her family history is negative for ocular conditions.\n\nI would greatly appreciate your expert evaluation, electrodiagnostic review, and guidance regarding management and low-vision resources for Mrs. Vance. \n\nSincerely,\n\nDr. Thomas Gray"
+}

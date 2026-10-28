@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27057656_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 413,
+  "completion_tokens": 428,
+  "total_tokens": 3056,
+  "thoughts_tokens": 2215,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte Mitbeurteilung des kleinen Noah, derzeit 1 Jahr und 3 Monate alt, den ich Ihnen zur weiteren Abklärung vorstelle.\n\nBereits in der Schwangerschaft war sonographisch eine deutliche Fruchtwassermehrung aufgefallen. Die Familienanamnese ist bezüglich syndromaler Erkrankungen leer, die Eltern sind nicht konsanguin. Noah erhält derzeit lediglich Vigantol-Öl zur Rachitisprophylaxe.\n\nAktuell imponiert ein manifester Kleinwuchs mit einer Körperlänge weit unterhalb der dritten Perzentile. Die Schädelmaße sind demgegenüber absolut regelrecht, der Kopfumfang liegt stabil auf der 45. Perzentile ohne jede Auffälligkeit der Schädelgröße. Es besteht ein deutlicher globaler Entwicklungsrückstand im motorischen wie auch kognitiven Bereich. Zudem belasten das Kind gehäufte Infektionen des Respirationstrakts.\n\nIm Gesichtsbild fallen beidseits herabhängende Lider, ein ungewöhnlich langes Philtrum sowie ein sehr schmales Lippenrot auf. Bei der Gelenkuntersuchung imponieren eine Streckhemmung beider Ellbogen sowie ein beidseitiges Extensionsdefizit der Kniegelenke. Röntgenologisch zeigt sich das Knochenalter gegenüber dem Lebensalter deutlich retardiert. Auffallend sind bilateral verkürzte Oberschenkelknochen und zu kurze Oberarmknochen, kombiniert mit einer ausgeprägten Unterentwicklung der Ulna. Die Hände zeigen ein plumpes Bild mit stummelig verkürzten Fingern; radiologisch bestätigen sich markant verkürzte Mittelhandknochen und Phalangen.\n\nDie orientierende internistische Untersuchung verlief unauffällig, die kardiale und abdominelle Sonographie boten Normalbefunde.\n\nÜber Ihre differentialdiagnostische Einschätzung und Beratung hinsichtlich des weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

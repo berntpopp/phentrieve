@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31761904_Individual_NBAS_53",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 472,
+  "completion_tokens": 363,
+  "total_tokens": 2481,
+  "thoughts_tokens": 1646,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this patient, who was recently admitted under our care following a rapid onset of fulminant hepatic decompensation with acute liver failure, profound coagulopathy, and marked transaminitis.\n\nPrior to this presentation, general health was reportedly unremarkable. Physical examination reveals a patient of normal stature. The head is normocephalic with no brachycephalic flattening, cranial sutures show no delayed closure, and facial features show well-formed malar contours without midface flattening. The chest wall shows no pectus excavatum, and the spine has no scoliosis. Examination of the hands shows normally proportioned digits without elongation or clinodactyly, and metacarpals are of normal length. Bilateral foot arches are intact without flat feet. Skin turgor is preserved with no cutis laxa. There is no joint hypermobility, and muscle tone is intact without hypotonia. Neuro-ophthalmologic assessment reveals sharp, pink optic nerves with no optic atrophy. The patient's voice exhibits normal pitch and resonance. Cognitive abilities and motor development have consistently aligned with expected milestones.\n\nSkeletal radiographs demonstrate no Wormian bones, no osteopenia, and no delayed bone age maturation; there is no history of fragility fractures. Hematologic and immunologic workups show normal neutrophil nuclear segmentation, normal numbers of circulating natural killer cells, and normal serum IgA and IgG concentrations. Glycemic markers are unremarkable, ruling out type 1 diabetes. Urine organic acid analysis reveals no evidence of 3-methylglutaconic aciduria.\n\nFamily history is non-contributory, and there are no known toxin exposures. We would greatly appreciate your expert guidance and assessment regarding the etiology of this acute hepatic deterioration.\n\nSincerely,\n\nDr. Evelyn Vance"
+}

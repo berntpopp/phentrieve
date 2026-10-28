@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 295,
+  "total_tokens": 2163,
+  "thoughts_tokens": 1511,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Montgomery,\n\nThank you for evaluating this three-month-old female infant, Evelyn, following an acute neonatal deterioration that began on her third day of life. She was born at full term via an uncomplicated spontaneous vaginal delivery to healthy, non-consanguineous parents, and her older brother is healthy. \n\nAt approximately 72 hours of life, Evelyn became profoundly lethargic, fed poorly, and developed generalized seizures. Urgent cranial imaging revealed widespread cerebral swelling. Critical care blood work demonstrated a dramatic surge in her circulating ammonia levels. Subsequent plasma amino acid quantification showed significantly raised plasma citrulline alongside marked elevations in circulating glutamine, whereas her measured blood arginine was notably depressed. Urine organic acid profiling demonstrated substantial orotate excretion. Repeated assessments of her circulating lactate have remained entirely normal, with no evidence of lactic acid buildup.\n\nSince acute stabilization, she has been maintained on regular caloric nutrition and daily pediatric multivitamin drops. On physical examination today, she is alert and non-dysmorphic. Her vital signs are stable, her anterior fontanelle is soft and flat, chest is clear, cardiovascular exam is normal, and her abdomen is soft without organomegaly. Her deep tendon reflexes and resting axial tone are currently age-appropriate. \n\nGiven these findings, I would greatly appreciate your expert assessment and recommendations regarding ongoing metabolic investigation and management.\n\nSincerely,\nDr. Lauren Hayes\nDepartment of Pediatrics, Valley Memorial Hospital"
+}

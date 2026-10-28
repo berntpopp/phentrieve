@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33215859_COQ4_III2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 387,
+  "total_tokens": 2694,
+  "thoughts_tokens": 1950,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die neunjährige Mia zur stationären Abklärung. Die Familienanamnese der Eltern ist unauffällig, die bisherige Entwicklung verlief jedoch von Beginn an hochgradig irregulär.\n\nBereits unmittelbar nach der Geburt imponierte eine stark herabgesetzte Muskelspannung am gesamten Körper. Das freie Laufen erlernte das Mädchen nur mühsam; im weiteren Verlauf ging diese motorische Fertigkeit jedoch vollständig verloren, sodass sie inzwischen dauerhaft auf den Rollstuhl angewiesen ist. Zudem beobachten die Eltern und wir seit einiger Zeit einen schleichenden Abbau der zuvor erworbenen geistigen und sprachlichen Fähigkeiten. Im letzten halben Jahr traten erstmals generalisierte Krampfanfälle auf. Das Schlucken fester und flüssiger Kost bereitet zunehmend massive Probleme, begleitet von wiederholten Aspirationen. Zudem besteht eine manifeste Erschöpfung der Atempumpe, die inzwischen eine nächtliche assistierte Beatmung erforderlich macht.\n\nIm kranialen MRT zeigte sich eine ausgeprägte Volumenminderung des Kleinhirns. Die neurographische Diagnostik erbrachte das Bild einer generalisierten peripheren Nervenschädigung. Bei den Laboruntersuchungen fällt wiederholt ein deutlich erhöhter Laktatwert im venösen Blut auf. Routinelabor, Transaminasen und Nierenretentionsparameter zeigten sich hingegen regelrecht. Eine apparative Hörprüfung inklusive BERA erbrachte seitengleich normale Befunde; ein Hörverlust konnte somit sicher ausgeschlossen werden. Auch die orientierende augenärztliche Untersuchung war unauffällig.\n\nIch bitte Sie um eine konsiliarische Beurteilung und Ihre geschätzte Einschätzung zum weiteren Vorgehen bei diesem komplexen Beschwerdebild.\n\nMit freundlichen kollegialen Grüßen"
+}

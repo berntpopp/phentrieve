@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_22",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 539,
+  "completion_tokens": 413,
+  "total_tokens": 4919,
+  "thoughts_tokens": 3967,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate this three-month-old male infant regarding developmental concerns and atypical physical features. He was born at full term following an uncomplicated pregnancy, is feeding well on standard formula, and receives daily vitamin D.\n\nOn physical examination, his linear length and head circumference are tracking steadily along the 50th centile, without diminished length or an abnormally large or small cranium. Cranial inspection reveals distinct asymmetric flattening across the posterior skull along with prominent bifrontal narrowing, though the soft spots are completely unremarkable in shape and tension. His facial outline is neither elongated nor triangular, with well-preserved midfacial projection and an orthognathic jaw. \n\nHis eyes show definite ocular misalignment, without any lateral outward drift. The globes are normally sized, not deeply recessed, and show standard spacing without closely set eyes or inner canthal skin folds. Palpebral apertures show neither an upward nor downward slant, and funduscopy confirmed no underdevelopment of the macula. His auricles sit distinctly low on the head and are angled dorsally, without forward tilt. Oral evaluation demonstrates well-formed lips without narrowed margins, neutral mouth corners, a palate that is not excessively vaulted, an intact single uvula, and no tongue-tie.\n\nThe thorax is symmetrical without a hollowed breastbone, broad spacing between the nipples, or inverted nipples. His abdomen is soft with no groin bulging; however, both testes remain undescended outside the scrotum. The spine demonstrates no sacral pit or dimpling. His skin shows typical opacity without transparency, and the extremities display normal finger width and no flatfoot deformity.\n\nNeurologically, he exhibits severe milestone lag across motor and visual spheres, alongside repetitive stereotyped limb posturing and combative, oppositional resistance out of keeping with his infancy. A 24-hour electroencephalogram showed no anomalies, and no cognitive handicap has been diagnosed.\n\nI would value your comprehensive evaluation.\n\nSincerely,\nDr. Laura Jenkins, MD"
+}

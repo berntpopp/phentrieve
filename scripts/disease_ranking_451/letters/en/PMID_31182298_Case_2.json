@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31182298_Case_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 318,
+  "completion_tokens": 265,
+  "total_tokens": 1766,
+  "thoughts_tokens": 1183,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this young male infant who has presented with issues dating back to the immediate neonatal period. He was born at full term following an uncomplicated pregnancy, but his mother noted significant trouble with oral intake right from birth. He tires excessively during breast and bottle sessions, often requiring over an hour to consume minimal volumes and frequently pausing or refusing feeds altogether. \n\nGiven these persistent intake issues, a comprehensive pediatric workup was initiated. An echocardiogram demonstrated marked asymmetric thickening of the interventricular septum and left ventricular walls, accompanied by reduced diastolic relaxation and dynamic outflow tract turbulence. \n\nOn physical examination today, he is afebrile with normal resting oxygen saturations on ambient air. His chest is clear to auscultation with equal air entry bilaterally. Abdominal examination reveals a soft, non-tender abdomen with no palpable organomegaly. His muscle tone and primitive reflexes are entirely age-appropriate, and cranial nerves appear grossly intact. Standard newborn metabolic screening was unremarkable, and there is no family history of early cardiac events or chronic childhood conditions. He is currently supported with paced feeds to conserve energy.\n\nI would greatly appreciate your assessment regarding his cardiac pathology and your guidance on further multidisciplinary management.\n\nSincerely,\nDr. Julian Ward\nGeneral Pediatrics, Valley Children's Clinic"
+}

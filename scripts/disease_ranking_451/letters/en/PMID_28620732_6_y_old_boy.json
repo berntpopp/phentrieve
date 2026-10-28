@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28620732_6_y_old_boy",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 310,
+  "total_tokens": 2651,
+  "thoughts_tokens": 1970,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nI am writing to refer Leo, a 6-year-old boy, for your expert assessment regarding an uncharacterized neurodegenerative presentation. He was born at full term following an uncomplicated pregnancy, and his initial newborn metabolic screens were completely normal. He lives at home with his parents, who report no family history of early-onset neurological disorders.\n\nHis difficulties were first noted in early infancy, initially presenting as profound delays spanning gross motor, receptive language, and cognitive milestones. More recently, he has demonstrated a gradual neurological decline, with regression of his limited hand skills and loss of assisted standing. On physical examination, his heart sounds are regular, his chest is clear, and his abdomen is soft and non-tender. However, his cranial growth has been poor, with a head circumference measuring well below the first percentile. Cranial nerve and ocular examination reveals continuous involuntary rhythmic eye oscillations, abnormally large corneal diameters bilaterally, and distinct pallor of both optic nerve heads on fundoscopy.\n\nMagnetic resonance imaging of the brain was recently performed, demonstrating diffuse, abnormally high T2/FLAIR signaling throughout the supratentorial white tracts, alongside a marked paucity in overall cerebral white matter volume. Significant attenuation of the corpus callosum was also documented, together with pronounced volume loss and parenchymal shrinkage throughout the cerebellar hemispheres and vermis.\n\nGiven his infantile onset, profound developmental difficulties, and clear functional regression, I would greatly appreciate your evaluation to help direct his ongoing medical management.\n\nSincerely,\nDr. Julian Ward"
+}

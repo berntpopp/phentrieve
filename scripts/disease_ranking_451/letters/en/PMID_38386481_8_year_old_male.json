@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38386481_8_year_old_male",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 430,
+  "completion_tokens": 326,
+  "total_tokens": 3680,
+  "thoughts_tokens": 2924,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this eight-year-old boy for diagnostic evaluation. His difficulties began during infancy with broad developmental delay across all functional domains. Motor milestones were markedly deferred; he was unable to sit unsupported until fifteen months and only achieved independent ambulation at three and a half years. Expressive and receptive communication is substantially impaired, with an absence of functional spoken language.\n\nOn examination, he presents with a strikingly joyful and smiling countenance, which contrasts with occasional bouts of severe behavioral agitation. Relentless motor hyperactivity is evident, alongside autistic behavioral features and poor social engagement. Neurological evaluation reveals low central muscular tone, brisk deep tendon jerks throughout, and wide-based ambulation. He demonstrates frequent uncontrolled non-purposeful body movements, continuous motor stereotypies such as bilateral hand posturing, and sudden, discrete motor tics. Bilateral genu varum is visible on standing.\n\nCraniofacial inspection shows noticeably high-curved brows, a flattened bridge of the nose, a broadened columella, and down-curving corners of the mouth. His medical history is significant for generalized convulsions with bilateral tonic and clonic activity, currently treated with levetiracetam. He also suffers from chronic gastroesophageal reflux complicated by recurrent episodes of vomiting. Routine screening labs, metabolic blood work, and a recent renal ultrasound were all completely normal. He lives with his parents, who are non-consanguineous and both healthy.\n\nI would appreciate your expert opinion on his clinical picture and any further specialized assessments you would advise.\n\nSincerely,\nDr. Julian Ward"
+}

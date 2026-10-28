@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34338282_GLSP_family_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 316,
+  "completion_tokens": 356,
+  "total_tokens": 1827,
+  "thoughts_tokens": 1155,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den oben genannten Patienten zur Mitbeurteilung und weiteren differentialdiagnostischen Abklärung. \n\nIn unserer Vorstellung imponierte im Rahmen der körperlichen Untersuchung insbesondere ein auffällig schwankendes, breitbasiges Gangbild mit erheblichen Unsicherheiten beim freien Gehen und wiederholten Koordinationsdefiziten der Extremitäten. Die Zielmotorik zeigte sich dysmetrisch bei erhaltener grober Kraft. Des Weiteren fällt bei der Inspektion der vorderen Augenabschnitte beidseits ein vollständiges Fehlen des Irisgewebes auf, wodurch die Pupillenfunktion klinisch nicht abzugrenzen ist. \n\nDer übrige körperliche Status bot keine pathologischen Befunde. Cor und Pulmo zeigten sich auskultatorisch regelrecht, der Puls war rhythmisch bei 72 Schlägen pro Minute, der Blutdruck lag bei 120/75 mmHg. Das Abdomen war weich, indolent und ohne Organomegalie. Im Basislabor fanden sich Entzündungsparameter, Nierenretentionswerte sowie Transaminasen im jeweiligen Normbereich. \n\nEine Dauermedikation besteht aktuell nicht, Allergien sind nicht bekannt. Die Familienanamnese erbrachte bezüglich ophthalmologischer oder neurologischer Auffälligkeiten keine wegweisenden Hinweise. Der Patient ist sozial gut integriert.\n\nZur weiteren Einordnung dieser Konstellation und zur Festlegung des weiteren Procedere bitte ich um Ihre geschätzte fachärztliche Einschätzung.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Keller\nFacharzt für Neurologie"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36233161_MD_320",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 405,
+  "total_tokens": 3065,
+  "thoughts_tokens": 2306,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den fünfjährigen Jonas zur neuropädiatrischen Mitbeurteilung. \n\nDie Eltern bemerkten erste Auffälligkeiten bereits im Alter von etwa drei Monaten. Es zeigte sich seither ein ausgeprägter Rückstand über sämtliche Entwicklungsbereiche hinweg, sowohl motorisch als auch sprachlich, vergesellschaftet mit einer deutlichen Einschränkung der geistigen Fähigkeiten. \n\nIm aktuellen Untersuchungsbefund imponiert am Körperstamm eine ausgeprägte muskuläre Schlaffheit, während an den Beinen im Kontrast dazu eine ausgeprägte spastische Tonuserhöhung mit gesteigerten Eigenreflexen besteht. Das Bewegungsmuster ist von einer massiven Koordinations- und Gleichgewichtsstörung geprägt; freies Bewegen im Raum gelingt nur breitbasig torkelnd. \n\nIm Bereich der Hirnnerven fällt ein manifestes Einwärtsschielen auf. Bei intendierter Blickwendung zur Seite lässt sich zudem reproduzierbar ein richtungsschlagendes Augenzittern dokumentieren. Eine unlängst veranlasste zerebrale Magnetresonanztomographie zeigte einen deutlichen Gewebeschwund des Kleinhirns bei ansonsten altersentsprechend myelinisiertem Großhirnmarklager. \n\nDie internistische Basisdiagnostik inklusive EKG und Abdomensonographie erbrachte regelrechte Befunde, auch ein kürzlich durchgeführter Hörtest verlief ohne pathologisches Ergebnis. Jonas nimmt zurzeit keine Dauermedikation ein. Die Familienanamnese ist leer; die Eltern sowie ein älterer Bruder sind gesund, eine Verwandtschaft der Eltern besteht nicht.\n\nÜber eine stationäre Aufnahme zur weiterführenden ätiologischen Abklärung und Ihre geschätzte konsiliarische Beurteilung würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

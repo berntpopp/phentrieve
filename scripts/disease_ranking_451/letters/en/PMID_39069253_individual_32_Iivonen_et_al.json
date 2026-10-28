@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_32_Iivonen_et_al",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 491,
+  "completion_tokens": 350,
+  "total_tokens": 5013,
+  "thoughts_tokens": 4172,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing this 13-year-old male for a specialist opinion. He lives with his parents, takes methylphenidate, and attends eighth grade with learning support. Family history is non-contributory.\n\nEarly on, he demonstrated generalized developmental delays across milestones, progressing to lifelong intellectual impairment. He exhibits marked attention deficits and hyperactive behaviors, though without autistic mannerisms. Motor milestones were met on schedule with no delays, speech and language developed on time, and he experienced no feeding issues.\n\nOn examination, muscle tone is preserved with no low muscle tone. Craniofacial inspection reveals bilateral eyelid drooping and low-positioned ears. There is no downward slanting of the eye fissures, absent medial epicanthic folds, and ocular spacing is normal without widely set eyes. His eyebrows are flat rather than arched high. The nasal tip shows no bulbous enlargement, and there are no anteverted nostrils. The philtrum is of typical width, not broad, and his upper lip lacks an exaggerated contour. His forehead lacks metopic crest prominence, and his feet show no adducted forefoot deformity.\n\nAudiometry identified diminished auditory acuity. Neuroimaging revealed congenital absence of both olfactory bulbs; the corpus callosum is fully developed, with no enlargement of the cerebral ventricles and no demyelinating lesions in the central nervous system. Cardiology noted an opening in the ventricular septum; the aortic valve has three cusps with no bicuspid configuration, the ductus arteriosus is non-patent, with no transposition of the great vessels and no double-outlet right ventricular origin.\n\nThank you for your comprehensive assessment of this young man.\n\nSincerely,\nDr. Julian Vance"
+}

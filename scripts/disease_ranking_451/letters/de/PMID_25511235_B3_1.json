@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25511235_B3_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 412,
+  "total_tokens": 2869,
+  "thoughts_tokens": 2132,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich verlege zur weiteren Abklärung ein Kind, welches uns heute als Notfall zugewiesen wurde. Nach Angaben der Eltern begann die Akutsymptomatik erstmals jetzt im Kindesalter ohne erkennbaren Vorläufer. Im häuslichen Umfeld erlitt das Kind ein plötzliches zerebrales Krampfgeschehen mit tonisch-klonischen Zuckungen aller Extremitäten über etwa vier Minuten. \n\nDirekt im Anschluss entwickelte sich eine anhaltende tiefe Bewusstlosigkeit; das Kind blieb weder durch lautes Ansprechen noch durch Schmerzreize erweckbar (Glasgow Coma Scale 5). Die laborchemische Sofortdiagnostik erbrachte eine ausgeprägte Unterzuckerung mit einem Serumglukosespiegel von 28 mg/dl. Die venöse Blutgasanalyse wies einen pH-Wert von 7,12, ein Standardbikarbonat von 11 mmol/l sowie ein Basendefizit von -14 mmol/l auf, passend zu einer schweren Übersäuerung des Blutes.\n\nIn der körperlichen Untersuchung war das Kind afebril bei 36,8 °C. Die Herztöne waren rein und rhythmisch, die Lunge bds. seitengleich belüftet. Das Abdomen präsentierte sich weich und ohne Druckschmerz, Leber und Milz waren nicht tastbar vergrößert. Die Pupillen reagierten prompt und isokor auf Lichteinfall. Die bisherige motorische und geistige Entwicklung verlief laut Vorsorgeheft völlig zeitgerecht, die Familienanamnese ist unauffällig.\n\nNach Gabe einer Glukoseinfusion gelang eine kreislaufmäßige Stabilisierung, wir bitten nun um Ihre geschätzte fachärztliche Beurteilung und differentialdiagnostische Weiterbehandlung.\n\nMit freundlichen Grüßen"
+}

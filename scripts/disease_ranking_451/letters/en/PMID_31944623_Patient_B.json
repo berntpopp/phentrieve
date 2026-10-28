@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31944623_Patient_B",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 274,
+  "total_tokens": 1995,
+  "thoughts_tokens": 1343,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this 24-year-old gentleman who has experienced a protracted, progressive neurodegenerative course with initial motor difficulties noted around six years of age. He lives at home with his parents, who provide daily care. His family history is unremarkable for any neurological illnesses, and routine hematology and metabolic panels have been normal.\n\nOn current examination, he was oriented but exhibited persecutory fixed false beliefs regarding the nursing staff. His speech was notably slurred and strained. Cranial nerve assessment demonstrated sluggish, slow saccadic refixations in both horizontal and vertical planes. Motor evaluation revealed bilateral spastic paralysis of the legs, leaving him unable to ambulate. Diffuse hyperactive deep tendon reflexes were present along with upgoing toes on bilateral plantar reflex testing. In addition, he displays marked parkinsonian features, presenting with generalized akinetic rigidity and prominent motor slowness during all voluntary efforts. Coordination testing demonstrated marked impairment in performing rapid alternating movements of the hands. Sensory examination revealed reduced vibration perception over the distal lower extremities, whereas light touch was preserved.\n\nRecent cerebral magnetic resonance imaging demonstrated generalized volume loss across the cerebral mantle along with pronounced shrinkage of the cerebellar hemispheres and vermis.\n\nI would appreciate your expert consultation regarding further diagnostic investigations and symptom management for this patient.\n\nSincerely,\nDr. Julian Vance"
+}

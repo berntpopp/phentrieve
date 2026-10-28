@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9398836_Family_J2_20_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 404,
+  "total_tokens": 2336,
+  "thoughts_tokens": 1607,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich überweise Ihnen die 36-jährige Patientin Frau Daniela Bachmann zur konsiliarischen Beurteilung und Mitbetreuung bezüglich ihrer Stoffwechsellage.\n\nAnamnestisch ist eine bereits seit dem zehnten Lebensjahr bestehende Glukosestoffwechselstörung bekannt. Diese fiel damals im Kindesalter im Rahmen einer Routineuntersuchung auf, zeigte seither jedoch über die Jahrzehnte einen sehr stabilen, nicht-insulinpflichtigen Verlauf ohne jegliche Neigung zu metabolischen Entgleisungen. In den aktuellen labordiagnostischen Kontrollen unserer Praxis ließ sich wiederholt eine ausgeprägte Ausscheidung von Glukose im Harn dokumentieren.\n\nDer Allgemein- und Ernährungszustand der Patientin ist gut. Bei der heutigen körperlichen Untersuchung präsentierte sich Frau Bachmann normgewichtig mit einem BMI von 21,8 kg/m². Der Blutdruck lag bei 118/76 mmHg, die peripheren Pulse waren seitengleich gut tastbar. Auskultatorisch zeigten sich Herz und Lunge unauffällig, das Abdomen war weich und indolent. Neurologisch ergaben sich orientierend keine Auffälligkeiten, die Sensibilität an beiden unteren Extremitäten war seitengleich intakt. \n\nDie weiteren Routineparameter, insbesondere die Nierenwerte mit einem Serumkreatinin von 0,82 mg/dl und die Leberenzyme, stellten sich unauffällig dar. Im Urinsediment fand sich kein Hinweis auf eine Proteinurie. Die Patientin ist sportlich aktiv und nimmt derzeit keine Dauermedikation ein.\n\nIch wäre Ihnen für eine differenzierte fachärztliche Einordnung der Befunde sowie für eine Empfehlung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Arndt"
+}

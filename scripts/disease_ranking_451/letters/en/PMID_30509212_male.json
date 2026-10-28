@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30509212_male",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 312,
+  "total_tokens": 3110,
+  "thoughts_tokens": 2418,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating this three-month-old male infant regarding his complex clinical presentation. His difficulties were identified prior to birth, when maternal scans during the late second trimester demonstrated widening of the lateral cerebral ventricles alongside progressive intracranial fluid buildup that required delivery at a tertiary center. \n\nIn clinic, he demonstrated generalized axial and appendicular low muscle tone with significant head lag. His physical growth since delivery has been markedly poor, with his weight and length consistently falling beneath the third percentile despite fortified feeds. On examination of his cranium and face, he shows wide, horizontally elongated palpebral apertures accompanied by an outward turning of the lateral third of his lower lids. The hair along the temporal aspects of his eyebrows is exceptionally thin and scant. His nasal apex appears depressed and broad. He also has a complete fissure of the palate alongside an underdeveloped, retrognathic lower jaw. Both auricles are situated noticeably low on the skull and flare outward prominently from the sides of his head.\n\nThe remainder of the physical examination was reassuring. His cardiovascular exam revealed a regular rhythm without murmurs, and his chest was clear to auscultation bilaterally. His abdomen was soft, with no palpable organomegaly. His parents are both healthy, non-consanguineous, and report an unremarkable family history.\n\nIn light of his persistent failure to thrive, neurological findings, and distinctive dysmorphic features, I would greatly appreciate your genetic assessment and recommendations for further diagnostic evaluation.\n\nWarm regards,\n\nDr. Sarah Althaus"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30881852_index_case",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 394,
+  "total_tokens": 2440,
+  "thoughts_tokens": 1707,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des siebenjährigen Felix, der sich gemeinsam mit seinen Eltern in unserer Sprechstunde vorstellte.\n\nDie beschriebenen Auffälligkeiten bestehen im Wesentlichen bereits seit der Geburt. Bei der körperlichen Untersuchung fällt orthopädisch sofort auf, dass an beiden Kniegelenken keine Kniescheiben palpabel sind; dieses vollständige Fehlen der Patellae ließ sich auch sonographisch verifizieren. Des Weiteren besteht eine generalisierte Überstreckbarkeit sämtlicher großer und kleiner Gelenke bei gleichzeitig deutlich vermindertem Muskelgrundtonus. An den Finger- sowie den Zehenendgliedern zeigen sich ausgeprägte Nageldysplasien mit longitudinaler Furchung und unvollständig ausgebildeten Nagelbetten, vor allem an den Daumen. \n\nOphthalmologisch zeigte sich an der Spaltlampe eine auffällige dunkle Hyperpigmentierung entlang des pupillären Irisrandes. Zur Abklärung einer möglichen renalen Beteiligung führten wir wiederholte Urinkontrollen durch; eine Proteinurie lag zu keinem Zeitpunkt vor, das Gesamteiweiß sowie die Albuminausscheidung waren vollkommen unauffällig.\n\nFelix besucht derzeit regelhaft die zweite Grundschulklasse, kognitiv zeigt er sich altersgerecht entwickelt. Das Abdomen ist weich und indolent, Herztöne rein, die Lungen sind seitengleich belüftet. Es wird keine Dauermedikation eingenommen. Die Familienanamnese ist bezüglich muskuloskelettaler Auffälligkeiten leer.\n\nIch wäre Ihnen für eine differenzialdiagnostische Einordnung des Befundkomplexes sowie Empfehlungen zum weiteren Prozedere sehr verbunden.\n\nMit freundlichen kollegialen Grüßen"
+}

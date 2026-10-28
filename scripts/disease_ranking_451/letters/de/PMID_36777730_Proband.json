@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36777730_Proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 421,
+  "total_tokens": 2856,
+  "thoughts_tokens": 2056,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den 5 Jahre und 7 Monate alten Felix zur neuropädiatrischen Mitbeurteilung.\n\nDen Eltern fiel bereits im ersten Lebensjahr eine Verlangsamung beim Erreichen der Meilensteine auf. Bis heute zeigt sich ein deutlicher Rückstand in sämtlichen Entwicklungsbereichen. Besonders ausgeprägt ist die Verlangsamung im Bereich des Sprachverständnisses und der expressiven Sprache; Felix nutzt im Alltag lediglich vereinzelte Ein- und Zweiwortphrasen. Bei den biometrischen Maßen imponiert ein deutlich über dem Durchschnitt liegender Kopfumfang weit jenseits der 97. Perzentile. Ein extern durchgeführtes zerebrales MRT zeigte als wesentlichen Befund eine deutliche Verschmälerung der Balkenstrukturen.\n\nDie Gesichtsform zeigt keinerlei morphologische Besonderheiten. Der Muskeltonus präsentiert sich seitengleich normgerecht, eine muskuläre Hypotonie lässt sich nicht tasten. Epileptische Anfälle traten anamnestisch nie auf. Gastrointestinale Beschwerden, insbesondere Zeichen eines gastroösophagealen Refluxes, werden verneint. Das Hörvermögen ist intakt, und es gab bisher keine rezidivierenden Mittelohrentzündungen. Im Verhalten zeigt Felix einen unauffälligen, sicheren Blickkontakt; Verhaltensweisen aus dem autistischen Spektrum oder motorische Stereotypien liegen nicht vor.\n\nDer Junge besucht einen integrativen Kindergarten und lebt mit den Eltern sowie einer gesunden älteren Schwester zusammen. Eine Dauermedikation besteht nicht. Die Familienanamnese ist leer bezüglich chronischer Erkrankungen. Die internistische Untersuchung einschließlich kardiopulmonaler Auskultation und Palpation des Abdomens ergab Normalbefunde.\n\nFür Ihre geschätzte Einschätzung und eventuelle Empfehlungen zur weiteren Abklärung bedanke ich mich herzlich.\n\nMit freundlichen kollegialen Grüßen"
+}

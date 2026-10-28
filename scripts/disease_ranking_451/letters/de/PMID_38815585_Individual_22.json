@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_22",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 539,
+  "completion_tokens": 521,
+  "total_tokens": 4202,
+  "thoughts_tokens": 3142,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute drei Monate alten Jungen zur weiteren differentialdiagnostischen Beurteilung. \n\nIm Rahmen der Vorsorge fällt eine globale Entwicklungsretardierung auf. Begleitend imponieren stereotype Bewegungsmuster der Arme sowie ein für dieses Lebensalter auffallend ausgeprägtes, vehement abwehrend-oppositionelles Verhalten bei Manipulationen. \n\nKraniofazial zeigt sich eine betonte Plagiozephalie mit auffällig schmaler Stirnpartie. Die Fontanelle tastet sich jedoch morphologisch unauffällig, und der Kopfumfang liegt im Median, ohne Anhalt für Mikrozephalie oder Makrozephalie. Es besteht ein Strabismus ohne Exotropie. Die Lidachsen verlaufen horizontal ohne Auf- oder Abwärtsschrägung, Epikanthusfalten, Enophthalmus, Hypotelorismus oder Mikrophthalmie fehlen. Die Fundoskopie zeigte keine Makulahypoplasie. Die Ohren stehen tief und sind nach dorsal rotiert, keinesfalls antevertiert. Das Gesicht ist weder länglich noch dreieckig konfiguriert; eine Mittelgesichtsretraktion oder Retrognathie lässt sich nicht nachweisen. Das Lippenrot ist regulär, ohne herabgezogene Mundwinkel, hoher Gaumen, gespaltene Uvula oder Ankyloglossie.\n\nDie Körperlänge ist altersentsprechend normwertig, ein Kleinwuchs liegt nicht vor. Thorakal zeigen sich symmetrische Verhältnisse ohne Trichterbrust, mit regelrechtem Mamillenabstand und unauffälligen, nicht invertierten Mamillen. Das Abdomen ist weich ohne Inguinalhernie. Urogenital besteht ein Kryptorchismus. Die Haut ist gut durchblutet, ohne pathologische Transluzenz. Sakral findet sich keine Hauteinziehung oder Grube. Die Extremitäten sind unauffällig, ohne schlanke Spinnenfinger oder Pes-planus-Fehlstellung. \n\nEin kürzlich abgeleitetes EEG zeigte keine pathologischen Potenziale; eine Intelligenzminderung ist in diesem Alter naturgemäß nicht abgrenzbar. Die Schwangerschaft und Spontangeburt verliefen unkompliziert, die Familienanamnese ist leer. \n\nIch danke Ihnen für die konsiliarische Mitbeurteilung dieses Knaben und verbleibe\n\nmit freundlichen kollegialen Grüßen"
+}

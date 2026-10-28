@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15200509_Case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 343,
+  "total_tokens": 2064,
+  "thoughts_tokens": 1389,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 20-jährige Patientin Lea Sommer zur weiteren konsiliarischen Einordnung und Verlaufsempfehlung.\n\nBereits seit dem Jugendalter seien den Angehörigen diskrete dunkle Flecken im Bereich des Lippenrots aufgefallen, die seither stabil persistieren. Bei der heutigen Untersuchung präsentieren sich gut abgrenzbare, braune Schleimhautmakulae an den Lippen sowie analoge, umschriebene Hyperpigmentierungen der bukkalen Mukosa intraoral. \n\nAufgrund wiederholter abdomineller Missempfindungen erfolgte vor kurzem eine vollständige Endoskopie des Magen-Darm-Traktes. Hierbei imponierte eine multilokuläre gastrointestinale Polyposis; die histopathologische Begutachtung der entnommenen Proben erbrachte dabei den eindeutigen Befund hamartomatöser Polypenformationen. \n\nDie körperliche Untersuchung war ansonsten unauffällig. Das Abdomen tastete sich weich und ohne Resistenzen, die Darmgeräusche waren regelrecht. Das aktuelle Routinelabor, insbesondere das kleine Blutbild und das CRP, zeigte unauffällige Werte. Die Patientin studiert, nimmt abgesehen von einer oralen Kontrazeption keine Dauermedikation ein und berichtet über eine leere Familienanamnese.\n\nIch wäre Ihnen für eine fachärztliche Beurteilung der Gesamtsituation sowie Ihre geschätzte Einschätzung zum weiteren Überwachungs- und Betreuungskonzept sehr verbunden.\n\nMit freundlichen kollegialen Grüßen"
+}

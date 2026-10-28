@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24112114_patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 350,
+  "completion_tokens": 372,
+  "total_tokens": 2242,
+  "thoughts_tokens": 1520,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute die 21-jährige Patientin Anna Meier zur weiteren differentialdiagnostischen Abklärung.\n\nErstmals im Alter von sechs Jahren fiel den Eltern eine ungewöhnliche, markant silbrig-graue Farbgebung des Kopfhaares auf, welche bis heute unverändert persistiert. Bei der aktuellen körperlichen Untersuchung imponierte zudem eine auffällige Blässe der Haut und sichtbaren Schleimhäute. Im peripheren Blutausstrich zeigten sich mikroskopisch auffallend massiv vergrößerte Granula in den neutrophilen Granulozyten.\n\nDie übrige hämatologische Diagnostik zeigte sich bisher unaufgeregt: Das Hämoglobin liegt vollkommen im Normbereich, sodass keine Anämie vorliegt. Auch eine Thrombozytopenie ließ sich nicht nachweisen, die Thrombozytenzahlen waren stets stabil normwertig. Abdomensonographisch ergaben sich keine Hinweise auf eine Vergrößerung von Leber oder Milz, beide Organe stellten sich mit regelrechter Größe und Echotextur dar. \n\nDie Patientin studiert derzeit Betriebswirtschaftslehre; in ihrer Kindheit gab es keinerlei Anhaltspunkte für eine globale Entwicklungsverzögerung, alle Meilensteine wurden absolut zeitgerecht erreicht. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer. Sie nimmt keine regelmäßigen Medikamente ein, Vitalparameter und der internistische Auskultationsbefund waren unauffällig.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung dieses Befundmusters und Ihre Empfehlungen zum weiteren Vorgehen sehr verbunden.\n\nMit freundlichen Grüßen\nDr. med. Thomas Brandner"
+}

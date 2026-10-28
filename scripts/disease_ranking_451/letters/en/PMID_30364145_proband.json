@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30364145_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 455,
+  "completion_tokens": 354,
+  "total_tokens": 3053,
+  "thoughts_tokens": 2244,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to consult on this 6-year-old girl for clinical assessment. \n\nShe was delivered at term following a pregnancy noted for marked prenatal growth restriction. In the neonatal period, she required intervention for profound feeding difficulties and troublesome acid reflux. She also underwent early surgical repair for a congenital conotruncal heart defect consisting of a ventricular septal defect, pulmonary stenosis, overriding aorta, and right ventricular hypertrophy. She has demonstrated multidomain developmental delays from infancy and currently functions with a mild degree of intellectual disability. At age four, she developed generalized bilateral motor convulsions, which remain well controlled on maintenance levetiracetam. \n\nOn physical examination, craniofacial inspection reveals an elongated vertical facial contour, an expansive broad forehead, enlarged pinnae, deeply recessed eyes, and bilateral upper lid blepharoptosis. Measurements confirm reduced interpupillary distance. Horizontal palpebral fissure length is entirely average, and her eyebrows lack exaggerated arching. The nasal root is unremarkable without an elevated nasal bridge, though the columella descends well below the level of the alae. Intraoral inspection shows a high-vaulted palate, and perioral examination demonstrates an elongated and flattened infranasal groove paired with a remarkably slender upper vermilion. Chin projection is neutral without recession. \n\nMusculoskeletal exam shows widened thumbs and broad halluces bilaterally, as well as prominent, elevated fetal-like distal fingertip pads. Her spine is straight with no evidence of scoliosis, and peripheral deep tendon reflexes are symmetric. Family history is negative for early-onset neurologic conditions or structural birth defects. \n\nI would be grateful for your comprehensive evaluation and guidance regarding her care.\n\nSincerely,\nDr. Marcus Finch"
+}

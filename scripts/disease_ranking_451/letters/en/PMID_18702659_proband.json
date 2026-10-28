@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18702659_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 248,
+  "total_tokens": 2623,
+  "thoughts_tokens": 2015,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 23-year-old man who presented to our outpatient clinic for a general health review. He works in an administrative office, has no known family history of chronic illness, and currently takes no prescription medications.\n\nOn examination, his cranial morphology is notable for a pronounced bulging of the frontal bones accompanied by a flattened, deeply set nasal root and broad, flared nasal apertures. His lower jaw tapers to a sharp, narrow mental prominence, and his lips demonstrate distinctly full, wide mucosal margins. Intraoral review reveals a complete failure of tooth development, leaving him entirely edentulous. His scalp demonstrates very thin, wispy hair coverage with minimal body hair elsewhere. His mother notes that since early childhood he has suffered from a severely reduced capacity to sweat, which frequently leads to marked overheating and frequent unexplained pyrexic episodes during warm ambient conditions.\n\nCardiopulmonary, abdominal, and neurological examinations were entirely within normal limits. Inspection of the hands and feet revealed healthy, normal fingernails and toenails, with no structural or trophic irregularities detected.\n\nI would appreciate your expert opinion and guidance on his presentation and ongoing multidisciplinary care.\n\nWarm regards,\nDr. Vance Keller"
+}

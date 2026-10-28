@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_21",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 520,
+  "completion_tokens": 489,
+  "total_tokens": 3260,
+  "thoughts_tokens": 2251,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 13-jährigen Jonas zur differenzialdiagnostischen Einschätzung. Der Junge weist seit früher Kindheit eine globale Entwicklungsretardierung mit motorischen und kognitiven Defiziten auf; anamnestisch bestehen zudem ausgeprägte Fütter- und Trinkprobleme. Körperlich fällt ein deutlicher Kleinwuchs unterhalb der dritten Perzentile auf, ein Übergewicht liegt nicht vor. \n\nPhänotypisch imponieren ein weiter Augenabstand, nach kranial außen ansteigende Lidachsen sowie auffallend lange Zilien. Kein Hypotelorismus, keine Verlängerung der Lidspalten, kein Epikanthus, keine Ptosis, kein Strabismus und keine Enophthalmie. Die Stirn ist unauffällig schmal, der Schädel normozephal ohne Anhalt für Mikro- oder Brachyzephalie. Die Ohren sind regelrecht hoch inseriert. Der Nasenrücken zeigt sich gerade, ohne Verbreiterung oder konvexe Krümmung; die Nasenflügel sind normal entwickelt, die Nares nicht antevertiert, die Nasenspitze nicht knollig aufgetrieben. Das Philtrum ist wohlkonturiert von mittlerer Breite und normaler Länge, weder verstrichen noch elongiert oder verkürzt. Die Mundspalte ist seitengleich adäquat weit, das Oberlippenrot sehr schmal, die Unterlippe nicht nach außen gewendet. \n\nNeurologisch zeigt sich ein normgerechter Muskeltonus ohne Hypotonie; epileptische Anfälle traten nie auf, und im kürzlich durchgeführten cMRT fand sich keine Ventrikelerweiterung. Im Verhalten gibt es keine Hinweise auf ein autistisches Spektrum, Ängste, Aggressionen oder Hyperaktivität bei altersentsprechender Aufmerksamkeitsspanne. Der Schlaf ist ungestört. Orthopädisch fällt eine deutliche Überstreckbarkeit der peripheren Gelenke auf, die Finger sind regelrecht geformt und laufen nicht spitz zu. Das Basislabor und der Hörtest waren unauffällig.\n\nIch bedanke mich herzlich für Ihre konsiliarische Begutachtung und verbleibe\n\nmit kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30658709_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 404,
+  "completion_tokens": 297,
+  "total_tokens": 2125,
+  "thoughts_tokens": 1424,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Maya Henderson, a 23-month-old girl whom I am referring for specialist evaluation. Her parents first noted persistent yellow discoloration of her skin and intense body itching during early infancy. \n\nOn physical examination today, she is overtly icteric with scattered excoriations from constant scratching. Her abdomen is moderately distended, and palpation reveals both hepatic and splenic enlargement extending several centimeters beneath the costal margins. Dysmorphology examination is notable for a distinctly pointed contour of the upper helical margins of both ears, and on forward bend, she displays a mild lateral curvature of the mid-thoracic spine. Her length and weight continue to lag significantly below the third percentile, although her cognitive and fine motor milestones are tracking normally.\n\nRecent blood work demonstrates marked transaminitis with elevated AST and ALT concentrations. Total bilirubin is considerably increased with a predominantly conjugated fraction, and her circulating bile acids are profoundly elevated. Her plasma amino acid profile was unremarkable, coagulation parameters including INR and PTT were completely normal, and quantitative immunoglobulin subsets fell within expected reference ranges. In addition, an echocardiogram performed last month showed normal intracardiac anatomy. \n\nMaya lives at home with both parents, and there is no known family history of chronic childhood conditions. Her only current treatments are fat-soluble vitamin supplementation and ursodiol. \n\nI would be grateful for your comprehensive assessment and recommendations regarding her continued diagnostic evaluation and clinical care."
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31182298_Case_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 318,
+  "completion_tokens": 423,
+  "total_tokens": 2285,
+  "thoughts_tokens": 1544,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute den kleinen Felix zur kinderkardiologischen Mitbeurteilung und weiteren Abklärung.\n\nBereits unmittelbar nach der Entbindung fielen bei dem männlichen Säugling erhebliche Probleme bei der oralen Nahrungsaufnahme auf. Er zeigt eine ausgeprägte Saugschwäche, trinkt an der Flasche extrem langsam und bricht die Mahlzeiten aufgrund rascher Erschöpfung immer wieder vorzeitig ab. Ein adäquates Trinkvolumen lässt sich derzeit nur unter großem Zeitaufwand und mit sehr häufigen kleinen Portionen realisieren. \n\nIn der initialen Ultraschalluntersuchung des Herzens imponierte eine deutliche Verdickung der linksventrikulären Myokardwand sowie eine akzentuierte Hypertrophie des interventrikulären Septums, beides deutlich oberhalb der altersüblichen Normperzentilen. Ein relevanter Gradient im linksventrikulären Ausflusstrakt ließ sich bei der orientierenden Untersuchung nicht dokumentieren.\n\nKlinisch präsentiert sich der Junge ansonsten kreislaufstabil. Die periphere Sauerstoffsättigung liegt bei 98 % unter Raumluft, die peripheren Pulse sind kräftig und seitengleich tastbar. Das Abdomen ist weich, Leber und Milz sind nicht vergrößert. Die Lungen sind seitengleich belüftet und frei von Rasselgeräuschen. Der sonstige pädiatrische Befund ist unauffällig, die Fontanelle steht im Niveau und der Muskeltonus ist altersentsprechend seitengleich regelrecht. In der Familie sind keine frühen kardialen Erkrankungen bekannt, die Eltern sind gesund und nicht blutsverwandt.\n\nZur genaueren differenzierten Beurteilung der myokardialen Veränderungen und zur Festlegung des weiteren Managements bitte ich um Ihre geschätzte Expertise.\n\nMit besten kollegialen Grüßen\n\nDr. med. Thomas Lindner"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_29",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 452,
+  "completion_tokens": 298,
+  "total_tokens": 2507,
+  "thoughts_tokens": 1757,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating this young male patient. He was delivered at term with parameters appropriate for gestational age, with no evidence of being small for dates. Family history is non-contributory; both parents and his older sibling are healthy.\n\nOn physical examination, his head circumference is markedly enlarged and tracks well above the 98th percentile, with microcephaly clearly excluded. Cranial nerves are intact, and he has had no convulsive episodes or seizure activity. Recent neuroimaging confirmed complete failure of development of the corpus callosum; there was no mere callosal hypoplasia. Brain imaging was otherwise notable for the absence of ventriculomegaly or hydrocephalus, normal cortical gyration with no pachygyria, intact hippocampal architecture, well-visualized olfactory bulbs, and an absence of periventricular leukomalacia.\n\nCardiology evaluation demonstrated a persistent ductus arteriosus, a small interventricular defect, and an open foramen ovale. There was no pulmonary valve stenosis, the aortic valve is trileaflet with no thoracic aortic aneurysm, and myocardial wall dimensions are normal without left ventricular hypertrophy.\n\nFrom a nutritional standpoint, the family notes ongoing feeding difficulties and very slow oral intake, though he has avoided gastrostomy tube placement, has never required parenteral nutrition, and displays no signs of gastroesophageal reflux.\n\nI would appreciate your clinical assessment and recommendations regarding his ongoing management and investigation.\n\nSincerely,\nDr. Arthur Miller"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39636576_F1_Germany_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 572,
+  "completion_tokens": 537,
+  "total_tokens": 3382,
+  "thoughts_tokens": 2273,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 13-jährige Schülerin Lara zur konsiliarischen Beurteilung. Sie lebt bei ihren Eltern; die Familienanamnese ist unauffällig.\n\nIn der frühen Kindheit trat einmalig ein einfacher Fieberkrampf auf. Seit einiger Zeit bestehen rezidivierende generalisierte Absencen. Im abgeleiteten EEG zeigten sich deutliche epilepsietypische Auffälligkeiten. Entwicklungspädiatrisch besteht eine mittelgradige Intelligenzminderung; eine lediglich milde oder gar schwerste kognitive Beeinträchtigung liegt nicht vor. Verhaltensauffälligkeiten wie ein ADHS oder autistische Züge werden verneint. Bei der neurologischen Untersuchung fallen eine ataktische Gangstörung sowie distale dystone Bewegungen auf. Zudem wurde eine Hörminderung diagnostiziert. Internistisch zeigt sich das Mädchen kardiopulmonal unauffällig.\n\nKörperlich fällt eine ausgeprägt trockene Haut auf. An den Händen finden sich zarte, sehr schlanke Finger und palmar eine Vierfingerfurche. Die Füße sind von normaler Länge ohne überlagernde Zehen. Im Gesichtsbereich imponiert eine Synophrys bei tiefem vorderem Haaransatz; die Augenbrauen sind ansonsten weder ungewöhnlich breit, noch horizontal oder buschig verdickt. Die Lidachsen stehen gerade, ohne Epikanthus, mandelförmige Kontur, Verlängerung oder Verengung der Lidspalten. Ein Strabismus convergens besteht nicht. Die Nasenwurzel ist deutlich verbreitert, die Nase selbst jedoch normal dimensioniert, ohne knollige oder verbreiterte Nasenspitze. Das Gesicht ist seitengleich symmetrisch, der Kopfumfang altersgerecht ohne Mikrozephalie. Die Stirn ist weder zu hoch noch verschmälert, die Wangen sind nicht übermäßig voll und das Kinn ist nicht verbreitert. Auffällig ist ein vergrößerter dentaler Überbiss, allerdings ohne Makrodontie oder Diastemata. Der Gaumen ist intakt, nicht spitzbogig oder gespalten, eine Pierre-Robin-Sequenz liegt nicht vor. Das Philtrum ist weder abgeflacht noch elongiert, das Lippenrot zeigt eine reguläre Stärke und der Unterkiefer ist nicht rückverlagert. Die Ohren inserieren normal.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung bezüglich des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

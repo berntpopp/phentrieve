@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_10",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 406,
+  "total_tokens": 2270,
+  "thoughts_tokens": 1510,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin Dr. Weber,\n\nich überweise Ihnen heute einen weiblichen Säugling zur weiterführenden endokrinologischen Mitbeurteilung. Das Mädchen wurde nach unauffälliger Schwangerschaft und Spontangeburt termingerecht entbunden. Die Familienanamnese bietet bezüglich hereditärer Stoffwechsel- oder Hormonstörungen keine Auffälligkeiten, die Eltern sind nicht konsanguin.\n\nErste Veränderungen fielen den Eltern um den 20. Lebenstag auf. Bei der aktuellen Inspektion imponiert eine deutlich vergrößerte Klitoris bei ansonsten anatomisch eindeutig weiblich differenziertem Genitale; Gonaden sind inguinal oder labioskrotal nicht tastbar. Des Weiteren zeigt sich ein ungewöhnlich dunkles, tief pigmentiertes Hautkolorit, welches an den Genitalfalten und den Mamillen besonders intensiv ausgeprägt ist. Der kardiopulmonale Status, die Vitalparameter sowie der abdominelle Tastbefund sind regelrecht, das Trinkverhalten ist gut.\n\nIn unserer ersten Labordiagnostik fand sich ein stark erniedrigter Cortisolspiegel im Serum, wohingegen die Konzentration des adrenokortikotropen Hormons im Plasma massiv gesteigert war. Korrespondierend zum genitalen Befund zeigte sich das Gesamttestosteron im Blut deutlich über die altersentsprechende Referenz angehoben. Auffällig war zudem eine klar erhöhte Prolaktinkonzentration. Die Bestimmung des Serum-Östradiols ergab hingegen normale Werte ohne pathologische Abweichung. Die Elektrolyte und Routineparameter zeigten sich im Normbereich.\n\nAufgrund dieser Befundkonstellation bitte ich um Ihre geschätzte konsiliarische Beurteilung und Einleitung der erforderlichen weiterführenden Schritte.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Bachmann\nFacharzt für Kinder- und Jugendmedizin"
+}

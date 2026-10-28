@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30859559_Patient_O1409410",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 702,
+  "completion_tokens": 508,
+  "total_tokens": 6393,
+  "thoughts_tokens": 5183,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for seeing this 20-year-old gentleman for diagnostic assessment. He currently works in retail, and his family history is non-contributory.\n\nAntenatal sonography identified non-immune fetal hydrops, thickened nuchal lucency, and a cervical cystic hygroma. As an infant, he exhibited low muscular tone and walked late at 22 months, though he experienced no feeding difficulties. Childhood development was otherwise reassuring: he has no speech or language delay, global developmental delay, intellectual disability, or autistic behavior. He has never had seizures, sensorineural hearing impairment, or acute lymphoblastic leukemia.\n\nCardiology follows him for hypertrophic myocardiopathy, managed with metoprolol; echocardiography rules out ventricular septal defect, atrial septal defect, mitral valve prolapse, and mitral regurgitation.\n\nOn exam, height and head circumference are at the 50th percentile, with no short stature or microcephaly. Craniofacial features show widely spaced eyes with pale blue irises, downward-slanting and elongated palpebral apertures, epicanthal folds, and bilateral blepharoptosis, without strabismus. The auricles are low-implanted and posteriorly tilted. He has straight rather than curly hair, an elevated frontal hairline, and his posterior hairline sits low, with no prominent metopic ridge or abnormal high, broad, or narrow forehead. We noted no midface retrusion, coarse facial features, elongated face, depressed nasal bridge, anteverted nares, or prominent nasolabial folds. He lacks micrognathia, retrognathia, or a pointed chin, and oral exam reveals no high palate, dental malocclusion, or macrodontia.\n\nHe exhibits shortened neck length and lateral neck webbing, but no redundant neck skin. Chest contour is normal without pectus excavatum, pectus carinatum, or wide intermamillary distance, and the spine shows no scoliosis. Limbs demonstrate no cubitus valgus. His hands display prominent digital pulps with absent single transverse palmar creases, and his feet show flat arches without 2-3 toe syndactyly. Genital exam reveals no cryptorchidism. Skin shows no hyperextensibility, hyperpigmentation, hyperkeratosis, palmoplantar cutis laxa, eczematoid dermatitis, or hirsutism.\n\nI would appreciate your expert opinion regarding his presentation.\n\nSincerely,\nDr. Marcus Vance"
+}

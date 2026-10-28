@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27732904_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 546,
+  "completion_tokens": 412,
+  "total_tokens": 8595,
+  "thoughts_tokens": 7637,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this two-month-old female infant who presents with a pale complexion and hematologic abnormalities.\n\nShe was delivered at 39 weeks following a pregnancy complicated by intrauterine fetal growth restriction, without premature birth. Postnatally, she feeds well, gaining weight appropriately without failure to thrive, and her length tracks along the 50th percentile without short stature. She demonstrates age-appropriate social and motor milestones, with no global developmental delay or intellectual disability. Family history is negative for osteosarcoma and colon cancer.\n\nOn physical examination, she displays noticeable pallor. Her head circumference is normal without microcephaly, parietal bone foramina, or delayed suture closure. Her face is non-dysmorphic: there is no hypertelorism, downward-slanting palpebral fissures, strabismus, or depressed nasal bridge. The oral cavity shows an intact lip and palate without cleft lip, cleft palate, or a high palatal arch. Jaw alignment is normal with no micrognathia or retrognathia. Her neck has normal length without webbing. Her chest is symmetric without narrowing, and a skeletal survey confirms twelve rib pairs rather than eleven. There is no hypoplasia of the iliac bones, sacral vertebrae, or coccygeal vertebrae, and no bifid thoracic vertebrae. Upper extremities show intact radii without hypoplasia, and normal thumbs that are neither absent, short, nor triphalangeal. Cardiovascular assessment and echocardiography excluded an atrial septal defect, ventricular septal defect, and aortic coarctation.\n\nHer complete blood count reveals significant anemia with a hemoglobin of 7.1 g/dL and an elevated mean corpuscular volume of 103 fL. Her total neutrophil count is not decreased, platelets are normal without thrombocytopenia or thrombocytosis, and her reticulocyte counts are preserved without reticulocytopenia.\n\nThank you for offering your diagnostic expertise and assessment regarding her presentation.\n\nSincerely,\nDr. Laura Sterling"
+}

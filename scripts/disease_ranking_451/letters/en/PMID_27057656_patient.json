@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27057656_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 413,
+  "completion_tokens": 287,
+  "total_tokens": 2160,
+  "thoughts_tokens": 1460,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see Ethan Davis, a 15-month-old boy referred for diagnostic evaluation of multi-system developmental and orthopedic concerns. He lives with his parents and older sister; family history is non-contributory, and he takes only daily multivitamin supplementation. \n\nPregnancy was complicated by significant excess amniotic fluid noted on late-gestation imaging. Since birth, Ethan has experienced recurrent lower respiratory tract infections requiring close monitoring. His growth is notable for severe short stature, with length plotting well below the 3rd percentile, though his head circumference has remained entirely normal. He exhibits global developmental delay, having not yet attained unsupported sitting or single words.\n\nOn physical examination, he displays bilateral blepharoptosis, a distinctly elongated philtrum, and a thin vermilion border. Active and passive range of motion is impaired, with fixed limitations in extension at both the elbows and the knees. His hands demonstrate short, stubby digits. Radiographic skeletal survey confirms brachydactyly characterized by shortened metacarpals and phalanges, along with short femoral and humeral shafts, hypoplastic ulnar bones, and delayed skeletal maturation relative to his chronological age. Cardiopulmonary and abdominal examinations are otherwise unremarkable.\n\nI would be grateful for your expert assessment and recommendations regarding appropriate evaluation for Ethan. \n\nSincerely,\n\nDr. Marcus Vance, MD\nGeneral Pediatrics"
+}

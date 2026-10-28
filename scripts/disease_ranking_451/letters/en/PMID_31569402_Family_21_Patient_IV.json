@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_21_Patient_IV",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 527,
+  "completion_tokens": 389,
+  "total_tokens": 3608,
+  "thoughts_tokens": 2692,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Mr. Arthur Vance, a 71-year-old retired architect, for a comprehensive clinical assessment. He presents for review following recent imaging and general evaluation.\n\nOn physical examination, Mr. Vance is disproportionately tall, with noticeably long extremities relative to his torso. Craniofacial inspection reveals an increased interpupillary distance, distinctly flattened malar eminences, a prominent nasal bridge, and an underdeveloped, small mandible. His cranium is normocephalic with no dolichocephaly or frontal bossing, and his ears are normally positioned. The sclerae are clear without blue hue, vision is intact without myopia, extraocular movements show no strabismus, and epicanthal folds are absent. His oral cavity demonstrates a palatal vault of typical height and a single, non-bifid uvula.\n\nMusculoskeletal examination is notable for degenerative osteoarthritis in the knees and bilateral flat feet. His spine shows no scoliosis, and the chest wall exhibits neither pectus excavatum nor carinatum. There is no knock-knee deformity, clubfoot or equinovalgus positioning, joint contracture, or joint hypermobility, and he denies recurrent joint dislocations or abnormally slender, elongated fingers. His skin shows no striae, paper-thin atrophic scarring, easy bruising, or cutaneous translucency. Abdominal exam confirms a right-sided inguinal hernia, but no umbilical or hiatus hernia.\n\nCardiovascular evaluation identified marked arterial tortuosity on vascular imaging and myxomatous mitral valve prolapse on echocardiography. Importantly, there was no mitral regurgitation, patent ductus arteriosus, or history of coronary dissection. \n\nHe currently takes atorvastatin 10 mg for mild hyperlipidemia and has no known food allergies. \n\nI would greatly appreciate your evaluation and recommendations regarding his clinical picture.\n\nSincerely,  \nDr. Eleanor Hayes"
+}

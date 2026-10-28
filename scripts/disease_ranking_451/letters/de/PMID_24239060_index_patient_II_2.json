@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24239060_index_patient_II_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 499,
+  "completion_tokens": 508,
+  "total_tokens": 3148,
+  "thoughts_tokens": 2141,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute eine 45-jährige Patientin zur neurologischen Beurteilung. Sie berichtet über motorische Auffälligkeiten, die bereits seit dem Kindesalter bestehen; damals seien die Meilensteine verzögert erreicht worden und das Rennen sei ihr nie richtig gelungen. Aktuell beklagt die im kaufmännischen Bereich tätige Patientin gehäufte Stürze sowie eine ausgeprägte Erschwernis beim Treppensteigen. Schmerzen bestehen nicht, Myalgien werden explizit verneint. Die Familienanamnese ist bezüglich neuromuskulärer Leiden leer.\n\nKlinisch imponiert ein schmales, langes Gesicht mit kleinem, zurückweichendem Unterkiefer sowie ein spitzbogig hoher Gaumen. Die mimische Muskulatur ist regelrecht innerviert, eine Ptose oder Ophthalmoparese liegt nicht vor, Doppelbilder treten nicht auf. Die Artikulation ist unauffällig, eine Dysarthrie besteht nicht. An der Wirbelsäule zeigt sich eine Skoliose. \n\nNeurologisch findet sich eine proximale Muskelschwäche der oberen und unteren Extremitäten sowie eine Schwäche der Nackenbeugung und der distalen Beinmuskulatur. Auffällig ist ein beidseitiges Flügelschlagen der Schulterblätter. Die Muskeleigenreflexe sind generalisiert herabgesetzt. Die Patientin zeigt ein watschelndes Gangbild, ist jedoch frei gehfähig. Der Hackengang ist nicht durchführbar, wohingegen der Zehengang sicher gelingt. Das Gowers-Zeichen war negativ. Oberflächen- sowie Vibrationsempfinden sind allseits ungestört intakt.\n\nDie laborchemische Bestimmung der Creatinkinase ergab wiederholt Normwerte, anamnestisch gab es nie Episoden einer Myoglobinurie. Neurographisch zeigten sich unauffällige motorische Nervenleitgeschwindigkeiten. Im MRT zeigte sich ein deutlicher fettiger Umbau der Skelettmuskulatur. Die auswärtig veranlasste Muskelbiopsie wies eine Prädominanz von Typ-1-Fasern auf, eine Vermehrung des endomysialen Bindegewebes fand sich hierbei nicht.\n\nIch bedanke mich für Ihre differentialdiagnostische Einschätzung und weitere Empfehlungen zum Procedere.\n\nMit freundlichen Grüßen"
+}

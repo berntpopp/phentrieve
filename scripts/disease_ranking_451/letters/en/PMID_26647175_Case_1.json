@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26647175_Case_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 402,
+  "completion_tokens": 321,
+  "total_tokens": 2407,
+  "thoughts_tokens": 1684,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate this 10-year-old boy for ongoing diagnostic review. He lives at home with both parents, who are healthy, and he attends a specialized day program. \n\nHis history began around 18 months of age when his family recognized delays across every early developmental sphere. Independent walking was severely delayed, and while he is currently ambulatory, his steps remain poorly coordinated with a stumbling, uncoordinated gait and a noticeably widened base of support. He has never developed expressive speech, remaining nonverbal, and testing confirms profound cognitive handicap. He was previously diagnosed with an autism spectrum disorder characterized by poor eye contact and intense stereotypies, and his parents note chronic, marked sleep disruption with fragmented nights. He also suffers from recurrent epileptic seizures, which are partially managed on oral levetiracetam. \n\nOn physical examination today, his vital signs are normal, and he appears well-nourished. Auscultation of his heart and lungs was unremarkable, his abdomen is soft, and his cranial nerve screen is grossly intact. \n\nPrior neuroimaging demonstrated widespread cerebral and cerebellar volume loss accompanied by expanded extra-axial fluid collections. Proton brain spectroscopy revealed depleted NAA peak heights. Recent lumbar puncture studies were notable for significantly depressed CSF homovanillate and 5-hydroxyindoleacetate concentrations. Routine serum chemistries, complete blood count, and thyroid studies were all within normal reference ranges.\n\nGiven his complex presentation, I would welcome your comprehensive neurological assessment and any recommendations regarding next steps.\n\nSincerely,\n\nDr. Marcus Vance\nPediatric Neurology"
+}

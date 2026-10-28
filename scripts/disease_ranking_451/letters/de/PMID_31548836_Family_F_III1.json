@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_F_III1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 427,
+  "completion_tokens": 408,
+  "total_tokens": 3627,
+  "thoughts_tokens": 2792,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den dreijährigen Max zur konsiliarischen Beurteilung. Die bisherige motorische und kognitive Entwicklung verlief altersgerecht, und die kardiopulmonale Untersuchung sowie das Basislabor erbrachten regelrechte Befunde.\n\nAuffällig ist eine ausgeprägte Wuchsminderung mit einer Körperlänge deutlich unter der 3. Perzentile. Am Schädel imponieren eine persistierende Weite der Schädelnähte sowie stark vortretende Stirn- und Scheitelhöcker; radiologisch kamen hierbei multiple akzessorische Schaltknochen zur Darstellung. Das Fazies zeigt weit auseinanderstehende Augen, eine tief eingesenkte Nasenwurzel, eine Hypoplasie des mittleren Gesichtsskeletts und einen auffallend kleinen Unterkiefer. Der Durchtritt der ersten Dentition ist deutlich verspätet, der Zahnschmelz wirkt mangelhaft mineralisiert, und im Röntgen zeigte sich ein überzähliger Zahnkeim.\n\nDer Thorax des Jungen ist auffallend schmal gebaut, flankiert von einer leichten seitlichen Verkrümmung der Wirbelsäule. Die Klavikeln stellen sich radiologisch markant verkürzt dar; klinisch lassen sich die beiden Schultern ventral extrem weit nach medial zusammenführen. An den Händen imponiert ein ungewöhnlich lang gestreckter zweiter Mittelhandknochen. Die Beckenübersicht zeigt hypoplastische Darmbeinflügel sowie eine deutlich verzögerte Ossifikation der Schambeine. Ergänzend zeigte sich im zervikothorakalen MRT eine schlanke Hohlraumbildung innerhalb des Myelons. \n\nZur weiteren Abklärung dieser vielgestaltigen Skelettauffälligkeiten bitte ich um Ihre fachärztliche Einschätzung und Mitbetreuung des Patienten.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29174093_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 328,
+  "total_tokens": 2660,
+  "thoughts_tokens": 1961,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to assess this four-year-old girl for further clinical evaluation. Her parents first noted developmental concerns during early infancy, with delays spanning gross motor, expressive speech, and cognitive spheres. \n\nOn examination today, she demonstrated generalized low central muscle tone. In addition, she exhibited prominent, continuous involuntary writhing and jerky movements throughout her upper and lower extremities. When ambulating across the room, she walked with a distinctly wide base. Craniofacial assessment revealed a markedly small, retroplaced lower jaw, and her mother reports prominent, persistent grinding of her teeth throughout the day and night. Inspection of her feet showed partial soft-tissue webbing between the second and third digits bilaterally. Dermatologic examination revealed scattered hyperpigmented, tannish macules that urticate upon mechanical stroking, indicative of mast cell infiltration within the skin. \n\nOf note, her history includes early childhood urinary infections, with past voiding studies demonstrating retrograde urine flow from the bladder toward the upper tracts. Reassuringly, she has never experienced any difficulties with feeding or swallowing, and her oral intake remains robust. Her chest was clear to auscultation, cardiovascular exam revealed normal heart sounds without murmurs, and her abdomen was soft and non-tender. The family history is non-contributory; both parents and her older brother are in good health. She currently takes only an over-the-counter multivitamin.\n\nI would value your comprehensive assessment regarding these combined neurodevelopmental, physical, and cutaneous findings.\n\nSincerely,\n\nDr. Evelyn Vance, MD  \nDepartment of Pediatrics"
+}

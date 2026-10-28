@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_A_IV_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 309,
+  "total_tokens": 2634,
+  "thoughts_tokens": 1938,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating this young woman, whose clinical history traces back to early infancy. She lives locally with her parents, who accompanied her to the clinic today. Her family history is non-contributory, and she takes only an over-the-counter daily multivitamin.\n\nHer early presentation involved developmental concerns; she exhibits longstanding intellectual limitation, although her speech and language development was not delayed during early childhood. Over time, she has also experienced notable weight gain, presenting currently with a body mass index consistent with obesity. From an endocrine perspective, she has never had a menstrual period; however, targeted hormonal testing and mature secondary sexual characteristics demonstrate no hypogonadism. Her basic metabolic panel was entirely reassuring, displaying normal urea and creatinine without renal insufficiency, and her glycemic parameters confirm no diabetes mellitus.\n\nOn examination, she is pleasant and normotensive at 116/74 mmHg. Her hands and feet are structurally normal, with no postaxial polydactyly. Oral examination reveals healthy dentition without dental crowding. \n\nOphthalmologic review highlights marked ocular misalignment. Fundus examination reveals bilateral retinal degeneration characterized by diffuse thinning, prominent attenuation of retinal vessels, and classic bone-spicule pigmentation distributed across the mid-periphery. Electrophysiologic assessment demonstrates severe photoreceptor dysfunction impacting both rod and cone responses. Her refractive examination reveals no myopia.\n\nI would greatly appreciate your assessment and guidance on how best to approach her care. \n\nSincerely,\nDr. Evelyn Reed"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28862745_PD_Case_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 301,
+  "total_tokens": 1980,
+  "thoughts_tokens": 1340,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this female patient whom I am referring to your clinic for a comprehensive assessment. Her symptoms first manifested when she was 39 years old, and her family reports an escalating loss of functional independence over the subsequent period.\n\nHer family's primary concern is an insidious deterioration in overall cognitive ability, marked by severe impairments in working memory, executive function, and task planning. Compounding this, she has developed perceptual disturbances, describing frequent episodes of seeing fully formed people standing in her home when no one is present.\n\nOn physical examination, she demonstrates a slow, coarse oscillatory shaking of the hands while resting comfortably in her lap. Passive manipulation of both upper and lower extremities reveals marked, uniform tone and resistance. She also displays episodic, abnormal sustained twisting postures affecting her feet and hands during movement. When asked to write a sample sentence, her penmanship begins modestly but rapidly trails off into an exceedingly minute, cramped script. Her speech is slow and profoundly slurred, though comprehension remains intact. \n\nHer cranial nerves are otherwise within normal limits, light touch sensation is fully preserved, and deep tendon reflexes are symmetric. Plantar responses are flexor bilaterally. She has no family history of neurodegenerative conditions. She lives with her husband, does not consume alcohol, and her only current medication is an over-the-counter multivitamin.\n\nI appreciate your expert assessment and recommendations regarding her further workup and care.\n\nSincerely,\nDr. Julian Hayes"
+}

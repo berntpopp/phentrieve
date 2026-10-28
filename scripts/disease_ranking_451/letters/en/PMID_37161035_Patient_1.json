@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37161035_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 369,
+  "total_tokens": 2013,
+  "thoughts_tokens": 1224,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Leo Davies, a 3-year-old boy whom I am referring for ongoing neurological assessment. His symptoms first became apparent around 7 months of age, when his parents noted a significant lag in his physical milestones. Currently, he is unable to walk independently and has only recently pulled to stand. Alongside this gross motor delay, he exhibits pervasive developmental delays affecting his receptive language, expressive communication, and social interactions. On examination, he demonstrates prominent central low muscle tone, though his peripheral strength, cranial nerves, and deep tendon reflexes are intact. General systemic examination, including cardiac auscultation, is unremarkable. \n\nLeo has had recurrent discrete focal motor seizures, predominantly characterized by rhythmic twitching of his right arm and face. An electroencephalogram confirmed the presence of epileptiform abnormalities. Importantly, he has never suffered from infantile spasms, myoclonic jerks, or drop attacks, nor has he demonstrated generalized tonic-clonic convulsions, sustained stiffening episodes, or typical absence events. None of his episodes have been provoked by fever. \n\nA high-resolution brain MRI revealed age-appropriate myelination of the white matter, with no evidence of demyelinating plaques. The corpus callosum was of normal caliber and morphology, there was no widespread cerebral parenchymal volume loss, and the hippocampi appeared structurally normal with no signs of sclerosis. \n\nLeo lives at home with his parents and older sister, with no family history of neurologic or metabolic conditions. He is currently maintained on levetiracetam with partial control of his events. Given his complex clinical picture, I would value your comprehensive evaluation and guidance regarding his ongoing diagnostic workup and therapeutic strategy.\n\nWarm regards,\n\nDr. Sarah Sterling\nDepartment of Pediatrics, St. Jude's Community Hospital"
+}

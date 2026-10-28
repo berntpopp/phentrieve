@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11333380_P4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 342,
+  "completion_tokens": 387,
+  "total_tokens": 2576,
+  "thoughts_tokens": 1847,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich bitte um Ihre fachneurologische Mitbeurteilung des 45-jährigen Patienten Herrn Martin Weber, der sich zur Abklärung eines chronisch-progredienten Beschwerdebildes vorstellte. Erste Auffälligkeiten traten anamnestisch bereits im Alter von etwa zwei Jahren zutage. Den Eltern war allerdings schon im ersten Lebensjahr eine auffallende muskuläre Schlaffheit mit stark vermindertem Haltungstonus des Säuglings aufgefallen.\n\nAktuell berichtet der Patient über eine deutliche Kraftminderung der Schulter- und Beckengürtelmuskeln; das Treppensteigen sowie Tätigkeiten mit erhobenen Armen bereiten ihm erhebliche Mühe. Anamnestisch leidet er zudem seit vielen Jahren unter wiederkehrenden fieberhaften Infekten der tiefen Atemwege mit protrahierten Bronchitiden. Derzeit beklagt er erneut einen hartnäckigen Husten.\n\nKognitiv präsentiert sich Herr Weber völlig intakt und geistig voll leistungsfähig; er ist als IT-Berater tätig. In der kürzlich durchgeführten echokardiographischen Untersuchung zeigte sich eine reguläre Kontraktilität und Pumpfunktion beider Herzkammern. \n\nDie körperliche Untersuchung zeigte intakte Hirnnerven, die Sensibilität an Rumpf und Extremitäten war seitengleich unauffällig. Die Eigenreflexe waren seitengleich mittellebhaft auslösbar. Die Familienanamnese bezüglich neuromuskulärer Erkrankungen ist leer. Als Dauermedikation besteht lediglich ein orales Vitamin-D-Präparat. \n\nIch danke Ihnen herzlich für die Übernahme der konsiliarischen Einordnung und die Empfehlung weiterer Schritte.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Stefan Krause"
+}

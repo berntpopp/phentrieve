@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36553465_P9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 380,
+  "total_tokens": 2467,
+  "thoughts_tokens": 1719,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute den 16-jährigen Felix zur fachärztlichen Mitbeurteilung.\n\nDer Jugendliche stellte sich in Begleitung seiner Mutter aufgrund einer seit jeher bestehenden, beidseitigen Sehschärfenminderung vor. Aktuell liegt der bestkorrigierte Visus rechts bei 0,25 und links bei 0,3. Bei der orthoptischen Untersuchung imponiert ein feinschlägiger Nystagmus in Primärposition. Ein Strabismus liegt nicht vor, die Augenachsen stehen parallel und die Bulbusmotilität ist allseits frei.\n\nSpaltlampenbiomikroskopisch fallen beidseits auffallend hellblaue Irides auf, die retrograd eine ausgeprägte Diaphanie mit deutlichen Durchleuchtungsdefekten zeigen. Die Hornhäute und brechenden Medien sind klar. Bei der Makula-Untersuchung im OCT zeigte sich eine unzureichende Differenzierung der Schichten mit Hypoplasie der Fovea. \n\nIm äußeren Aspekt präsentieren sich auffallend helle, hypopigmentierte Kopfhaare sowie schlohweiße Augenbrauen und weiße Wimpernhaare. Am linken Oberarm zeigt sich ein solitärer, morphologisch unauffälliger melanozytärer Nävus. Der internistische Allgemeinstatus ist regelrecht, der Patient nimmt keinerlei Medikamente ein und besucht derzeit die 10. Klasse eines Gymnasiums. Die Familienanamnese ist bezüglich ophthalmologischer Besonderheiten leer.\n\nIch bedanke mich für Ihre geschätzte konsiliarische Beurteilung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit kollegialen Grüßen\nDr. med. Thomas Weber"
+}

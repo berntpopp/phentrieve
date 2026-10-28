@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24069336_proband_V_02",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 391,
+  "total_tokens": 2223,
+  "thoughts_tokens": 1488,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute eine 44-jährige Patientin zur weiteren fachärztlichen Beurteilung.\n\nDie Patientin fiel erstmals vor wenigen Wochen im Erwachsenenalter im Rahmen eines Routine-Check-ups durch eine Verminderung der peripheren Blutplättchen auf, die sich in Kontrollen mit Werten um 45.000/µl reproduzieren ließ. Im automatisierten Blutbild imponiert begleitend ein deutlich gesteigertes mittleres Plättchenvolumen von 13,6 fl. Die mikroskopische Begutachtung des Blutausstrichs zeigt zudem eine markante Größenvariabilität der Thrombozyten, wobei sich kleine neben auffallend voluminösen Formen finden.\n\nEine manifeste hämorrhagische Diathese liegt anamnestisch nicht vor, insbesondere Episoden von Nasenbluten oder sonstige Schleimhautblutungen traten nie auf. Eine bereits durchgeführte Thrombozytenaggregometrie erbrachte vollständig regelrechte Ansprechmuster ohne Funktionsdefizite. In einer extern veranlassten Knochenmarkbiopsie fand sich eine normozelluläre Hämatopoese, wobei die Zytomorphologie der Megakaryozyten völlig unauffällig beschrieben wurde. \n\nDer sonstige internistische Befund ist unauffällig; Hepatosplenomegalie oder vergrößerte Lymphknoten ließen sich sonografisch ausschließen. Die Familienanamnese ist bezüglich hämatologischer Auffälligkeiten leer. Die Patientin ist sportlich aktiv und nimmt keinerlei dauerhafte Medikation ein.\n\nFür Ihre geschätzte Einschätzung und Empfehlungen zum weiteren diagnostischen Vorgehen wäre ich Ihnen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38572164_Case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 295,
+  "total_tokens": 2773,
+  "thoughts_tokens": 2095,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for seeing this 46-year-old female who has experienced progressive medical issues dating back to when she was 29 years old. She currently works as an office administrator, does not smoke, and takes metoprolol daily.\n\nHer cardiovascular records reveal a history of congenitally transposed great vessels, alongside a documented previous tear of the descending thoracic aorta and a focal enlargement of her common iliac artery. More recently, she has been troubled by an intermittent sensation of a racing, fluttering pulse. \n\nPhysical examination reveals a distinctive bluish tint across both sclerae. Her chest examination demonstrates a sunken anterior chest wall, and visual assessment of her back demonstrates an abnormal lateral spinal curvature. She reports longstanding discomfort in her lower back as well as persistent soreness in both hips. When assessing her musculoskeletal system, widespread articular hyperlaxity is readily apparent across multiple joints. Along a previous surgical scar on her abdomen, there is a distinct, easily reducible bulge. Her skin is also notable for the fact that she readily forms ecchymoses after even minor bumps.\n\nReview of systems is notable for a longstanding tendency toward repeated chest and pulmonary infections requiring antimicrobial therapy. Her lungs are clear to auscultation today, her cranial nerves are intact, and recent routine blood work, including kidney function, was entirely normal.\n\nI would be grateful for your comprehensive clinical assessment and guidance regarding ongoing surveillance. \n\nSincerely,\nDr. Vance"
+}

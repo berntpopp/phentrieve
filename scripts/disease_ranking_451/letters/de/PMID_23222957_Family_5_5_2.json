@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_5_5_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 489,
+  "total_tokens": 2920,
+  "thoughts_tokens": 2032,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen ein 3-jähriges Kind zur weiteren differentialdiagnostischen Abklärung bei einem vielschichtigen pädiatrischen Beschwerdebild.\n\nAnamnestisch fallen seit dem Kleinkindalter rezidivierende Infektperioden auf, wobei laborchemisch das Bild einer ausgeprägten Abwehrschwäche dokumentiert wurde. Zudem besteht ein deutlicher Rückstand beim Erreichen der grob- und feinmotorischen Meilensteine; das freie Gehen gelingt bislang nicht. Bei der körperlichen Untersuchung imponiert eine auffallend helle, generalisiert pigmentarme Haut. Ophthalmologisch wurden beidseits relevante Eintrübungen der Augenlinsen diagnostiziert, ein Nystagmus ließ sich hierbei nicht feststellen.\n\nIm kranialen MRT zeigte sich ein vollständiges Fehlen der Kommissurenfasern des Balkens. Eine epileptische Anfallsaktivität wurde klinisch wie auch im Routine-EEG nicht beobachtet. Das Schädelwachstum verläuft normwertig auf der 40. Perzentile, sodass keine Mikrozephalie vorliegt. Die Hördiagnostik zeigte sich in der BERA seitengleich unbeeinträchtigt, ohne Anhalt für eine Innenohrschwerhörigkeit.\n\nKardiologisch fand sich echokardiographisch eine myokardiale Dysfunktion mit biventrikulärer Wandbewegungsstörung. Die abdominelle Sonographie zeigte eine unauffällige Organgröße der Leber, eine Vergrößerung des Organs konnte ausgeschlossen werden. Mediastinal ließ sich das Thymusgewebe sonographisch volumengerecht darstellen, ohne Hinweis auf eine Hypo- oder Aplasie. Inspektorisch sind Lippen und Gaumen anatomisch unauffällig verschlossen, Spaltbildungen fehlen. Die Wirbelsäule stellt sich klinisch geradlinig und frei von einer Skoliose dar. \n\nDie Familienanamnese ist bezüglich neurologischer Erkrankungen unauffällig; das Kind lebt wohlbehütet bei den Eltern und erhält derzeit lediglich eine altersübliche Vitamin-D-Substitution.\n\nÜber Ihre geschätzte konsiliarische Beurteilung und Vorschläge zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

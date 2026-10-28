@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16684884_V39_04",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 311,
+  "total_tokens": 2034,
+  "thoughts_tokens": 1383,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this pleasant 17-year-old young man in your clinic for an updated comprehensive clinical evaluation. He is currently an active eleventh-grade student living at home with his parents and older sister. He takes no regular medications other than seasonal antihistamines, and his family history is non-contributory.\n\nHis parents report that his early developmental milestones were met appropriately with no history of generalized delays in cognitive, motor, or behavioral progress, and he continues to perform well academically. On physical examination today, his blood pressure was 116/72 mmHg and pulse was 68 beats per minute. He demonstrates an atypical facial morphology, characterized by an elongated face, a prominent nasal bridge, and retrognathia. During our conversation, persistent hypernasality was evident, consistent with documented palatopharyngeal incompetence during phonation. His heart sounds reveal an established, previously identified structural cardiovascular defect for which he continues outpatient monitoring. \n\nThe remainder of his general examination is largely unremarkable. His chest is clear to auscultation, and his abdomen is soft, non-tender, and without organomegaly. Neurologic screening, including cranial nerves and deep tendon reflexes, was entirely normal. An examination of the extremities demonstrated typical digit numbers bilaterally, with no supernumerary digits noted on either his hands or feet. \n\nGiven this combination of features, I would greatly appreciate your specialist assessment and guidance regarding ongoing management and surveillance. \n\nSincerely,\nDr. Arthur Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21371013_Case_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 506,
+  "completion_tokens": 478,
+  "total_tokens": 3790,
+  "thoughts_tokens": 2806,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den 6 Jahre und 2 Monate alten Leon zur konsiliarischen Beurteilung. Erste Auffälligkeiten zeigten sich bereits in der Neonatalperiode; aktuell besteht eine schwere globale Entwicklungsretardierung mit deutlicher Gedeihstörung.\n\nAnamnestisch traten wiederholt epileptische Anfälle und rezidivierende Pneumonien auf. Ein früher Stridor war durch eine Kehlkopferweichung sowie eine Stimmlippenlähmung bedingt. Zudem erfolgte im Säuglingsalter die operative Versorgung einer Leistenhernie. \n\nKraniofazial fallen vergröberte Gesichtszüge, eine prominente Stirn, ein zurückweichendes Mittelgesicht mit antevertierten Nasenlöchern, infraorbitale Falten, ein kleiner Unterkiefer sowie eine vergrößerte Zunge auf. Die Ohrmuscheln sind tief inseriert mit auffallend großen Ohrläppchen; audiometrisch wurde eine Innenohrschwerhörigkeit gesichert. Die visuell evozierten Potenziale waren demgegenüber unauffällig.\n\nAm Bewegungsapparat bestehen eine Skoliose, permanente Beugekontrakturen der Fingermittelgelenke sowie eine deutliche Streckhemmung beider Ellenbogengelenke. Radiologisch fand sich eine knöcherne Verbindung zwischen proximalem Radius und Ulna sowie ein verkürzter erster Mittelhandknochen, wohingegen die Endphalangen der Finger normal lang ausgebildet sind. Neurologisch imponiert eine spastische Tonuserhöhung der Extremitäten.\n\nIm Urogenitaltrakt zeigen sich ein Mikropenis, eine Hypospadie sowie sonographisch eine Dilatation des Nierenbeckenkelchsystems. Zerebral zeigte das MRT erweiterte innere Liquorräume. Endokrinologisch fielen laborchemisch wiederholt erniedrigte Spiegel sowohl für das freie als auch für das gesamte T4 auf, die Schilddrüsensonographie war jedoch regelrecht. \n\nDie Familienanamnese ist unauffällig, die Eltern sind gesund und nicht blutsverwandt. Ich danke Ihnen herzlich für Ihre geschätzte Mitbeurteilung des Patienten.\n\nMit freundlichen Grüßen"
+}

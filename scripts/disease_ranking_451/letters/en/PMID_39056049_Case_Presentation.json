@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39056049_Case_Presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 417,
+  "completion_tokens": 408,
+  "total_tokens": 4120,
+  "thoughts_tokens": 3295,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see Ms. Henderson, a 51-year-old female who is being referred for comprehensive specialist assessment of several co-occurring findings.\n\nShe presented recently for an overdue health review. Routine serum chemistry was notable for an elevated total calcium level accompanied by an inappropriately heightened parathyroid hormone value, consistent with parathyroid overactivity. Subsequent ultrasound of the neck identified a solitary adenomatous parathyroid nodule. Bilateral renal sonography demonstrated parenchymal calcium deposition in the medullary pyramids, and a DEXA scan confirmed diminished bone mineral density, specifically showing osteopenic measurements at the femoral neck and lumbar values falling well into the osteoporotic range.\n\nHer developmental history is notable for mild baseline intellectual impairment; she lives with her sister, who assists with complex daily tasks. Review of systems was non-contributory: she maintains a normal diet, and her family confirms she has had no difficulties with feeding or swallowing throughout her life. Physical exam showed a resting pulse of 74 bpm, blood pressure 124/76 mmHg, and a normal cardiopulmonary exam. Examination of the spine showed a mild lateral thoracic curvature.\n\nOn craniofacial inspection, she exhibits prominent supraorbital arches with dense, thick eyebrows, an elongated nasal bridge, noticeably large ears, and a high-arched hard palate, tapering to a pointed mentum. Her philtral space is significantly lengthened but retains well-defined vertical ridges, with no smooth philtrum observed. Her lips are fleshy, featuring a broad and thick vermilion border; there was no thinning of the upper lip vermilion. A complete skin check revealed a solitary 3.5 cm pale-brown macule over the left lumbar region, alongside scattered, benign-appearing pigmented nevocellular moles across her back.\n\nI would greatly appreciate your evaluation of these endocrine, skeletal, and morphologic features to guide our next diagnostic and management steps.\n\nSincerely,\nDr. Arthur Vance, MD"
+}

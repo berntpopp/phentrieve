@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_8_8_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 293,
+  "total_tokens": 3563,
+  "thoughts_tokens": 2878,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this eight-year-old child for further diagnostic workup. The patient lives at home with both parents, who are healthy, and the family history is non-contributory.\n\nThe child has exhibited delayed gross motor development since early infancy, only recently achieving unassisted ambulation. Neurologic history is significant for recurrent unprovoked convulsions, currently managed on levetiracetam. Brain imaging previously demonstrated an absent callosal commissure. In addition, an ophthalmologic examination documented bilateral lenticular opacities. The patient also suffers from chronic immune dysfunction characterized by frequent severe pulmonary infections; chest ultrasound revealed markedly small, underdeveloped thymic tissue, though the organ was not completely absent. A recent echocardiogram identified intrinsic myocardial dysfunction.\n\nOn physical examination, the child's head circumference is along the 50th percentile with no evidence of an abnormally small cranium. Cranial nerves are intact, and visual tracking showed no involuntary rhythmic ocular movements. The upper lip and palate are fully formed without clefting. Examination of the integument reveals multiple patches of abnormally pale, depigmented skin over the trunk and extremities. Abdominal palpation is unremarkable with no enlargement of the liver. The spine is straight with no lateral curvature.\n\nGiven this complex constellation of clinical findings, I would appreciate your expert opinion regarding an overall assessment and guidance on management.\n\nSincerely,\nDr. Arthur Vance"
+}

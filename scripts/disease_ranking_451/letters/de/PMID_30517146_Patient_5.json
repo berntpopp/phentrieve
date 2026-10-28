@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30517146_Patient_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 417,
+  "total_tokens": 2597,
+  "thoughts_tokens": 1812,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung bei der jungen Patientin Lea Keller, die sich in Begleitung ihrer Eltern zur Abklärung vorstellte. Die Familienanamnese ist bezüglich neurologischer Vorerkrankungen unauffällig, Medikamente werden derzeit nicht eingenommen.\n\nAnamnestisch bestand bereits im frühen Kindesalter eine ausgeprägte Verzögerung der motorischen Meilensteine, so wurde das freie Gehen erst spät erlernt. Kognitiv zeigt sich das Mädchen hingegen völlig altersgerecht entwickelt und besucht ohne Einschränkungen die dritte Klasse einer Regelschule.\n\nIm aktuellen Untersuchungsbefund fällt eine generalisierte muskuläre Hypotonie auf. Die orientierende Kraftprüfung ergab eine rumpfnahe, proximal betonte Parese der oberen und unteren Extremitäten, während die distale Muskelkraft an Händen und Füßen allseits seitengleich voll erhalten ist. Die tiefen Sehnenreflexe ließen sich an keinem Reflexpunkt auslösen. An beiden oberen Sprunggelenken imponieren fixierte Beugekontrakturen mit funktionell relevanter Einschränkung der Dorsalextension.\n\nIm kraniofazialen Bereich zeigt sich ein auffallend hohes Gaumendach sowie eine deutliche Schwäche der mimischen Gesichtsmuskulatur mit hypomimem Erscheinungsbild. Ein pathologischer Speichelabfluss besteht nicht. Zeichen einer bulbären Parese fehlen, die Schluckfunktion ist intakt und die Zungenmotorik ungestört. Die Augenbewegungen sind in alle Richtungen frei, eine Ophthalmoplegie liegt nicht vor. Das Hörvermögen sowie der kardiopulmonale Auskultationsbefund waren regelrecht.\n\nIch danke Ihnen für eine weiterführende neuromuskuläre Einordnung und Empfehlungen zum diagnostischen Procedere.\n\nMit freundlichen Grüßen\nDr. med. Thomas Lindemann"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27672653_Individual_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 411,
+  "total_tokens": 2682,
+  "thoughts_tokens": 1872,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die heute 14-jährige Patientin zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten zeigten sich bereits im Alter von drei Monaten in Form eines ausgeprägten Schädelwachstums mit einem Kopfumfang weit oberhalb der 97. Perzentile.\n\nAktuell berichtet die Jugendliche über intermittierende muskuläre Verkrampfungen. In der Untersuchung imponieren mäßig ausgeprägte dystone Fehlhaltungen und unwillkürliche Bewegungsabläufe an den Extremitäten. Das freie Gehen ist der Jugendlichen dennoch problemlos möglich. Die Sprache ist voll erhalten und flüssig; ein Entwicklungsrückschritt war zu keinem Zeitpunkt zu verzeichnen. Das Mädchen zeigt sich ausgeglichen und kooperativ, ohne vermehrte Reizbarkeit oder Vigilanzminderung; Zeichen einer akuten Enzephalopathie bestehen nicht. Zerebrale Anfälle traten anamnestisch nie auf.\n\nDie kranielle Kernspintomographie zeigte neben einer früher abgelaufenen, noch residuell nachweisbaren subduralen Blutung eine bilaterale markante Erweiterung der Sylvischen Zisternen. Eine globale Hirnatrophie oder ein Hydrozephalus wurden bildmorphologisch sicher ausgeschlossen.\n\nIm metabolischen Screening fand sich eine deutliche Erhöhung der Glutarylcarnitin-Konzentration im Serum. Im Urin zeigte sich eine massiv gesteigerte Ausscheidung von freier Glutarsäure sowie ein pathologisch erhöhter Spiegel der 3-Hydroxy-Glutarsäure.\n\nKörperlicher Allgemeinstatus und Vitalparameter sind unauffällig, Cor und Pulmo auskultatorisch bland. Die Familienanamnese der Schülerin ist bezüglich neurologischer Erkrankungen leer.\n\nIch bedanke mich für Ihre geschätzte Einschätzung und Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

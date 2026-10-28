@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16962354_second_mutation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 268,
+  "total_tokens": 2384,
+  "thoughts_tokens": 1746,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this young female infant, whom I have followed since her birth. \n\nFrom delivery, her head circumference has been remarkably small, plotting well below the third percentile. Craniofacial examination is notable for a distinctly flattened, sunken bridge of the nose, accompanied by a central fissure of the upper lip and a concomitant midline opening of the palate. \n\nHer clinical course has been complicated by profound polyuria and hypernatremia that has required desmopressin therapy for central fluid balance control. Neurologically, she demonstrates fluctuating muscle tone characterized by sustained, involuntary twisting postures in her extremities. Cranial magnetic resonance imaging demonstrated incomplete cerebral hemispheric separation with anterior fusion matching a semilobar pattern; the milder lobar variant of cleavage failure was not present. Additionally, the neuroradiologist noted a complete congenital absence of the olfactory tracts. \n\nCardiorespiratory examination remains entirely normal, with clear breath sounds and regular heart tones without murmurs. Her abdomen is soft with no organomegaly, and newborn metabolic screening was unremarkable. Both parents are healthy, non-consanguineous, and the family history is negative for craniofacial or neurologic anomalies. \n\nI would appreciate your expert clinical assessment and guidance regarding her ongoing multidisciplinary management.\n\nSincerely,\nDr. Laura Bennett"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24269551_patient_IV_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 353,
+  "completion_tokens": 309,
+  "total_tokens": 2858,
+  "thoughts_tokens": 2196,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen den 21-jährigen Herrn Julian Becker zur konsiliarischen Beurteilung. Der Patient studiert Betriebswirtschaft, nimmt keine reguläre Medikation ein und berichtet über eine unauffällige Familienanamnese ohne bekannte Besonderheiten.\n\nIm Rahmen der körperlichen Untersuchung imponiert kraniofazial ein betont kreisrundes Gesicht bei auffallend tief inserierenden Ohren. Bei der Inspektion des Gebisses zeigt sich eine deutliche Unterzahl an Zähnen sowie ein generell klein dimensioniertes Gebiss mit reduzierter Zahngröße. Akzessorische Höckerbildungen an den Frontzähnen ließen sich dabei nicht feststellen.\n\nAn den oberen Extremitäten fallen beidseits seitlich abknickende Langfinger auf. Radiologisch zeigte sich passend dazu das Vorliegen überzähliger Fingerglieder mit jeweils einer zusätzlichen Phalanx. Zudem präsentieren sich die Daumen beidseits stark überstreckbar und abduziert im Sinne eines Anhalterdaumens. Die internistische Basisuntersuchung war völlig unauffällig mit blandem Auskultationsbefund über Cor und Pulmo, weicher Bauchdecke und unauffälligem neurologischem Status.\n\nZur weiteren Einordnung dieser Befundkonstellation bitte ich um Ihre geschätzte Expertise und danke Ihnen im Voraus für die Mitbeurteilung.\n\nMit kollegialen Grüßen\nDr. med. Martin Stein"
+}

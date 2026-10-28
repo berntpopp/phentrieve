@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_46",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 292,
+  "total_tokens": 3303,
+  "thoughts_tokens": 2632,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for evaluating this patient in consultation regarding developmental and neuroimaging anomalies.\n\nOn examination, the patient's head circumference is notably reduced, plotting significantly below the third percentile, with definitely no abnormally large cranial growth. Global cognitive deficits are pronounced, with extensive limitations across adaptive, communicative, and intellectual domains. Cranial nerves appear intact, vision and hearing screens are passed, and peripheral muscle tone and deep tendon reflexes are physiological. The chest is clear to auscultation, heart sounds are regular without murmurs, and the abdomen is soft and non-tender. Family history is non-contributory, and the patient takes no regular medications.\n\nRecent neuroimaging demonstrates a complete absence of the interhemispheric callosal commissure; this represents a total failure of formation rather than an underdeveloped or thinned callosal structure. The cerebral ventricles are normal in size without ventricular enlargement, and there is no evidence of hydrocephalic pressure or fluid buildup. The periventricular white matter appears intact, lacking any signal changes indicative of white matter softening or necrotic damage. Cortical sulcation is age-appropriate without thickened or abnormally broad, flat gyri. Additionally, the hippocampal formations show standard internal architecture with no structural maldevelopment, and both olfactory bulbs are clearly visualized without congenital non-development.\n\nI would greatly appreciate your specialist neurological assessment and recommendations for further diagnostic evaluation.\n\nWarm regards,\n\nDr. Julian Vance"
+}

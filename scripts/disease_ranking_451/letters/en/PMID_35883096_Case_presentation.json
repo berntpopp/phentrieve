@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35883096_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 419,
+  "completion_tokens": 318,
+  "total_tokens": 2521,
+  "thoughts_tokens": 1784,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Aris,\n\nThank you for evaluating this 12-month-old boy who presented at 9 months of age with developmental plateauing and poor growth. He was born at term after an uneventful gestation to non-consanguineous parents. Family history is negative for early neurological disease, and his newborn metabolic screen was reported as normal.\n\nOver the past three months, his parents have noted marked irritability and frequent sleep disturbances. He displays clear failure to thrive, compounded by episodic vomiting. Developmentally, he shows global delays: expressive language is delayed with absent babbling, he is not yet crawling, sits only with full support, and has persistent head lag on pull-to-sit. Diffuse central hypotonia is obvious on motor testing. He also recently experienced a brief, unprovoked generalized seizure.\n\nPhysical examination reveals coarsened facial features, an open mouth posture, and a protruding tongue. His cardiac exam is normal with clear S1/S2 and no murmurs. His abdomen is distended, with marked hepatosplenomegaly appreciated on palpation. His respiratory history is significant for recurrent chest infections since autumn. \n\nOphthalmologic examination recently identified macular cherry-red spots bilaterally. In addition, white blood cell enzymatic studies demonstrated markedly decreased acid sphingomyelinase activity. Routine complete blood counts and renal panels were otherwise unremarkable.\n\nGiven these complex multisystem findings, I would be grateful for your comprehensive neurological assessment and guidance on appropriate multidisciplinary care.\n\nSincerely,\nDr. Marcus Vance\nGeneral Pediatrics"
+}

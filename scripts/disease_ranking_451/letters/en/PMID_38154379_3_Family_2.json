@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38154379_3_Family_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 500,
+  "completion_tokens": 353,
+  "total_tokens": 2778,
+  "thoughts_tokens": 1925,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davis,\n\nThank you for evaluating this three-month-old male infant regarding multiple congenital anomalies and poor growth. He was born at term following a gestation complicated by intrauterine growth restriction. His head circumference was significantly small at birth, reflecting primary microcephaly, and profound postnatal growth failure alongside persistent short stature and significant feeding difficulties have complicated his clinical course. \n\nIn the neonatal period, he required surgical repair of a tracheoesophageal fistula. An echocardiogram completed during that admission demonstrated a patent ductus arteriosus, with no patent foramen ovale, secundum atrial septal defect, or pulmonary artery stenosis. A cranial MRI revealed a simplified gyral pattern, though frank pachygyria was absent. \n\nOn examination, his forehead is distinctly sloping, accompanied by prominent ears and highly arched eyebrows. The palpebral fissures are neutral with neither upslant nor downslant. He exhibits a prominent nasal bridge, and the columella does not hang low. His oral anatomy shows an elongated, smooth philtrum and a thin upper lip vermilion, though an absent Cupid's bow is not observed. His palate is normal without a high arch, and mandibular projection is neutral with no micrognathia or retrognathia. The oral gingiva is unremarkable with no early, widely spaced, or crowded teeth. Distally, there is fifth-finger clinodactyly, a broad second toe bilaterally, and no syndactyly of any digits. Abdominal and genitourinary examinations are entirely normal.\n\nFamily history is non-contributory, and both parents are healthy. I would appreciate your full assessment and guidance regarding his overall presentation. \n\nSincerely,\nDr. Marcus Bell, MD"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24932600_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 308,
+  "total_tokens": 2963,
+  "thoughts_tokens": 2266,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for agreeing to see this 2-year-old boy for diagnostic consultation. Skeletal abnormalities were first suspected during second-trimester ultrasound, and his linear growth has remained profoundly compromised, with his height consistently tracking well beneath the third percentile.\n\nOn physical examination, his extremities demonstrate disproportionate shortening of the forearms and shins, accompanied by chronically displaced articulation at both elbows. Spinal radiographs from earlier this year confirmed multiple wedge-shaped half-vertebrae within the midthoracic column. \n\nHis craniofacial profile is notable for a prominent, bulging forehead, forward protrusion of the globes with apparent shallow orbits, a markedly sunken nasal root, and upward-angled nostrils. He has an underdeveloped, small mandible. The upper lip architecture features an elongated philtral groove; there is certainly no reduction in philtral length. Intraoral inspection reveals excessive thickening of the gums along both arches. \n\nA screening echocardiogram demonstrated an aortic valve comprising only two leaflets, though cardiac function is currently preserved. Genitourinary evaluation is significant for an extremely small phallus despite normally descended testes. \n\nHe lives at home with both parents, eats well without dysphagia, and currently takes daily over-the-counter multivitamin drops. His baseline hearing screen and visual acuity were normal for age, and the family history is unremarkable for inherited bone disorders.\n\nI would appreciate your expert opinion regarding his presentation and recommendations for targeted workup.\n\nSincerely,\nDr. Arthur Pendelton"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27974811_individual",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 319,
+  "total_tokens": 2625,
+  "thoughts_tokens": 1903,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate Lucas Wright, an 18-year-old young man who recently transitioned to my clinic for ongoing care. His medical concerns date back to birth, when he initially presented with generalized low muscle tone and severe difficulty coordinating oral feeding. Motor milestones were considerably delayed, and he did not achieve unassisted ambulation until well past his second birthday.\n\nOn current examination, Lucas ambulates with a wide-based, unsteadied pattern and struggles noticeably with fine finger dexterity. Sensory testing revealed reduced position sense in his lower extremities. Distally, his fingers and wrists exhibit marked joint laxity, though he has developed persistent flexion deformities involving both elbows. Musculoskeletal review also demonstrates a notable lateral curvature of the spine alongside chronic acetabular malformation from early hip dysplasia. Examination of the oropharynx reveals a tall, deeply vaulted hard palate, and his voice carries a distinct nasal resonance. \n\nPast neurophysiologic evaluation identified a length-dependent sensory axonal polyneuropathy. A muscle biopsy from earlier childhood demonstrated pronounced variation in cross-sectional fiber size and an unmistakable predominance of type 1 fibers. Total serum creatine kinase activity was checked on multiple occasions and has always remained strictly normal. His basic metabolic profile and resting electrocardiogram are unremarkable, and his family history is entirely negative for neuromuscular complaints. He currently lives at home and manages his coursework at a local vocational college.\n\nI would be most grateful for your comprehensive clinical assessment and any further recommendations you might offer regarding his presentation.\n\nSincerely,\nDr. Eleanor Vance"
+}

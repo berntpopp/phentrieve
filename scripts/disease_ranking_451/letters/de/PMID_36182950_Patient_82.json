@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_82",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 479,
+  "completion_tokens": 457,
+  "total_tokens": 2854,
+  "thoughts_tokens": 1918,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn Thomas Keller, 45 Jahre alt, der in einer betreuten Wohngruppe lebt, zur differentialdiagnostischen Einschätzung. \n\nAnamnestisch bestand von klein auf eine globale Entwicklungsverzögerung mit spät erreichten motorischen Meilensteinen und stark verzögertem Sprach- und Sprecherwerb. Es liegt eine schwere kognitive Behinderung vor; eine lediglich milde oder moderate Intelligenzminderung ist ebenso ausgeschlossen wie eine profunde Retardierung. Im Alltag imponieren Verhaltenszüge aus dem autistischen Spektrum sowie ausgeprägte Schlafstörungen, wenngleich keine klassische Insomnie vorliegt. Ein reduzierter Blickkontakt besteht nicht, das Sozialverhalten ist kooperativ, und Beeinträchtigungen des Persönlichkeitsgefüges oder repetitive Zwangshandlungen lassen sich nicht feststellen. Motorische Stereotypien werden nicht beobachtet. Es traten nie zerebrale Krampfanfälle auf.\n\nKörperlich zeigt sich Herr Keller schlank und ohne Übergewicht. Auffällig ist ein verlängertes Fazies mit vermehrtem Augenabstand und deutlicher mandibulärer Prognathie; eine Retrognathie oder ein spitzes Kinn bestehen nicht. Die Lidachsen fallen nicht nach lateral-kaudal ab, und die Nase sowie der Nasenrücken zeigen keine Verbreiterung. Neurologisch besteht eine verallgemeinerte muskuläre Hypotonie. Die Fußstatik ist regelrecht, es findet sich kein Pes planus. Das Hörvermögen und die Sehfunktion sind unbeeinträchtigt.\n\nGastrointestinal bestehen weder Obstipation noch Diarrhoen. Das Labor ergab abgesehen von einer wiederholt nachgewiesenen, isolierten Hyperbilirubinämie bei normalen Transaminasen unauffällige Befunde. Die kardiopulmonale Untersuchung war bland. An Dauermedikation erhält der Patient lediglich Vitamin D.\n\nFür Ihre geschätzte konsiliarische Beurteilung und Empfehlungen zum weiteren Vorgehen bedanke ich mich herzlich.\n\nMit freundlichen Grüßen"
+}

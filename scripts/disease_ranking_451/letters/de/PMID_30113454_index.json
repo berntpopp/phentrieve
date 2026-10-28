@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30113454_index",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 497,
+  "total_tokens": 3420,
+  "thoughts_tokens": 2492,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die vierjährige Patientin zur konsiliarischen Einschätzung. Die Eltern berichten von einer unauffälligen Familienanamnese, eine Konsanguinität besteht nicht. Eine ausgeprägte Entwicklungsverzögerung fiel sonografisch bereits intrauterin ab dem zweiten Trimenon auf.\n\nAktuell zeigt sich ein extremer Minderwuchs weit unterhalb der Normkurven mit anhaltendem postpartalem Wachstumsstillstand. Die Nahrungsaufnahme gelingt nicht peroral, sodass eine enterale Sondenernährung etabliert werden musste. Bei der körperlichen Untersuchung imponiert ein hochgradig verringerter Kopfumfang. Cranial zeigt sich eine erhebliche Knochenverdickung des Schädeldachs. Im Gesichtsbereich fallen tief im Orbitatrichter stehende Bulbi bei beidseits stark verkleinerten Augäpfeln, ein prominenter Nasenhöcker, ein deutlich zurückweichender Unterkiefer, ein ungewöhnlich hoch gewölbtes Gaumendach sowie beträchtlich vergrößerte Ohren auf. Im Kontrast zu den zierlichen Extremitäten wirken die Hände auffällig groß. An der Wirbelsäule fällt eine deutliche Kyphosierung kombiniert mit einer Torsionsskoliose auf, an Knie- und Ellenbogengelenken bestehen relevante Bewegungseinschränkungen infolge ausgeprägter Kontrakturen. \n\nKardiopulmonal und abdominell ergab sich bislang ein regelrechter Normalbefund. Entwicklungsneurologisch besteht eine schwerwiegende geistige Retardierung. Diagnostisch wurde eine sensorineurale Hörstörung nachgewiesen. Das Schädel-MRT zeigte eine ausgeprägte zerebelläre Volumenminderung sowie beidseitige Kalzifikationen des Hirnparenchyms. \n\nOphthalmologisch war das retinale Pigmentepithel völlig glatt ohne jegliche Sprenkelung, Hinweise auf eine Pigmentretinopathie lagen nicht vor. Auch eine kutane Photosensitivität wird von den Eltern glaubhaft verneint; die Haut reagiert auf Sonnenlicht völlig normal.\n\nFür Ihre geschätzte differentialdiagnostische Beurteilung dieses komplexen Krankheitsbildes bedanke ich mich im Voraus.\n\nMit freundlichen Grüßen"
+}

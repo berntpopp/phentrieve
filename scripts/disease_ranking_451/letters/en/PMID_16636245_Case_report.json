@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16636245_Case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 277,
+  "total_tokens": 2419,
+  "thoughts_tokens": 1753,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Gallagher,\n\nThank you for seeing this 39-year-old male accountant for an assessment. His symptoms originally manifested during his teenage years. He takes no regular prescription medications, lives with his partner, and his family history is unremarkable.\n\nOn examination, he presents with chronic, poorly healing sores on his distal extremities, alongside spontaneous loss and tissue resorption of several digits. He also exhibits an intractable habit of obsessively picking and tearing away his own nails. Neurological testing reveals a striking, profound absence of pain sensation in conjunction with a distal attenuation of light touch and temperature sensation in his hands and feet. His deep tendon reflexes are diffusely depressed throughout. Cranial nerves, general coordination, and muscle power are preserved. Autonomic assessment shows intact sudomotor activity, with neither excessive sweating nor any anhidrosis identified.\n\nElectrodiagnostic studies revealed a notable reduction in sensory nerve action potential amplitudes, alongside slowed conduction velocities indicative of peripheral demyelinating changes. A subsequent right sural nerve biopsy demonstrated a pronounced reduction in the density of myelinated axons; however, the histopathology lacked any onion-bulb lamellation or redundant basement membrane layers. Routine blood work, including a complete blood count and comprehensive metabolic panel, was unremarkable.\n\nI would be grateful for your expert evaluation and recommendations regarding his ongoing clinical care.\n\nSincerely,\nDr. Marcus Brody"
+}

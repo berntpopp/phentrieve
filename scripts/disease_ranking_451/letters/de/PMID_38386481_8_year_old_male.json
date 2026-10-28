@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38386481_8_year_old_male",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 430,
+  "completion_tokens": 431,
+  "total_tokens": 2548,
+  "thoughts_tokens": 1687,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute achtjährigen Jonas zur neuropädiatrischen Mitbeurteilung. \n\nBereits im frühen Säuglingsalter manifestierte sich eine globale Entwicklungsverzögerung. Jonas lernte das freie Sitzen erst stark verspätet, und auch das freie Laufen gelang mit deutlicher zeitlicher Verzögerung. Aktuell zeigt sich das Gehen auffällig breitbasig bei beidseitigem Genu varum. Die Sprachentwicklung ist hochgradig retardiert; expressive Sprache fehlt nahezu vollständig. In der neurologischen Untersuchung imponiert eine stammbetonte muskuläre Hypotonie bei gleichzeitig sehr lebhaft auslösbaren Reflexen der Extremitäten.\n\nAnamnestisch traten mehrfach bilaterale tonisch-klonische Anfälle auf, weshalb eine antikonvulsive Therapie eingeleitet wurde. Im Verhalten fallen eine ständige motorische Unruhe mit Hyperaktivität, zwischenzeitliche Agitiertheit sowie motorische Tics und ausgeprägte motorische Stereotypien auf. Daneben bestehen unwillkürliche Bewegungen der Hände. Trotz deutlicher autistischer Verhaltensmuster und eingeschränktem Blickkontakt zeigt er ein bemerkenswert heiteres Gemüt mit häufigem Lachen.\n\nGastroenterologisch bestehen seit längerem ein bekannter gastroösophagealer Reflux sowie rezidivierendes, episodisches Erbrechen, unter Refluxmedikation derzeit stabil. Kraniofazial fallen hoch gebogene Augenbrauen, eine eingesunkene Nasenwurzel, eine verbreiterte Columella sowie herabgezogene Mundwinkel auf.\n\nDie kardiopulmonale Untersuchung ergab Normalbefunde, das Hörscreening war unauffällig. Die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen unergiebig. Jonas lebt mit seinen Eltern und besucht eine Fördereinrichtung.\n\nIch bitte Sie um eine konsiliarische Untersuchung des Jungen sowie um Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

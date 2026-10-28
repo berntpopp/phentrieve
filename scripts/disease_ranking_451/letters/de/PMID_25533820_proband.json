@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25533820_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 373,
+  "completion_tokens": 432,
+  "total_tokens": 3332,
+  "thoughts_tokens": 2527,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 4-jährige Mia zur weiteren diagnostischen Abklärung.\n\nDie Eltern berichten über Entwicklungsauffälligkeiten seit dem Kleinkindalter. Es besteht eine ausgeprägte kognitive Beeinträchtigung, und auch die sprachliche Entwicklung ist massiv verzögert; Mia artikuliert bislang lediglich vereinzelte Silben und wenige Worte. \n\nBereits bei Geburt fiel eine postaxiale Strahldoppelung an Händen und Füßen auf; diese überzähligen Zehen und Finger wurden im ersten Lebensjahr operativ abgetragen. Zudem entwickelte das Mädchen in den letzten zwei Jahren ein extremes Übergewicht mit einem Körpermassenindex deutlich oberhalb der 97. Perzentile. \n\nAktuell wurde Mia augenärztlich vorstellig, da den Eltern eine ausgeprägte Nachtsehstörung sowie häufiges Stolpern bei Dämmerung auffielen. Die Untersuchung ergab eine beidseits reduzierte Sehschärfe. Funduskopisch zeigten sich beidseits abgeblasste Sehnervenscheiben, eine generalisierte Kalibereinengung der Netzhautgefäße sowie fleckige Alterationen des retinalen Pigmentepithels. In der optischen Kohärenztomographie imponierte eine diffuse Ausdünnung der retinalen Schichten. Das durchgeführte Elektroretinogramm zeigte einen kombinierten Funktionsverlust der Zapfen- und Stäbchenrezeptoren.\n\nKardiopulmonal und abdominell zeigte sich die kleine Patientin unauffällig, die orientierende Hörprüfung war regelrecht. Eine Dauermedikation besteht nicht, und die Familienanamnese bezüglich ophthalmologischer oder neurologischer Erkrankungen ist blande. \n\nIch bitte um Ihre konsiliarische Mitbeurteilung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

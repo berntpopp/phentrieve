@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30057544_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 323,
+  "total_tokens": 2408,
+  "thoughts_tokens": 1720,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 31-year-old gentleman regarding his progressive ambulatory difficulties, which first became apparent approximately a decade ago, around age 21.\n\nHe initially noted ongoing stiffness and tightness throughout both calves and thighs, alongside a troublesome sense of clumsiness that caused frequent stumbling. Over the intervening years, he has developed reduced strength in both lower extremities. Sensory symptoms have also emerged, including constant pins-and-needles tingling over the feet as well as distinctly uncomfortable, painful burning sensations upon contact. \n\nOn examination, his cranial nerves were fully intact, and upper extremity motor and sensory testing was unremarkable. In the lower extremities, there is marked hypertonicity with evident catch throughout passive movement, accompanied by symmetric weakness graded 4/5 in the hip flexors and foot dorsiflexors. Rapid passive dorsiflexion of the feet reliably elicits several sustained rhythmic beats at the ankles bilaterally. During ambulation, he demonstrates a distinct spastic pattern with stiff clearance. Coordination maneuvers demonstrated no ataxia, with heel-to-shin testing limited purely by tone rather than limb tremor or dysmetria. Mini-Mental State Examination score was 30/30, with no clinical indication of dementia, and his background reveals no history of intellectual disability or developmental delay.\n\nHe is currently employed as an accountant, takes no prescription medications, and reports a non-contributory family history. \n\nI would be most appreciative of your comprehensive evaluation and guidance regarding his ongoing care.\n\nKind regards,\n\nDr. Julian Wright"
+}

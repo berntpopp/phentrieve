@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38572164_Case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 424,
+  "total_tokens": 3222,
+  "thoughts_tokens": 2415,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute Frau Jansen, eine 46-jährige Patientin, die sich mit einer vielschichtigen Symptomatik in meiner Sprechstunde vorstellte. Erste Beschwerden begannen nach ihren Angaben im Alter von 29 Jahren.\n\nKardiovaskulär ist eine angeborene Vertauschung der großen herznahen Arterienstämme bekannt. Aktuell klagt die Patientin immer wieder über anfallsweises Herzklopfen und Pulsunregelmäßigkeiten. Bildgebend wurden in der Vergangenheit ein Gefäßwandeinriss im Bereich der absteigenden Brustaorta sowie eine spindelförmige Aussackung der linken Beckenarterie dokumentiert. Derzeit liegt der Blutdruck gut eingestellt bei 120/75 mmHg.\n\nIm muskuloskelettalen Bereich bestehen seit Jahren chronische Schmerzen im Bereich des Rückens sowie beider Hüften. Klinisch zeigen sich eine deutliche Verkrümmung der Wirbelsäule nach lateral sowie eine auffällige trichterförmige Einsenkung des vorderen Thorax. Bemerkenswert ist zudem eine generalisierte, exzessive Überstreckbarkeit fast aller peripheren Gelenke.\n\nDes Weiteren berichtet die Patientin über eine ausgeprägte Neigung zu Blutergüssen bereits bei leichten Berührungen sowie über ständig wiederkehrende Infekte der tiefen Atemwege. Bei der Inspektion imponieren zart bläulich schimmernde Lederhäute beider Augen. Im Bereich einer alten medianen Laparotomienarbe am Abdomen tastet sich eine reizlose Narbenhernie. \n\nDas orientierende Routinelabor war unauffällig, die Patientin ist Nichtraucherin und arbeitet als Buchhalterin. Zur systematischen Einordnung dieser Befundkonstellation und zur Festlegung des weiteren Vorgehens bitte ich um Ihre geschätzte konsiliarische Beurteilung.\n\nMit besten kollegialen Grüßen\nDr. med. Thomas Lindner"
+}

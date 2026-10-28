@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_A_IV_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 405,
+  "total_tokens": 2723,
+  "thoughts_tokens": 1931,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich stelle Ihnen eine junge Patientin vor, die sich bei mir zur Abklärung eines komplexen Beschwerdebildes vorstellte, dessen Wurzeln bis in die Säuglingszeit zurückreichen. \n\nBereits früh fiel ein deutlicher Strabismus auf. In der ophthalmologischen Verlaufsbeobachtung imponiert eine progrediente Netzhautdegeneration mit Dystrophie der Stäbchen und Zapfen. Fundoskopisch fielen stark verengte retinale Gefäßkaliber sowie periphere spikuläre Pigmentansammlungen nach Art von Knochenkörperchen auf. Eine Myopie besteht bei ihr nicht.\n\nZudem besteht eine globale kognitive Einschränkung im Sinne einer Intelligenzminderung. Der Spracherwerb verlief damals erstaunlicherweise völlig zeitgerecht und ohne Entwicklungsverzögerung. Körperlich fällt ein ausgeprägt adipöser Ernährungszustand auf. Gynäkologisch wurde die Patientin aufgrund einer primären Amenorrhö vorstellig; endokrinologisch ergab sich hierbei jedoch kein Anhalt für das Vorliegen eines Hypogonadismus. \n\nBei der klinischen Inspektion zeigten sich die Extremitäten unauffällig; eine postaxiale Polydaktylie liegt nicht vor. Das Gebiss ist intakt und zeigt keinerlei Zahnengstand. Laborchemisch konnten wir bei wiederholt normalen Blutzuckerprofilen einen Diabetes mellitus ausschließen. Auch die Nierenfunktionsparameter sind unauffällig, sodass eine Niereninsuffizienz nicht besteht.\n\nDie Patientin lebt in einer betreuten Wohngruppe, die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig, und eine regelmäßige Medikation besteht aktuell nicht. \n\nIch wäre Ihnen für eine konsiliarische Einschätzung und Beratung bezüglich des weiteren Vorgehens sehr dankbar.\n\nMit freundlichen Grüßen"
+}

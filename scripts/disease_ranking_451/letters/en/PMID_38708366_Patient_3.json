@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 391,
+  "completion_tokens": 331,
+  "total_tokens": 3505,
+  "thoughts_tokens": 2783,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 14-year-old boy in consultation for an updated review of his complex epilepsy and neurocognitive care.\n\nHis seizure history began early in life, at approximately seven months of age. His events typically manifest as partial-onset seizures with head turning and asymmetric extremity stiffening, often propagating into generalized bilateral tonic and clonic convulsions. The ongoing, high electroclinical burden has markedly impaired his development, leading to a profound seizure-associated encephalopathy. In early childhood, he showed persistent delays across all motor, cognitive, and linguistic milestones, and he continues to exhibit substantial intellectual deficit.\n\nHis latest electroencephalogram was definitively abnormal, marked by disorganized background rhythms and frequent multifocal epileptogenic discharges. Importantly, he had no history of infantile epileptic spasms, nor has he suffered from brief myoclonic twitches, isolated rhythmic clonic jerking, or generalized non-motor staring spells. He has never developed prolonged, unremitting seizure states. Behaviorally, he is socially responsive and engages well with his family, displaying no features of an autism-like condition and no signs of an attention-deficit or hyperactive disorder.\n\nHe currently lives at home with both parents and participates in an adaptive education curriculum. His systemic examination is completely benign, with clear lungs, regular heart sounds, and intact cranial nerves without focal motor deficits. Family history is negative for early-onset seizures or neurological conditions, and his current regimen comprises levetiracetam and clobazam.\n\nI would greatly appreciate your specialized assessment and thoughts regarding further therapeutic options.\n\nWarm regards,\nDr. Rachel Bennett"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 323,
+  "completion_tokens": 400,
+  "total_tokens": 1916,
+  "thoughts_tokens": 1193,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung bei der jungen Patientin Clara, die sich gemeinsam mit ihren Eltern in unserer Sprechstunde vorstellte.\n\nBereits unmittelbar postpartal fiel ein signifikant verminderter Schädelumfang auf, der deutlich unter der dritten Perzentile lag und im bisherigen Wachstumspfad unverändert unterhalb des Normbereichs persistiert. Kraniofazial zeigt sich bei der Inspektion eine auffällig nach hinten geneigte, fliehende Stirnkontur. \n\nIm weiteren Verlauf manifestierten sich schwere kognitive Defizite. Clara zeigt eine deutliche Beeinträchtigung der intellektuellen Fähigkeiten; das expressive Sprachvermögen ist auf wenige Lautäußerungen limitiert, und im Alltag besteht ein kontinuierlicher Unterstützungsbedarf im Bereich des Verständnisses und Handelns. \n\nDer sonstige internistische und neurologische Untersuchungsbefund bot keine wegweisenden Pathologien. Cor und Pulmo zeigten sich auskultatorisch altersentsprechend regelrecht. Das Abdomen war weich, ohne Druckschmerz oder palpable Organomegalie. Die Muskeleigenreflexe waren seitengleich mittellebhaft auslösbar, die grobe Kraft der Extremitäten ist erhalten. Ein orientierender Hör- und Sehtest erbrachte unauffällige Ergebnisse. \n\nDie Familienanamnese ist bezüglich neurologischer Erkrankungen leer; die Eltern sind gesund und nicht blutsverwandt, ein älterer Bruder ist völlig unauffällig entwickelt. Eine Dauermedikation wird nicht eingenommen.\n\nZur weiteren ätiologischen Abklärung und für eine differentialdiagnostische Einschätzung wäre ich Ihnen für eine Mitbeurteilung der Patientin sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Lindner"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_79",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 461,
+  "completion_tokens": 478,
+  "total_tokens": 3231,
+  "thoughts_tokens": 2292,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 8-jährigen Felix zur weiteren pädiatrischen Beurteilung. \n\nBereits seit Geburt zeigte sich bei Felix ein verlangsamter Entwicklungsverlauf mit globalem Rückstand, insbesondere im Bereich der Motorik, wo Meilensteine wie das freie Laufen erst deutlich verspätet erlernt wurden. Bei der aktuellen Untersuchung imponiert ein überproportional großer Kopfumfang jenseits der 97. Perzentile. Die Fazies wirkt elongiert mit merklich verbreiterter Nasenwurzel, einem vergrößerten Interorbitalabstand und einer auffallend rückverlagerten Mandibula. Lidachsenfehlstellungen nach unten temporal bestehen nicht, ebenso wenig wie ein spitzes Kinn oder eine echte Prognathie.\n\nKognitiv besteht keine geistige Behinderung, auch eine Verzögerung der Sprachentwicklung war im Verlauf nie zu verzeichnen. Felix besucht derzeit regulär die dritte Klasse einer Grundschule. Auffälligkeiten im Sozialverhalten, Beeinträchtigungen der Persönlichkeitsfunktion oder autistische Verhaltensweisen lassen sich nicht feststellen; der Blickkontakt ist prompt und ungestört. Weder motorische Stereotypien noch repetitive Verhaltensmuster sind zu beobachten. Die Aufmerksamkeitsspanne ist völlig altersgerecht und der Nachtschlaf ist ungestört.\n\nKörperlich zeigt sich ein seitengleich normgerechter Muskeltonus ohne Hypotonie. Zerebrale Anfälle traten anamnestisch nie auf. Gehör und Sehvermögen wurden überprüft und sind intakt. Das Körpergewicht liegt stabil auf der 50. Perzentile, Übergewicht besteht nicht. Die Fußstatik ist unauffällig ohne Knick-Senk-Füße. Gastrointestinale Beschwerden wie rezidivierende Obstipation oder Diarrhoen bestehen nicht. Eine postnatale Hyperbilirubinämie war aus den Unterlagen nicht ersichtlich. Kardiopulmonal fand sich bei der heutigen Untersuchung ein unauffälliger Auskultationsbefund.\n\nIch danke Ihnen für die konsiliarische Mitbeurteilung des Patienten und Ihre Einschätzung zum weiteren Vorgehen.\n\nMit kollegialen Grüßen"
+}

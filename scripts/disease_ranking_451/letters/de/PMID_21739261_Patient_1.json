@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21739261_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 343,
+  "completion_tokens": 384,
+  "total_tokens": 2438,
+  "thoughts_tokens": 1711,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen heute die kleine Emilia Sommer, ein 9 Monate altes Mädchen, zur konsiliarischen Mitbeurteilung.\n\nDie Eltern stellen die Säuglingstochter wegen Auffälligkeiten vor, die im Grunde bereits seit der Entbindung bestehen. Schon unmittelbar neonatal fiel eine extrem pigmentarme, auffallend helle Kutis auf, die sich im Verlauf unverändert zeigte. Auch das Kopfhaar sowie die Augenbrauen und Wimpern präsentieren sich ungewöhnlich hell, fast schlohweiß und farblos. Des Weiteren zeigt sich bei der Blickfixation ein kontinuierliches, feinschlägiges horizontales Augenzittern.\n\nBei der orientierenden Untersuchung imponiert ein stets korrekter Parallelstand beider Bulbi; ein manifestes oder latentes Schielen liegt nicht vor. Emilia fixiert Gesichter stabil und verfolgt bunte Spielzeuge über die Mittellinie hinweg aufmerksam. Ein Anhalt für eine Einschränkung des Sehvermögens oder eine herabgesetzte Sehschärfe besteht aus kinderärztlicher Sicht derzeit nicht.\n\nDie somatische Entwicklung verläuft bisher unbeeinträchtigt: Körpergewicht (8,6 kg) und Länge liegen stabil auf der 50. Perzentile, das Kind sitzt frei und interagiert altersgemäß freundlich. Die Familienanamnese ist bezüglich früher sensorischer oder dermatologischer Auffälligkeiten leer, Dauermedikation besteht nicht. Auskultationsbefunde von Herz und Lunge waren regelrecht.\n\nIch bitte um Ihre geschätzte fachärztliche Beurteilung dieses Befundmusters sowie um Empfehlungen zum weiteren Vorgehen. \n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

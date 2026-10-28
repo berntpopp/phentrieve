@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27479843_Patient_162",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 444,
+  "completion_tokens": 364,
+  "total_tokens": 2816,
+  "thoughts_tokens": 2008,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Harrison,\n\nThank you for seeing Leo Campbell, a 7-year-old boy referred for a comprehensive evaluation of developmental delays and dysmorphic features. His family first noted difficulties in early childhood; he currently presents with significant intellectual disability alongside marked expressive and receptive speech and language delay. He communicates primarily through simple gestures and attends a specialized classroom setting.\n\nPerinatal history is reassuring. He was born at 39 weeks with no history of premature birth, and his birth weight was average, with no evidence of being large for gestational age. In clinic today, his standing height tracks precisely along the 50th percentile, showing neither short nor tall stature, and his body mass index is 16.1 kg/m², without obesity. His cranial circumference is noticeably increased at +2.7 SD, consistent with macrocephaly. Craniofacial inspection reveals an expansive, broad forehead, widely spaced eyes reflecting ocular hypertelorism, and downward-slanting palpebral fissures. Ptosis was not observed. He exhibits microtia bilaterally; however, the ears are neither low-set nor posteriorly rotated. Abdominal and genital examination is notable for a reducible right inguinal hernia and a shawl scrotum that folds over the dorsum of the penis. \n\nPrior neuroimaging was reviewed. Cranial and spinal magnetic resonance imaging demonstrated normal ventricular dimensions without ventriculomegaly, an intact cerebellar vermis with no hypoplasia, and no Chiari malformation. The corpus callosum was preserved with neither agenesis nor thickening, and there were no intracranial arachnoid cysts or spinal syringomyelia. His routine blood work and vital signs are unremarkable, and he takes no daily medications.\n\nI would value your assessment regarding his presentation.\n\nSincerely,\n\nMarcus Vance, MD"
+}

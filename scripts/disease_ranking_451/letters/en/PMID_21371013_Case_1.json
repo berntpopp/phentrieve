@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21371013_Case_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 506,
+  "completion_tokens": 372,
+  "total_tokens": 3807,
+  "thoughts_tokens": 2929,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Colleague,\n\nThank you for evaluating this 6-year-old male who has demonstrated complex medical issues since the neonatal period. His course has been characterized by severe growth failure and poor weight gain, keeping him far below standard growth percentiles.\n\nCraniofacial examination shows a bulging forehead, a flattened midfacial profile with nares tilting anteriorly, prominent suborbital skin creases, and a coarsened facial architecture. He has an underdeveloped, recessed mandible, an abnormally enlarged tongue, and auricles placed well below the cantomeatal line with expanded, fleshy ear lobules. Airway evaluations in infancy identified floppy supraglottic cartilages and immobility of the true vocal cords, which contributed to frequent pneumonias. Sensorineural deafness has been documented on audiology.\n\nNeurologically, he presents with marked delay across all developmental domains, hypertonicity with spastic catch in all limbs, and recurrent epileptic seizures. Cranial MRI showed dilation of the lateral ventricles, although visual evoked potential studies were completely normal. Orthopedic assessment is notable for spinal curvature in the coronal plane, limited elbow extension with congenital fusion between the radius and ulna, flexed interphalangeal contractures, and underdeveloped thumb metacarpals. The terminal finger phalanges are normal in length and proportion.\n\nGenitourinary exam revealed a markedly reduced phallus size, a ventrally ectopic urethral meatus, and a history of infantile groin hernia repair. Renal ultrasound confirmed bilateral pelvicalyceal dilation. Endocrine laboratory workup demonstrated that both his total serum T4 level and his free thyroxine concentration were significantly depressed; thyroid hormone replacement was initiated. Family history is non-contributory, and cardiopulmonary exam is currently stable.\n\nWe would appreciate your expert opinion regarding an underlying diagnostic evaluation for this child."
+}

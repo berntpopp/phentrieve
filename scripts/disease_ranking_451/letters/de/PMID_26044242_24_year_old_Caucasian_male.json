@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26044242_24_year_old_Caucasian_male",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 450,
+  "total_tokens": 2831,
+  "thoughts_tokens": 1992,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Meier,\n\nich überweise Ihnen den 24-jährigen Patienten Herrn Jonas K. zur weiterführenden Abklärung. Die ersten Symptome traten anamnestisch bereits im Alter von etwa drei Jahren auf. \n\nDer Patient berichtet über einen persistierenden, oft quälenden Juckreiz der Haut sowie über einen seit Jahren rezidivierenden Mundsoor. Klinisch fallen an Finger- und Zehennägeln erhebliche dystrophische Veränderungen mit Verdickungen und Brüchigkeit auf. Am linken Unterschenkel imponiert zudem ein chronisches, offenes Ulkus. In der Gewebebiopsie aus diesem Areal ließ sich mykologisch eine bis in tiefere Schichten reichende Dermatophyteninfektion nachweisen. Eine mykotische Meningitis konnte liquoranalytisch erfreulicherweise ausgeschlossen werden, und auch der sonstige neurologische Status war regelrecht.\n\nLaborchemisch präsentiert sich eine deutliche Eosinophilie im Differentialblutbild, während die Gesamtzahl der Lymphozyten quantitativ vermindert ist. Serologisch imponieren deutlich gesteigerte IgG-Werte sowie ein massiv erhöhter Gesamt-IgE-Spiegel. Die durchgeführte Immunphänotypisierung zeigte jedoch normale Verhältnisse bezüglich der T-Zell-Reihen: Die prozentualen Anteile der CD4-Subpopulationen waren unauffällig, und die absolute Anzahl der CD8-positiven T-Zellen lag vollständig im Referenzbereich.\n\nHerr K. arbeitet als Verwaltungsangestellter, ist Nichtraucher und nimmt außer gelegentlichen Antihistaminika keine Medikamente ein. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer. Das Cor-Pulmo-Befundung sowie die Vitalparameter waren unauffällig (Blutdruck 120/75 mmHg, Puls 68/min).\n\nIch wäre Ihnen für eine konsiliarische Mitbeurteilung des Patienten und Ihre Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nMit kollegialen Grüßen\n\nDr. med. Stefan Lange"
+}

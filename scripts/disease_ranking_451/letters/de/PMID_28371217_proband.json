@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28371217_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 441,
+  "total_tokens": 3228,
+  "thoughts_tokens": 2407,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute den 22-jährigen Herrn Lukas Meyer zur konsiliarischen Beurteilung der komplexen Gesamtsituation. Der junge Mann lebt bei seinen Eltern, die die gesetzliche Betreuung innehaben; die Familienanamnese ist bezüglich angeborener Auffälligkeiten unauffällig.\n\nHerr Meyer weist seit frühester Kindheit eine hochgradige kognitive Beeinträchtigung mit fehlender expressiver Sprache und vollständiger Pflegebedürftigkeit im Alltag auf. Phänotypisch imponieren ein stark reduzierter Schädelumfang (Kopfumfang 48,5 cm, deutlich unter der 3. Perzentile) sowie ein merklich vergröbertes Gesichtsprofil. Hierbei fallen insbesondere ein weiter Augenabstand und schräg nach kaudal verzogene Mundwinkel auf. \n\nBei der urologischen Inspektion imponiert das Genitale zwar eindeutig männlich differenziert ohne intersexuelle Ambiguität, jedoch zeigt sich ein ausgeprägt hypoplastischer Phallus bei beidseits im Skrotalfach nicht palpablen Hoden. Kardiologisch zeigte die Echokardiographie eine reguläre Aortenklappe mit drei Taschen, und auch für eine Einengung des Aortenbogens ergab sich kein pathologischer Befund. Der übrige internistische Status ist bland, Herz und Lunge klingen unauffällig, das Abdomen ist weich. Die Medikation besteht derzeit lediglich aus Colecalciferol.\n\nAnamnestisch erfolgte vor wenigen Monaten die En-bloc-Resektion eines malignen osteogenen Knochentumors am distalen Femur. Im aktuellen Labor persistiert zudem eine hypochrome Blutarmut mit ausgeprägt vermindertem mittlerem Erythrozytenvolumen, während die Leber- und Nierenwerte unauffällig blieben.\n\nIch wäre Ihnen für eine fachärztliche Einschätzung dieses Beschwerdebildes und Empfehlungen bezüglich des weiteren diagnostischen Vorgehens sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

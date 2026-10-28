@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_11_Weiss_et_al",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 472,
+  "completion_tokens": 466,
+  "total_tokens": 3330,
+  "thoughts_tokens": 2392,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nzur konsiliarischen Mitbeurteilung überweise ich Ihnen den fünfjährigen Noah. \n\nKörperlich imponiert eine deutliche muskuläre Hypotonie, die motorischen Meilensteine wurden dennoch zeitgerecht erreicht, ohne Anhalt für eine motorische Verzögerung. Im Gesichtsbereich fallen nach temporal abfallende Lidachsen, mediale Epikanthusfalten sowie eine bilaterale Ptosis auf. Ein Hypertelorismus besteht nicht, die Brauen sind unauffällig und nicht hochgeschwungen. Die Stirn ist ebenmäßig ohne prominente Metopikaleiste. Die Nase zeigt eine bulböse Spitze mit nach ventral antevertierten Nares, das Philtrum ist auffallend breit konfiguriert und die Oberlippe weist einen akzentuierten, stark überzeichneten Amorbogen auf. An den Füßen findet sich kein Metatarsus adductus.\n\nKognitiv und sprachlich wirkt der Junge altersentsprechend entwickelt; eine Sprachentwicklungsstörung, Intelligenzminderung oder globale Entwicklungsretardierung liegen nicht vor. Im Kontakt zeigt sich Noah zugewandt, ohne autistische Verhaltensweisen. Trink- und Fütterstörungen wurden anamnestisch nie beobachtet. Er besucht einen Regelkindergarten und nimmt keine Dauermedikation ein.\n\nIm zerebralen MRT zeigte sich eine Agenesie des Corpus callosum. Eine Ventrikulomegalie lag nicht vor, das Ventrikelsystem stellte sich seitengleich normal dar. Es ergaben sich keine Hinweise auf Demyelinisierungsherde des ZNS, die Bulbi olfactorii waren regulär angelegt. Die echokardiographische Untersuchung erbrachte unauffällige intracardiale Verhältnisse: Kein Anhalt für einen Ventrikelseptumdefekt, keine Transposition der großen Gefäße, kein DORV und kein persistierender Ductus arteriosus; die Aortenklappe ist trikuspid ohne Nachweis einer bikuspiden Morphologie.\n\nIch wäre Ihnen für eine differenzialdiagnostische Einschätzung der Befundkonstellation sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

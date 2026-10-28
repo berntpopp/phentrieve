@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26031502_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 403,
+  "total_tokens": 2381,
+  "thoughts_tokens": 1610,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die 23-jährige Patientin Frau Leonie Weber zur fachärztlichen Beurteilung ihres komplexen dermatologischen Beschwerdebildes.\n\nDie Hautveränderungen manifestierten sich bereits am zweiten Lebenstag als ausgeprägte, schuppende Ganzkörperrötung. Im aktuellen Hautstatus präsentieren sich am Integument wandernde, girlandenförmig begrenzte Erytheme mit charakteristischer randständiger Doppelschuppung. Daneben bestehen disseminierte ekzemartige Läsionen sowie deutliche Gewebeverdickungen mit Beugenlichenifikation, insbesondere im Bereich der Ellenbogen und Kniekehlen. Bei der mikroskopischen Haaruntersuchung fielen an den brüchigen Schaftstrukturen becherförmige Einstülpungen des distalen in den proximalen Haarschaft auf.\n\nAnamnestisch bestehen zudem eine chronisch-allergische Rhinitis mit wiederkehrenden Niesattacken sowie ein intermittierendes Asthma. Laborchemisch imponiert ein massiv erhöhter Gesamt-IgE-Spiegel im Serum; die Entzündungsparameter, das Differentialblutbild sowie Nieren- und Leberwerte stellten sich unauffällig dar.\n\nFrau Weber studiert derzeit Medienwissenschaften, ist Nichtraucherin und verwendet aktuell lediglich eine wirkstofffreie Basispflege sowie bedarfsweise Antihistaminika. Die kardiopulmonale Auskultation ergab einen unauffälligen Befund, der Blutdruck lag bei 118/76 mmHg. Die Familienanamnese ist bezüglich chronischer Hauterkrankungen leer.\n\nIch wäre Ihnen für eine konsiliarische Begutachtung der Patientin und eine Empfehlung zum weiteren diagnostischen und therapeutischen Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Martin Behrens"
+}

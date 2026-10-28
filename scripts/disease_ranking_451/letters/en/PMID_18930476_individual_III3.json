@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18930476_individual_III3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 317,
+  "total_tokens": 2068,
+  "thoughts_tokens": 1405,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing Clara Davis, a 23-year-old administrative assistant, for evaluation of chronic neuromuscular symptoms that she first noticed around age 15. \n\nOver the past several years, Clara has experienced persistent, deep muscle soreness and generalized muscle tightness that worsens with physical exertion and during colder weather. Her primary care blood work recently demonstrated an elevated level of serum creatine kinase at 480 U/L, though her comprehensive metabolic panel and complete blood count were entirely normal. \n\nOn physical examination, she is alert and oriented. Cranial nerve assessment is normal, and manual motor testing reveals 5/5 strength across all major proximal and distal muscle groups. Sensory testing to light touch and pinprick is preserved, and deep tendon reflexes are brisk and symmetrical at 2+ throughout. Bilateral examination of the feet reveals prominent, exaggerated high arches. There is no evidence of calf enlargement or abnormal muscular bulk. Furthermore, direct percussion of the quadriceps, thenar eminences, and deltoids elicited no rolling contractions or transient rippling waves across the muscle bellies.\n\nShe is currently taking only over-the-counter acetaminophen as needed, with minimal relief. She does not smoke or consume alcohol, and her family medical history is negative for any neuromuscular complaints. \n\nGiven her longstanding discomfort, persistent tightness, structural foot changes, and raised enzyme levels, I would greatly appreciate your specialized assessment and advice regarding appropriate next steps.\n\nSincerely,\n\nDr. Evelyn Reed\nGeneral Internal Medicine, Oakridge Health Clinic"
+}

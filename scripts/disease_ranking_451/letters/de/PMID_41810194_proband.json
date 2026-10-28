@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41810194_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 390,
+  "total_tokens": 2465,
+  "thoughts_tokens": 1729,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die vierjährige Lea zur konsiliarischen Mitbeurteilung.\n\nDie Eltern berichten über eine zunächst unauffällige frühkindliche Phase. Ab einem Alter von etwa zwei Jahren fiel jedoch ein deutlicher Rückgang bereits erworbener Fertigkeiten auf. Das vormals altersgerecht entwickelte expressive Sprachvermögen ging im weiteren Verlauf gänzlich verloren, sodass das Mädchen sich gegenwärtig überhaupt nicht mehr verbal äußert. \n\nEbenso verlor sich der gezielte Gebrauch der Hände. Eine willkürliche, koordinierte Objektmanipulation ist Lea nicht mehr möglich; die Handmotorik wirkt im Alltag vollständig apraktisch. Stattdessen treten tagsüber immer wiederkehrende, flatterartige Bewegungsabläufe beider Hände auf. Beim freien Gehen fällt zudem eine deutlich ausladende, spreizende Schrittführung mit stark vergrößerter Spurbreite auf.\n\nKörperlich finden sich ansonsten unauffällige Befunde. Die kursorische Prüfung der Hirnnerven war regelrecht, Herz und Lunge präsentieren sich auskultatorisch bland, und das Abdomen ist weich ohne Resistenzen. In der Familie sind keine Vorerkrankungen bekannt, der ältere Bruder ist gesund. Lea erhält derzeit keinerlei Medikation.\n\nEreignisse im Sinne zerebraler Krampfanfälle wurden im bisherigen Verlauf zu keinem Zeitpunkt beobachtet. In einem kürzlich abgeleiteten Ruhe-EEG zeigte sich jedoch eine auffällige interiktale epilepsietypische Aktivität mit irregulären steilen Wellen außerhalb klinischer Episoden.\n\nZur weiteren ätiologischen Abklärung und therapeutischen Beratung der Eltern wäre ich Ihnen für eine neuropädiatrische Einordnung des Gesamtbildes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

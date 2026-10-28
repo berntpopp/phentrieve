@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36463227_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 304,
+  "total_tokens": 2901,
+  "thoughts_tokens": 2198,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing this male patient, who first developed unexplained health issues at age 29, for your clinical assessment. He works in finance, takes no regular medications, and has a non-contributory family history. \n\nOver the past few months, he has suffered from a severely reduced appetite along with persistent nausea and frequent emesis. He also endorses recurrent vestibular disturbances characterized by a spinning sensation, although his cranial nerves and cerebellar exam were otherwise completely normal. On physical examination, he demonstrated noticeable scleral icterus and a visibly protuberant, distended abdomen. Palpation revealed a liver edge extending several centimeters below the costal margin, as well as an easily palpable, enlarged spleen. Heart and lung sounds were entirely clear.\n\nSonographic imaging demonstrated diffuse fatty liver changes, multiple gallstones within the gallbladder, and a small, non-obstructing renal calculus. Laboratory studies confirmed an ongoing, active hemolytic process causing a drop in hemoglobin, accompanied by a briskly elevated reticulocyte count. His erythrocyte indices showed a subnormal mean cellular hemoglobin concentration. Examination of the blood film showed marked variation in red cell size alongside extensive variation in red cell shape. Direct antiglobulin testing, however, was negative. \n\nGiven his non-immune hemolysis, striking hepatosplenic involvement, and accompanying constitutional symptoms, I would greatly appreciate your evaluation and recommendations on how best to proceed.\n\nSincerely,\n\nDr. Julian Vance, MD\nInternal Medicine"
+}

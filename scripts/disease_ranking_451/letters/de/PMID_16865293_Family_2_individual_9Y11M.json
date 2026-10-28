@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16865293_Family_2_individual_9Y11M",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 395,
+  "completion_tokens": 425,
+  "total_tokens": 3044,
+  "thoughts_tokens": 2224,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 9 Jahre und 11 Monate alten Leon zur konsiliarischen Beurteilung. \n\nDer Junge zeigt eine ausgeprägte Gedeihstörung sowie einen exzessiven Kleinwuchs, beide Parameter liegen stabil weit unter der dritten Perzentile. Auch der Schädelumfang ist mit deutlichem Abstand unterhalb der Normkurven im Sinne einer Mikrozephalie auffällig. Im Faziesbereich imponieren tief eingesenkte Augen sowie eine besonders prominente Nasenstruktur; das Gebiss weist trotz zahnärztlicher Anbindung eine ausgeprägte Karies auf. \n\nDes Weiteren besteht anamnestisch eine erhebliche kutane Photosensitivität mit Neigung zu prompten Hautrötungen bereits bei geringer UV-Exposition. Die kardiopulmonale Untersuchung sowie die Sonographie des Abdomens ergaben Normalbefunde, und das Routinelabor inklusive Elektrolyten zeigte sich unauffällig. \n\nAuf neurologischem Gebiet besteht ein schwerer globaler Entwicklungsrückstand; der Patient hat das freie Laufen nicht erlernt und spricht keine Worte. An den Extremitäten bestehen zunehmende Kontrakturen mehrerer großer Gelenke. Audiometrisch ist eine bilaterale Schallempfindungsschwerhörigkeit dokumentiert. Bei der ophthalmologischen Untersuchung fand sich eine fleckige Marmorierung des retinalen Pigmentepithels. \n\nIn der zerebralen Bildgebung zeigten sich eine deutliche supratentorielle Volumenminderung des Gehirns, eine ausgeprägte Atrophie des Kleinhirns sowie korrespondierend erweiterte innere Liquorräume. Auffällig waren zudem beidseitige Verkalkungen der Basalganglien. \n\nDie Familienanamnese ist bezüglich chronischer Erkrankungen bland, die Eltern sind gesund. Ich bitte Sie um Ihre geschätzte Einschätzung dieses komplexen Krankheitsbildes und Empfehlungen für das weitere diagnostische Vorgehen.\n\nMit freundlichen Grüßen"
+}

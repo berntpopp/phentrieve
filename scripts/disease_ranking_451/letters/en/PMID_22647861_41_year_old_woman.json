@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22647861_41_year_old_woman",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 462,
+  "completion_tokens": 338,
+  "total_tokens": 2571,
+  "thoughts_tokens": 1771,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Ms. Elena Vance, a 42-year-old graphic designer with diffuse joint symptoms that trace back to her childhood. She takes occasional over-the-counter naproxen, and her family medical history is non-contributory.\n\nShe reports longstanding low back pain coupled with recurrent ankle pain and bilateral ankle swelling. Skeletal radiography reveals a widespread polyarticular arthropathy characterized by polyarticular chondrocalcinosis in her peripheral joints as well as marked intervertebral disk calcification throughout the spine. Notably, long-bone metaphyses are sharp without flaring, and skull films confirm a calvarium of normal thickness.\n\nHer laboratory workup reveals persistent hypophosphatemia driven by substantial hyperphosphaturia. Circulating calcium concentrations have remained consistently normal across repeated checks; however, a 24-hour urine collection confirmed marked hypercalciuria. In addition, her intact parathyroid hormone is significantly elevated, fitting a state of secondary hyperparathyroidism.\n\nOn physical examination, she is normocephalic without macrocephaly, frontal bossing, a broad forehead, or paranasal bony bossing. Her facial proportions are standard without an elongated appearance, and cranial nerve VII is intact with no facial palsy. We noted no hypertelorism, telecanthus, or epiblepharon. Her auricles are normally situated, showing neither low implantation nor posterior rotation.\n\nGiven this constellation of childhood-onset biochemical derangements and extensive articular cartilage changes, I would greatly appreciate your expert consultation regarding her diagnostic workup and ongoing management.\n\nSincerely,\nDr. Thomas Sterling"
+}

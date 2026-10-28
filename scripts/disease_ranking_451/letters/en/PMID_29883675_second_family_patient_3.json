@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_second_family_patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 362,
+  "completion_tokens": 312,
+  "total_tokens": 1759,
+  "thoughts_tokens": 1085,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Chloe Davies, a 6-year-old girl whom I am referring to your clinic for further evaluation of a complex neurodevelopmental presentation evident since birth. \n\nHer early history is notable for global delays, particularly regarding expressive and receptive communication milestones. She continues to struggle significantly with verbal expression, currently communicating with only a handful of isolated words and gestures. In addition, her family notes marked affective instability, describing rapid, unpredictable mood swings and frequent meltdowns. Despite these behavioral challenges, she does not exhibit any indiscriminate social approach or hypersociability, displaying typical stranger awareness.\n\nOn examination, Chloe demonstrates marked growth restriction, with her standing height tracking well below the second percentile and a small cranial vault measuring below the first percentile for age. Musculoskeletal evaluation is notable for overlapping digits, specifically the second toes riding across the third bilaterally. Routine systemic examination was otherwise unremarkable; cardiovascular and pulmonary findings were normal, and she demonstrated no focal motor deficits. \n\nNeuroimaging from earlier this year demonstrated widespread cortical irregularity consistent with an overabundance of abnormally small gyri, associated with a significantly attenuated callosal commissure and an underdeveloped cerebellar vermis. \n\nShe currently takes no regular medications, and family history is non-contributory with no known neurological disorders in first-degree relatives. \n\nI would greatly appreciate your clinical assessment and recommendations regarding Chloe's overall condition and ongoing care.\n\nSincerely,\n\nDr. Marcus Vance, MD\nDepartment of Pediatrics\nSt. Jude Community Health Center"
+}

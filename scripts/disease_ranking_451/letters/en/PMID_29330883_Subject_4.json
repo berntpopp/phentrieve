@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29330883_Subject_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 547,
+  "completion_tokens": 386,
+  "total_tokens": 5081,
+  "thoughts_tokens": 4148,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Chen,\n\nI would appreciate your evaluation of this 13-year-old girl who has been followed by our team since the neonatal period. She initially came to medical attention as a newborn due to generalized central floppiness and subsequently demonstrated severe delays across motor, speech, and adaptive milestones, alongside long-term profound cognitive deficits. Past neuroimaging demonstrated disorganized cerebellar development.\n\nOn physical examination, her head circumference is normal, without an abnormally large cranium, skull asymmetry, frontal bone prominence, a constricted or bulging brow, or a low-lying frontal hairline. Her face is not wedge-shaped, and she exhibits no midfacial recession. Ophthalmic inspection shows normally positioned orbits without close-set or widely separated eyes, droopy eyelids, shortened palpebral apertures, or upward or downward palpebral tilts. There are no confluent eyebrows, thick heavy brows, sunken globes, medial canthal skin folds, or uveal clefting. Her bridge of the nose is not flattened, the nostrils are not upturned, the tip lacks a bulb-like shape, and patency testing confirmed no choanal blockage. Oral evaluation shows no split lip, enlarged oral aperture, flat philtral groove, undersized jaw, vaulted roof of the mouth, or thickened gum ridges. Auricular anatomy is unremarkable, lacking cup-like deformities, simplified cartilaginous relief, underdeveloped helical rims, folded-over superior helices, a hypertrophic stem of the antihelix, anterior lobular clefts, or preauricular depressions.\n\nAudiometry excluded sensory auditory loss. Renal ultrasound and voiding studies documented no retrograde urine flow toward the kidneys, and her spine exhibits no lateral curvature. She resides at home with her family, takes daily multivitamins, and her routine cardiovascular exam was unremarkable. \n\nThank you for providing your consultative opinion on her presentation.\n\nSincerely,\nDr. Laura Adams"
+}

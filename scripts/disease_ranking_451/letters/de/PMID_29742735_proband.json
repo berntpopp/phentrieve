@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29742735_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 393,
+  "completion_tokens": 493,
+  "total_tokens": 3105,
+  "thoughts_tokens": 2219,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen heute Frau Jansen, eine 32-jährige kaufmännische Angestellte, zur konsiliarischen Mitbeurteilung. \n\nDie Patientin berichtet über eine seit dem 30. Lebensjahr schleichend zunehmende Kurzatmigkeit bei körperlicher Belastung, begleitet von einem hartnäckigen Hustenreiz ohne Auswurf. Die Lungenfunktionsprüfung wies ein restriktives Ventilationsmuster mit verminderter Vitalkapazität nach. In der hochauflösenden Computertomographie des Thorax imponieren Zeichen eines interstitiellen fibrotischen Lungenumbaus mit subpleuralen zystischen Wabenformationen sowie ausgeprägten Verziehungsbronchiektasen. \n\nDarüber hinaus bestehen auffällige dermatologische Befunde: Am Hals und oberen Rumpf finden sich netzartig angeordnete Hyperpigmentierungen. Sämtliche Nagelplatten zeigen schwere dystrophische Veränderungen mit Längsriffelung und Substanzverlust. Palmoplantar bestehen deutliche Hyperkeratosen; eine kürzlich entnommene Hautbiopsie beschrieb mikroskopisch intraepidermale Spaltbildungen durch akantholytische Prozesse. Enoral zeigen sich an der bukkalen Schleimhaut persistierende, derbe weißliche Plaques im Sinne einer Leukoplakie.\n\nWeitere Organsysteme wurden bereits abgeklärt: Eine ophthalmologische Untersuchung zeigte einen unauffälligen Fundus ohne Nachweis einer serösen Netzhautablösung. Das immunologische Routinelabor bot keinen Anhalt für eine Immunmangelkrankheit. Ein neoplastischer Prozess konnte im Ganzkörper-Staging ausgeschlossen werden. Anamnestisch verliefen Kindheit und Adoleszenz unauffällig, eine Wachstumsverzögerung lag zu keinem Zeitpunkt vor (aktuelle Körpergröße 169 cm, Gewicht 61 kg). Die Familienanamnese ist bezüglich Lungen- oder Hauterkrankungen leer. Die Patientin ist Nichtraucherin und nimmt derzeit keine Dauermedikation ein.\n\nAufgrund des komplexen Beschwerdebildes bitte ich um Ihre differenzialdiagnostische Einschätzung und Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

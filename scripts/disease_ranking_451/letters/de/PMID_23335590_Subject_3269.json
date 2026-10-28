@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_3269",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 447,
+  "completion_tokens": 471,
+  "total_tokens": 3975,
+  "thoughts_tokens": 3057,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nzur weiteren differenzialdiagnostischen Abklärung überweise ich Ihnen den kleinen Jonas, der sich mit multiplen, seit der Geburt bestehenden Auffälligkeiten bei uns vorstellte. Die Familienanamnese ist bezüglich angeborener Erkrankungen leer, die Eltern sind gesund und nicht blutsverwandt.\n\nKraniofazial imponieren ein auffallend weiter Augenabstand, nach temporal abfallende Lidachsen sowie beidseits herabhängende Oberlider. Zudem zeigen sich tief inserierende Ohrmuscheln. Bildmorphologisch fand sich eine prämature Verknöcherung der Sutura coronalis. Lippe und Gaumen sind intakt; eine Lippen- oder Gaumenspalte liegt nicht vor, auch das Gaumendach ist nicht übermäßig hoch aufgewölbt.\n\nIm muskuloskelettalen Bereich fällt ein angeborener Scapulahochstand auf, zudem bestehen beidseits deutliche axilläre Flügelfellbildungen. Der Nacken zeigt hingegen keine seitlichen Hautfalten. Der Thorax ist symmetrisch, eine Trichterbrust liegt nicht vor, und die Wirbelsäule präsentiert sich achsengerecht ohne Skoliose. Abdominell sind weder Nabelhernien noch Leistenbrüche tastbar. Genital besteht ein beidseitiger Maldeszensus testis.\n\nAn den Händen und Füßen zeigen sich verkürzte Phalangen, kutane Verschmelzungen benachbarter Digiti sowie eine Abknickung der Kleinfinger nach radial. Auffällig ist weiterhin eine ausgeprägte Längsriffelung der Nagelplatten.\n\nNeurologisch besteht ein deutlicher generalisierter Entwicklungsrückstand auf allen motorischen und kognitiven Ebenen. Das kranielle MRT zeigte ein vollständiges Fehlen der Balkenstrukturen. Das Basis-Labor und der kardiale Ultraschall blieben unauffällig; eine Dauermedikation besteht derzeit nicht.\n\nÜber eine konsiliarische Untersuchung des Jungen und Ihre geschätzte fachliche Einschätzung bezüglich des weiteren Vorgehens würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

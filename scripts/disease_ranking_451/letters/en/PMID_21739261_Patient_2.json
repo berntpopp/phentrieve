@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21739261_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 341,
+  "completion_tokens": 298,
+  "total_tokens": 1868,
+  "thoughts_tokens": 1229,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 21-month-old girl whom I saw today in clinic for an assessment of atypical pigmentation noted since birth. \n\nHer parents, who both have dark brown hair and olive skin tones, report that her strikingly diffuse milk-white, pale skin tone and bright coppery-red scalp hair have been prominent since the neonatal period. On examination today, her cutaneous covering is uniformly hypomelanotic without focal macules, and her hair is distinctly reddish in hue. \n\nGiven these features, I performed a thorough ophthalmic check. She fixes and follows small objects attentively, showing preserved visual acuity with no evidence of functional deficit. Conjugate gaze is maintained with no ocular misalignment or strabismus noted on cover testing, and there is an absence of nystagmus or abnormal involuntary eye movements. Pupillary light reflexes are brisk and symmetric bilaterally.\n\nHer general physical examination is otherwise unremarkable. She is thriving, with weight and length tracking comfortably along the 50th percentile. Gross motor and language milestones are appropriate for her age; she is running well and speaking in two-word phrases. Systemic exam, including cardiovascular, pulmonary, and abdominal evaluations, was entirely normal. She takes no regular medications and has no significant past medical history.\n\nI would be very grateful for your specialized evaluation and guidance regarding further clinical workup for her pigmentary presentation.\n\nSincerely,\nDr. Alan Vance\nGeneral Pediatrics"
+}

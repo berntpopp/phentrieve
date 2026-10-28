@@ -1,0 +1,18 @@
+{
+ "case": "PMID_32274456_Family_FGCM_individual_118",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 328,
+  "completion_tokens": 411,
+  "total_tokens": 2459,
+  "thoughts_tokens": 1720,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn Maximilian Bauer, einen 34-jährigen Patienten, zur fachärztlichen Mitbeurteilung.\n\nHerr Bauer stellte sich erstmals vor einigen Monaten im Rahmen eines Routine-Check-ups in unserer Praxis vor. Anamnestisch ist der Patient bisher stets gesund gewesen, arbeitet im kaufmännischen Bereich und nimmt keinerlei Dauermedikation ein. Die Familienanamnese ist hinsichtlich Nierenerkrankungen blande. In der körperlichen Untersuchung zeigte sich der junge Mann in gutem Allgemeinzustand; der Blutdruck lag bei normotensiven 122/78 mmHg, Herz und Lunge waren auskultatorisch unauffällig, und es fanden sich keinerlei periphere Ödeme.\n\nLaborchemisch zeigte sich jedoch bereits bei der Erstvorstellung eine reduzierte Eliminationsleistung der Nieren mit einem Serumkreatinin von 1,8 mg/dl und einer eGFR von knapp 50 ml/min. Wiederholte Kontrolluntersuchungen über die letzten Monate bestätigten diese anhaltende Minderung der glomerulären Filtrationsleistung, sodass von einer dauerhaften funktionellen Nierenschädigung ausgegangen werden muss. Ein terminaler Funktionsverlust im Sinne eines Stadiums 5 liegt dabei erfreulicherweise nicht vor. Begleitend findet sich im Urin eine signifikante, reproduzierbare Eiweißausscheidung mit einer Protein-Kreatinin-Ratio von 1,1 g/g. Das Urinsediment war frei von zellulären Bestandteilen. Die renale Sonographie erbrachte seitengleiche, normal große Organe ohne Anhalt für eine Harnabflussstörung.\n\nZur weiteren ätiologischen Abklärung und zur Festlegung des weiteren Vorgehens darf ich Ihnen den Patienten zur Mitbeurteilung vorstellen. \n\nMit freundlichen kollegialen Grüßen"
+}

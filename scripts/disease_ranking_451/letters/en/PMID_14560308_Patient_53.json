@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14560308_Patient_53",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 455,
+  "completion_tokens": 359,
+  "total_tokens": 4233,
+  "thoughts_tokens": 3419,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing this 15-month-old boy who presents for evaluation of several dysmorphic features noted at his recent wellness visit. He was born at full term following an uncomplicated pregnancy, his immunizations are current, and he takes daily vitamin D drops.\n\nHis motor and cognitive skills are progressing normally; he cruises furniture, uses several words, and displays age-appropriate comprehension without any widespread developmental delay or intellectual impairment. On physical examination, his length falls well beneath the 3rd percentile. Craniofacially, he displays a V-shaped downward point in his frontal hairline, increased distance between the eyes, and downward-slanting eye slits. Eyelid position is normal with no upper lid drooping. He has decreased nasal length with nostrils that are tilted upward. His upper lip groove is elongated, though it is neither abnormally wide nor shortened.\n\nExamination of the extremities reveals shortened fingers with permanent flexion deformities at the interphalangeal joints, along with soft tissue fusion between his third and fourth digits. A continuous four-finger transverse crease is present on his left palm, and there is marked hyperlaxity across all peripheral joints. \n\nHis abdomen demonstrates a reducible fascial opening at the belly button without an otherwise prominent or exophytic navel, alongside a reducible groin protrusion. Genitourinary inspection shows that his scrotum forms an apron wrapping around the dorsal penile base, and his testicles have not descended into the pouch. The urethral meatus is situated normally at the glans tip without a lower urethral opening. Cardiovascular exam is benign, and prior imaging confirmed no defect between the ventricles.\n\nI would appreciate your expert opinion regarding an overall clinical assessment for him.\n\nSincerely,\nDr. Marcus Bell"
+}

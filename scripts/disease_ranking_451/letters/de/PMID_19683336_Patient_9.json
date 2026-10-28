@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19683336_Patient_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 401,
+  "total_tokens": 2570,
+  "thoughts_tokens": 1782,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 7-jährige Patientin zur fachärztlichen Mitbeurteilung. Das Mädchen wächst wohlbehütet bei den gesunden Eltern auf, die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig.\n\nHautseitig besteht seit der Geburt ein generalisiertes, schuppendes Erythem des gesamten Integuments. Im weiteren Verlauf traten gehäuft bakterielle kutane Superinfektionen auf. Eine ekzematoide Dermatitis ließ sich klinisch nicht feststellen. Bei der trichoskopischen Betrachtung der Kopfhaare imponieren die charakteristischen Einstülpungen der Haarschäfte im Sinne einer Trichorrhexis invaginata. \n\nDes Weiteren leidet die Patientin unter rezidivierenden Infekten der Atemwege, darunter eine stationär therapierte Pneumonie im Vorjahr, sowie unter einer kontinuierlichen chronischen Rhinitis. Eine Nahrungsmittelallergie ist laborchemisch und anamnestisch gesichert. Ein Asthma bronchiale liegt nicht vor, die Lungen waren bei der Auskultation heute seitengleich gut belüftet.\n\nZu keinem Zeitpunkt kam es zu schweren septischen Episoden oder Phasen einer hypernatriämischen Dehydratation. Auch rezidivierende Gastroenteritiden werden von den Eltern verneint. Eine Gedeihstörung liegt erfreulicherweise nicht vor; Längenwachstum und Gewichtsentwicklung verlaufen kontinuierlich entlang der 50. Perzentile. Die Vitalparameter und die körperliche Untersuchung des Abdomens zeigten sich unauffällig. Die derzeitige Medikation beschränkt sich auf eine rückfettende Externa-Basispflege.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung und die Einleitung weiterführender diagnostischer Schritte sehr dankbar.\n\nMit kollegialen Grüßen"
+}

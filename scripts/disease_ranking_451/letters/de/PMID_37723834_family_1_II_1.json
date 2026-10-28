@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37723834_family_1_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 393,
+  "total_tokens": 1927,
+  "thoughts_tokens": 1204,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute Frau Sarah Lindemann, eine 32-jährige Patientin, zur Mitbeurteilung bei seit nunmehr zehn Jahren bestehender primärer Sterilität. Das Paar versucht seit dem 22. Lebensjahr der Patientin vergeblich, ein Kind zu zeugen.\n\nDie Patientin berichtet über regelmäßige Spontanzyklen im 28-Tage-Rhythmus. Das basale Hormonprofil inklusive Schilddrüsenwerten zeigte sich stets unauffällig. Im gynäkologischen Ultraschall fand sich ein unauffälliges Myometrium und Endometrium, und auch eine im Vorfeld durchgeführte Hysteroskopie war ohne pathologischen Befund. Das Spermiogramm des Partners erbrachte regelrechte Parameter im Sinne einer Normozoospermie. Die Patientin ist Nichtraucherin, nimmt außer Folsäure keine Dauermedikation ein und arbeitet als Gymnasiallehrerin.\n\nIn unserem Kinderwunschzentrum erfolgten mehrere Zyklen zur kontrollierten ovariellen Hyperstimulation für eine ICSI. Hierbei fiel über alle Behandlungsversuche hinweg ein persistierender Entwicklungsstopp der gewonnenen Oozyten auf dem Niveau der Metaphase I auf, sodass praktisch keine reifen MII-Eizellen zur Befruchtung vorlagen. In den wenigen Versuchen, in denen nach verlängerter Kultur dennoch vereinzelte Transfers vorgenommen werden konnten, zeigte sich ein wiederholtes Einnistungsversagen ohne biochemische oder klinische Schwangerschaftsanzeichen.\n\nAufgrund dieses ungewöhnlichen Phänotyps mit sistierender Eizellreifung in MI und refraktärem Nidationsversagen bitte ich Sie um eine weiterführende spezialisierte Beurteilung und Beratung der Patientin.\n\nMit freundlichen kollegialen Grüßen"
+}

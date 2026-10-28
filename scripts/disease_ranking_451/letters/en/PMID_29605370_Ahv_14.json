@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29605370_Ahv_14",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 247,
+  "total_tokens": 1779,
+  "thoughts_tokens": 1206,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this patient in consultation for a comprehensive diagnostic assessment. \n\nThe patient was brought to my attention regarding a profound congenital auditory deficit. Formal evaluations have demonstrated a marked bilateral sensory-type acoustic deficit present from birth, with auditory brainstem response testing confirming severe cochlear dysfunction. Bilateral amplification has been utilized with consistent compliance. \n\nAside from this lifelong inner-ear deficit, the patient is in good general health. Comprehensive balance investigations, including video head impulse testing and rotary chair analysis, showed entirely intact labyrinthine responses with no signs of vestibular dysfunction. Similarly, formal ophthalmologic evaluation confirmed normal visual acuity bilaterally, clear ocular media, and healthy fundi, ruling out any impairment of vision. \n\nGeneral physical and cranial nerve examinations remain unremarkable. Deep tendon reflexes, muscle tone, and gait are all normal. Vital signs are well within normal limits, and the patient takes no prescription medications. The family history is negative for any early-onset auditory problems or other chronic health conditions. \n\nI would be very grateful for your expert evaluation regarding the potential etiology and any further recommendations for long-term management.\n\nSincerely,\n\nDr. Arthur Vance\nDepartment of Otolaryngology"
+}

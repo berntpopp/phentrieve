@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_A_II1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 427,
+  "completion_tokens": 456,
+  "total_tokens": 3320,
+  "thoughts_tokens": 2437,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 3-jährigen Julian zur konsiliarischen Abklärung eines auffälligen skelettalen Phänotyps.\n\nBei der aktuellen Vorsorgeuntersuchung zeigte sich eine ausgeprägte Längenretardierung mit Werten deutlich unterhalb der dritten Perzentile. Am Cranium fallen betonte Vorwölbungen der Stirn sowie der Parietalregion auf; die Fontanelle und die Suturen tasten sich klinisch noch weit geöffnet. Radiologisch zeigen sich Schaltknochen im Bereich der Schädelnähte. Im Gesichtsprofil imponieren ein retrudiertes Mittelgesicht, eine flache, eingesunkene Nasenwurzel sowie ein kleiner Unterkiefer. Der Augenabstand ist normgerecht, ein Hypertelorismus liegt nicht vor. \n\nDie Dentition ist auffallend verzögert, erst wenige Milchzähne sind durchgebrochen, welche deutliche Schmelzdefekte zeigen. Zusätzliche oder überzählige Zahnanlagen konnten radiologisch ausgeschlossen werden. Der Thorax imponiert schmal und die Schlüsselbeine stellen sich im Röntgenbild hypoplastisch und verkürzt dar; auffallend ist hierbei eine exzessive Beweglichkeit der Schultern, die sich anterior fast kontaktierend zusammenführen lassen. Zudem besteht eine mäßige thorakolumbale Skoliose. Im MRT des Neurokraniums und der Wirbelsäule fand sich begleitend eine zervikale Syringomyelie. Ein Beckenröntgen demonstrierte kleine, hypoplastische Darmbeinschaufeln sowie eine deutlich verspätete Ossifikation der Ossa pubis. An den Händen ist der zweite Mittelhandknochen regelrecht proportioniert und nicht verlängert.\n\nAbdominell und kardiopulmonal bietet sich ein unauffälliger Untersuchungsbefund. Die Familienanamnese ist bezüglich Skelettauffälligkeiten leer, die Eltern sind gesund. Der Junge nimmt aktuell keine Medikamente ein.\n\nIch wäre Ihnen für eine genetische bzw. pädiatrisch-osteologische Einordnung dieses Befundkomplexes sehr dankbar.\n\nMit freundlichen Grüßen"
+}

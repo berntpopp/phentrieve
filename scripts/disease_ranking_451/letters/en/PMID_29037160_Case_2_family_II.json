@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29037160_Case_2_family_II",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 328,
+  "completion_tokens": 312,
+  "total_tokens": 1726,
+  "thoughts_tokens": 1086,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Jenkins,\n\nThank you for agreeing to see this 32-day-old female infant for further evaluation. She was born at full term following an uncomplicated gestation and spontaneous vaginal delivery, with birth weight at the 50th percentile and reassuring newborn APGAR scores.\n\nShortly after delivery, she failed her initial newborn hearing screen. Follow-up comprehensive diagnostic testing with auditory brainstem evoked responses confirmed a marked, bilateral deficit in cochlear neurosensory processing present from birth. \n\nIn addition, an outpatient 12-lead electrocardiogram performed during a recent baseline assessment demonstrated a notably lengthened ventricular repolarization phase, with a corrected QT duration calculated at 510 milliseconds across multiple leads. \n\nClinically, the infant continues to thrive. She is nursing well every three hours, producing appropriate wet diapers, and tracking appropriately along her growth curves. On physical examination, her vital signs are completely stable. Cardiovascular examination reveals normal S1 and S2 with no clicks, gallops, or murmurs, and her femoral pulses are brisk and symmetric. Her lungs are clear to auscultation bilaterally, her abdomen is soft without organomegaly, and her neurological tone is age-appropriate. There is no family history of unexplained syncope, sudden infant death, or premature cardiac events.\n\nGiven these concurrent electrophysiologic and auditory findings, I would greatly appreciate your specialist assessment and guidance on further diagnostic workup and longitudinal management.\n\nWarm regards,\n\nDr. Arthur Vance, MD\nOakridge Community Pediatrics"
+}

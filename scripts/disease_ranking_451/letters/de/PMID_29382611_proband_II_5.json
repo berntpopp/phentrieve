@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29382611_proband_II_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 425,
+  "completion_tokens": 500,
+  "total_tokens": 2483,
+  "thoughts_tokens": 1558,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen den 14-jährigen Lukas zur weiteren fachärztlichen Beurteilung. \n\nDie Beschwerden begannen im Alter von etwa fünf Jahren. Seitdem erlitt der Junge mehrfach atraumatische bzw. nach Bagatelltraumen aufgetretene Frakturen der Extremitäten. Radiologisch fällt eine generalisierte Demineralisation des Skeletts auf; die Diaphysen der Röhrenknochen zeigen eine deutliche Untertubulierung mit zylindrischer Aufweitung. An der Brustwirbelsäule imponiert eine ausgeprägte Platyspondylie, begleitet von einer leichten thorakolumbalen Skoliose. Im zervikalen Übergang wurde radiologisch zudem eine Subluxation im Segment C2/3 dokumentiert. \n\nKörperlich besteht ein ausgeprägter Kleinwuchs (Körperlänge weit unterhalb der 3. Perzentile). Die peripheren Gelenke zeigen eine erhöhte Laxizität, namentlich besteht eine deutliche Überstreckbarkeit beider Kniegelenke. Im Kopfbereich präsentieren sich eine auffallend prominente Stirn, kräftig ausgebildete Supraorbitalwülste, ein retrudiertes Mittelgesicht sowie eine flache, eingesunkene Nasenwurzel. Die Ohren stehen beidseits deutlich ab. Intraoral fallen eine auffallend schmale Mundspalte und ein hoher Gaumenbogen auf. Der Zahnwechsel verlief erheblich verzögert; eine Dentinogenesis imperfecta lässt sich jedoch nicht feststellen, und die Zahnhartsubstanz wirkt inspektorisch intakt. Die Skleren stellen sich regelrecht weiß dar, ohne jegliche Blauverfärbung. \n\nZusätzlich besteht eine audiometrisch nachgewiesene Schallempfindungsschwerhörigkeit. Kardiologische und sonographische Abdomenbefunde waren vollkommen unauffällig. Lukas nimmt derzeit lediglich prophylaktisch Vitamin D3 ein. Er besucht die 8. Klasse einer Realschule; die Familienanamnese bezüglich Skeletterkrankungen ist leer.\n\nÜber Ihre geschätzte differenzialdiagnostische Einschätzung und Beratung bezüglich der weiteren Betreuung von Lukas würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Tobias Keller"
+}

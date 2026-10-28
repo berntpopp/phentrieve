@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29333303_proposita",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 474,
+  "completion_tokens": 497,
+  "total_tokens": 2815,
+  "thoughts_tokens": 1844,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 11 Monate alte Mia zur weiterführenden pädiatrischen Beurteilung. \n\nPränatal fiel die Schwangerschaft durch ein Polyhydramnion sowie eine fetale Nierenbeckenektasie auf. Mia kam reif zur Welt; postnatal zeigten sich kardiologisch ein persistierendes Foramen ovale sowie ein persistierender Ductus arteriosus. \n\nBereits früh imponierte eine ausgeprägte Trinkschwäche mit Fütterproblemen, in deren Folge sich eine postnatale Wachstums- und Gedeihretardierung manifestierte. Das Abdomen präsentiert sich chronisch meteoristisch aufgetrieben mit einer palpablen Rektusdiastase; sonographisch wurde inzwischen eine Hydronephrose dokumentiert.\n\nEntwicklungsneurologisch besteht ein schwerer globaler Entwicklungsrückstand. Im Alter von sieben Monaten traten erstmals zerebrale Krampfanfälle auf. Das cMRT zeigte eine deutliche Erweiterung der inneren Liquorräume mit Dilatation der beiden Seitenventrikel sowie des dritten Ventrikels. Es besteht eine hochgradige Schallempfindungsschwerhörigkeit sowie ein massiv reduzierter Visus; die Fundusmorphologie war bei der ophtalmologischen Untersuchung jedoch vollkommen unauffällig.\n\nKörperlich fallen eine vergröberte Facies, ein Zurücktreten des Mittelgesichts, eine eingesunkene Nasenwurzel, ein weiter Augenabstand und tief inserierende Ohren auf. Die Stirn wirkt schmal, weist jedoch prominente Stirnhöcker auf, und die große Fontanelle ist ungewöhnlich weit offen. Skelettal zeigen sich röntgenologisch verbreiterte Rippen, eine Verkrümmung der langen Röhrenknochen sowie linksseitig ein kongenitaler Pes equinovarus. \n\nDie Familienanamnese ist leer, die Eltern sind nicht blutsverwandt, und das erweiterte Neugeborenenscreening sowie die basale Labordiagnostik inklusive Nieren- und Leberwerten waren regelrecht. Mia erhält derzeit Physiotherapie und eine kalorisch angereicherte Nahrung.\n\nWir bitten um Ihre geschätzte Mitbeurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

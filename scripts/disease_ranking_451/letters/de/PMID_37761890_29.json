@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_29",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 452,
+  "completion_tokens": 445,
+  "total_tokens": 3078,
+  "thoughts_tokens": 2181,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung unseres kleinen Patienten, den wir Ihnen zur weiteren Einschätzung vorstellen.\n\nDer Junge wurde reifgeboren; anamnestisch ergab sich kein Anhalt für eine intrauterine Mangelentwicklung oder SGA-Konstellation. Auffällig ist ein mit Messwerten oberhalb der 97. Perzentile deutlich expandierter Kopfumfang im Sinne einer Makrozephalie, eine Mikrozephalie liegt keineswegs vor. Im cMRT imponierte eine Agenesie des Corpus callosum, ohne dass Residuen im Sinne einer isolierten Balkenhypoplasie nachweisbar waren. Das Ventrikelsystem stellte sich unauffällig dar, ohne Ventrikulomegalie oder Zeichen eines Hydrozephalus. Befunde wie eine Pachygyrie, eine periventrikuläre Leukomalazie, eine Dysgenesie der Hippocampi oder eine Aplasie der Bulbi olfactorii konnten sicher ausgeschlossen werden. Klinisch traten bisher keine Krampfanfälle auf.\n\nKardiologisch detektierten wir einen kleinen Ventrikelseptumdefekt sowie einen noch offenen Ductus arteriosus und ein persistierendes Foramen ovale. Eine Pulmonalstenose, ein thorakales Aortenaneurysma, eine Linksherzhypertrophie oder eine bikuspide Aortenklappe wurden nicht gesehen. \n\nIm Alltag imponieren ausgeprägte Fütter- und Trinkschwierigkeiten bei der oralen Zufuhr. Ein gastroösophagealer Reflux konnte ausgeschlossen werden. Eine Abhängigkeit von parenteraler Ernährung liegt nicht vor, und auch eine Sondenernährung über eine PEG im Säuglingsalter war bisher nicht erforderlich. \n\nDie abdominelle Sonographie inklusive der Nieren zeigte regelrechte Verhältnisse, und die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer. Dauermedikamente werden aktuell nicht eingenommen.\n\nWir danken Ihnen für Ihre konsiliarische Begutachtung bezüglich des weiteren Procederes.\n\nMit freundlichen kollegialen Grüßen"
+}

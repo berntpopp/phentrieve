@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_55",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 352,
+  "total_tokens": 2158,
+  "thoughts_tokens": 1452,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre konsiliarische Mitbeurteilung bei dem jungen Patienten Maximilian, der uns zur weiteren Abklärung auffälliger Hormonparameter vorgestellt wurde. Die Symptomatik begann anamnestisch bereits im Alter von etwa sechs Wochen.\n\nKörperlich imponiert bei dem Jungen vor allem eine generalisierte, deutliche Dunkelfärbung des Integuments, die sich insbesondere an den Handinnenflächen und den Gelenkbeugen als vermehrte Pigmentierung darstellt. Im Rahmen der bisherigen Labordiagnostik fand sich ein massiv gesteigerter adrenokortikotroper Hormonspiegel im Plasma. Ebenso zeigte sich eine signifikant über die Norm erhöhte Prolaktinkonzentration im Serum, während der gemessene Testosteronspiegel deutlich unter den altersentsprechenden Referenzwerten lag. Die zirkulierenden Cortisolwerte erwiesen sich hingegen in wiederholten Kontrollen als vollkommen unauffällig. Auch das Serum-Östradiol bot keinen pathologischen Befund und lag stabil im Normalbereich.\n\nDer Knabe ist ansonsten in einem stabilen Allgemeinzustand. Die körperliche Untersuchung erbrachte unauffällige kardiopulmonale Befunde, eine blande Abdomenpalpation und normwertige Blutdruckmessungen. Die neurologische Entwicklung ist altersgerecht. Eine Dauermedikation besteht nicht, und die Familienanamnese ist bezüglich chronischer oder metabolischer Erkrankungen leer.\n\nZur weiteren ätiologischen Einordnung und Festlegung des weiteren Vorgehens wäre ich Ihnen für Ihre geschätzte Expertise sehr dankbar.\n\nMit freundlichen Grüßen"
+}

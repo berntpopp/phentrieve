@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30400883_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 442,
+  "total_tokens": 2157,
+  "thoughts_tokens": 1351,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute den 5 Jahre und 1 Monat alten Leo zur neuropädiatrischen Mitbeurteilung. \n\nDie Eltern bemerkten erste Auffälligkeiten um den sechsten Lebensmonat herum, als sich eine zunehmende Verlangsamung der Entwicklungsschritte sowie erste zerebrale Krampfanfälle zeigten. Inzwischen imponiert eine schwere globale psychomotorische Retardierung. Der Erwerb motorischer Meilensteine erfolgte stark verzögert; erst seit kurzem gelingt ein noch unrundes, ataktisches freies Gehen. Auch der Sprach- und Sprecherwerb ist massiv rückständig, sodass Leo bislang keine verständlichen Worte nutzt und Aufforderungen kaum versteht. Im interaktionellen Bereich fallen ein deutlich reduzierter Blickkontakt, motorische Stereotypien und ausgeprägte autistische Verhaltenszüge auf.\n\nDarüber hinaus klagt die Familie über eine chronische Verstopfung, die nur unzureichend auf Laxanzien anspricht, sowie über wiederkehrende Phasen von Übelkeit ohne Erbrechen. Die abdominelle Sonographie und das Routinelabor inklusive Leber- und Nierenwerten erbrachten unauffällige Befunde. Das Gehör ist intakt, die kardiale Diagnostik war regelrecht. Aktuell erhält er Macrogol und Valproat. Die Familienanamnese ist bezüglich neuromuskulärer oder metabolischer Erkrankungen leer; die Eltern sind nicht konsanguin.\n\nIn der zerebralen MRT-Bildgebung zeigte sich ein auffallend verschmälertes Corpus callosum. Eine begleitend durchgeführte MR-Spektroskopie wies ein deutlich reduziertes Kreatinsignal im Gehirnparenchym nach. Im Urin ließ sich passend dazu eine pathologisch vermehrte Kreatinausscheidung verifizieren. \n\nIch bitte Sie um eine klinische Einschätzung des Gesamtbildes und Vorschläge zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

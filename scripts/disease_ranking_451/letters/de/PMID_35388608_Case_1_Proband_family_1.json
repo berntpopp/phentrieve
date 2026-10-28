@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35388608_Case_1_Proband_family_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 468,
+  "total_tokens": 2612,
+  "thoughts_tokens": 1724,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich stelle Ihnen heute Herrn Thomas Winter vor, geboren 1967, der sich in Begleitung seiner Betreuerin aus einer Wohneinrichtung bei uns vorstellte. Wir bitten um Ihre geschätzte konsiliarische Beurteilung.\n\nSchon seit der Geburt bestehen Auffälligkeiten in der Entwicklung. Bei Herrn Winter liegt eine leichte kognitive Einschränkung vor; er ist im Alltag weitgehend selbstständig und arbeitet in einer Werkstätte für Menschen mit Förderbedarf. Anamnestisch wurde im frühen Kindesalter ein Hodenhochstand operativ versorgt. Eine Hypospadie lag damals nicht vor, die Urethralmündung ist regelrecht positioniert. \n\nKörperlich fällt sofort ein ausgeprägter Kleinwuchs auf (Körpergröße 154 cm). Im Bereich des Schädels imponieren ein weit auseinanderstehender Augenabstand sowie ein beidseitiges Herabhängen der Oberlider. Die Ohren setzen tief an, und die Nasenwurzel wirkt auffallend breit. Die Philtrumrinne stellt sich deutlich verbreitert dar, ist in ihrer vertikalen Ausdehnung jedoch unauffällig, ohne Zeichen einer Verkürzung oder übermäßigen Länge. Eine Spaltbildung an Lippe oder Gaumen liegt nicht vor; der Gaumen zeigt eine normale Wölbung und ist nicht hochgestellt.\n\nAn den Händen finden sich kräftige, breite Handflächen mit verkürzten Fingerstrahlen. An beiden fünften Fingern besteht eine deutliche Abknickung nach radial, zudem fällt eine schmerzlose Überstreckbarkeit sämtlicher Fingergelenke auf.\n\nDer übrige internistische Untersuchungsbefund war unauffällig. Herz und Lunge zeigten sich auskultatorisch bland, der Blutdruck lag bei 128/82 mmHg. Eine Dauermedikation besteht nicht, abgesehen von gelegentlicher Einnahme von Pantoprazol bei Refluxbeschwerden. Die Familienanamnese ist bezüglich syndromaler Auffälligkeiten leer.\n\nÜber Ihre differentialdiagnostische Einschätzung würden wir uns sehr freuen.\n\nMit freundlichen Grüßen"
+}

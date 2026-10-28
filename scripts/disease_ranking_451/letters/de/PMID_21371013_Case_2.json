@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21371013_Case_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 417,
+  "completion_tokens": 475,
+  "total_tokens": 2709,
+  "thoughts_tokens": 1817,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung bei dem nun elf Monate alten Jungen Leo, der sich mit seinen Eltern in unserer pädiatrischen Ambulanz vorstellte. Die Familienanamnese ist bezüglich chronischer oder angeborener Erkrankungen unauffällig.\n\nBereits in der Neugeborenenperiode traten erstmalig zerebrale Krampfanfälle auf. In der zerebralen Bildgebung imponierte seinerzeit eine deutliche Ventrikulomegalie. Klinisch-neurologisch besteht weiterhin eine generalisierte muskuläre Hypertonie. \n\nKraniofazial fallen eine betont prominente Stirn sowie eine Retrusion des Mittelgesichts auf. Des Weiteren zeigen sich diskrete infraorbitale Falten, nach ventral-oben gerichtete Nares und ein auffallend kurzes Philtrum. Die Ohrmuscheln inserieren tief und weisen ungewöhnlich große Ohrläppchen auf. Das Hörscreening war unauffällig.\n\nOrthopädisch imponiert eine Skoliose der Wirbelsäule. Bei der radiologischen Skelettdiagnostik zeigten sich an beiden Händen ein verkürzter erster Metakarpalknochen sowie deutlich verkürzte Endphalangen der Finger. Eine radioulnare Synostose ließ sich röntgenologisch eindeutig ausschließen. \n\nIm Rahmen des abdominellen Ultraschalls wurde eine Hydronephrose gesichert. Am äußeren Genitale imponiert ein ausgeprägter Mikropenis bei sonst regelrechten Hodenverhältnissen. Endokrinologisch ist ein wiederholt erniedrigter Serumspiegel von freiem T4 dokumentiert, wohingegen die Nierenretentionsparameter und Leberwerte unauffällig blieben. Auch die kardiologische Untersuchung inklusive Farbdoppler-Echokardiographie erbrachte einen Normalbefund. Leo erhält derzeit eine antikonvulsive Monotherapie und gedeiht unter vollbilanzierter Beikost stabil.\n\nAufgrund der komplexen Befundkonstellation wären wir für Ihre differentialdiagnostische Einschätzung und Empfehlungen zur weiteren Abklärung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

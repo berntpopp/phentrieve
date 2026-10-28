@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23691375_4_year_old_girl",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 381,
+  "total_tokens": 2626,
+  "thoughts_tokens": 1885,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die vierjährige Mia zur weiteren fachärztlichen Beurteilung. \n\nDie Eltern stellen ihre Tochter vor allem aufgrund einiger morphologischer Besonderheiten vor. Klinisch imponiert eine auffällig breite Stirn bei im lateralen Drittel merklich spärlich behaarten Augenbrauen. Die Nasenspitze präsentiert sich birnenförmig aufgetrieben und fleischig, das Philtrum zeigt sich verlängert und das obere Lippenrot auffallend schmal. Die Mutter berichtet zudem darüber, dass das Kopfhaar des Mädchens ungewöhnlich langsam wächst, sodass bislang noch nie ein Haarschnitt erforderlich war. \n\nAn den oberen Extremitäten fiel inspektorisch und palpatorisch eine Verkürzung einzelner Mittelhandknochen auf. Eine daraufhin durchgeführte Röntgenuntersuchung der linken Hand bestätigte eine gegenüber dem Lebensalter deutlich verzögerte Skelettreifung.\n\nIm Gegensatz zu diesen Befunden verläuft die psychomotorische Entwicklung der Patientin völlig unauffällig. Es liegt keinerlei globale Entwicklungsverzögerung vor; alle motorischen und sprachlichen Meilensteine wurden zeitgerecht erreicht. Kognitiv wirkt das Mädchen aufgeweckt, besucht mit Freude den Regelkindergarten und zeigt keinerlei Anzeichen einer intellektuellen Beeinträchtigung. \n\nDer sonstige internistische Status war unauffällig, die kardiopulmonale Auskultation bot reguläre Befunde. Eine Dauermedikation besteht nicht, und die Familienanamnese ist bezüglich ähnlicher Auffälligkeiten blande.\n\nIch wäre Ihnen für Ihre geschätzte konsiliarische Einschätzung und Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen Grüßen,\nDr. med. Tobias Weber"
+}

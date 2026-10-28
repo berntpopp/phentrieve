@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29575628_case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 385,
+  "completion_tokens": 429,
+  "total_tokens": 2386,
+  "thoughts_tokens": 1572,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute zwei Monate alten Knaben zur stationären Weiterbehandlung und konsiliarischen Mitbeurteilung. Der Junge entstammt einer termingerechten, komplikationslosen Schwangerschaft gesunder, nicht blutsverwandter Eltern. \n\nBereits unmittelbar postpartal zeigte sich eine Spaltbildung der Oberlippe kombiniert mit einer Spalte des Gaumens. Zudem fällt kraniofazial eine auffallend vorgewölbte Stirnpartie auf. Links präaurikulär findet sich ein kleines Fistelgrübchen; die Ohrmuscheln selbst inserieren jedoch regelrecht und sind keineswegs tiefstehend. Die Choanen zeigten sich bei Sondierung beidseits frei durchgängig, und auch die Analregion ist unauffällig und anatomisch korrekt angelegt.\n\nAktuell wurde das Kind wegen einer ausgeprägten Gedeihstörung sowie seit mehreren Tagen bestehenden, rezidivierenden wässrigen Durchfällen vorstellig. Bei der Aufnahme bot der Säugling das Bild einer deutlichen Dehydratation mit stehenden Hautfalten, eingefallener Fontanelle sowie einer ausgeprägten Hypovolämie mit verlängerter kapillärer Rekapillarisierungszeit. Im Akutlabor bestätigte sich ein manifestes Defizit mit einer Hyponatriämie von 124 mmol/l. \n\nKonsiliarisch wurde bei der augenärztlichen Untersuchung zudem eine Spaltbildung der Netzhaut und Aderhaut beschrieben. Die orientierende kardiopulmonale Untersuchung ergab Normalbefunde, und das Neugeborenen-Hörscreening war beidseits unauffällig verlaufen.\n\nNach Einleitung der intravenösen Rehydratation und Elektrolytsubstitution bitten wir um Ihre geschätzte Beurteilung des Gesamtbildes sowie um Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

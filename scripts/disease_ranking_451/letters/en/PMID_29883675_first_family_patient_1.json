@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_first_family_patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 359,
+  "completion_tokens": 290,
+  "total_tokens": 2547,
+  "thoughts_tokens": 1898,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 24-year-old woman for a comprehensive assessment. She has been under my general care alongside her family, with severe neurodevelopmental concerns present since early infancy.\n\nHer clinical course is marked by profound cognitive deficits and a complete lack of expressive speech, having never acquired spoken words. Her physical growth has been noticeably restricted, with an adult height well below the third percentile and an adult head circumference that tracks markedly beneath the lower normal limit. Prior cranial magnetic resonance imaging highlighted distinct structural brain abnormalities, particularly a slender, attenuated callosal tract alongside diffuse cortical folding defects characterized by numerous tiny, crowded gyri.\n\nBehaviorally, her demeanor is placid and predictable. There is no evidence of inappropriate hypersociability or indiscriminate friendliness toward unfamiliar individuals. Her affect is consistently stable, without emotional volatility, sudden tearfulness, or abrupt mood shifts. Additionally, her caregivers report no destructive outbursts or physically aggressive tendencies. On physical examination, her cardiopulmonary status is normal, her abdomen is soft and non-tender, and inspection of both feet demonstrates normal alignment without any superimposition or crossing of the digits. Routine blood counts and metabolic panels are unremarkable, and she takes only an over-the-counter multivitamin. There is no family history of neurological or developmental disorders.\n\nI would greatly appreciate your evaluation and guidance on her ongoing management.\n\nSincerely,\n\nDr. Arthur Vance"
+}

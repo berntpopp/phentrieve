@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 336,
+  "total_tokens": 5039,
+  "thoughts_tokens": 4271,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Higgins,\n\nThank you for evaluating this 2-year-old boy whose symptoms have been present since the neonatal period. He lives at home with his parents and older sister; family history is non-contributory.\n\nFrom early infancy, he demonstrated significant axial hypotonus with poor trunk stability, culminating in a late achievement of unsupported sitting. He also experiences persistent sleep disturbance with multiple nighttime awakenings, as well as long-standing, intractable constipation that requires daily osmotic laxatives. Formal sensory testing has identified a bilateral hearing impairment, and ophthalmologic examination revealed hypoplastic optic nerves on fundoscopy.\n\nCutaneous examination reveals generalized ichthyosiform scaling across his torso and limbs, accompanied by pronounced hyperkeratotic thickening across both the palmar and plantar surfaces. Craniofacially, he displays broad, dense eyebrows that meet medially across the nasion, bilateral epicanthic folds, and a wide, depressed bridge of the nose. His facial contour is not round, and his forehead was not narrowed. The nasal tip is not bulbous, and the nostrils show no anteversion. He has a normal philtral length, no micrognathic jaw reduction, and the oral cavity displays an intact palate with no bifid uvula. His head circumference plots along the 50th percentile, with no signs of microcephaly.\n\nBrain MRI demonstrated an irregularly formed, dysplastic corpus callosum, though the cerebral cortex showed normal gyral architecture with no evidence of polymicrogyric cortex.\n\nI would be most grateful for your comprehensive clinical assessment and guidance regarding further workup.\n\nSincerely,\nDr. Julian Ward"
+}

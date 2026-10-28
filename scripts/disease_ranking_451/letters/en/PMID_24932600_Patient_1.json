@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24932600_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 412,
+  "completion_tokens": 282,
+  "total_tokens": 3431,
+  "thoughts_tokens": 2737,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 21-year-old young man for clinical evaluation. His skeletal discrepancies date back to the prenatal period, having been detected on routine fetal ultrasounds. He is currently a university student, takes no daily medications, and has an entirely non-contributory family history.\n\nOn physical examination, there is a severe deficit in standing height. Craniofacial assessment is notable for an anteriorly protruding forehead, widely separated eyes, and distinctly bulging eyes. The bridge of the nose is flattened, accompanied by upward-tilted nostrils. Both auricles are positioned notably low on the head. He has a wide oral aperture, a pronounced tent-like elevation of the central upper vermilion, and diffuse, excessive gingival hyperplasia.\n\nHis extremities demonstrate striking shortening of the intermediate limb segments. Skeletal survey demonstrates underdeveloped radial bones and hypoplastic ulnar shafts bilaterally, in addition to disproportionately short palms. Spinal radiographs reveal multiple half-vertebrae that produce a progressive lateral deviation of the spinal column. Genitourinary examination is remarkable for a markedly reduced penile length, though the testes are descended and normal in volume. Systemic review, including cardiovascular, pulmonary, and abdominal examinations, was completely unremarkable.\n\nI would greatly appreciate your specialized assessment and recommendations for his comprehensive long-term care.\n\nSincerely,\nDr. Julian Sterling"
+}

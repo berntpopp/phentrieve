@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18477167_III_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 395,
+  "total_tokens": 2801,
+  "thoughts_tokens": 2066,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute Herrn Tobias Becker, einen 32-jährigen Patienten, zur Mitbeurteilung und Therapieempfehlung.\n\nDer Patient berichtet über seit Beginn dieses Lebensjahres erstmals aufgetretene, langsam progrediente Hautveränderungen. In der Anamnese finden sich keine relevanten Vorerkrankungen, er nimmt keine Dauermedikation ein und arbeitet im kaufmännischen Bereich. Die Familienanamnese hinsichtlich chronischer Hauterkrankungen ist leer.\n\nBei der dermatologischen Untersuchung imponieren umschriebene, verruköse und teils bräunliche Verhornungsplaques entlang der Beugeseiten beider Arme. Eine vorliegende Stanzbiopsie einer dieser fokalen Läsionen ergab histopathologisch das Bild einer umschriebenen epidermolytischen Akanthose mit deutlicher lamellärer Hornschichtverdickung. Des Weiteren bestehen ausgeprägte, flächige Verhornungen der gesamten Hohlhandflächen sowie derbe, teils druckdolente Keratosen an beiden Fußsohlen. Die Nagelmatrix und die Nagelplatten an Fingern und Zehen präsentieren sich demgegenüber klinisch völlig unauffällig; Form, Farbe und Textur der Nägel sind intakt, Dystrophien oder Pachyonychien liegen nicht vor.\n\nDie orientierende körperliche Untersuchung des Herzens, der Lunge und des Abdomens zeigte regelrechte Befunde, und auch die im Vorfeld veranlasste Basislabordiagnostik inklusive Entzündungsparametern erbrachte normwertige Ergebnisse.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung des Beschwerdebildes sowie für Empfehlungen zur weiteren topischen oder systemischen Behandlung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Sanders"
+}

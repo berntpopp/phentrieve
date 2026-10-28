@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 375,
+  "total_tokens": 1983,
+  "thoughts_tokens": 1283,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich stelle Ihnen heute die 8-jährige Leonie zur weiteren differentialdiagnostischen Einordnung und Beratung vor.\n\nDas Mädchen wurde termingerecht geboren, wobei bereits unmittelbar postpartal ein stark verminderter Kopfumfang dokumentiert wurde. Dieser ausgeprägte Minderwuchs des Schädels persistiert bis heute unverändert, der aktuelle Messwert liegt bei 45,5 cm und damit weiterhin weit unterhalb der dritten Perzentile. Bei der Inspektion des Gesichtsschädels fällt zudem eine auffällig flach nach dorsal abfallende Stirnkontur ins Auge. \n\nIm Entwicklungsverlauf zeigt sich bei Leonie eine erhebliche Einschränkung der geistigen Fähigkeiten. Es bestehen ausgeprägte kognitive Defizite in allen Bereichen; die Patientin besucht derzeit eine Schule mit dem Förderschwerpunkt ganzheitliche Entwicklung und ist bei alltäglichen Verrichtungen auf kontinuierliche Assistenz angewiesen. \n\nDie übrige körperliche Untersuchung bietet unauffällige Befunde. Das Hör- und Sehvermögen erwies sich bei den Vorsorgen als unbeeinträchtigt. Das Abdomen ist weich und indolent, kardiopulmonal imponiert ein Normalbefund mit reinem Herzton und seitengleich vesikulärem Atemgeräusch. Neurologisch sind die Muskeleigenreflexe seitengleich mittellebhaft auslösbar, ein Tremor oder Faszikulationen bestehen nicht. Leonie nimmt derzeit keine Medikamente ein. Die Familienanamnese der leiblichen Eltern ist hinsichtlich neurologischer Erkrankungen leer.\n\nFür Ihre geschätzte Einschätzung und eine Empfehlung zum weiteren Vorgehen bei der Patientin wäre ich Ihnen sehr dankbar.\n\nMit besten kollegialen Grüßen"
+}

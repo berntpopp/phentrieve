@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14560308_Patient_53",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 455,
+  "completion_tokens": 431,
+  "total_tokens": 3188,
+  "thoughts_tokens": 2302,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 15 Monate alten Leon zur fachärztlichen Beurteilung. Der Junge lebt bei seinen gesunden Eltern, die Familienanamnese ist bezüglich angeborener Auffälligkeiten unergiebig und Medikamente werden nicht eingenommen.\n\nIn der Entwicklung zeigt er sich bisher erfreulicherweise zeitgerecht; Zeichen einer globalen Entwicklungsverzögerung oder geistigen Behinderung liegen nicht vor. Bei der aktuellen Vorstellung imponiert jedoch ein ausgeprägter Kleinwuchs mit Werten deutlich unter der 3. Perzentile.\n\nKraniofazial fallen weit auseinanderstehende Augen, nach außen-unten abfallende Lidachsen sowie ein spitz zur Stirnmitte hin auslaufender Haaransatz auf. Eine Ptosis besteht nicht. Die Nase ist kurz mit nach vorne gerichteten Nares. Die Rinne der Oberlippe ist auffällig lang, dabei weder verkürzt noch ungewöhnlich breit.\n\nKardiologisch ergab ein Kontrollultraschall regelrechte Verhältnisse ohne Anhalt für einen Ventrikelseptumdefekt. Abdominell zeigt sich eine reponierbare Nabelhernie; ein prominenter Nabel liegt abgesehen vom Bruchsack nicht vor. Daneben besteht eine Leistenhernie. Das Genitale weist einen beidseitigen Kryptorchismus auf, das Skrotalgewebe umfasst kragenförmig die Peniswurzel. Der Meatus urethrae mündet orthotop an der Glansspitze, eine Hypospadie ist ausgeschlossen.\n\nAn den Händen finden sich kurze Fingerknochen, Beugefehlstellungen der Interphalangealgelenke sowie eine transversale Einzelfurche. An den Füßen imponiert eine kutane Syndaktylie zwischen der zweiten und dritten Zehe. Begleitend besteht eine generalisierte Überbeweglichkeit der Gelenke.\n\nIch bitte um Ihre geschätzte konsiliarische Einschätzung und Einordnung des Befundbildes.\n\nMit freundlichen Grüßen"
+}

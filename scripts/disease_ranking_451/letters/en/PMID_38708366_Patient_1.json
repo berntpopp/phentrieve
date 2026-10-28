@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 330,
+  "total_tokens": 2126,
+  "thoughts_tokens": 1409,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mitchell,\n\nThank you for evaluating this 7-year-old boy regarding his refractory seizure presentation and developmental challenges. His medical history began in infancy around seven months of age, when he lagged significantly across motor, speech, and early personal-social milestones. Over the years, these deficits have solidified into severe, lifelong learning and cognitive impairment. \n\nHis convulsive history is notable for both partial events, characterized by focal motor clonic activity and version, and generalized episodes marked by tonic stiffening progressing to bilateral rhythmic jerking. The ongoing seizure burden and active epileptiform disruption have driven a profound cognitive regression consistent with an epilepsy-induced encephalopathic process. Routine and ambulatory electroencephalography studies have consistently revealed disorganized background rhythms with frequent paroxysmal epileptogenic discharges. \n\nImportantly, he has never presented with infantile flexor or extensor spasms, nor does he experience quick myoclonic jerks, isolated clonic spells, or non-motor absence episodes. He has also remained free from status events. Behaviorally, he is socially responsive and displays no autistic mannerisms or repetitive tendencies, and he lacks signs of excessive motor restlessness or attention deficits. \n\nOn physical examination, he appears well-nourished. Vital signs, cranial nerves, tone, deep tendon reflexes, and cardiovascular and respiratory exams are entirely normal. He lives at home with his parents and attends a specialized educational classroom. He currently takes levetiracetam and clobazam without satisfactory seizure control. \n\nI would appreciate your subspecialty assessment and guidance regarding ongoing diagnostic workup and therapeutic strategy.\n\nWarm regards,\n\nDr. Marcus Vance"
+}

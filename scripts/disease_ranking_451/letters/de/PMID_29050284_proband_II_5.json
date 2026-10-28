@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050284_proband_II_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 410,
+  "total_tokens": 2246,
+  "thoughts_tokens": 1488,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen einen männlichen Patienten zur konsiliarischen Mitbeurteilung der vorliegenden ophthalmologischen und dermatologischen Auffälligkeiten.\n\nDer Patient stellte sich wegen zunehmender Seheinschränkungen im Alltag vor. Die orientierende Bestimmung der Sehschärfe zeigte beidseits eine deutliche Herabsetzung des Visus auf Werte von knapp 0,3. Des Weiteren besteht eine erhebliche Lichtscheu mit ausgeprägter Blendempfindlichkeit bereits bei normaler Raumbeleuchtung. Bei der Blickprüfung zeigte sich ein feinschlägiger, horizontaler Nystagmus in Primärposition. An der Spaltlampe fällt eine deutliche Irisheterochromie auf: Das rechte Auge weist eine sehr helle, bläuliche Stromafärbung auf, während die linke Iris deutlich dunkler bräunlich gefärbt erscheint. Die vordere Augenkammer ist reizfrei, die Linsen sind beidseits klar und der Augeninnendruck lag palpatorisch im normalen Bereich.\n\nÄußerlich zeigt sich ein generalisiert auffallend blasser, hypopigmentierter Hautkolorit am gesamten Körper. Passend dazu imponiert das Kopfhaar vollständig weiß aufgehellt, und auch die Augenbrauen sind beidseits komplett weiß gefärbt. \n\nDer Allgemeinzustand ist gut, kardiopulmonal ergab die Auskultation unauffällige Befunde mit reinem Herzton und vesikulärem Atemgeräusch. Ein Tremor oder sonstige fokale neurologische Ausfälle bestehen nicht. Eine regelmäßige Medikation wird verneint. In seiner Familie seien keine Sehbehinderungen bekannt; er arbeitet vorwiegend im Büro.\n\nIch bitte um Ihre geschätzte fachärztliche Einschätzung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

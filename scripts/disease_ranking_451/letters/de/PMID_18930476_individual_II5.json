@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18930476_individual_II5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 375,
+  "total_tokens": 2408,
+  "thoughts_tokens": 1698,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn Lukas Weber, 33 Jahre alt, zur neurologischen Mitbeurteilung. Erste Auffälligkeiten bezüglich der Fußstatik und des Gangbildes fielen den Eltern bereits im Alter von etwa neun Jahren auf. \n\nAktuell berichtet der Patient, der beruflich als Buchhalter tätig ist, über eine leichte Gangunsicherheit bei längeren Gehstrecken. Muskelschmerzen werden auf Nachfrage konsequent verneint. Auch ein Steifigkeitsgefühl der Muskulatur oder myotone Phänomene wurden weder im Alltag bemerkt noch ließen sie sich bei der heutigen Untersuchung nachweisen.\n\nIm Rahmen der körperlichen Untersuchung zeigt sich beidseits eine deutliche Hohlfußbildung. Die Wadenmuskeln präsentieren sich seitengleich normal konfiguriert; eine Wadenhypertrophie liegt nicht vor. Die Kraftgrade an den oberen und unteren Extremitäten sind regelrecht. Die Muskeleigenreflexe sind allseits seitengleich mittellebhaft auslösbar, die sensiblen Qualitäten und die Hirnnervenfunktionen sind intakt. Die Familienanamnese ist bezüglich neuromuskulärer Vorerkrankungen unauffällig. Der Patient nimmt keine Dauermedikation ein.\n\nLaborchemisch zeigte sich wiederholt eine gesteigerte Aktivität der Serum-Kreatinkinase mit Werten um 650 U/l bei ansonsten blander Routinelaborchemie einschließlich normaler Nieren- und Leberwerte.\n\nZur weiteren ätiologischen Abklärung der Befundkonstellation bitte ich um Ihre geschätzte fachneurologische Beurteilung und weitere diagnostische Veranlassung. \n\nMit freundlichen kollegialen Grüßen"
+}

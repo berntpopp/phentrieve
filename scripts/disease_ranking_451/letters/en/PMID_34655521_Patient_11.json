@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34655521_Patient_11",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 316,
+  "total_tokens": 1765,
+  "thoughts_tokens": 1119,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Ms. Karen Davies, a 45-year-old woman whom I am referring for specialized endocrine review. \n\nShe recently underwent an abdominal computed tomography scan following a brief episode of transient musculoskeletal flank pain, which has since completely resolved. The imaging unexpectedly demonstrated marked bilateral adrenal enlargement studded with prominent, bulky nodules across both cortices. \n\nSubsequent outpatient laboratory evaluation revealed a low early morning serum cortisol level at 2.4 ug/dL. Accompanying this, her plasma corticotropin concentration was also markedly diminished, returning below the lower limit of detection. Routine baseline chemistry, including serum sodium and potassium, was entirely unremarkable, as were her complete blood count, fasting glucose, and renal function tests.\n\nOn physical examination today, Ms. Davies appears well. Her blood pressure is 118/74 mmHg, heart rate is 68 bpm, and BMI is 22.4 kg/m2. Examination shows no striae, no abnormal adiposity, no cutaneous hyperpigmentation, and no peripheral edema. Her past medical history is non-contributory; she takes only an over-the-counter vitamin D supplement and has no family history of endocrine disorders. She works in administration and does not use tobacco.\n\nGiven the structural imaging findings in the context of suppressed circulating corticotropin and subnormal cortisol levels, I would greatly appreciate your clinical assessment and recommendations regarding further diagnostic workup.\n\nWarm regards,\n\nDr. Thomas Hayes\nInternal Medicine"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36053530_Case_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 769,
+  "completion_tokens": 491,
+  "total_tokens": 10596,
+  "thoughts_tokens": 9336,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for assessing this 11-year-old girl with profound cognitive disability, marked global developmental delay across milestones, and a complete absence of spoken words. Born at term with a two-vessel cord, she had no fetal growth restriction. Infancy was complicated by poor feeding and surgical correction of duodenal obstruction. Her height is below the 3rd percentile, and she developed acquired postnatal microcephaly; macrocephaly and plagiocephaly are absent.\n\nShe exhibits a broad oral aperture, fleshy rounded nasal tip, sunken globes, and medial flaring of the inner eyebrows, without synophrys or broad eyebrows. Her auricles have thickened rims and overfolded superior helices, lacking preauricular pits, lobular creases, cupping, simplified architecture, antihelical stem prominence, or helical hypoplasia. We noted no cleft lip, smooth philtrum, high-arched palate, broadened alveolar ridges, micrognathia, midface retrusion, or triangular face. Her forehead lacks narrowing, prominence, or bossing, and the anterior hairline is not low. The nasal bridge is not depressed, nares are not upturned, and choanal atresia is absent. Eye exam shows ocular misalignment without ptosis, blepharophimosis, epicanthi, upslanting or downslanting fissures, hypotelorism, hypertelorism, microphthalmia, colobomas, or Peters anomaly. Ophthalmology ruled out optic atrophy, nerve hypoplasia, refractive errors (myopia, hypermetropia, astigmatism, anisometropia), and cerebral visual dysfunction. Audiometry excluded sensorineural hearing loss.\n\nNeurologically, she displays low central tone, a wide-based gait without ataxia, and autistic stereotypies, without ADHD, dysarthria, or focal impaired awareness seizures. Cranial MRI identified a cavum of the septum pellucidum; there was no ventriculomegaly, white matter reduction, delayed myelination, thin corpus callosum, simplified gyri, or hypoplasia of the pons, cerebellar vermis, or anterior commissure, and no cerebellar dysplasia. Echocardiogram revealed an interatrial communication without patent foramen ovale or aortic root dilation. Radiographs confirm scoliosis and eleven rib pairs. Family history and renal ultrasound are unremarkable.\n\nWarm regards,\nDr. Julian Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23566664_Case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 281,
+  "total_tokens": 2209,
+  "thoughts_tokens": 1561,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating Clara Davies, a 57-year-old woman who presented to our clinic following approximately twelve months of progressively worsening lumbar pain. \n\nHer initial spine radiographs and subsequent bone densitometry revealed pronounced skeletal demineralization isolated to the lumbar segments, alongside an acute wedge collapse at L2. Bilateral hand films, arranged to investigate mild joint aching, unexpectedly demonstrated multiple punched-out radiolucent erosions scattered throughout the phalangeal bones. \n\nOn physical examination, she has a markedly reduced standing height of 143 cm. Craniofacial inspection reveals strikingly dense, prominent eyebrows, a flattened facial profile, a noticeably hypoplastic mandible, and distinctly enlarged, fleshy ear lobules. Routine otoscopy was unremarkable, and formal audiometric testing confirmed normal auditory acuity with no hearing loss. Her cranial nerve examination was otherwise completely normal, as were her heart and lung sounds. Baseline laboratory evaluations, including a complete blood count, inflammatory markers, and renal function, have all returned within reference ranges. She currently takes only occasional acetaminophen for comfort, does not smoke, and reports no family history of skeletal frailty.\n\nGiven this constellation of distinctive cranial traits, axial bone loss, and peripheral osseous resorption, I would be very grateful for your specialized evaluation and guidance regarding further diagnostic direction.\n\nWarm regards,\n\nDr. Eleanor Vance"
+}

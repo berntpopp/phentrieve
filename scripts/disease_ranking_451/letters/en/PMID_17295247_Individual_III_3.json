@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17295247_Individual_III_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 298,
+  "total_tokens": 2501,
+  "thoughts_tokens": 1855,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this female infant for ongoing cardiovascular and multidisciplinary management. She was delivered at 39 weeks following an uneventful gestation, and her newborn metabolic screens and auditory evaluations were normal. Family history is non-contributory, with both parents in good health.\n\nEchocardiography initiated shortly after birth demonstrated transposition of the great vessels, with the aorta arising anteriorly and rightward from the morphologic right ventricle and the pulmonary trunk arising from the left ventricle. There is an imperforate left-sided atrioventricular connection with an atretic mitral orifice. Reassuringly, biventricular morphology is well-preserved, and she does not have a single ventricle. Forward flow across the pulmonary outflow tract is open, with no pulmonary valve atresia identified. \n\nAbdominal imaging has shown contradictory splenic findings; sonography initially suggested complete splenic agenesis, while repeat cross-sectional imaging identified multiple small, separate splenules. \n\nOn current examination, she is pink and comfortable in room air. Her lungs are clear to auscultation bilaterally, her abdomen is soft and non-tender, and her femoral pulses are brisk and symmetric. She is feeding well on standard term infant formula and gaining weight appropriately. \n\nI would be very grateful for your comprehensive assessment and recommendations regarding her anatomical survey and surgical strategy.\n\nSincerely,\nDr. Laura Bennett\nDepartment of Pediatrics, Fairview Regional Hospital"
+}

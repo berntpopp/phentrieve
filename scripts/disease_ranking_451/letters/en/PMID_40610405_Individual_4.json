@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 543,
+  "completion_tokens": 363,
+  "total_tokens": 2966,
+  "thoughts_tokens": 2060,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this eleven-year-old boy with complex neurodevelopmental concerns dating back to infancy. He lives at home with his parents and younger sister; family history is non-contributory, and he was born appropriate for gestational age.\n\nGlobal delays were recognized early. He functions with profound cognitive deficits, has achieved no spoken words, and shows severe lag across both fine and gross motor spheres. Axial tone is profoundly low, although there is no associated spasticity. He suffers from myoclonic jerks and exhibits nocturnal hypoventilation. Cerebral imaging revealed attenuated white matter volume, an underdeveloped cerebellar vermis, and a hypoplastic anterior commissure. Chronic swallowing difficulties have led to poor weight gain and nutritional faltering, accompanied by persistent constipation. He is also affected by significant visual and auditory deficits.\n\nOn examination, he has cranial asymmetry with occipital flattening, though without sagittal craniosynostosis. Head circumference and stature track along the 40th percentile, ruling out microcephaly, macrocephaly, and short stature. The face is symmetric with normal ear size and no synophrys. His palpebral fissures are neither elongated nor upslanting, and epicanthal folds are absent. The philtrum, mouth width, chin projection, and nasal tip appear typical. His nipples are everted, his skin shows no excess hair, and the fifth digits lack inward curvature. Genital examination reveals a fully retractable foreskin and no chordee. A baseline echocardiogram demonstrated an intact atrial septum without a persistent ductus. He interacts warmly with examiners and does not exhibit autistic behaviors. \n\nWe would greatly value your comprehensive assessment regarding this young man's presentation.\n\nSincerely,\n\nDr. Julian Ward, MD"
+}

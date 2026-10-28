@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9398836_Family_J2_20_III_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 320,
+  "completion_tokens": 338,
+  "total_tokens": 2160,
+  "thoughts_tokens": 1502,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to see Arthur Pendelton, a 31-year-old gentleman whom I am referring for an endocrine evaluation. \n\nArthur was first identified as having elevated blood sugars at 15 years of age during a routine pre-participation sports physical. Over the past sixteen years, he has demonstrated an atypical, non-insulin-dependent form of diabetes that presented in his teenage years. His condition has been characterized by mild, stable glycemic elevations that have been easily managed on low-dose oral agents without ever progressing to ketoacidosis or requiring exogenous insulin. \n\nOutside of this, he is healthy and works full-time as an architect. He is an avid runner and maintains a balanced diet. On examination today, he appears fit and in no distress. His blood pressure is 118/74 mmHg, heart rate is 64 beats per minute, and his BMI is 22.1 kg/m². Cardiopulmonary auscultation is unremarkable, his abdomen is soft and non-tender with no organomegaly, and there are no cutaneous lesions. Peripheral pulses are strong, and a brief neurological check demonstrated intact sensation and normal deep tendon reflexes. Routine laboratory investigations reveal normal renal function, normal liver function tests, and an unremarkable lipid profile. His family medical history is non-contributory, and both parents are alive and well.\n\nGiven the early onset in adolescence alongside the non-ketotic and non-progressive nature of his glycemic disorder, I would be grateful for your comprehensive assessment and recommendations regarding his ongoing clinical management.\n\nSincerely,\n\nDr. Julian Rivera\nRiverdale Medical Group"
+}

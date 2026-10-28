@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28969374_Family_2G653001_Pt2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 391,
+  "total_tokens": 2861,
+  "thoughts_tokens": 2093,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 16 Jahre und 6 Monate alten Patienten zur neuropädiatrischen Verlaufsbeurteilung. Erste Symptome manifestierten sich bereits im Alter von etwa zwei Monaten.\n\nEs zeigt sich eine schwere globale Entwicklungsretardierung mit erheblichem Rückstand der motorischen Meilensteine sowie ausgeprägten kognitiven Defiziten. Klinisch fallen wechselnde generalisierte dystone Bewegungsmuster und eine spastische Tonuserhöhung aller Extremitäten auf. Des Weiteren besteht eine fixierte thorakolumbale Skoliose. Die Körperlänge liegt weit unterhalb der 3. Perzentile im Sinne eines ausgeprägten Kleinwuchses. \n\nWegen einer chronischen Dysphagie erfolgt die Ernährung vollständig über eine PEG-Sonde. Bei der Inspektion des Mundraumes imponiert eine deutliche Wucherung des Zahnfleischs. Der internistische Status ist unauffällig, Herz und Lunge zeigen sich auskultatorisch bland, das Abdomen weich.\n\nOphthalmologisch zeigt sich ein horizontaler Nystagmus sowie beidseits auffällig blasse Sehnervenpapillen. Eine Reduktion der Sehschärfe konnte erfreulicherweise nicht festgestellt werden, der funktionelle Visus ist unbeeinträchtigt. Im kranialen MRT wurde ein ausgeprägtes Myelinisierungsdefizit im Bereich der zerebralen weißen Substanz beschrieben.\n\nDie Familienanamnese bezüglich neurologischer Erkrankungen ist leer, die Eltern sind nicht konsanguin. Aktuell erhält der Patient lediglich Vitamin D und Physiotherapie.\n\nIch danke Ihnen für Ihre geschätzte konsiliarische Beurteilung und verbleibe\n\nmit freundlichen Grüßen\n\nDr. med. Thomas Weber"
+}

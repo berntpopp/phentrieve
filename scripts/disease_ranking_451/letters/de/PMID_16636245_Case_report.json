@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16636245_Case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 398,
+  "total_tokens": 2626,
+  "thoughts_tokens": 1839,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich überweise Ihnen heute Herrn Weber, einen 39-jährigen kaufmännischen Angestellten, zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten zeigten sich bereits im Jugendalter. Die internistische Vorgeschichte, der kardiopulmonale Status sowie die Familienanamnese sind leer, eine Dauermedikation besteht nicht. \n\nKlinisch zeigt sich eine ausgeprägte, handschuh- und strumpfförmige Verminderung sämtlicher sensibler Qualitäten. Auffallend ist ein nahezu vollständiges Fehlen der Schmerzwahrnehmung, infolgedessen es wiederholt zu trophischen Ulzerationen der Akren sowie zum schleichenden Spontanverlust distaler Zehen- und Fingerglieder gekommen ist. Zudem imponiert ein chronisches, zwanghaftes Ausreißen der eigenen Finger- und Zehennägel. Die Muskeleigenreflexe sind generalisiert stark herabgesetzt bzw. an den unteren Extremitäten nicht auslösbar. Die grobe Kraft ist seitengleich voll erhalten (KG 5/5). Die Schweißsekretion erweist sich als unauffällig; eine fehlende Schweißbildung liegt ebenso wenig vor wie Episoden einer Hyperhidrose.\n\nIn den neurographischen Messungen imponieren Zeichen einer peripheren Demyelinisierung bei gleichzeitig hochgradig verminderten SNAP-Amplituden der sensiblen Nerven. Das bioptische Präparat eines peripheren Nerven zeigte eine deutliche Rarefizierung myelinisierter Nervenfasern, während sich elektronenmikroskopisch keine Zwiebelschalenformationen der Basallamina fanden. \n\nIch bitte um Ihre geschätzte klinische Einschätzung des Beschwerdebildes und Empfehlungen bezüglich des weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

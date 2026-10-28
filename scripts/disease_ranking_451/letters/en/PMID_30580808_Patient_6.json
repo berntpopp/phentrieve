@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30580808_Patient_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 622,
+  "completion_tokens": 439,
+  "total_tokens": 3783,
+  "thoughts_tokens": 2722,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Thank you for evaluating this 18-year-old female for diagnostic assessment. She is cared for at home by her parents. Family history is unremarkable, and there is no parental consanguinity. \n\nShe was delivered at term with normal birth measurements, without intrauterine growth retardation, and displayed normal newborn muscle tone without neonatal hypotonia. However, her early course was complicated by neonatal respiratory distress requiring supplemental oxygen. She experienced early feeding difficulties and delayed primary dentition. She has demonstrated profound developmental delay across all sectors and has absent expressive speech. There is no history of recurrent infections. \n\nOn examination, she has short stature and poor weight gain consistent with failure to thrive. Head circumference is average, without macrocephaly. Craniofacial inspection reveals bluish sclerae, bilateral blepharoptosis, full, bushy eyebrows, and normal eyelashes. She has midface retrusion and upturned nares, without a wide or bulbous nose. Oral examination shows a normal palatal contour and a distinctly thin upper vermilion, while the lower lip is not thickened. Scalp hair is noticeably sparse, but there is no generalized hypertrichosis. Her skin shows marked xerosis, ichthyosiform scaling, and firm, scleroderma-like plaques. Her abdomen is soft without hernias. \n\nSkeletal evaluation reveals bilateral hip dysplasia, inward curvature of the fifth digits without prominent interphalangeal joints, and scoliosis accompanied by thoracic lordosis and thoracolumbar kyphosis. Spinal imaging confirms normal vertebral morphology and excludes isolated thoracic scoliosis. Neurologically, she exhibits low axial tone contrasting with marked hypertonicity in the extremities, alongside dystonia, extrapyramidal dyskinesias, and continuous hyperkinetic movements. Pyramidal signs are absent. Neuroimaging demonstrated diffuse parenchymal volume loss. Formal testing confirmed intact hearing without conductive or sensorineural impairment. Behaviorally, she is placid, with no autistic features, stereotypies, rigid routines, hyperphagia, temper outbursts, hyperactivity, aggression, mania, anxiety, self-harm, or sleep disturbances. \n\nI would appreciate your expert opinion on this complex presentation."
+}

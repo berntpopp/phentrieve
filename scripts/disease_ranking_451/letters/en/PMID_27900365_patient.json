@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27900365_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 317,
+  "total_tokens": 2717,
+  "thoughts_tokens": 2025,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see Mr. David Vance, a 54-year-old gentleman who presents for evaluation of a chronic, slowly evolving neurovisceral disorder with onset around 18 years of age.\n\nHe is a former accountant who lives with his supportive spouse. He takes no routine medications, does not consume alcohol, and his family history is entirely negative for similar issues. On general examination, his vital signs, cardiopulmonary exam, and peripheral sensation are all normal.\n\nAccording to his spouse, the patient initially developed poor coordination and an increasingly wide-based, clumsy walking pattern during late adolescence, which has progressed over decades and led to repeated loss of balance and frequent accidental tumbles. His speech has gradually grown thick and severely slurred. Over recent years, he has demonstrated a pervasive decline in cognitive faculties, characterized by worsening short-term memory lapses and a reduced capacity to sustain attention. Ocular motor examination is notable for undershooting, deficient rapid vertical eye movements when looking toward the ceiling.\n\nInterestingly, birth records document drawn-out newborn hyperbilirubinemia that persisted for several weeks after birth. Abdominal palpation readily detects an enlarged liver along with distinct splenic enlargement extending beneath the left costal margin. Earlier diagnostic studies demonstrated the presence of lipid-engorged, vacuolated histiocytes on bone marrow aspirate, and biochemical studies demonstrated a markedly reduced speed of intracellular cholesterol esterification.\n\nI would be very grateful for your expert assessment and recommendations regarding his ongoing management.\n\nSincerely,\nDr. Julian Wright"
+}

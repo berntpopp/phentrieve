@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30095615_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 359,
+  "completion_tokens": 392,
+  "total_tokens": 2527,
+  "thoughts_tokens": 1776,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen den 19-jährigen Herrn Lukas Meyer zur weiteren Mitbeurteilung und konsiliarischen Einschätzung.\n\nDer Patient berichtet über einen seit dem 9. Lebensjahr progredienten Sehverlust. Im Alltag beklagt er insbesondere eine massive Orientierungsschwäche bei Dämmerung und Dunkelheit sowie eine erhebliche Blendungsempfindlichkeit bei hellem Licht. \n\nIn unserer aktuellen Untersuchung zeigte sich ein mäßig reduzierter bestkorrigierter Visus von beidseits 0,4. Die vorderen Augenabschnitte stellen sich unauffällig und reizfrei dar, die Hornhaut ist glatt, die Linse vollkommen klar und der Intraokulardruck liegt seitengleich bei normwertigen 15 mmHg. \n\nBei der Funduskopie imponieren eine ausgeprägte Kaliberreduktion der retinalen Gefäße sowie disseminierte, teils konfluierende atrophische Areale des retinalen Pigmentepithels. Perimetrisch lassen sich beidseits fortgeschrittene konzentrische Gesichtsfeldeinschränkungen der Peripherie objektivieren. Ein extern veranlasstes Ganzfeld-Elektroretinogramm zeigte bereits einen deutlichen Amplitudenverlust im skotopischen wie auch im photopischen System, vereinbar mit einer dystrophischen Degeneration sowohl der Stäbchen- als auch der Zapfenfunktionen.\n\nSystemische Vorerkrankungen bestehen nicht, der Patient nimmt keine Dauermedikation ein und die ophthalmologische Familienanamnese ist leer. \n\nIch wäre Ihnen für eine weiterführende elektrophysiologische Verlaufskontrolle und Ihre geschätzte Beurteilung des Befundes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

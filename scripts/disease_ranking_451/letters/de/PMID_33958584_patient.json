@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33958584_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 405,
+  "completion_tokens": 431,
+  "total_tokens": 2445,
+  "thoughts_tokens": 1609,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute den 14-jährigen Julian zur neuropädiatrischen Mitbeurteilung und weiteren diagnostischen Einordnung. \n\nDie ersten Auffälligkeiten zeigten sich bereits im Alter von fünf Monaten. Es imponierte früh eine globale Entwicklungsverzögerung mit ausgeprägter muskulärer Hypotonie; das freie Halten des Kopfes gelang im ersten Lebensjahr kaum. Bis heute zeigt sich ein massiver Rückstand in der expressiven und rezeptiven Sprachentwicklung, Julian artikuliert lediglich unverständliche Laute. Im Verlauf manifestierten sich zudem generalisierte zerebrale Krampfanfälle, die derzeit antikonvulsiv geführt werden.\n\nKörperlich fällt ein ausgeprägter Mikrozephalus mit einem Kopfumfang weit unterhalb der dritten Perzentile auf. Während axial eine Hypotonie persistiert, besteht an beiden Beinen eine deutliche spastische Tonuserhöhung mit gesteigerten Sehnenreflexen. Kardiologisch imponiert ein leises systolisches Herzgeräusch, welches einem echokardiographisch vorbeschriebenen Vorhofseptumdefekt entspricht. Gastrointestinal bestehen wiederkehrende Episoden mit schwallartigem Erbrechen sowie ein therapierefraktärer gastroösophagealer Reflux. Im kranialen MRT zeigte sich unter anderem ein Cavum septi pellucidi.\n\nIm Verhalten zeigen sich deutliche autistische Verhaltensweisen mit stark vermindertem Blickkontakt. Julian leidet unter massiven Ein- und Durchschlafstörungen und fällt vermehrt durch selbstverletzende Handlungen, vor allem Schlagen gegen den eigenen Kopf, auf. Ein Strabismus konnte augenärztlich ausgeschlossen werden, die Augenstellung ist orthophor. Die abdominelle Sonographie war unauffällig, die Familienanamnese ist leer.\n\nIch bedanke mich herzlich für Ihre konsiliarische Einschätzung und Ihre Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen Grüßen"
+}

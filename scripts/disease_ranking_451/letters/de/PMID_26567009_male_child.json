@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26567009_male_child",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 393,
+  "total_tokens": 2523,
+  "thoughts_tokens": 1770,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 14 Monate alten Jungen zur pädiatrischen Mitbeurteilung. Die Schwangerschaft und Geburt verliefen unkompliziert, und die Familienanamnese ist bezüglich neurologischer Auffälligkeiten blande. Der Junge wächst behütet bei seinen gesunden Eltern auf.\n\nErstmals im Alter von etwa vier Monaten fiel den Eltern eine ausgeprägte Reizbarkeit mit anhaltenden, schwer zu beruhigenden Schreiattacken auf. Im weiteren Verlauf traten immer wiederkehrende Fieberschübe ohne eindeutigen Infektfokus auf. Begleitend manifestierte sich eine erhebliche Dysphagie, in deren Folge das Kind mehrfach Lungenentzündungen durchmachte; ein Ereignis verlief als gesicherte Pneumonie nach Aspiration. Um die Ernährung sicherzustellen und weitere pulmonale Komplikationen abzuwenden, wurde noch im Säuglingsalter ein perkutaner gastraler Zugang angelegt, über den er seither zuverlässig ernährt wird. \n\nIm aktuellen Untersuchungsbefund zeigt sich ein deutlich erhöhter peripherer Muskeltonus an allen Extremitäten. Die Muskeleigenreflexe lassen sich allseits gesteigert und mit verbreiterter Reflexzone auslösen. Das Abdomen ist weich, die Organe sind nicht vergrößert, und die Herztöne imponieren rein und rhythmisch. \n\nIn einer extern veranlassten biochemischen Laboranalyse zeigte sich eine signifikant verminderte Aktivität der Galaktocerebrosidase in den Leukozyten. \n\nIch wäre Ihnen für eine konsiliarische Untersuchung des Patienten und Ihre geschätzte Beurteilung zum weiteren diagnostischen sowie therapeutischen Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

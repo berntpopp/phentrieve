@@ -1,0 +1,18 @@
+{
+ "case": "PMID_1907800_KT",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 289,
+  "total_tokens": 2522,
+  "thoughts_tokens": 1869,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating Clara Henderson, a 22-year-old woman presenting for further assessment of progressive neurological and skeletal symptoms that initially began around 13 years of age. Clara currently resides with her parents, works part-time at a local nursery, and takes no prescribed medications. Her family history is non-contributory, with no known inherited conditions.\n\nOn physical examination, she appears well. Vital signs are normal, heart sounds are regular, and the lungs are clear to auscultation. Abdominal palpation is unremarkable; specifically, there is no hepatomegaly, and no splenomegaly was detected. \n\nCognitive testing indicates mild baseline intellectual impairment, although she communicates effectively and manages simple tasks independently. Her neurological evaluation demonstrates noticeable extrapyramidal motor dysfunction, marked by bilateral upper extremity cogwheel rigidity and intermittent dystonic posturing. An ophthalmologic review showed striking cherry-red macular lesions bilaterally. \n\nSpinal radiographs obtained to investigate posture changes revealed pronounced flattening of the vertebral bodies spanning the thoracic and lumbar segments. Additionally, metabolic workup demonstrated markedly depressed lysosomal beta-D-galactosidase levels in peripheral leukocytes, while complete blood counts and renal function were entirely normal.\n\nI would appreciate your comprehensive evaluation and advice regarding the appropriate diagnostic investigations and long-term care plan for Clara.\n\nKind regards,\n\nDr. Alan Vance\nDepartment of Internal Medicine"
+}

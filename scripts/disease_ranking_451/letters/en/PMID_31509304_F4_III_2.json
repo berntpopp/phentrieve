@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31509304_F4_III_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 291,
+  "total_tokens": 2456,
+  "thoughts_tokens": 1799,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Julian, a four-year-old boy, for an outpatient developmental assessment. \n\nHis mother first recognized difficulties at four weeks of age, noting marked axial low tone and severe head lag. Over the subsequent years, he demonstrated sluggish motor milestone progression alongside comprehensive developmental delays extending across speech, social, and adaptive skills. Although he briefly managed to walk with hand-held assistance around age three, over the past six months he has lost his ability to walk and now requires a stroller for all mobility.\n\nOn examination, he is alert and interacts warmly. His spinal column is straight without abnormal curvature. Eye tracking reveals fine rhythmic horizontal eye oscillations on neutral and lateral gaze; however, rapid target acquisition is smooth and there is no undershooting of saccadic movements. In the extremities, Julian exhibits velocity-dependent increased resistance to passive stretch in his lower limbs, accompanied by markedly exaggerated deep tendon jerks at the knees and ankles. Conversely, his core remains quite floppy. Cerebellar incoordination was not detected on reaching tasks, and his parents report he has never had any convulsions. Growth parameters track along the 50th percentile; he continues to chew and swallow safely, maintaining full oral nutrition without any feeding tube. Family history is negative for early neurological disease, and he takes only daily multivitamin drops.\n\nI would appreciate your evaluation and recommendations regarding his care.\n\nSincerely,\nDr. Evelyn Cross"
+}

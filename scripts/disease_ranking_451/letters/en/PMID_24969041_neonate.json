@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24969041_neonate",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 295,
+  "total_tokens": 1725,
+  "thoughts_tokens": 1086,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate this 11-day-old male infant who has been under our care in the special care nursery since delivery. He was born at 39 weeks gestation via uncomplicated spontaneous vaginal delivery to healthy, non-consanguineous parents.\n\nBeginning on his first day of life, our nursing staff noted persistent, marked generalized stiffness and increased resistance to passive movement throughout his limbs and axial musculature. Alongside this, he has exhibited a strikingly excessive jumping reaction triggered by even gentle tactile stimulation to the nose or sudden soft noises. We have also documented frequent bursts of uncoordinated, involuntary movements affecting his extremities. \n\nHis early course was further complicated on day three by sudden acute desaturations secondary to an unexpected, non-iatrogenic air leak with lung collapse, which occurred without any prior positive pressure ventilation or trauma. This was successfully managed with a small-bore pleural drain and has fully resolved. \n\nA high-resolution neonatal brain MRI was obtained to investigate his neurological presentations; the imaging demonstrated completely intact intracranial anatomy with no identifiable structural or developmental defects of the central nervous system. His general pediatric examination, cardiovascular evaluation, and routine metabolic screening labs have all returned entirely unremarkable.\n\nGiven this complex presentation, I would value your neurological consultation and recommendations regarding the next steps in his diagnostic workup. \n\nSincerely,  \nDr. Julian Mercer  \nDepartment of Neonatology, St. Jude Regional Hospital"
+}

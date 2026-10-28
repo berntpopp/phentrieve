@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_I_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 288,
+  "total_tokens": 1943,
+  "thoughts_tokens": 1318,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Mrs. Clara Higgins, a 68-year-old woman who presents for evaluation following recent neuropsychiatric changes. Her precise timeline of onset is unclear, but she was brought in after experiencing a discrete, self-terminating generalized tonic-clonic convulsion last week. The event lasted under two minutes, and there was no evidence of prolonged or repetitive status epilepticus.\n\nIn conjunction with this, her family reports a several-month history of worsening psychiatric disturbance characterized by persecutory delusions, disorganized thought patterns, and auditory hallucinations.\n\nMrs. Higgins has an unremarkable past medical and developmental history. She met all milestones appropriately, with no childhood delays in speech or language acquisition. She enjoyed a long career in accounting, demonstrating completely preserved baseline cognitive capacity with no intellectual disability. Her husband confirms she has never exhibited autistic traits or atypical social communication patterns.\n\nHer current medications are limited to atorvastatin 20 mg daily for hyperlipidemia. On examination today, she was alert and cooperative. Cranial nerves II through XII were fully intact, sensory and motor testing was symmetrical and normal, and deep tendon reflexes were 2+ throughout. Vital signs and routine serum chemistries were entirely unremarkable. She has never smoked and consumes alcohol only occasionally.\n\nGiven this presentation, I would appreciate your formal assessment and recommendations regarding ongoing workup and management.\n\nSincerely,\nDr. Arthur Pendelton"
+}

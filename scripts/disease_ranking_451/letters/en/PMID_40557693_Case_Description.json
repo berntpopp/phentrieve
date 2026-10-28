@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40557693_Case_Description",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 409,
+  "completion_tokens": 304,
+  "total_tokens": 2445,
+  "thoughts_tokens": 1732,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for agreeing to evaluate this one-day-old male infant born at 39 weeks gestation via uncomplicated spontaneous vaginal delivery to healthy primigravida parents. He is currently resting in the neonatal unit on room air and is tolerating initial feeds of donor milk.\n\nOn physical examination, several distinct features are apparent. Craniofacial inspection reveals a prominent, bulging forehead, an increased distance between the eyes, downward-slanting eye openings, and a flattened bridge of the nose, alongside shallow orbits resulting in notable globe protrusion. Examination of the extremities reveals broadened pollices and widened great toes bilaterally. Additionally, there is cutaneous webbing bridging his third and fourth fingers, as well as soft-tissue fusion between the second and third toes. His genitourinary examination is normal, with both testicles palpated symmetrically within the scrotum and no evidence of undescended testes.\n\nOf note, the nursing team has observed frequent episodes of profuse sweating despite care within a neutral thermal incubator. A cardiac evaluation was initiated following the detection of a murmur; echocardiography demonstrated an interventricular septal communication, an unclosed foramen ovale, and regurgitant flow across the tricuspid valve, accompanied by elevated systolic pressures in the pulmonary arteries. \n\nRoutine laboratory workup and abdominal ultrasound were unremarkable. I would greatly appreciate your specialized assessment and recommendations regarding ongoing management for this neonate.\n\nSincerely,\n\nDr. Sarah Collins\nDepartment of Pediatrics, St. Jude Regional Hospital"
+}

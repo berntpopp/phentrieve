@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27180139_case_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 372,
+  "completion_tokens": 366,
+  "total_tokens": 2597,
+  "thoughts_tokens": 1859,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Bergmann,\n\nich bitte um Ihre geschätzte Mitbeurteilung des elfjährigen Paul, der sich in Begleitung seiner Mutter in unserer Sprechstunde vorstellte.\n\nErste Auffälligkeiten zeigten sich bereits im frühen Säuglingsalter. Aktuell besteht eine ausgeprägte kognitive Beeinträchtigung, weshalb Paul eine Förderschule besucht. Die sprachliche Entwicklung verläuft stark verzögert; rezeptiv wie expressiv zeigt sich ein deutlicher Rückstand. Audiometrisch ist eine bilaterale Schallempfindungsstörung dokumentiert.\n\nIm kranialen MRT imponierte neben einer partiellen Unterentwicklung des Balkens auch eine Zyste der Arachnoidea.\n\nKraniofazial fällt ein dreiecksförmig wirkendes Gesicht mit auffallend tief liegenden Bulbi sowie eher spärlichen, lichten Augenbrauen auf. Die Ohrmuscheln präsentieren sich beidseits nach dorsal rotiert. Am Bewegungsapparat verzeichneten wir eine markante Überstreckbarkeit im Bereich beider Ellenbogengelenke. Die übrigen Gelenke und der Muskeltonus zeigten sich altersentsprechend.\n\nKardiopulmonal und abdominell ergab die Untersuchung regelrechte Verhältnisse, die Vitalparameter lagen im Normbereich. Paul nimmt derzeit keine Dauermedikation ein. Die Familienanamnese bezüglich entwicklungsneurologischer Auffälligkeiten ist unauffällig; eine ältere Schwester entwickelt sich völlig zeitgerecht.\n\nÜber Ihre fachliche Einschätzung und weiterführende Empfehlungen zum diagnostischen Procedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Tobias Franke"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_8",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 451,
+  "total_tokens": 3256,
+  "thoughts_tokens": 2468,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich bitte um Ihre pädiatrisch-neurologische Mitbeurteilung des nun fünfjährigen Felix.\n\nDie Eltern berichten über Auffälligkeiten, die erstmals um den ersten Geburtstag herum bei den ersten Gehversuchen begannen. Schwangerschaft und Entbindung verliefen komplikationslos. Die Familienanamnese bezüglich neurologischer Erkrankungen ist unauffällig, die beiden älteren Geschwister entwickeln sich zeitgerecht. Felix besucht derzeit vormittags einen Regelkindergarten. \n\nKörperlich präsentiert sich ein aufgeweckter Junge in gutem Allgemein- und Ernährungszustand. Auskultationsbefunde von Herz und Lunge sowie der abdominelle Tastbefund sind regelrecht. \n\nIn der neurologischen Statuserhebung fällt eine deutliche Unsicherheit der Motorik auf: Felix bewegt sich mit stark schwankendem, auffallend breitbeinigem Gangbild fort und zeigt bei gezielten Greifversuchen eine ausgeprägte Dysmetrie. Distal an beiden Händen und Füßen imponieren kontinuierliche, langsame und unwillkürlich sich windende Hyperkinesien. Sämtliche Muskeleigenreflexe der oberen und unteren Extremitäten sind seitengleich stark herabgesetzt und nur mühsam mit Bahnung andeutungsweise triggerbar. \n\nFelix sucht aktiv das Gespräch, seine sprachliche Artikulation ist jedoch sehr verwaschen, abgehackt und schwer verständlich. Bei der Prüfung der Augenbewegungen zeigt sich ein fast vollständiger Verlust der willkürlichen Blicksakkaden, insbesondere bei vertikalen Zielen, wohingegen der vestibulookuläre Reflex mit vollem Bewegungsumfang erhalten ist. Die Pupillen sind rund, isokor und reagieren prompt auf Lichteinfall.\n\nEine orientierende Labordiagnostik im Serum zeigte keine richtungsweisenden Abweichungen. Zur differenzialdiagnostischen Abklärung und weiteren Einordnung überweise ich Ihnen Felix und danke Ihnen herzlich für die geschätzte Konsultation.\n\nMit freundlichen kollegialen Grüßen"
+}

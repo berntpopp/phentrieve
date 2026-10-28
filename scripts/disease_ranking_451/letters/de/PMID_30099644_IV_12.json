@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30099644_IV_12",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 406,
+  "total_tokens": 2207,
+  "thoughts_tokens": 1444,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute Herrn Lukas Weber, einen 35-jährigen Softwareentwickler, zur konsiliarischen Mitbeurteilung.\n\nDer Patient stellte sich initial zu einer routinemäßigen Überprüfung vor. Subjektiv ist er beschwerdefrei; ein erschwertes Sehen bei Dämmerung oder Dunkelheit wird explizit verneint. Die bestkorrigierte Sehschärfe ist beidseits vollkommen erhalten und liegt seitengleich bei 1,0. Die vorderen Augenabschnitte stellen sich spaltlampenbiomikroskopisch regelrecht dar, die brechenden Medien sind klar und der Augeninnendruck beidseits mit 14 mmHg normwertig.\n\nFunduskopisch imponieren die Sehnervenkappen beidseits vital, randscharf und ohne jede Blässe. Das retinale Gefäßband zeigt reguläre Kaliberverhältnisse ohne Gefäßeinschnürungen. In der gesamten Netzhautperipherie finden sich keinerlei knochenkörperchenartige Pigmentveränderungen, und auch girlandenförmige chorioretinale Atrophieareale sind nicht abgrenzbar. Die Makula stellt sich beidseits trocken und unauffällig dar. \n\nAuffällig war jedoch ein extern veranlasstes Ganzfeld-Elektroretinogramm, welches sich eindeutig pathologisch zeigte und eine signifikante Amplitudenreduktion aufwies. \n\nSystemische Vorerkrankungen sind nicht bekannt, der Patient nimmt keine Dauermedikation ein, und ophthalmologische Erkrankungen in der Familie wurden verneint.\n\nAufgrund des diskrepanten Befundes zwischen klinischem Fundus und abweichender Elektrophysiologie bitte ich um Ihre geschätzte Zweitmeinung und weitere diagnostische Einordnung. \n\nMit besten kollegialen Grüßen"
+}

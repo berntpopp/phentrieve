@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Patient_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 387,
+  "total_tokens": 2034,
+  "thoughts_tokens": 1299,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen Herrn Markus Weber, einen 34-jährigen Patienten, zur neurologischen Konsultation und Mitbeurteilung. Erste motorische Auffälligkeiten bestanden nach anamnestischen Angaben der Eltern bereits im Kindesalter um das fünfte Lebensjahr herum.\n\nHerr Weber berichtet aktuell über eine ausgeprägte, rasch einsetzende körperliche Ermüdbarkeit, die ihm vor allem bei längeren Wegstrecken im Alltag zu schaffen macht. Er arbeitet im kaufmännischen Bereich, lebt rauchfrei und nimmt derzeit keine Dauermedikation ein. Die Familienanamnese ist bezüglich neuromuskulärer Auffälligkeiten unergiebig.\n\nIn der klinischen Untersuchung imponiert eine distale Kraftminderung der unteren Extremitäten, wobei insbesondere die Hebung der Füße gegen Widerstand beidseits deutlich geschwächt ist. Dementsprechend zeigt sich die Durchführung des Fersengangs massiv erschwert, dieser kann praktisch nicht gehalten werden. Auch das Gehen auf den Zehenspitzen gelingt dem Patienten kaum und stellt sich sichtlich beeinträchtigt dar. Die Muskeleigenreflexe sind allseits seitengleich mittellebhaft auslösbar, und die Sensibilitätsprüfung ergab einen regelrechten Befund.\n\nDie Hirnnervenfunktion stellte sich weitgehend intakt dar: Die Lidspalten sind seitengleich weit geöffnet, eine Ptosis besteht nicht. Zeichen einer Bulbärparalyse fehlen völlig; der Schluckakt, die Phonation sowie die Zungenmotorik sind unauffällig. Unser internes Routinelabor zeigte normwertige Entzündungs- und Stoffwechselparameter.\n\nZur weiteren Einordnung und Abklärung des Beschwerdebildes bitte ich um Ihre geschätzte spezialisierte Beurteilung. \n\nMit freundlichen kollegialen Grüßen"
+}

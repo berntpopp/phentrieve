@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_KS110006",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 575,
+  "completion_tokens": 551,
+  "total_tokens": 3734,
+  "thoughts_tokens": 2608,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen Herrn M., 41 Jahre alt, zur weiteren differentialdiagnostischen Einordnung. Der Patient lebt in einer betreuten Wohngruppe, die Familienanamnese ist bezüglich neurologischer Erkrankungen leer.\n\nGeburtsanamnestisch bestand ein für die Schwangerschaftswoche deutlich zu geringes Geburtsgewicht. In der Kindheit imponierte ein verzögertes Erreichen sämtlicher Meilensteine, später trat zudem ein partieller Verlust bereits etablierter Fähigkeiten ein. Es besteht eine ausgeprägte kognitive Einschränkung mit autistischen Verhaltensmustern und deutlicher Ängstlichkeit. Eine Neigung zu Zwangshandlungen, Stereotypien, Aggressionen oder selbstverletzendem Verhalten besteht nicht. Psychiatrische Episoden im Sinne einer Depression, Psychose, bipolaren Störung oder eines Aufmerksamkeitsdefizits/Hyperaktivität wurden nie beobachtet. Krampfanfälle traten nicht auf.\n\nOrganisch leidet der Patient an gehäuften respiratorischen Infekten, einer Hörminderung sowie einer Weitsichtigkeit (kein Schielen). Gastrointestinal bestehen ein Reflux sowie eine therapierefraktäre chronische Verstopfung; die Ernährung erfolgt jedoch vollständig per os ohne Magensonde.\n\nIm somatischen Befund zeigt sich eine Trichterbrust. Der Kopfumfang ist normozephal. Körpergröße und Gewicht liegen im mittleren Normbereich (weder Klein- noch Hochwuchs, keine Adipositas oder Übergewicht, keine Neugeborenen-Makrosomie). Es finden sich keine Klumpfüße, keine Plattfüße, keine Hallux-valgus-Deformitäten, keine Klinodaktylie der Kleinfinger, keine Gelenküberbeweglichkeit und keine Kyphose. Der Muskeltonus ist regelrecht unauffällig. Leisten- oder Nabelhernien liegen nicht vor. Das Genitale ist unauffällig ohne Hodenhochstand oder Hypospadie. \n\nKardiale Voruntersuchungen schlossen Shuntvitien wie ASD, VSD, einen persistierenden Ductus arteriosus, einen AV-Kanal oder Koronarfisteln aus. Sonographisch zeigten sich die Nieren frei von Zysten, Ureterabgangsstenosen oder Harnstau; Harnwegsinfekte traten nie gehäuft auf.\n\nAktuell erhält er bedarfsweise Pantoprazol und Macrogol. Über Ihre fachärztliche Einschätzung des Gesamtbildes würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

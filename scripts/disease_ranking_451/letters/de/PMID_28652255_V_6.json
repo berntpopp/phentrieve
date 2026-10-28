@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 451,
+  "total_tokens": 2889,
+  "thoughts_tokens": 2087,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin Dr. Lindemann,\n\nich überweise Ihnen heute die 24-jährige Patientin Elena Weber zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten fielen den Eltern bereits im Alter von sechs Jahren auf, im weiteren Verlauf zeigte sich ein langsam progredienter Verlauf.\n\nAktuell präsentiert sich die Patientin mit einer deutlichen Koordinationsstörung und Instabilität beim freien Gehen und Stehen, sodass ein breitbasiges, schwankendes Gangmuster imponiert. Zudem bestehen beidseits erhebliche Zielunsicherheiten bei den Zeigeversuchen. Die Sprechweise wirkt verwaschen, verlangsamt und mühsam artikuliert. In Ruhe und unter Anspannung zeigen sich immer wieder unwillkürliche, langsam schraubende, windende Bewegungsabläufe an den Händen und Fingern. \n\nBlickmotorisch imponiert ein supranukleäres Defizit: Die willkürlichen Sakkaden und Folgebewegungen, insbesondere in der Vertikalen, sind hochgradig paretisch, während das Puppenkopf-Phänomen prompt und vollständig erhalten auslösbar ist. Bei der Reflexprüfung sind die Muskeleigenreflexe an beiden oberen und unteren Extremitäten allseits stark abgeschwächt und nur mit Bahnung minimal erzielbar. Pathologische Reflexe ließen sich nicht provozieren. Die Sensibilität für Berührung und Vibration ist intakt.\n\nLaborchemisch zeigten sich die Serumlipide unauffällig, eine Erhöhung der Cholesterinwerte lag nicht vor. Das Serumalbumin war mit 44 g/l ebenfalls normwertig. Auch die übrigen Routineparameter inklusive Transaminasen und Nierenretentionswerte waren unauffällig. \n\nDie Familienanamnese ist bezüglich neurologischer Erkrankungen leer. Frau Weber nimmt außer einer prophylaktischen Vitamin-D-Gabe keine Medikamente ein.\n\nIch bitte um Ihre geschätzte klinische Beurteilung der Befundkonstellation und bedanke mich herzlich für die konsiliarische Übernahme.\n\nMit freundlichen kollegialen Grüßen,\n\nDr. med. Thomas Harms"
+}

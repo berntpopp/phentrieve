@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33791923_Patient_7",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 410,
+  "completion_tokens": 402,
+  "total_tokens": 2531,
+  "thoughts_tokens": 1719,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich bitte um Ihre neuropädiatrische Mitbeurteilung des heute 7 Jahre und 5 Monate alten Jungen Maximilian. Die Eltern sind gesund und nicht konsanguin, die ältere Schwester entwickelt sich regelrecht.\n\nDie Erstmanifestation erfolgte am 21. Lebenstag mit einer akuten respiratorischen Insuffizienz, welche eine assistierte Beatmung notwendig machte. Schon initial zeigte sich eine ausgeprägte Saugschwäche. Ein Erbrechen trat anamnestisch nicht auf, sonographisch ließ sich eine Pylorusstenose sicher ausschließen. Die kardiologische Abklärung ergab unauffällige Verhältnisse ohne Nachweis eines persistierenden Foramen ovale.\n\nKlinisch besteht ein tiefgreifender globaler Entwicklungsrückstand. Maximilian weist eine Mikrozephalie sowie eine deutliche Mikrognathie auf. Im neurologischen Status imponiert eine generalisierte muskuläre Hypotonie mit paradoxerweise ubiquitär gesteigerten Sehnenreflexen. Seit dem Neugeborenenalter treten zerebrale Anfälle auf; elektroenzephalographisch ließ sich ein charakteristisches Burst-Suppression-Muster ableiten. Aktuell erhält er eine antikonvulsive Dauertherapie.\n\nStoffwechselanalytisch zeigten sich wiederholt eine Hyperglyzinämie sowie deutlich erhöhte Glyzinspiegel im Liquor. Im kranialen MRT stellten sich ein Hydrozephalus sowie ein dysplastisches Corpus callosum dar. Eine Ventrikulomegalie wurde dabei ausdrücklich verneint; auch eine zerebrale Hypomyelinisierung fand sich nicht, der Marklagerstatus stellte sich dem Alter entsprechend dar.\n\nFür Ihre geschätzte Einschätzung des komplexen Verlaufs und Vorschläge zum weiteren Vorgehen danke ich Ihnen im Voraus herzlich.\n\nMit freundlichen kollegialen Grüßen"
+}

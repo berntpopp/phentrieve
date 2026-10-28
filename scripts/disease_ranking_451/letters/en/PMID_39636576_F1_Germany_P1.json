@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39636576_F1_Germany_P1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 572,
+  "completion_tokens": 427,
+  "total_tokens": 3109,
+  "thoughts_tokens": 2110,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Copley,\n\nThank you for agreeing to evaluate this 13-year-old female in your clinic. She is accompanied by her parents, who report no family history of neurological disease. \n\nHer medical history includes an uncomplicated, brief febrile seizure during toddlerhood, as well as recurrent absence seizures presenting as brief staring pauses. Electroencephalography revealed clear paroxysmal epileptiform abnormalities. Psychometric evaluations confirm moderate intellectual disability, functioning neither in the mild nor severe ranges; she shows no traits of attention deficit hyperactivity disorder or autistic behavior. Audiometry previously identified bilateral sensorineural hearing impairment.\n\nOn neurological examination, she demonstrates an ataxic gait along with dystonic posturing of the upper limbs. Craniofacially, she has a low anterior hairline and confluent eyebrows that meet across the nasion; the eyebrows themselves are not broad, thick, or horizontally positioned. Her nasal bridge is broadened, though the overall nose is not wide and the nasal tip is neither bulbous nor broad. Her forehead is of standard height and width, head circumference is at the 45th percentile without microcephaly, and there is no facial asymmetry. The palpebral fissures are not almond-shaped, unusually long, narrow, upslanted, or downslanted, and epicanthal folds are absent. Alignment shows no esotropia, and the ears are not low-set. Oral examination demonstrates an exaggerated overbite, but without macrodontia, diastema, or cleft palate; the palate is not high or narrow, her chin is not broad, and she lacks micrognathia, full cheeks, or signs of Pierre-Robin sequence. The philtrum is well-formed, neither smooth nor elongated, and the vermilion borders are not thick.\n\nMusculoskeletal and dermatological checks show slender, elongated fingers, a single transverse palmar crease, and diffuse dry skin. Her feet are not short, and there are no overlapping toes. \n\nI would appreciate your expert opinion regarding this young lady.\n\nSincerely,  \nDr. M. Vance, MD"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29110636_proband_VMFS",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 338,
+  "total_tokens": 2747,
+  "thoughts_tokens": 1978,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to see this 5-year-old boy in consultation. He lives with his parents and older sister; family history is non-contributory with no reported consanguinity or congenital anomalies. \n\nHis medical history began in the neonatal period with surgical management of an imperforate anus. Echocardiography identified a congenital interatrial communication, and genitourinary evaluation demonstrated ventral displacement of the urinary meatus alongside retrograde urinary flow from the bladder into the ureters. Notably, his routine chemistry panels demonstrate consistently normal kidney function. Cranial neuroimaging revealed completely normal cerebral anatomy, and past electroencephalography showed no abnormalities.\n\nOn examination, his linear growth falls below the 3rd centile. Craniofacial features include a frontal hairline extending unusually low, a short cervical region, prominent medial canthal folds, distinctly elongated eyelashes, and hypoplastic, low-implanted ears accompanied by a small pre-tragal flesh tag on the right. In the extremities, he exhibits an accessory radial digit on the right hand associated with a partially duplicated first phalanx, as well as the second digit riding over the third on each foot. General neurological exam is non-focal, and routine vision screening was normal.\n\nHe exhibits broad developmental delays, most strikingly characterized by severe deficits in expressive and receptive speech. His mother and preschool teachers also describe marked motor restlessness, impulsivity, and recurrent physically aggressive outbursts. He currently takes only a daily pediatric multivitamin.\n\nI would be grateful for your comprehensive evaluation and recommendations regarding appropriate diagnostic workup for this child.\n\nSincerely,\n\nDr. Evelyn Reed\nPediatric Medicine"
+}

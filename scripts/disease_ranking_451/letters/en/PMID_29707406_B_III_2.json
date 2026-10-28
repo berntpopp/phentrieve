@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_B_III_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 309,
+  "total_tokens": 1955,
+  "thoughts_tokens": 1306,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Claire Henderson, a 12-year-old girl whom I am referring for further neurological evaluation. \n\nClaire’s developmental difficulties date back to infancy, when gross motor milestones were significantly delayed; she did not achieve independent sitting until 11 months and only walked unsupported after two years of age. Over time, she has demonstrated persistent unsteadiness, presenting with a wide-based, poorly coordinated gait and marked balance difficulties during routine activities. \n\nIn addition, Claire has experienced recurrent generalized convulsive episodes characterized by full-body stiffening followed by bilateral rhythmic clonic jerking, currently managed with daily levetiracetam. On physical examination, she exhibits hyperactive patellar reflexes along with clearly extensor plantar responses bilaterally. Speech evaluation and clinical assessment also highlight significant trouble executing volitional oral and lingual movements on command, despite preserved automatic swallowing and involuntary facial expressions.\n\nHer general physical examination is otherwise unremarkable. Vital signs are normal, cardiopulmonary auscultation is clear, and growth parameters track along the 50th percentile. Cranial sensation and extraocular motility are intact, and she remains socially engaged, currently attending the sixth grade with classroom assistance. Her family history is non-contributory, and her parents are non-consanguineous.\n\nI would be very grateful for your specialist assessment and recommendations regarding appropriate diagnostic workup and long-term management.\n\nSincerely,\n\nDr. Fiona Gallagher\nGeneral Pediatrics, Oakridge Medical Center"
+}

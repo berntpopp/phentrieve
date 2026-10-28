@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21300488_girl_II_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 439,
+  "total_tokens": 2705,
+  "thoughts_tokens": 1883,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute die dreijährige Emily zur weiteren pädiatrischen und neuropädiatrischen Beurteilung.\n\nDas Mädchen entwickelte sich zunächst unauffällig, ehe ab dem 16. Lebensmonat ein deutlicher Verlust bereits erworbener motorischer und kommunikativer Fertigkeiten einsetzte. Aktuell imponiert eine schwerste globale kognitive Beeinträchtigung. Zudem zeigt sich eine deutliche Verzögerung des Längenwachstums. Während das Schädelwachstum im ersten Lebensjahr regulär verlief, kam es seither zu einem Knick der Perzentilenkurve mit sekundärem Zurückbleiben des Kopfumfangs weit unterhalb der Altersnorm. \n\nIm neuroorthopädischen Status fällt ein gesteigerter Muskeltonus an den Extremitäten auf, kombiniert mit einer sichtbaren Verschmächtigung der Skelettmuskelmasse. An der Wirbelsäule imponiert eine beginnende thorakolumbale Seitverkrümmung. Gastrointestinal besteht seit Monaten eine chronisch träge Stuhlentleerung.\n\nIm Verhalten ist ein gezielter Blickkontakt kaum anbahnbar. Auffallend sind stereotype, wiederkehrende wedelnde Bewegungen beider Hände, ständiges Zähneknirschen sowie ein permanentes In-den-Mund-Stecken sämtlicher Gegenstände. Immer wieder kommt es zu unmotivierten Lachanfällen oder plötzlichen Weinepisoden ohne erkennbaren emotionalen oder situativen Auslöser. Zerebrale Krampfanfälle traten bisher nicht auf und wurden auch im häuslichen Umfeld nie beobachtet. \n\nDie Familienanamnese ist bezüglich neurologischer Erkrankungen leer; die Eltern sind gesund und nicht blutsverwandt. Der internistische Befund bezüglich Herz und Lunge ist unauffällig, ein orientierender Hörtest zeigte regelrechte Reaktionen. \n\nIch bedanke mich für Ihre differentialdiagnostische Einschätzung und verbleibe \n\nmit kollegialen Grüßen"
+}

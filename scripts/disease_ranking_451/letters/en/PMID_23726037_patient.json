@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23726037_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 350,
+  "completion_tokens": 320,
+  "total_tokens": 1577,
+  "thoughts_tokens": 907,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for seeing Chloe Henderson, a six-year-old girl whom I am referring for a comprehensive evaluation of ongoing neurodevelopmental concerns that first became apparent during infancy. \n\nHer parents first noted lags in reaching early milestones around eight months of age, and she has since exhibited widespread deficits across multiple functional areas. In particular, her expressive and receptive communication remains significantly delayed; she currently uses only single words and occasional simple approximations. Her manipulative dexterity is similarly impaired, struggling with grasping a pencil, using utensils, and managing clothing fasteners. \n\nOn examination, Chloe is small for her age. Her standing height falls well below the 2nd percentile, and her head circumference remains persistently below the 3rd percentile. Cranial nerve assessment was normal, and there was no evidence of bulging eyes or proptosis. Her systemic examination, including cardiorespiratory and abdominal systems, was entirely benign. \n\nReassuringly, she has had no episodes of convulsions, twitching, or staring spells that would indicate seizure activity. A cerebral MRI completed previously demonstrated normal myelination with typical cortical architecture; notably, cortical folding was well preserved without any simplified gyral pattern. Routine laboratory work, including a metabolic screen and thyroid studies, has been unremarkable. She lives with her parents and an unaffected older brother, takes only daily over-the-counter vitamin drops, and has no family history of neurologic or growth issues.\n\nI would greatly appreciate your specialist assessment and guidance regarding further diagnostic evaluation. \n\nWarm regards,\n\nDr. Catherine Vance\nConsultant Pediatrician"
+}

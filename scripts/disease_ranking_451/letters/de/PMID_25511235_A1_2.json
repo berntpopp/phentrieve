@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25511235_A1_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 391,
+  "total_tokens": 2179,
+  "thoughts_tokens": 1449,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute ein Kind zur weiteren differentialdiagnostischen Abklärung, bei dem es im Alter von neun Monaten zu einer ersten akuten Krisensituation kam.\n\nDie bisherige Entwicklung verlief erfreulicherweise unauffällig, und die Familienanamnese ist bezüglich chronischer oder frühkindlicher Erkrankungen leer. Bei der Aufnahme zeigte sich kardiopulmonal ein altersentsprechender Normalbefund. Abdominell imponierte jedoch eine deutliche Vergrößerung der Leber, welche den rechten Rippenbogen um etwa drei Querfinger überragte; Milz und Nieren stellten sich sonografisch regelrecht dar. \n\nIm Notfalllabor fand sich ein ausgeprägter Blutzuckerabfall mit Glukosewerten von 32 mg/dl. Begleitend zeigte die Blutgasanalyse eine manifeste stoffwechselbedingte Übersäuerung mit stark negativem Basenüberschuss. Das erweiterte Speziallabor erbrachte im Serum deutlich angehobene Konzentrationen zirkulierender freier Fettsäuren. In der Urindiagnostik auf organische Säuren ließ sich parallel dazu eine exzessiv gesteigerte Ausscheidung diverser Dicarbonsäuren objektivieren. \n\nNach initialer parenteraler Zufuhr von Glukoselösungen stabilisierte sich der Allgemeinzustand glücklicherweise rasch. Das Kind ist wieder wach und reaktiv, der neurologische Tonus ist normgerecht, und die Hirnnervenfunktionen stellen sich intakt dar. Eine Dauermedikation besteht bislang nicht.\n\nZur weiterführenden Einordnung dieser Befundkonstellation und zur Festlegung des weiteren Procederes bitte ich um Ihre geschätzte Beurteilung.\n\nMit freundlichen kollegialen Grüßen"
+}

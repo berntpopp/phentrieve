@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36267862_5_month_old_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 411,
+  "total_tokens": 3094,
+  "thoughts_tokens": 2287,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich überweise Ihnen heute den fünf Monate alten Felix zur konsiliarischen Beurteilung. Der Junge wurde reif nach unauffälliger Schwangerschaft geboren; die Entbindung erfolgte spontan aus vorderer Schädellage, eine Beckenendlage bestand nicht. Die Familienanamnese ist bezüglich angeborener Erkrankungen leer, Medikamente werden derzeit nicht eingenommen.\n\nBei Felix fällt seit der Geburt ein ausgeprägter Kleinwuchs auf, seine aktuelle Körperlänge liegt weit unterhalb der 3. Perzentile. Kraniofazial zeigen sich eine markant vorgewölbte Stirnpartie, ein vergrößerter Augenabstand, eine tief eingesunkene Nasenwurzel sowie ein deutlich zurückweichendes Mittelgesicht. Zudem imponieren eine verlängerte Rinne zwischen Nase und Oberlippe sowie eine angeborene Spaltbildung im Gaumenbereich. \n\nAn den Extremitäten imponiert eine ausgeprägte Gelenklaxizität. Bisher konnten bildgebend Luxationen beider Hüft- und Kniegelenke sowie des linken Schultergelenks gesichert werden. An den Händen fallen beidseits spatelartig verbreiterte Daumen auf, die Füße stehen in einer typischen Klumpfußhaltung. Radiologisch zeigten sich darüber hinaus unregelmäßig konturierte Deckplatten der Wirbelkörper. Eine skoliotische Fehlhaltung liegt erfreulicherweise nicht vor, ebenso wenig fand sich eine zervikale Kyphose. \n\nDer sonstige internistische Status sowie die Ultraschalluntersuchungen des Schädels und des Abdomens erbrachten regelrechte Befunde. Zur weiteren ätiologischen Abklärung und Besprechung des therapeutischen Vorgehens wäre ich Ihnen für Ihre fachärztliche Expertise sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Hansen"
+}

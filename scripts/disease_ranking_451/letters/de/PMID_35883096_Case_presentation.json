@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35883096_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 419,
+  "completion_tokens": 430,
+  "total_tokens": 3261,
+  "thoughts_tokens": 2412,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 12 Monate alten Jungen zur stationären Abklärung und weiteren diagnostischen Einordnung. \n\nDie Eltern schildern einen Beginn der Auffälligkeiten ab etwa dem neunten Lebensmonat. Neben rezidivierenden Infekten der Atemwege besteht eine ausgeprägte Gedeihstörung mit persistierender Gewichtsstagnation sowie ein immer wieder auftretendes, schwallartiges Erbrechen. Im Alltag fallen zudem eine ausgeprägte Reizbarkeit und schwere Schlafstörungen auf. \n\nIm Rahmen der Vorsorgeuntersuchung imponiert eine globale Entwicklungsretardierung: Es zeigt sich ein deutlicher Head-Lag bei der Traktion, ein freies Sitzen ist dem Jungen noch nicht möglich, und auch das Krabbeln wurde bislang nicht erlernt. Zudem besteht ein auffälliger Rückstand der expressiven Sprachentwicklung ohne Doppelglaute. Vor zwei Wochen ereignete sich aus dem Schlaf heraus ein erstmaliger afebriler zerebraler Krampfanfall.\n\nKörperlich fällt eine generalisierte muskuläre Hypotonie auf. Die Gesichtszüge wirken vergröbert, der Mund steht überwiegend offen und die Zunge ragt auffällig hervor. Das Abdomen präsentiert sich stark aufgetrieben, palpatorisch sowie sonographisch bestätigt sich eine deutliche Hepatosplenomegalie. Die Auskultation von Herz und Lunge war unauffällig, das Neugeborenen-Hörscreening war seinerzeit regelrecht, und die Familienanamnese ist hinsichtlich neurologischer Erkrankungen leer. \n\nEine konsiliarische Funduskopie zeigte beidseits einen kirschroten Makulafleck. In der enzymatischen Diagnostik aus Leukozyten fand sich zudem eine signifikant verminderte Aktivität der sauren Sphingomyelinase. \n\nIch bitte um Ihre geschätzte konsiliarische Beurteilung und das weitere Management des Patienten.\n\nMit freundlichen kollegialen Grüßen"
+}

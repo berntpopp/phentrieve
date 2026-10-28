@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31898322_case_3_index",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 579,
+  "completion_tokens": 445,
+  "total_tokens": 2658,
+  "thoughts_tokens": 1634,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for seeing Ms. Evelyn Vance, a 51-year-old accountant whom I am referring for comprehensive evaluation. \n\nMs. Vance is notably tall, standing at 183 cm, and was recently evaluated for atypical chest discomfort. Contrast-enhanced imaging identified a fusiform dilatation of the thoracic aorta. However, the aortic root dimension was within normal limits, and there was no evidence of descending or abdominal aortic dissection, nor any aneurysmal changes in the abdominal aorta or iliac vessels. Head and neck angiographic sequences showed completely normal, straight trajectories of the carotid and vertebral arteries. A recent transthoracic echocardiogram was reassuring, showing no mitral valve billowing or leaflet prolapse, no aortic or mitral regurgitation, and normal chamber volumes without evidence of dilated cardiomyopathy. Baseline electrocardiography revealed normal sinus rhythm without arrhythmia or right bundle branch block.\n\nOn physical examination, she demonstrates marked retropositioning of the lower jaw and a relatively flat, featureless philtrum. Her facial features are otherwise unremarkable: she does not have an elongated facies, midface retrusion, frontal bossing, a tall forehead, or dolichocephaly. Her philtral height is normal, and oral inspection confirms an intact palate without clefting, as well as well-aligned teeth lacking crowding or excessive overbite. Ocular evaluation is normal, with white sclerae, normal canthal distances, straight eye alignment, and an absence of ptosis, proptosis, or downward palpebral slanting. Her ears are normally placed. \n\nInspection of her extremities reveals extensive, prominent superficial varicosities along both calves. Her skin is otherwise unremarkable, displaying normal texture without abnormal softness or visible vascular translucency. Symmetrical, normal muscle bulk is preserved. Musculoskeletal review is negative for joint contractures of the fingers, osteoarthritis, scoliosis, spondylolisthesis, or hallux valgus. Her medical history is negative for congenital hip dysplasia, clubfoot, neonatal floppiness, pneumothorax, or subdural bleeding.\n\nI would appreciate your specialist evaluation and management recommendations.\n\nSincerely,\n\nDr. Marcus Campbell, MD  \nInternal Medicine"
+}

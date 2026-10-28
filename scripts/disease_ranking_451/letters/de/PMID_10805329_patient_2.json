@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10805329_patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 411,
+  "total_tokens": 2650,
+  "thoughts_tokens": 1859,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nwir verlegen Ihnen die heute sieben Monate alte Patientin zur dringenden konsiliarischen Beurteilung und Übernahme. Erste Probleme traten bereits im Alter von etwa vier Wochen auf. Die Schwangerschaft verlief unauffällig, die Familienanamnese ist bezüglich neuromuskulärer Vorerkrankungen leer.\n\nZuletzt kam es bei dem Mädchen zu einer dramatischen Verschlechterung mit schwerer Dyspnoe und jugulären Einziehungen, die in einen plötzlichen Herz-Kreislauf- und Atemstillstand mündete. Nach erfolgreicher Reanimation verbleibt sie in einer hypoxämischen respiratorischen Insuffizienz und bedarf weiterhin einer kontinuierlichen maschinellen Beatmung. In der Echokardiografie zeigt sich eine massive Verdickung der Ventrikelwände, klinisch bestehen deutliche Stauungszeichen mit hepatischer Kongestion. Laborchemisch fiel wiederholt eine manifeste metabolische Azidose auf.\n\nPhänotypisch imponiert eine auffällige Gesichts- und Schädelmorphologie. In der neurologischen Untersuchung präsentierte sich das Kind im Sinne eines Floppy-Infant-Syndroms extrem schlaff, und die Muskeleigenreflexe sind an allen vier Extremitäten kaum auslösbar. Auffallend sind ferner ein intermittierender horizontaler Pendelnystagmus sowie einschießende dystone Bewegungs- und Haltungsmuster an Armen und Beinen. Neurophysiologisch zeigten sich im EMG myopathische Veränderungen, und elektroneurografisch ließen sich Hinweise auf eine periphere Neuropathie objektivieren.\n\nDas auditorische Screening und der augenärztliche Fundusbefund waren regelrecht. Die aktuelle Medikation umfasst Furosemid sowie eine supportive Katecholamintherapie.\n\nWir bitten um Ihre geschätzte Einschätzung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen Grüßen"
+}

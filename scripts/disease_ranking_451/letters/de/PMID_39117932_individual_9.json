@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39117932_individual_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 334,
+  "completion_tokens": 405,
+  "total_tokens": 2386,
+  "thoughts_tokens": 1647,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute einen sechs Monate alten Säugling zur dringenden konsiliarischen Mitbeurteilung.\n\nBis zum fünften Lebensmonat verlief die statomotorische Entwicklung des Kindes altersgerecht und unauffällig. Die Eltern stellten das Kind vor vier Wochen wegen rezidivierenden Erbrechens und zunehmender Somnolenz vor. In der daraufhin veranlassten kranialen Bildgebung zeigte sich ein raumfordernder Prozess im Bereich der hinteren Schädelgrube; nach zügiger operativer Entlastung ergab die histopathologische Begutachtung das Vorliegen einer aggressiven embryonalen Neoplasie des ZNS mit rhabdoiden Merkmalen.\n\nIm Rahmen des zeitgleich durchgeführten Staging-Screenings fand sich im Abdomen-MRT zudem eine umschriebene Raumforderung im Bereich der linken Niere. Die feingewebliche Sicherung bestätigte auch hier ein malignes renales Neoplasma mit rhabdoider Differenzierung.\n\nKörperlich präsentiert sich das Kind aktuell kardiopulmonal stabil. Das Abdomen ist weich und indolent, Leber und Milz sind palpatorisch und sonographisch nicht vergrößert. Die orientierende neurologische Untersuchung zeigt derzeit keine fassbaren Herdzeichen, die Hirnnerven sind intakt und die Pupillen seitengleich prompt lichtreagibel. Das Routinelabor einschließlich Elektrolyten, Blutbild und Nierenwerten liegt im altersentsprechenden Normbereich. In der Familienanamnese finden sich keinerlei Hinweise auf Neoplasien im Kindesalter, die Eltern sind gesund.\n\nAufgrund des synchronen Auftretens der beiden malignen Prozesse bitten wir um Ihre differenzierte Einschätzung und Empfehlungen bezüglich des weiteren diagnostischen und therapeutischen Vorgehens.\n\nMit freundlichen Grüßen"
+}

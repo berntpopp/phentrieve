@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31898322_case_29_brother_of_28",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 490,
+  "completion_tokens": 385,
+  "total_tokens": 4282,
+  "thoughts_tokens": 3407,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this eighteen-year-old male who presented for assessment of recent activity-related groin discomfort. Pelvic radiography demonstrated bilateral shallow acetabula with deficient femoral coverage. In addition, his dentist notes severe crowding and malalignment of his dentition. \n\nOn physical examination, he is of average height (50th percentile) with robust muscular development. Early milestones were timely, with normal tone during the newborn period. Craniofacial inspection reveals typical facial proportions rather than an elongated face, a standard forehead contour without frontal prominence or craniocaudal lengthening of the skull. His midfacial structures are normally projected, the lower jaw shows no posterior displacement, and the secondary palate is structurally intact. His philtrum displays distinct ridges and normal vertical dimension, and he has a standard dental overbite. Ocular assessment demonstrates clear white sclerae, normal distance between the canthi, horizontal palpebral fissures, orthophoria with no ocular misalignment, and an absence of eyelid droop or globe protrusion. The ears are normally set. \n\nAuscultation of the heart reveals regular rhythm without murmurs of aortic regurgitant flow. Breath sounds are vesicular with no prior spontaneous collapsed lung. Neurologically, he is intact and has no history of intracranial or subdural bleeding. The skin is neither unusually velvety nor translucent to superficial veins. \n\nHis spine is aligned normally without lateral curvature or vertebral slippage. Examination of the extremities reveals straight fingers lacking flexion contractures, normal hindfeet without clubbed deformities, and straight first metatarsophalangeal joints without bunions. Hip radiographs showed no secondary osteoarthritic joint narrowing. He works as a retail clerk, takes occasional ibuprofen, and has a non-contributory family history. \n\nI would appreciate your specialist evaluation regarding his presentation.\n\nSincerely,  \nDr. Julian Wright"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30517146_Patient_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 289,
+  "total_tokens": 2214,
+  "thoughts_tokens": 1557,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for seeing this young girl for further neurological assessment. Her parents first noted motor difficulties in early childhood, following a history of delayed early motor milestones, including delayed independent ambulation. \n\nOn examination, she is interactive and communicative. Cognitive development is completely age-appropriate, and she thrives in her mainstream school environment. Cranial nerve evaluation demonstrates bilateral facial weakness with diminished facial expression, though extraocular motility is fully preserved in all directions without any limitation of eye movements. Inspection of the oropharynx reveals a notably high-arched palate. Bulbar function appears entirely intact; there is no evidence of bulbar paresis, speech and swallowing are normal, and she exhibits no drooling.\n\nMotor testing is notable for generalized low muscle tone. There is symmetric weakness predominantly affecting the pelvic and shoulder girdles, whereas distal limb strength is well preserved. Deep tendon reflexes are completely unelicitable in all four limbs. Orthopedic examination reveals bilateral ankle contractures in plantarflexion with limited passive dorsiflexion. Sensation to light touch and vibration is intact throughout. General physical examination, including cardiopulmonary auscultation, is unremarkable. \n\nHer family history is non-contributory, and she currently takes no regular medications aside from a standard multivitamin. \n\nI would appreciate your expert opinion regarding an underlying etiology and advice on subsequent diagnostic steps.\n\nSincerely,\nDr. Rachel Bennett"
+}

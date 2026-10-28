@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31898322_case_23_index",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 573,
+  "completion_tokens": 586,
+  "total_tokens": 4276,
+  "thoughts_tokens": 3117,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 52-jährigen Herrn Thomas Becker zur konsiliarischen Mitbeurteilung. Der Patient, beruflich als Buchhalter tätig und Nichtraucher, stellte sich zuletzt im Rahmen kardiologischer Kontrollen bei uns vor.\n\nEchokardiographisch imponiert ein Aneurysma der Aortenwurzel (Bulbusdurchmesser 46 mm) sowie ein Mitralklappenprolaps mit daraus resultierender mäßiger Mitralregurgitation. Eine Aortenklappeninsuffizienz liegt nicht vor. Das Myokard zeigt normale Dimensionen ohne Hinweis auf eine dilatative Kardiomyopathie. Das Ruhe-EKG zeigt einen regelrechten Sinusrhythmus ohne Arrhythmien und ohne inkompletten Rechtsschenkelblock. Angiographisch stellten sich weder ein Aneurysma der Bauchaorta noch Dissektionen der deszendierenden oder abdominellen Aorta dar; die Iliakalgefäße sind normalweit kalibriert. Duplexsonographisch fand sich keine pathologische Schlängelung oder Tortuositas der Karotiden bzw. Vertebralarterien.\n\nOrthopädisch beklagt der Patient Beschwerden im Sinne einer Gonarthrose bei ansonsten unauffälligem Bewegungsapparat: Die Wirbelsäule ist gerade ohne Skoliose oder Spondylolisthesis; weder Hüftdysplasie, Klumpfußbildung, Hallux valgus noch eine Kamptodaktylie der Finger liegen vor. Die Muskelmasse ist seitengleich kräftig und ungemindert.\n\nDer Patient ist normosom gebaut (177 cm, kein Hochwuchs). Das Integument ist regelrecht, ohne weiche Textur, ohne gesteigerte Transluzenz und frei von Varizen. Das Gesicht ist wohlproportioniert, ohne Dolichozephalie, Langgesichtigkeit, Stirnbuckelung oder hohe Stirn. Die Ohren sind normotop inseriert. Keine Mittelgesichtsretraktion, keine Retrognathie, kein Gaumenspalt, kein vergrößerter Überbiss und kein Zahnengstand. Das Philtrum ist normal konturiert, weder verkürzt noch verstrichen. Die Augen zeigen weißen Sklerenbefund ohne Hypertelorismus, Strabismus, Ptosis, Proptosis oder schräg abfallende Lidachsen.\n\nIn der Vorgeschichte ergaben sich keine Hinweise auf ein Subduralhämatom, einen Pneumothorax oder eine neonatale Hypotonie. \n\nFür Ihre geschätzte Einschätzung des Befundmusters und eine Empfehlung zum weiteren Vorgehen wäre ich Ihnen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

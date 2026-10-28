@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26915616_case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 386,
+  "completion_tokens": 406,
+  "total_tokens": 2227,
+  "thoughts_tokens": 1435,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen den 58-jährigen Patienten Herrn Martin S., der sich zur weiteren Abklärung bei mir vorstellte. Erste Beschwerden bemerkte er schleichend vor etwa vier Jahren. Der Patient ist als kaufmännischer Angestellter tätig, lebt mit seiner Ehefrau zusammen und nimmt bis auf eine gelegentliche Gabe von Vitamin D keine Dauermedikation ein. Kardiopulmonal sowie abdominell zeigte sich der Untersuchungsbefund regelrecht, die Vitalparameter lagen im Normbereich.\n\nKlinisch klagt Herr S. über persistierende Kribbelmissempfindungen distal an beiden Händen sowie über rezidivierende, schmerzhafte unwillkürliche Muskelspasmen. Im Gesicht imponiert eine Parese der mimischen Muskulatur, wobei insbesondere ein unvollständiger bzw. kraftloser Lidschluss auffällt. Bei der Inspektion fielen zudem lebhafte Faszikulationen der perioralen Muskulatur sowie der Zunge auf. Die Zungenoberfläche selbst zeigt ein auffällig gefurchtes Schleimhautrelief. Des Weiteren besteht am Integument eine auffallend welke, schlaff herabhängende Haut mit gesteigerter Fältelung, und anamnestisch wird eine stark verminderte Schweißsekretion angegeben.\n\nIn den veranlassten neurophysiologischen Untersuchungen zeigten sich distal deutlich reduzierte Amplituden der sensiblen Nervenaktionspotentiale. Motorisch fanden sich generalisiert verminderte Muskelsummenaktionspotentiale bei simultan herabgesetzten motorischen Nervenleitgeschwindigkeiten. \n\nIch bitte Sie um Ihre geschätzte fachneurologische Mitbeurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen bei diesem komplexen Beschwerdebild.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Stefan Meyer"
+}

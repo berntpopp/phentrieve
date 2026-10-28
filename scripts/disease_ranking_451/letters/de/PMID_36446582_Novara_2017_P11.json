@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_Novara_2017_P11",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 376,
+  "completion_tokens": 398,
+  "total_tokens": 2811,
+  "thoughts_tokens": 2037,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute eine junge Patientin zur weiteren differentialdiagnostischen Abklärung. Das Mädchen lebt mit ihren gesunden Eltern; die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer.\n\nIn der Praxis imponiert primär eine ausgeprägte, globale Entwicklungsretardierung. Die motorischen Meilensteine wurden mit erheblicher Verzögerung erreicht, und auch die sprachliche Entwicklung ist deutlich verlangsamt, sodass bislang kaum verständliche Wörter geäußert werden. Im zwischenmenschlichen Kontakt fallen ausgeprägte autistische Verhaltenszüge auf, darunter fehlender Blickkontakt, starke soziale Distanz und stereotype Bewegungsmuster. Zuletzt traten zudem erstmalig generalisierte tonisch-klonische Krampfanfälle auf.\n\nPhänotypisch fallen mehrere Besonderheiten auf: ein auffallend weiter Augenabstand sowie sehr buschige, kräftige Brauen, die über der Nasenwurzel synophrysartig zusammenlaufen. Die Nase weist eine fleischige, knollige Spitze auf, wobei die Nasenflügel leicht nach kranial retrahiert sind und die Nares nach vorne weisen. Beim Blick in den Mundbereich imponieren ungewöhnlich groß gewachsene Zähne. \n\nDas Körperwachstum ist unbeeinträchtigt und verläuft entlang der 45. Perzentile; ein Kleinwuchs liegt nicht vor. Die oberen Extremitäten stellen sich symmetrisch dar, an den Händen sind keinerlei Fehlbildungen nachweisbar. Die kardiopulmonale und abdominelle Untersuchung erbrachte unauffällige Normalbefunde.\n\nIch bitte um Ihre geschätzte Einschätzung zur Ätiologie dieses komplexen Bildes und danke Ihnen im Voraus für die Übernahme der genetischen Abklärung.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21300488_girl_II_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 366,
+  "total_tokens": 2430,
+  "thoughts_tokens": 1681,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate Maya Lin, a 3-year-old girl who presented to my clinic for ongoing developmental evaluation. \n\nMaya met early milestones appropriately until approximately 16 months of age, when her parents observed a distinct loss of previously mastered motor abilities and verbal skills. Since that setback, her cognitive capabilities have remained profoundly impaired. She demonstrates minimal visual engagement and rarely fixes her gaze on caregivers. Behaviorally, she displays marked teeth grinding, continuous mouthing of objects and fingers, and stereotyped, repetitive flapping of both hands. Her parents also report erratic emotional outbursts, characterized by unprovoked bouts of laughing as well as frequent, unexplained periods of inconsolable crying. There have been no observed seizures, twitching episodes, or staring spells.\n\nOn physical examination, her somatic growth has severely faltered, with linear height and weight lagging significantly behind expected curves. Although her head size was at the 50th percentile at birth, cranial growth has markedly decelerated, with her occipitofrontal circumference now falling well below the 3rd percentile. Musculoskeletal exam is notable for an emerging thoracolumbar spinal curvature, diffuse wasting of the limb musculature, and generalized increase in muscle tone. Her abdomen is soft and non-tender, though the family manages persistent, sluggish bowel movements with pediatric polyethylene glycol. Heart and lung sounds are completely normal, and cranial nerves appear grossly intact within the limits of her exam.\n\nFamily history is non-contributory, and her older brother is thriving. Maya lives at home with both parents and currently receives home-based physical therapy. \n\nI would greatly appreciate your specialized assessment and recommendations regarding a comprehensive diagnostic workup for Maya. \n\nSincerely,\n\nDr. Marcus Vance, MD\nDepartment of General Pediatrics"
+}

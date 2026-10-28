@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36553465_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 416,
+  "total_tokens": 2756,
+  "thoughts_tokens": 1961,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute einen 20-jährigen Patienten zur konsiliarischen Beurteilung. Er berichtet über seit jeher bestehende Seheinschränkungen, ein genauer Beginn ist anamnestisch nicht fassbar. Der Allgemeinzustand ist gut, Vorerkrankungen sind nicht bekannt, eine Dauermedikation wird verneint und die Familienanamnese ist bezüglich früher okulärer Auffälligkeiten unergiebig.\n\nIn unserer Untersuchung zeigte sich eine deutlich herabgesetzte Sehschärfe auf beiden Augen (bestkorrigiert bds. 0,2). Refraktiv dokumentierten wir eine Weitsichtigkeit mit begleitender Stabsichtigkeit; eine Kurzsichtigkeit liegt nicht vor. Es besteht ein kontinuierlicher horizontaler Pendelnystagmus sowie ein manifestes Einwärtsschielen. Ein divergenter Strabismus bzw. ein Auswärtsschielen ließ sich sicher ausschließen. \n\nInspektorisch imponieren rein weiße Zilien sowie vollständig depigmentierte Augenbrauen. Auch das Haupthaar zeigt sich auffallend aufgehellt und silbrig-blond. Am linken Unterarm findet sich ein einzelner, sonst unauffälliger pigmentierter Naevuszellnaevus. Spaltlampenbiomikroskopisch präsentieren sich beide Regenbogenhäute in einem sehr lichten Blau. Die Hornhäute sind klar, der Augeninnendruck liegt beidseits im Normbereich (14 mmHg). Bei der Spiegelung des Fundus und in der Schnittbilddiagnostik der Makula fiel das Fehlen der physiologischen zentralen Einsenkung bei durchgehenden inneren Netzhautschichten auf, vereinbar mit einer fovealen Fehlentwicklung. \n\nIch wäre Ihnen für eine Mitbeurteilung der Gesamtsituation und eine Empfehlung zum weiteren diagnostischen Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

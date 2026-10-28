@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31944623_Patient_B",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 494,
+  "total_tokens": 3379,
+  "thoughts_tokens": 2507,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung unseres 24-jährigen Patienten, der sich in Begleitung seiner Eltern in meiner Sprechstunde vorstellte. Die Familienanamnese bezüglich neurologischer Erkrankungen ist unauffällig, die aktuellen Laborparameter inklusive Entzündungswerten und Elektrolyten lagen im Normbereich. Als Vormedikation besteht lediglich eine Bedarfsmedikation mit Melatonin zur Nacht.\n\nErste motorische Auffälligkeiten traten bereits im Alter von 6 Jahren auf, seither zeigt sich ein kontinuierlich fortschreitender Verlauf. Klinisch imponiert derzeit eine ausgeprägte Verlangsamung sämtlicher Willkürbewegungen im Rahmen eines hypokinetisch-rigiden Bildes. Die sprachliche Artikulation ist schwer verwaschen und nur mühsam verständlich. Bei der Blickfolgebewegung fallen stark verzögerte, auffallend träge Ruckbewegungen der Augen auf. Im psychopathologischen Befund imponieren anamnestisch wie aktuell floride Verfolgungsideen und wahnhafte Fehlbeurteilungen der Realität. \n\nAm Bewegungssystem zeigt sich an beiden Beinen eine schwere, spastisch fixierte Plegie, die ein selbstständiges Stehen unmöglich macht. Die Muskeleigenreflexe feuern an allen Extremitäten lebhaftest und gesteigert mit verbreiterten Reflexzonen, und die Plantarreflexe zeigen sich beidseits mit einer deutlichen Dorsalextension der Großzehen. Rasche alternierende Drehbewegungen der Hände gelingen dem Patienten kaum und wirken grob desorganisiert. Das Vibrationsempfinden ist an beiden Innenknöcheln mit 1/8 massiv reduziert; der Berührungssinn und die Pupillomotorik sind demgegenüber seitengleich intakt. \n\nIn der mitgebrachten Magnetresonanztomographie des Schädels imponiert eine generalisierte Volumenminderung der zerebralen Rinde bei zugleich ausgeprägter Schrumpfung des Kleinhirngewebes.\n\nZur weiteren diagnostischen Einordnung dieses progredienten Krankheitsbildes sowie zur Optimierung des therapeutischen Vorgehens wäre ich für Ihre Beurteilung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

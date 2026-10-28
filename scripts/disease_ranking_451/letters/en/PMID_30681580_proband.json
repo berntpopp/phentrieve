@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30681580_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 280,
+  "total_tokens": 1803,
+  "thoughts_tokens": 1142,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Chloe Henderson, a 7-year, 8-month-old girl whom I am referring for an evaluation of her growth and skeletal features. She lives with her parents, takes a daily multivitamin, and is thriving academically in the second grade with completely normal cognitive development and no learning concerns. Her family history is non-contributory, with both parents of average stature. \n\nChloe's linear height remains well below the third percentile, demonstrating a pronounced disproportionate shortening of the extremities relative to her trunk. On physical examination, her head circumference measures significantly above the 98th percentile, indicating an enlarged cranial vault. She displays noticeable medial bowing of the lower extremities at the knees. Her hands show markedly shortened digits, although the fingers do not exhibit a trident configuration. Her cardiovascular, pulmonary, and abdominal examinations are unremarkable.\n\nA recent skeletal survey revealed shortened iliac wings and a distinct reduction in the length of both femoral necks. Plain radiographs of her spine demonstrated progressive caudal narrowing of the lumbar interpedicular distances. Baseline laboratory studies have been reassuring: her circulating thyroid hormone concentrations were normal, and her serum alkaline phosphatase was entirely within the expected reference range.\n\nI would be grateful for your expert clinical assessment regarding her skeletal features and recommendations for her ongoing care.\n\nSincerely,\n\nDr. Julian Vance, MD\nGeneral Pediatrics"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18322662_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 372,
+  "completion_tokens": 444,
+  "total_tokens": 2351,
+  "thoughts_tokens": 1535,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des kleinen Felix, der sich im Alter von 1 Jahr und 10 Monaten in unserer kinderärztlichen Sprechstunde vorstellte.\n\nDie Familienanamnese ist bezüglich erblicher Vorerkrankungen leer, die Eltern sind gesund und nicht blutsverwandt. Felix wurde nach unauffälligem Schwangerschaftsverlauf reifgeboren, die Entbindung erfolgte jedoch aus einer Beckenendlage. Bereits unmittelbar nach der Geburt waren komplexe muskuloskelettale Auffälligkeiten evident.\n\nOrthopädisch bestehen seit der Geburt eine beidseitige Hüftgelenksluxation sowie Luxationen der Kniegelenke. An den oberen Extremitäten imponieren fixierte Beugekontrakturen beider Ellenbogengelenke mit deutlichem Streckdefizit. Die Hände wirken insgesamt gedrungen; röntgenologisch zeigen sich auffallend verkürzte Mittelhandknochen. Im Bereich des Achsenskeletts imponiert eine progrediente skoliotische Fehlhaltung des Rumpfes sowie eine deutliche Kyphosierung der Halswirbelsäule.\n\nKraniofazial fallen ein vergrößerter Augenabstand, eine auffallend tief stehende, eingesunkene Nasenwurzel sowie eine deutlich verlängerte Rinne zwischen Nasenbasis und Oberlippenrand auf. Bei Inspektion der Mundhöhle zeigte sich der Gaumen regelrecht ausgebildet, eine Gaumenspalte liegt nicht vor. \n\nFelix nimmt derzeit keine Medikation ein. Die bisherigen pädiatrischen Vorsorgen verliefen bezüglich Hörscreening und kardiopulmonalem Status unauffällig, die Organe des Abdomens stellen sich sonographisch unbeeinträchtigt dar. \n\nAufgrund der Kombination der angeborenen Gelenk- und Wirbelsäulenveränderungen mit den fazialen Besonderheiten bitte ich Sie um eine übergeordnete Einschätzung zur weiteren Abklärung. \n\nMit freundlichen kollegialen Grüßen"
+}

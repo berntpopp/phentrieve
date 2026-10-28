@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 329,
+  "total_tokens": 2577,
+  "thoughts_tokens": 1860,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nI would appreciate your specialist evaluation of Matthew, a 15-year-old young man whom I follow for a complex, refractory seizure condition.\n\nHis difficulties originated at approximately four months of age, when his family noted recurring partial-onset events that intermittently evolved into full convulsive episodes marked by bilateral tonic stiffening followed by generalized clonic shaking. From early infancy, he demonstrated substantial delays spanning motor, linguistic, and adaptive milestones, which have culminated in a lifelong, severe cognitive deficit. The ongoing high seizure burden appears to actively compound his neurodevelopmental stagnation, reflecting a severe seizure-driven encephalopathic process. Serial neurodiagnostic tracings have demonstrated abnormal background architecture with abundant, multifocal spike-wave discharges.\n\nImportantly, Matthew has never had flexor spasms or clustered jerks during infancy, nor has he experienced isolated clonic paroxysms, sudden myoclonic jerks, or generalized non-motor staring episodes. His events remain self-terminating, with no history of unremitting, continuous seizure activity requiring critical resuscitation. Furthermore, he maintains warm interpersonal contact without social detachment, repetitive mannerisms, or other autism spectrum traits, and he displays no signs of severe inattention or hyperactivity.\n\nHis general examination is otherwise reassuring: cranial nerves are intact, deep tendon reflexes are symmetric, and cardiovascular auscultation is completely normal. Family history is negative for early neurological disease. He is currently maintained on a regimen of levetiracetam and clobazam with incomplete control.\n\nThank you for your comprehensive assessment regarding his ongoing management.\n\nSincerely,  \nDr. Arthur Vance"
+}

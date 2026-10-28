@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10874631_II_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 362,
+  "completion_tokens": 311,
+  "total_tokens": 2012,
+  "thoughts_tokens": 1339,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Aris,\n\nThank you for agreeing to see Ms. Elena Vance, a 34-year-old woman whom I am referring for specialized ophthalmic consultation. \n\nHer visual difficulties initially began during her youth, when she first noticed profound trouble seeing in dim illumination and prolonged dark adaptation. Over the ensuing years, she experienced progressive, marked concentric contraction of her peripheral fields. At present, her visual function has deteriorated substantially; testing confirms she has reached a state of profoundly diminished sight where she can only appreciate the presence of light. \n\nOn examination, her anterior segments, corneas, and crystalline lenses were clear bilaterally, and intraocular pressures were measured at 14 mmHg in each eye. Dilated fundus examination revealed striking waxy paleness of both optic nerve heads. Across the mid-periphery, extensive bone-spicule-like intraretinal pigment deposits were evident, alongside widespread wasting and thinning of the choriocapillary bed. Full-field electrophysiology testing demonstrated completely flat, unrecordable retinal responses across all scotopic and photopic testing conditions.\n\nHer general medical history is unremarkable, and she takes only a daily multivitamin. Review of systems is entirely negative for neurological, auditory, or metabolic complaints. She lives with her husband, works as an administrative assistant using screen-reading technology, and has no family history of early vision loss.\n\nI would appreciate your comprehensive assessment and recommendations regarding her long-term visual rehabilitation and management.\n\nWarm regards,\n\nDr. Marcus Brody"
+}

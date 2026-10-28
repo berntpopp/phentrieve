@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_32_Iivonen_et_al",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 491,
+  "completion_tokens": 493,
+  "total_tokens": 3497,
+  "thoughts_tokens": 2513,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute den 13 Jahre und 6 Monate alten Felix zur weiteren differenzialdiagnostischen Beurteilung.\n\nIn der Vorgeschichte bestand im Kleinkindalter eine globale Entwicklungsverzögerung. Aktuell imponieren eine manifeste kognitive Beeinträchtigung sowie eine deutliche Aufmerksamkeitsdefizit- und Hyperaktivitätssymptomatik; ein autistisches Verhalten liegt nicht vor. Erstaunlicherweise verliefen sowohl die Motorik als auch die Sprachentwicklung ohne Verzögerung, und frühkindliche Fütterstörungen wurden verneint. Die Familienanamnese bezüglich neurologischer Auffälligkeiten ist leer, die Eltern sind nicht blutsverwandt. \n\nIm Rahmen der körperlichen Untersuchung fallen tief ansetzende Ohrmuscheln sowie eine beidseitige Ptosis auf. Zudem besteht eine belegte Hörminderung. Ein Hypertelorismus, ein Epikanthus oder abwärts geneigte Lidachsen lassen sich hingegen nicht feststellen. Die Augenbrauen sind nicht übermäßig geschwungen. Die Nase zeigt keine knollige Konfiguration und keine antevertierten Nares. Das Philtrum ist nicht verbreitert, ein übermäßig betonter Amorbogen fehlt, und eine prominente Stirnnaht ist nicht tastbar. Es besteht ein altersgerechter Muskeltonus ohne Hypotonie; die Füße sind unauffällig, ohne Nachweis eines Metatarsus adductus. Die Nieren und das Abdomen stellten sich sonografisch unauffällig dar.\n\nKardiologisch wurde ein Ventrikelseptumdefekt beschrieben. Eine Transposition der großen Arterien, ein Double-Outlet-Right-Ventricle, ein persistierender Ductus arteriosus oder eine bikuspide Aortenklappe wurden echokardiografisch ausgeschlossen. \n\nIn der zerebralen MRT-Bildgebung fand sich eine Aplasie beider Bulbi olfactorii. Das Corpus callosum stellt sich vollständig dar, eine Demyelinisierung des ZNS oder eine Ventrikulomegalie liegen nicht vor. Felix nimmt derzeit keine Dauermedikation ein.\n\nFür Ihre geschätzte Einschätzung und eventuelle Empfehlungen zum weiteren Vorgehen danke ich Ihnen herzlich.\n\nMit freundlichen Grüßen"
+}

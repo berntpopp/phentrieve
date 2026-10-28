@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27250695_Family_15_patient_20",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 337,
+  "total_tokens": 1922,
+  "thoughts_tokens": 1239,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Ross,\n\nThank you for seeing this nine-month-old female, Maya Lin, for further evaluation of developmental and growth concerns. Maya lives at home with both parents, and her neonatal period was uneventful following an uncomplicated full-term delivery. \n\nOver her recent well-child checks, her cranial growth has decelerated noticeably. Her occipitofrontal circumference currently measures 40.1 cm, which sits well below the second percentile for her age. Alongside this, she is showing substantial cognitive impairment; she has not begun babbling, fails to demonstrate object permanence, and exhibits minimal responsiveness or engagement with her surroundings, indicating a profound delay in her intellectual development. \n\nHer somatic growth is otherwise well preserved. Her length is tracking steadily along the 50th percentile, showing no evidence of short stature, and her weight remains at the 55th percentile with normal nutritional status and no weight loss. The parents have observed no episodes concerning for seizures, twitching, or staring spells. Maya is generally placid; she does not exhibit any motor hyperactivity or restlessness, nor has there been any emergence of aggressive behaviors or self-injurious actions such as head-hitting or biting.\n\nOn physical examination, her heart sounds are normal, lungs are clear, and her abdomen is soft and non-tender. Cranial nerves appear grossly intact, and deep tendon reflexes are 2+ bilaterally. She is meeting gross motor parameters adequately and takes only daily vitamin D supplementation. \n\nI would appreciate your assessment regarding her neurodevelopmental trajectory and any recommendations for an appropriate diagnostic workup.\n\nSincerely,\n\nDr. Sarah Jenkins\nGeneral Pediatrics"
+}

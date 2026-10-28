@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11333380_P3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 362,
+  "completion_tokens": 359,
+  "total_tokens": 2281,
+  "thoughts_tokens": 1560,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen den fünfjährigen Lukas zur weiteren neurologischen Abklärung.\n\nDie Eltern berichten über eine seit kurzem bestehende motorische Verschlechterung. Im Kindergarten fallen erhebliche Schwierigkeiten beim schnellen Laufen und Rennen auf, zudem kommt es im Alltag vermehrt zu Stolperereignissen und Stürzen. Die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen unauffällig, Dauermedikamente werden nicht eingenommen.\n\nIn der körperlichen Untersuchung imponiert inspektorisch eine beidseitige Hohlfußdeformität. Bei der motorischen Funktionsprüfung dokumentierten wir eine proximale Schwäche der Beckengürtel- und Oberschenkelmuskulatur sowie eine Parese der Fußheber. Ergänzend ergaben sich klinisch eindeutige Zeichen einer peripheren Neuropathie mit distaler Hypästhesie und abgeschwächten Muskeleigenreflexen. Die Hirnnervenfunktion sowie die kognitive Entwicklung stellen sich altersentsprechend dar.\n\nIn der apparativen Diagnostik zeigten sich im EMG myopathische Veränderungen. Die motorischen und sensiblen Nervenleitgeschwindigkeiten erwiesen sich hingegen als völlig normwertig. Eine kardiologische Mitbeurteilung erbrachte eine regelrechte ventrikuläre Funktion ohne pathologischen Befund. Ebenso besteht keinerlei respiratorische Insuffizienz; die Spontanatmung ist in Ruhe und unter leichter Belastung unauffällig.\n\nZur weiteren differenzialdiagnostischen Einordnung dieser Befundkonstellation und zur Festlegung des weiteren Vorgehens bitte ich um Ihre geschätzte konsiliarische Beurteilung.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16962354_second_mutation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 402,
+  "total_tokens": 2934,
+  "thoughts_tokens": 2162,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen ein weibliches Neugeborenes zur konsiliarischen Mitbeurteilung und weiteren therapeutischen Abstimmung. Das Mädchen kam zeitgerecht zur Welt, wies jedoch bereits unmittelbar postpartal faziale Auffälligkeiten sowie einen deutlich reduzierten Kopfumfang weit unterhalb der dritten Perzentile auf. Kraniofazial imponieren eine auffällig tief eingezogene, flache Nasenwurzel sowie eine zentrale Spalte der Oberlippe in Kombination mit einer mittigen Gaumenspalte.\n\nIm zeitnah durchgeführten Schädel-MRT zeigte sich eine semilobäre Fusionsstörung des Vorderhirns mit inkompletter Hemisphärentrennung; eine rein lobäre Ausprägung lag definitiv nicht vor. Bemerkenswert war zudem eine komplette Agenesie der beidseitigen Riechbahnen. Im weiteren Verlauf entwickelten sich wechselnde dystone Muskeltonusstörungen mit Streckspasmen der Extremitäten. Zudem demaskierte sich im Flüssigkeitshaushalt eine ausgeprägte neurogene Wasserharnruhr mit hypotoner Polyurie und Serumhypernatriämie, welche inzwischen unter Desmopressin-Substitution stabilisiert werden konnte.\n\nDie kardiopulmonale Adaptation verlief komplikationslos, der kardiale Ultraschall sowie die Abdomensonographie ergaben regelrechte Normalbefunde. Das Neugeborenen-Hörscreening war beidseits unauffällig. Die Familienanamnese bezüglich angeborener Anomalien ist leer, die Eltern sind gesund und nicht konsanguin.\n\nWir bitten um Ihre geschätzte neuropädiatrische Einschätzung und Empfehlungen bezüglich des weiteren Managements.\n\nMit freundlichen Grüßen\nDr. med. Stefan Lindner\nKlinik für Pädiatrie, Marienhospital Arnsberg"
+}

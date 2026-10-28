@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19864672_Patient_5F",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 416,
+  "total_tokens": 2099,
+  "thoughts_tokens": 1327,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich überweise Ihnen heute Herrn Müller zur Mitbeurteilung. Bei dem Patienten besteht seit dem frühen Kindesalter eine ausgeprägte, tiefreichende Dermatophyteninfektion des Integuments mit entzündlichen Knoten und fistelnden Gewebsreaktionen im Bereich der Subkutis, welche sich unter bisherigen Therapieregimen äußerst hartnäckig zeigte. \n\nKlinisch präsentiert sich der Patient in unbeeinträchtigtem Allgemeinzustand. Das Herz-Kreislauf-System ist stabil, Blutdruck 125/80 mmHg, die Auskultation von Lunge und Abdomen war regelrecht. Neurologisch fanden sich keine Defizite; insbesondere ein Meningismus oder Anhaltspunkte für eine mykotische Meningitis ließen sich sicher ausschließen. Eine wiederkehrende orale Candidose bzw. rezidivierender Mundsoor trat anamnestisch nie auf, die Mundhöhle ist aktuell vollkommen reizlos. \n\nLaborchemisch zeigte sich eine unauffällige Leukozytenzahl im Differentialblutbild. Die quantitative Bestimmung der zirkulierenden Immunglobulinklassen erbrachte normale Konzentrationen. In der Durchflusszytometrie war der relative Anteil der CD4-positiven T-Helferzellpopulation im Referenzbereich gelegen, und auch die absolute Zahl der zytotoxischen CD8-Zellen erwies sich als normwertig. Herr Müller arbeitet im kaufmännischen Bereich, raucht nicht und nimmt bis auf eine lokale Desinfektion der Läsionen keine Medikamente ein. Die Familienanamnese ist bezüglich chronischer Infektionen unauffällig.\n\nAngesichts dieser invasiven, seit den Jugendjahren persistierenden Pilzmanifestation bitte ich Sie um eine spezialisierte infektiologische bzw. immunologische Zweitmeinung.\n\nMit freundlichen Grüßen\nDr. med. Stefan Brandner"
+}

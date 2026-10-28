@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30580808_Patient_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 622,
+  "completion_tokens": 563,
+  "total_tokens": 4524,
+  "thoughts_tokens": 3339,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Beurteilung unserer 18-jährigen Patientin.\n\nDie Geburt erfolgte reif und ohne intrauterine Wachstumsretardierung. Postnatal kam es zu einer respiratorischen Anpassungsstörung, eine neonatale Hypotonie bestand jedoch nicht. Frühzeitig fielen ausgeprägte Trink- und Fütterprobleme, eine Gedeihstörung sowie ein Kleinwuchs auf. Die statomotorische und kognitive Entwicklung ist schwer global retardiert, eine Lautsprache fehlt vollständig. Neurologisch zeigen sich eine Rumpfhypotonie bei Hypertonie der Extremitäten, extrapyramidale Dyskinesien, dystone Haltungsmuster sowie Hyperkinesien. Pyramidenbahnzeichen fehlen, das cMRT zeigte eine generalisierte Hirnatrophie. Audiometrisch ergaben sich keine Hinweise auf eine Schallleitungs- oder Schallempfindungsschwerhörigkeit. Im Verhalten finden sich weder autistische Züge, Stereotypien, Zwänge, Auto- oder Fremdstimulationen, Wutausbrüche, Hyperaktivität, Polyphagie, Angstzustände, Manien noch Schlafstörungen; auch ein unflexibles Beharren auf Routinen besteht nicht.\n\nKraniofazial imponieren dichte Brauen, eine Blepharoptosis, auffallend blaue Skleren, eine Retrusion des Mittelgesichts, nach vorne gerichtete Naseneingänge und ein schmales Oberlippenrot. Die Wimpernlänge ist unauffällig, die Unterlippe nicht verdickt, der Gaumen regelrecht und die Nase weder knollig noch verbreitert; ein Makrozephalus liegt nicht vor. Der Zahndurchbruch war verzögert. \n\nDas Skelettsystem zeigt eine Hüftdysplasie, eine Klinodaktylie des fünften Fingers sowie eine thorakolumbale Kyphose, thorakale Lordose und Skoliose. Die Wirbelkörperkonfiguration ist regulär, eine isolierte thorakale Skoliose liegt nicht vor, und die Interphalangealgelenke sind unauffällig. Dermatologisch bestehen eine deutliche Xerosis, ichthyosiforme Schuppung, sklerodermiforme Hautareale sowie ein schütteres Kopfhaar. Eine Hypertrichose, Hernien oder vermehrte Infektionen traten nicht auf.\n\nDie Familienanamnese ist blande. Die Patientin lebt zu Hause und wird dort von den Eltern betreut. Wir bitten um Ihre differenzialdiagnostische Einschätzung der Befundkonstellation.\n\nMit freundlichen Grüßen"
+}

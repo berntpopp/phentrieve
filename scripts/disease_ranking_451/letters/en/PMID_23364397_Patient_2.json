@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23364397_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 345,
+  "total_tokens": 2081,
+  "thoughts_tokens": 1401,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this nine-month-old boy who was recently transferred to our inpatient pediatric service. He was born at full term following an uneventful pregnancy and delivery, and his family history is non-contributory, with healthy non-consanguineous parents and an unaffected older sister.\n\nConcerns were initially noted around eight months of age when his parents observed that he had not achieved expected milestones across multiple domains. He currently cannot sit unsupported, displays very little babbling or reciprocal vocalization, and demonstrates significant lag in both communicative and fine motor skills. On physical examination, his heart sounds are normal, lungs are clear to auscultation, and his abdomen is soft. Neurologically, he demonstrates generalized diminished motor strength alongside pronounced, spastic resistance to passive range of motion throughout all four extremities. \n\nHis transfer follows an acute event during an elective sedated MRI last week, when he experienced a severe, life-threatening hypermetabolic crisis marked by sudden severe jaw and generalized body rigidity, marked tachycardia, and fulminant hyperpyrexia after induction agents were administered, necessitating dantrolene and intensive care resuscitation. Since that event, he has displayed unremitting elevated baseline core temperatures exceeding 38.5 C that have failed to respond to alternating antipyretics, despite multiple sterile cultures and an otherwise negative infectious screen. \n\nGiven his enduring high body temperatures, significant delays across cognitive and physical sectors, poor anti-gravity power with extremity stiffness, and his dramatic anesthetic crisis, I would greatly value your expert evaluation and guidance on a diagnostic workup.\n\nSincerely,\nDr. Julian Vance\nPediatric Inpatient Medicine"
+}
