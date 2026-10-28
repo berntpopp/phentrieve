@@ -287,3 +287,90 @@ def test_evidence_may_quote_the_punctuation_shown_after_a_chunk():
     item = extracted[0]
     assert document[item["start_char"] : item["end_char"]] == "Kein Hinweis auf Asthma,"
     assert item["offset_basis"] == "evidence_in_chunk"
+
+
+def test_soft_hyphens_do_not_prevent_a_match():
+    document = "Das Hämo­globin war erniedrigt."
+    chunks = {1: (0, len(document))}
+
+    located = locate_evidence(document, "Hämoglobin", [1], chunks)
+
+    assert document[located.start : located.end] == "Hämo­globin"
+    assert located.basis == "evidence_in_chunk"
+
+
+def test_a_word_hyphenated_at_a_line_break_matches_the_whole_word():
+    document = "Das Hämo-\r\n  globin war erniedrigt."
+    chunks = {1: (0, len(document))}
+
+    located = locate_evidence(document, "Hämoglobin war", [1], chunks)
+
+    assert document[located.start : located.end] == "Hämo-\r\n  globin war"
+    assert located.basis == "evidence_in_chunk"
+
+
+def test_a_hyphen_that_does_not_split_a_word_is_kept():
+    document = "Ein X-chromosomaler Erbgang; Fieber -\nkeines."
+    chunks = {1: (0, len(document))}
+
+    assert (
+        locate_evidence(document, "X-chromosomaler", [1], chunks).basis
+        == "evidence_in_chunk"
+    )
+    # Not hyphenation: the hyphen follows a space.
+    located = locate_evidence(document, "Fieber - keines", [1], chunks)
+    assert document[located.start : located.end] == "Fieber -\nkeines"
+
+
+def test_each_search_region_is_normalized_once_per_document(monkeypatch):
+    import phentrieve.llm.evidence_offsets as offsets_module
+
+    normalized: list[str] = []
+    original = offsets_module._normalized
+
+    def counting(text: str):
+        normalized.append(text)
+        return original(text)
+
+    monkeypatch.setattr(offsets_module, "_normalized", counting)
+    locator = offsets_module.EvidenceLocator(DOCUMENT, CHUNKS)
+    for _ in range(5):
+        locator.locate("Submukosa", [1, 2, 3])
+
+    regions = [text for text in normalized if text != "Submukosa"]
+    # Chunks 1 and 2 are searched before chunk 3 matches, each normalized once.
+    assert len(regions) == 3
+
+
+def test_pipeline_search_region_stops_at_an_unlocated_chunk():
+    # Chunk 2 could not be located, so the gap before chunk 3 still holds its
+    # text. Evidence for chunk 2 must not be located inside chunk 3 (#397).
+    document = "Fieber. Kopfschmerz. Keine Krampfanfaelle."
+    grounded_chunks = [
+        {"chunk_id": 1, "text": "Fieber", "start_char": 0, "end_char": 6},
+        {"chunk_id": 2, "text": "Kopfschmerz", "start_char": -1, "end_char": -1},
+        {
+            "chunk_id": 3,
+            "text": "Krampfanfaelle",
+            "start_char": 27,
+            "end_char": 41,
+            "prompt_text": "Krampfanfaelle.",
+        },
+    ]
+    extracted = [
+        {"phrase": "Kopfschmerz", "evidence_text": "Kopfschmerz", "chunk_ids": [3]},
+        {
+            "phrase": "Krampfanfaelle",
+            "evidence_text": "Krampfanfaelle.",
+            "chunk_ids": [3],
+        },
+    ]
+
+    pipeline_module.TwoPhaseLLMPipeline._attach_document_offsets(
+        extracted, text=document, grounded_chunks=grounded_chunks
+    )
+
+    assert extracted[0]["offset_basis"] == "chunk_span"
+    second = extracted[1]
+    assert document[second["start_char"] : second["end_char"]] == "Krampfanfaelle."
+    assert second["offset_basis"] == "evidence_in_chunk"
