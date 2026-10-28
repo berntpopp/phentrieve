@@ -7,7 +7,7 @@ Consolidates logic previously duplicated between CLI and API.
 
 import json
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -97,6 +97,33 @@ def resolve_chunking_config(
         )
 
     return base_config
+
+
+# Chunker types that need a sentence-transformer model to run.
+SEMANTIC_CHUNKER_TYPES = frozenset(
+    {
+        "semantic",
+        "pre_chunk_semantic_grouper",
+        "sliding_window_semantic",
+        "sliding_window",
+    }
+)
+
+
+def needs_semantic_model(pipeline_config: Iterable[dict[str, Any] | str]) -> bool:
+    """Return True if any chunking stage needs a sentence-transformer model.
+
+    Args:
+        pipeline_config: Chunking pipeline stages, either ``{"type": ...}``
+            dicts or bare type names.
+    """
+    for chunk_config in pipeline_config:
+        chunk_type = (
+            chunk_config.get("type") if isinstance(chunk_config, dict) else chunk_config
+        )
+        if chunk_type in SEMANTIC_CHUNKER_TYPES:
+            return True
+    return False
 
 
 def _resolve_base_config(

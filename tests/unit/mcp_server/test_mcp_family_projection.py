@@ -216,3 +216,93 @@ def test_family_list_budgeted_independently(monkeypatch):
     trunc = data["_meta"]["family_history_findings_truncated"]
     assert trunc["field"] == "family_history_findings"
     assert trunc["total"] == 200
+
+
+def _secondary_terms(experiencer: str, n: int, offset: int = 0) -> list[dict]:
+    return [
+        {
+            "id": f"HP:{offset + i:07d}",
+            "name": f"Some longer phenotype label number {i}",
+            "score": 0.5,
+            "status": "present",
+            "experiencer": experiencer,
+            "excluded": False,
+            "evidence_count": 1,
+            "source_chunk_ids": [1],
+        }
+        for i in range(n)
+    ]
+
+
+PATIENT_TERMS = [
+    {
+        "id": "HP:0001250",
+        "name": "Seizure",
+        "score": 0.9,
+        "status": "present",
+        "experiencer": "proband",
+        "excluded": False,
+        "evidence_count": 1,
+        "source_chunk_ids": [1],
+    },
+    PROBAND_NEGATED,
+]
+
+
+@pytest.mark.parametrize("tool", ["standard", "llm"])
+@pytest.mark.parametrize("mode", ["minimal", "compact", "standard"])
+def test_patient_terms_survive_large_secondary_lists(monkeypatch, tool, mode):
+    """#396: 2 patient + 1 family + 200 other-person terms. The budget trims the
+    other-person list first, then family, never the patient's own findings."""
+    payload = {
+        "meta": {"extraction_backend": tool},
+        "processed_chunks": [],
+        "aggregated_hpo_terms": PATIENT_TERMS,
+        "family_history_findings": [FAMILY_TERM],
+        "other_person_findings": _secondary_terms("other", 200, offset=1000),
+    }
+    args = {"text": "x", "research_use_acknowledged": True, "response_mode": mode}
+    if tool == "llm":
+        monkeypatch.setattr(
+            "api.mcp.tools.retrieval.extract_hpo_terms_llm_service",
+            lambda **_kwargs: payload,
+        )
+        from api.mcp.facade import create_phentrieve_mcp
+
+        mcp = create_phentrieve_mcp()
+        data = asyncio.run(
+            mcp.call_tool("phentrieve_extract_hpo_terms_llm", args)
+        ).structured_content
+    else:
+        data = _call_extract(monkeypatch, payload, args)
+
+    assert [t["hpo_id"] for t in data["aggregated_hpo_terms"]] == [
+        "HP:0001250",
+        "HP:0001945",
+    ]
+    assert "truncated" not in data["_meta"]
+    assert len(data["family_history_findings"]) == 1
+    assert "family_history_findings_truncated" not in data["_meta"]
+    other_trunc = data["_meta"]["other_person_findings_truncated"]
+    assert other_trunc["field"] == "other_person_findings"
+    assert other_trunc["total"] == 200
+    assert len(data["other_person_findings"]) == other_trunc["returned"] < 200
+
+
+def test_family_trimmed_before_patient_terms(monkeypatch):
+    """#396: with a large family list, family is trimmed, patient terms stay."""
+    payload = {
+        "meta": {"extraction_backend": "standard"},
+        "processed_chunks": [],
+        "aggregated_hpo_terms": PATIENT_TERMS,
+        "family_history_findings": _secondary_terms("family_history", 200),
+    }
+    data = _call_extract(
+        monkeypatch,
+        payload,
+        {"text": "x", "research_use_acknowledged": True, "response_mode": "minimal"},
+    )
+
+    assert len(data["aggregated_hpo_terms"]) == 2
+    assert "truncated" not in data["_meta"]
+    assert data["_meta"]["family_history_findings_truncated"]["total"] == 200

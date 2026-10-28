@@ -10,7 +10,12 @@ import numpy as np
 import pytest
 
 from phentrieve.config import MIN_SIMILARITY_THRESHOLD, MULTI_VECTOR_RESULT_MULTIPLIER
-from phentrieve.retrieval.dense_retriever import DenseRetriever, connect_to_chroma
+from phentrieve.retrieval.dense_retriever import (
+    CHROMA_QUERY_BATCH_SIZE,
+    DenseRetriever,
+    RetrievalError,
+    connect_to_chroma,
+)
 
 # Explicit reference to chromadb to satisfy static analysis
 # (the import is required for mocking to work in @patch decorators)
@@ -363,11 +368,9 @@ class TestDenseRetrieverQuery:
 
         retriever = DenseRetriever(mock_model, mock_collection)
 
-        # Act
-        results = retriever.query("test query")
-
-        # Assert
-        assert results == {"ids": [], "documents": [], "metadatas": [], "distances": []}
+        # Act / Assert: a failure must not look like "no matching terms" (#402)
+        with pytest.raises(RetrievalError):
+            retriever.query("test query")
 
 
 class TestDenseRetrieverQueryBatch:
@@ -557,18 +560,63 @@ class TestDenseRetrieverQueryBatch:
 
         retriever = DenseRetriever(mock_model, mock_collection)
 
-        # Act
-        results = retriever.query_batch(["query1", "query2"])
+        # Act / Assert: a failure must not look like "no matching terms" (#402)
+        with pytest.raises(RetrievalError, match="Model error"):
+            retriever.query_batch(["query1", "query2"])
 
-        # Assert
-        assert len(results) == 2
-        for result in results:
-            assert result == {
-                "ids": [],
-                "documents": [],
-                "metadatas": [],
-                "distances": [],
-            }
+    def test_batch_query_slices_large_batches_under_chroma_limit(self):
+        """300 texts must not be sent to Chroma in one query (#402)."""
+        n_texts = 300
+        mock_model = Mock()
+        mock_model.parameters.return_value = iter([Mock(device=Mock(type="cpu"))])
+        mock_model.encode.return_value = np.array(
+            [[float(i), 0.0] for i in range(n_texts)]
+        )
+
+        class FakeCollection:
+            """Mimics Chroma: raises once a query binds too many variables."""
+
+            def __init__(self) -> None:
+                self.calls: list[int] = []
+
+            def query(self, *, query_embeddings, n_results, include):
+                self.calls.append(len(query_embeddings))
+                if len(query_embeddings) > 100:
+                    raise RuntimeError("too many SQL variables")
+                return {
+                    "ids": [[f"HP:{int(e[0]):07d}"] for e in query_embeddings],
+                    "documents": [[f"doc {int(e[0])}"] for e in query_embeddings],
+                    "metadatas": [
+                        [{"hpo_id": f"HP:{int(e[0]):07d}"}] for e in query_embeddings
+                    ],
+                    "distances": [[0.1] for _ in query_embeddings],
+                }
+
+        collection = FakeCollection()
+        retriever = DenseRetriever(mock_model, collection)  # type: ignore[arg-type]
+
+        results = retriever.query_batch([f"text {i}" for i in range(n_texts)])
+
+        assert len(results) == n_texts
+        assert all(result["ids"][0] for result in results)
+        # Order is preserved across slices
+        assert results[0]["ids"] == [["HP:0000000"]]
+        assert results[299]["ids"] == [["HP:0000299"]]
+        assert results[150]["similarities"][0]
+        assert max(collection.calls) <= CHROMA_QUERY_BATCH_SIZE
+        assert sum(collection.calls) == n_texts
+
+    def test_batch_query_chroma_failure_raises(self):
+        """A failing Chroma slice raises instead of returning empty results."""
+        mock_model = Mock()
+        mock_model.parameters.return_value = iter([Mock(device=Mock(type="cpu"))])
+        mock_model.encode.return_value = np.zeros((3, 2))
+        mock_collection = Mock()
+        mock_collection.query.side_effect = RuntimeError("too many SQL variables")
+        retriever = DenseRetriever(mock_model, mock_collection)
+
+        with pytest.raises(RetrievalError, match="too many SQL variables"):
+            retriever.query_batch(["a", "b", "c"])
 
     def test_query_uses_query_batch_internally(self):
         """Test that query() method uses query_batch() internally (DRY principle)."""
@@ -861,56 +909,25 @@ class TestDenseRetrieverQueryBatchMultiVector:
             },
         ]
 
-    def test_batch_multi_vector_failure_returns_empty_result_per_text(self):
+    def test_batch_multi_vector_failure_raises(self):
         retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
         retriever._index_type = "multi_vector"
         retriever.query_batch = Mock(side_effect=RuntimeError("query failed"))
 
-        results = retriever.query_batch_multi_vector(["a", "b"], n_results=3)
+        with pytest.raises(RuntimeError, match="query failed"):
+            retriever.query_batch_multi_vector(["a", "b"], n_results=3)
 
-        assert results == [
-            {
-                "ids": [[]],
-                "distances": [[]],
-                "documents": [[]],
-                "metadatas": [[]],
-                "similarities": [[]],
-            },
-            {
-                "ids": [[]],
-                "distances": [[]],
-                "documents": [[]],
-                "metadatas": [[]],
-                "similarities": [[]],
-            },
-        ]
-
-    def test_batch_multi_vector_detection_failure_returns_empty_result_per_text(self):
+    def test_batch_multi_vector_retrieval_error_propagates_unchanged(self):
         retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
-        retriever.detect_index_type = Mock(side_effect=RuntimeError("detect failed"))
-        retriever.query_batch = Mock()
+        retriever._index_type = "multi_vector"
+        original = RetrievalError("chroma down")
+        retriever.query_batch = Mock(side_effect=original)
 
-        results = retriever.query_batch_multi_vector(["a", "b"], n_results=3)
+        with pytest.raises(RetrievalError) as exc_info:
+            retriever.query_batch_multi_vector(["a", "b"], n_results=3)
+        assert exc_info.value is original
 
-        assert results == [
-            {
-                "ids": [[]],
-                "distances": [[]],
-                "documents": [[]],
-                "metadatas": [[]],
-                "similarities": [[]],
-            },
-            {
-                "ids": [[]],
-                "distances": [[]],
-                "documents": [[]],
-                "metadatas": [[]],
-                "similarities": [[]],
-            },
-        ]
-        retriever.query_batch.assert_not_called()
-
-    def test_batch_multi_vector_invalid_strategy_returns_empty_results(self):
+    def test_batch_multi_vector_invalid_strategy_raises(self):
         retriever = DenseRetriever(Mock(), Mock(), min_similarity=0.0)
         retriever._index_type = "multi_vector"
         retriever.query_batch = Mock(
@@ -932,21 +949,12 @@ class TestDenseRetrieverQueryBatchMultiVector:
             ]
         )
 
-        results = retriever.query_batch_multi_vector(
-            ["seizure"],
-            n_results=1,
-            aggregation_strategy="not_a_strategy",
-        )
-
-        assert results == [
-            {
-                "ids": [[]],
-                "distances": [[]],
-                "documents": [[]],
-                "metadatas": [[]],
-                "similarities": [[]],
-            }
-        ]
+        with pytest.raises(ValueError):
+            retriever.query_batch_multi_vector(
+                ["seizure"],
+                n_results=1,
+                aggregation_strategy="not_a_strategy",
+            )
 
 
 class TestDenseRetrieverFilterResults:

@@ -263,6 +263,17 @@ def test_export_excludes_family_history_via_experiencer_mixed_proband():
     assert "HP:0000365" not in feature_ids
 
 
+def test_other_person_finding_is_not_exported_onto_the_subject():
+    # other_person_findings (e.g. a donor's hepatitis) are resolved like family
+    # findings and must never become a phenotypic feature of the subject.
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest,
+        {"hpo_id": "HP:0012115", "assertion": "present", "experiencer": "other"},
+        0,
+    )
+    assert out is None
+
+
 def test_absent_assertion_exports_as_negated_not_affirmed():
     out = _coerce_export_phenotype(
         ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "absent"}, 0
@@ -284,6 +295,28 @@ def test_uncertain_does_not_crash_and_is_not_excluded():
     )
     # not excluded, and no ValidationError
     assert out.assertion_status == "affirmed"
+
+
+@pytest.mark.parametrize(
+    "phenotype",
+    [
+        {"hpo_id": "HP:0001250", "status": "unknown", "excluded": True},
+        {"hpo_id": "HP:0001250", "assertion": "present", "excluded": True},
+        {"hpo_id": "HP:0001250", "excluded": True},
+    ],
+)
+def test_excluded_flag_exports_as_negated(phenotype):
+    # #407: the extractor's ``excluded`` flag is authoritative.
+    out = _coerce_export_phenotype(ExportPhenotypeRequest, phenotype, 0)
+    assert out is not None and out.assertion_status == "negated"
+
+
+@pytest.mark.parametrize("value", ["denied", "no", "negative", "excluded"])
+def test_negation_synonyms_export_as_negated(value):
+    out = _coerce_export_phenotype(
+        ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": value}, 0
+    )
+    assert out is not None and out.assertion_status == "negated"
 
 
 def test_present_assertion_affirmed():

@@ -516,6 +516,16 @@
  */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {
+  DEFAULT_AGGREGATED_TERM_CONFIDENCE,
+  DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
+  DEFAULT_MIN_SEGMENT_LENGTH,
+  DEFAULT_NUM_RESULTS_PER_CHUNK,
+  DEFAULT_SIMILARITY_THRESHOLD,
+  DEFAULT_SPLIT_THRESHOLD,
+  DEFAULT_STEP_SIZE,
+  DEFAULT_WINDOW_SIZE,
+} from '../constants/defaults';
 
 const { t } = useI18n();
 
@@ -527,7 +537,7 @@ const panelProps = defineProps({
   selectedLanguage: { type: [String, null], default: null },
   availableLanguages: { type: Array, default: () => [] },
   includeDetails: { type: Boolean, default: false },
-  similarityThreshold: { type: Number, default: 0.5 },
+  similarityThreshold: { type: Number, default: DEFAULT_SIMILARITY_THRESHOLD },
   forceEndpointMode: { type: [String, null], default: null },
   isTextProcessModeActive: { type: Boolean, default: false },
   defaultLlmModel: { type: [String, null], default: null },
@@ -539,14 +549,14 @@ const panelProps = defineProps({
     }),
   },
   chunkingStrategy: { type: String, default: 'sliding_window_punct_conj_cleaned' },
-  windowSize: { type: Number, default: 3 },
-  stepSize: { type: Number, default: 1 },
-  chunkRetrievalThreshold: { type: Number, default: 0.7 },
-  aggregatedTermConfidence: { type: Number, default: 0.75 },
+  windowSize: { type: Number, default: DEFAULT_WINDOW_SIZE },
+  stepSize: { type: Number, default: DEFAULT_STEP_SIZE },
+  chunkRetrievalThreshold: { type: Number, default: DEFAULT_CHUNK_RETRIEVAL_THRESHOLD },
+  aggregatedTermConfidence: { type: Number, default: DEFAULT_AGGREGATED_TERM_CONFIDENCE },
   noAssertionDetectionForTextProcess: { type: Boolean, default: false },
-  splitThreshold: { type: Number, default: 0.5 },
-  minSegmentLength: { type: Number, default: 2 },
-  numResultsPerChunk: { type: Number, default: 3 },
+  splitThreshold: { type: Number, default: DEFAULT_SPLIT_THRESHOLD },
+  minSegmentLength: { type: Number, default: DEFAULT_MIN_SEGMENT_LENGTH },
+  numResultsPerChunk: { type: Number, default: DEFAULT_NUM_RESULTS_PER_CHUNK },
   topTermPerChunkForAggregation: { type: Boolean, default: false },
 });
 

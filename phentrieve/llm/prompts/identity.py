@@ -13,7 +13,7 @@ from phentrieve.llm.prompts.loader import (
 )
 
 PROMPT_IDENTITY_SCHEMA = "phentrieve-prompt-bundle/v1"
-PROMPT_BEHAVIOR_VERSION = "1"
+PROMPT_BEHAVIOR_VERSION = "5"
 
 _DOCUMENT_SENTINEL = "<PHENTRIEVE_DOCUMENT_SENTINEL>"
 _CHUNK_INDEX_SENTINEL = "<PHENTRIEVE_CHUNK_INDEX_SENTINEL>"
@@ -97,7 +97,7 @@ def build_prompt_bundle_identity(
             resolved_user_template = template.render_user_prompt(
                 _DOCUMENT_SENTINEL, language=language
             )
-        effective_content = {
+        effective_content: dict[str, Any] = {
             "component_name": component_name,
             "component_version": template.version,
             "few_shot_examples": emitted_examples,
@@ -106,6 +106,10 @@ def build_prompt_bundle_identity(
             "resolved_system_template": resolved_system_template,
             "resolved_user_template": resolved_user_template,
         }
+        if component_name == "extraction":
+            effective_content["resolved_grounded_user_template"] = (
+                template.render_grounded_user_prompt(chunk_index=_CHUNK_INDEX_SENTINEL)
+            )
         components.append(
             PromptComponentIdentity(
                 name=component_name,

@@ -38,6 +38,20 @@ from phentrieve.utils import (
     sanitize_log_value as _sanitize,
 )
 
+# Maximum number of query embeddings sent to ChromaDB in one collection.query()
+# call. Chroma binds per-embedding variables into a single SQLite statement, so
+# large batches (long clinical notes with hundreds of chunks) exceed SQLite's
+# bound-variable limit ("too many SQL variables"). See issue #402.
+CHROMA_QUERY_BATCH_SIZE = 64
+
+
+class RetrievalError(RuntimeError):
+    """Raised when querying the HPO vector index fails.
+
+    Retrieval failures must not be reported as "no matching terms": callers
+    (API, CLI, MCP) need to surface them as errors.
+    """
+
 
 def _get_collection_name(collection: Any) -> str:
     """Return a Chroma collection name across ChromaDB 0.6 and 1.x APIs."""
@@ -279,7 +293,8 @@ class DenseRetriever:
         This method is more efficient than calling query() multiple times sequentially,
         as it:
         1. Encodes all texts in a single batch (faster)
-        2. Queries ChromaDB with all embeddings at once (10-20x faster)
+        2. Queries ChromaDB with many embeddings per call (10-20x faster), in
+           slices of CHROMA_QUERY_BATCH_SIZE to stay under SQLite's limit
 
         Args:
             texts: List of input texts to query
@@ -289,6 +304,9 @@ class DenseRetriever:
         Returns:
             List of dictionaries, one per input text, each containing query results
             with distances and/or similarities
+
+        Raises:
+            RetrievalError: If encoding or querying the index fails.
         """
         if not texts:
             return []
@@ -312,14 +330,27 @@ class DenseRetriever:
                 _sanitize(query_n_results),
             )
 
-            # Query ChromaDB with all embeddings at once - this is the key optimization!
-            # ChromaDB natively supports batch queries and processes them much faster
-            # than sequential queries (10-20x speedup for 20-30 chunks)
-            batch_results = self.collection.query(
-                query_embeddings=[emb.tolist() for emb in query_embeddings],
-                n_results=query_n_results,
-                include=cast(Any, ["documents", "metadatas", "distances"]),
-            )
+            # Query ChromaDB in slices of CHROMA_QUERY_BATCH_SIZE embeddings.
+            # Batch queries are much faster than sequential ones, but a single
+            # query with too many embeddings exceeds SQLite's bound-variable
+            # limit, so slice and concatenate the per-text result lists.
+            embeddings = [emb.tolist() for emb in query_embeddings]
+            batch_results: dict[str, list[Any]] = {
+                "ids": [],
+                "documents": [],
+                "metadatas": [],
+                "distances": [],
+            }
+            for start in range(0, len(embeddings), CHROMA_QUERY_BATCH_SIZE):
+                part = self.collection.query(
+                    query_embeddings=embeddings[
+                        start : start + CHROMA_QUERY_BATCH_SIZE
+                    ],
+                    n_results=query_n_results,
+                    include=cast(Any, ["documents", "metadatas", "distances"]),
+                )
+                for key, values in batch_results.items():
+                    values.extend(cast(list[Any], part.get(key) or []))
 
             # Convert batch results to list of individual results (one per text)
             # ChromaDB returns results as {"ids": [[...], [...]], "documents": [[...], [...]]}
@@ -372,11 +403,8 @@ class DenseRetriever:
 
         except Exception as e:
             logging.error("Error in batch query to HPO index: %s", _sanitize(e))
-            # Return empty results for each text
-            return [
-                {"ids": [], "documents": [], "metadatas": [], "distances": []}
-                for _ in texts
-            ]
+            # Do not turn a failed query into "no matching terms" (issue #402).
+            raise RetrievalError(f"Batch query to HPO index failed: {e}") from e
 
     def query(
         self, text: str, n_results: int = 10, include_similarities: bool = True
@@ -563,59 +591,49 @@ class DenseRetriever:
 
         Returns one ChromaDB-style result dictionary per input text, matching
         the shape consumed by process_chunk_matches().
+
+        Raises:
+            RetrievalError: If querying the index fails.
+            ValueError: If the aggregation strategy or formula is invalid.
         """
         if not texts:
             return []
 
-        try:
-            index_type = self.detect_index_type()
-            if index_type != "multi_vector":
-                logging.warning(
-                    "query_batch_multi_vector called on %s index. Results may be incorrect.",
-                    _sanitize(index_type),
-                )
-
-            raw_n_results = n_results * MULTI_VECTOR_RESULT_MULTIPLIER
-            raw_batch_results = self.query_batch(
-                texts=texts,
-                n_results=raw_n_results,
-                include_similarities=True,
+        index_type = self.detect_index_type()
+        if index_type != "multi_vector":
+            logging.warning(
+                "query_batch_multi_vector called on %s index. Results may be incorrect.",
+                _sanitize(index_type),
             )
 
-            converted_results: list[dict[str, Any]] = []
-            for raw_results in raw_batch_results:
-                aggregated = aggregate_multi_vector_results(
-                    results=raw_results,
-                    strategy=aggregation_strategy,
-                    weights=component_weights,
-                    custom_formula=custom_formula,
-                    min_similarity=self.min_similarity,
-                )[:n_results]
-                converted_results.append(
-                    convert_multi_vector_to_chromadb_format(
-                        aggregated,
-                        include_similarities=True,
-                    )
-                )
+        raw_n_results = n_results * MULTI_VECTOR_RESULT_MULTIPLIER
+        raw_batch_results = self.query_batch(
+            texts=texts,
+            n_results=raw_n_results,
+            include_similarities=True,
+        )
 
-            while len(converted_results) < len(texts):
-                converted_results.append(
-                    convert_multi_vector_to_chromadb_format(
-                        [],
-                        include_similarities=True,
-                    )
+        converted_results: list[dict[str, Any]] = []
+        for raw_results in raw_batch_results:
+            aggregated = aggregate_multi_vector_results(
+                results=raw_results,
+                strategy=aggregation_strategy,
+                weights=component_weights,
+                custom_formula=custom_formula,
+                min_similarity=self.min_similarity,
+            )[:n_results]
+            converted_results.append(
+                convert_multi_vector_to_chromadb_format(
+                    aggregated,
+                    include_similarities=True,
                 )
-            return converted_results
-
-        except Exception as e:
-            logging.error(
-                "Error in batch multi-vector query to HPO index: %s",
-                _sanitize(e),
             )
-            return [
+
+        while len(converted_results) < len(texts):
+            converted_results.append(
                 convert_multi_vector_to_chromadb_format(
                     [],
                     include_similarities=True,
                 )
-                for _ in texts
-            ]
+            )
+        return converted_results

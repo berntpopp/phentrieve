@@ -38,6 +38,26 @@ DEFAULT_QUERY_RESULTS_PER_PHRASE = 50
 DEFAULT_LLM_RETRIEVAL_BATCH_SIZE = 25
 DEFAULT_PHASE1_MAX_OUTPUT_TOKENS = DEFAULT_PROVIDER_MAX_TOKENS
 DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS = 65536
+# Grounded phase-1 output budget scales with the number of chunks in a request:
+# max(MIN, BASE + PER_CHUNK * chunks), capped at the MAX above. Completed
+# grounded phase-1 responses used at most ~112 output tokens per chunk and
+# ~5.3k tokens in total, so this leaves ample headroom while bounding the cost
+# of degenerate (runaway) generations that would otherwise run to the ceiling.
+# The floor is low so small fallback groups (2 chunks, ~100-300 tokens) cut a
+# runaway after 2k tokens instead of 8k. Reasoning models spend hidden tokens
+# from the same budget; raise the floor if they truncate small groups.
+DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS = 2048
+DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS = 1024
+DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK = 256
+# A grouped_small group (the last fallback level) that still truncates at the
+# scaled budget is retried ONCE at the old fixed ceiling before it is given up,
+# so a legitimately dense group survives while runaways stay bounded.
+DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS = (
+    DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS
+)
+# At most this many ceiling retries per phase-1 request, so a model that runs
+# away in every group of a long note cannot cost N x 65,536 output tokens.
+DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES = 2
 DEFAULT_PHASE1_MAX_PHENOTYPES = 128
 DEFAULT_SIMILARITY_THRESHOLD = 0.35
 DEFAULT_MIN_UNIQUE_CANDIDATES = 5

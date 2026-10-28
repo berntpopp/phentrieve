@@ -7,14 +7,19 @@ Issue #117: Pre-built data distribution system.
 """
 
 import os
+import sqlite3
 import subprocess
 import tarfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
 
-from phentrieve.data_processing.bundle_manifest import BundleManifest
+from phentrieve.data_processing.bundle_manifest import (
+    BundleManifest,
+    compute_directory_checksum,
+)
 from phentrieve.data_processing.bundle_packager import (
     _get_index_dimension,
     _open_collection,
@@ -335,6 +340,86 @@ class TestVerifyBundleChecksums:
             assert (outside / "sentinel.bin").read_bytes() == b"outside"
         finally:
             junction.rmdir()
+
+
+def _write_chroma_like_sqlite(path: Path) -> None:
+    connection = sqlite3.connect(path)
+    connection.executescript(
+        "CREATE TABLE acquire_write (id INTEGER PRIMARY KEY, lock_status INTEGER);"
+        "INSERT INTO acquire_write VALUES (1, 1);"
+        "CREATE TABLE embeddings (id INTEGER PRIMARY KEY, seq TEXT);"
+        "CREATE INDEX ix_seq ON embeddings (seq);"
+    )
+    connection.executemany(
+        "INSERT INTO embeddings VALUES (?, ?)",
+        [(i, f"value-{i:04d}") for i in range(40)],
+    )
+    connection.commit()
+    connection.close()
+
+
+def _corrupt_index_leaf_page(path: Path, index_name: str) -> None:
+    """Overwrite key bytes in an index page; table rows stay untouched."""
+    connection = sqlite3.connect(path)
+    page_size = connection.execute("PRAGMA page_size").fetchone()[0]
+    root_page = connection.execute(
+        "SELECT rootpage FROM sqlite_master WHERE name = ?", (index_name,)
+    ).fetchone()[0]
+    connection.close()
+    data = bytearray(path.read_bytes())
+    start = (root_page - 1) * page_size
+    page = bytes(data[start : start + page_size])
+    offset = page.find(b"value-0011")
+    assert offset >= 0
+    data[start + offset : start + offset + 10] = b"value-9999"
+    path.write_bytes(bytes(data))
+
+
+class TestVerifyBundleChecksumsChromaStable:
+    """Stable (lock-row tolerant) checksum for indexes/ (issue #398)."""
+
+    def _install(self, tmp_path: Path) -> tuple[BundleManifest, Path]:
+        indexes = tmp_path / "indexes"
+        indexes.mkdir()
+        chroma = indexes / "chroma.sqlite3"
+        _write_chroma_like_sqlite(chroma)
+        manifest = BundleManifest(
+            checksums={"indexes/": compute_directory_checksum(indexes)}
+        )
+        return manifest, chroma
+
+    def test_accepts_lock_rows_and_reports_actual_stable_hash(self, tmp_path):
+        manifest, chroma = self._install(tmp_path)
+        first = _verify_bundle_checksums(manifest, tmp_path)
+
+        connection = sqlite3.connect(chroma)
+        connection.execute("INSERT INTO acquire_write VALUES (2, 1)")
+        connection.commit()
+        connection.close()
+        assert (
+            compute_directory_checksum(chroma.parent) != manifest.checksums["indexes/"]
+        )
+
+        second = _verify_bundle_checksums(manifest, tmp_path)
+        # The inventory reports a hash computed from the data on both paths,
+        # and it stays stable across Chroma lock-row writes.
+        assert second == first
+        assert second["indexes/"] != manifest.checksums["indexes/"]
+
+    def test_rejects_corrupted_index_page_with_unchanged_dump(self, tmp_path):
+        manifest, chroma = self._install(tmp_path)
+        _verify_bundle_checksums(manifest, tmp_path)  # records stable checksum
+        dump_before = list(sqlite3.connect(chroma).iterdump())
+
+        _corrupt_index_leaf_page(chroma, "ix_seq")
+
+        connection = sqlite3.connect(chroma)
+        assert list(connection.iterdump()) == dump_before
+        assert connection.execute("PRAGMA integrity_check").fetchall() != [("ok",)]
+        connection.close()
+
+        with pytest.raises(ValueError, match="Checksum verification failed.*indexes/"):
+            _verify_bundle_checksums(manifest, tmp_path)
 
 
 # =============================================================================

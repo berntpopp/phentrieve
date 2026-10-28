@@ -45,6 +45,24 @@ def canonicalize_llm_base_url(value: str | None) -> str | None:
     return urlunsplit((parsed.scheme.lower(), netloc, path, parsed.query, ""))
 
 
+_OUTPUT_TRUNCATION_FINISH_REASONS = frozenset(
+    {"max_output_tokens", "max_tokens", "length"}
+)
+
+
+def is_output_truncation_finish_reason(finish_reason: str | None) -> bool:
+    """Return whether a provider finish reason means the output budget ran out.
+
+    Normalizes provider spellings: OpenAI/OpenRouter ``max_output_tokens``,
+    Gemini ``MAX_TOKENS`` / ``FinishReason.MAX_TOKENS``, Anthropic
+    ``max_tokens`` and Ollama ``length``.
+    """
+    if finish_reason is None:
+        return False
+    normalized = str(finish_reason).strip().rsplit(".", 1)[-1].lower()
+    return normalized in _OUTPUT_TRUNCATION_FINISH_REASONS
+
+
 class LLMProvider(ABC):
     provider_name: str = ""
     model_name: str = ""
@@ -154,6 +172,28 @@ class LLMProvider(ABC):
                     or not self._is_retryable_structured_error(exc)
                 ):
                     raise
+                next_output_tokens = self._next_retry_output_tokens(
+                    current_output_tokens,
+                    max_output_tokens=max_output_tokens,
+                    retry_token_multiplier=structured_retry_token_multiplier,
+                )
+                if (
+                    next_output_tokens <= current_output_tokens
+                    and is_output_truncation_finish_reason(self.last_finish_reason)
+                ):
+                    # The response exhausted its output budget and a retry
+                    # cannot raise it: the identical request would only repeat
+                    # the same (often runaway, maximally expensive) generation.
+                    logger.warning(
+                        "%s structured response truncated at the output budget "
+                        "(%d tokens, finish_reason=%s); skipping identical retry",
+                        self.__class__.__name__.removesuffix(
+                            "StructuredOutputProvider"
+                        ),
+                        current_output_tokens,
+                        self.last_finish_reason,
+                    )
+                    raise
                 logger.warning(
                     "%s structured response validation failed on attempt %d/%d "
                     "(finish_reason=%s): %s",
@@ -163,11 +203,7 @@ class LLMProvider(ABC):
                     self.last_finish_reason,
                     exc,
                 )
-                current_output_tokens = self._next_retry_output_tokens(
-                    current_output_tokens,
-                    max_output_tokens=max_output_tokens,
-                    retry_token_multiplier=structured_retry_token_multiplier,
-                )
+                current_output_tokens = next_output_tokens
 
         if last_exception is not None:
             raise last_exception
@@ -346,6 +382,10 @@ def compact_json_schema(
             schema=items,
             definitions=definitions,
         )
+
+    max_items = schema.get("maxItems")
+    if isinstance(max_items, int) and compact.get("type") == "array":
+        compact["maxItems"] = max_items
 
     required = schema.get("required")
     if isinstance(required, list):

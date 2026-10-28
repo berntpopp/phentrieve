@@ -196,6 +196,11 @@ async def test_execute_llm_ignores_client_llm_target_overrides(monkeypatch) -> N
         "run_in_threadpool",
         fake_run_in_threadpool,
     )
+    monkeypatch.setattr(
+        text_processing_execution,
+        "get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock()),
+    )
 
     await text_processing_execution.execute_llm_text_processing(request)
 
@@ -276,6 +281,11 @@ async def test_execute_llm_auto_detects_language_when_none(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         text_processing_execution, "run_in_threadpool", fake_run_in_threadpool
+    )
+    monkeypatch.setattr(
+        text_processing_execution,
+        "get_dense_retriever_dependency",
+        AsyncMock(return_value=MagicMock()),
     )
 
     await text_processing_execution.execute_llm_text_processing(request)

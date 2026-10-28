@@ -18,6 +18,286 @@ together:
 
 ## [Unreleased]
 
+## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
+
+LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
+findings, temporality), evidence offsets computed in code, bounded and capped phase-1
+retries, REST LLM-error fallback, non-blocking `/query`, bundle integrity checks, and a
+batch of API, retrieval and frontend fixes from the 2026-10-27 review.
+
+Behaviour changes: `GET /api/v1/health/` returns `"status": "healthy"` (was `"ok"`);
+Chroma query failures raise instead of returning empty results;
+`PROMPT_BEHAVIOR_VERSION` is `5`, so earlier LLM benchmark checkpoints do not match.
+
+### Changed
+
+- **The API LLM text path reuses the cached dense retriever** (#420) and its
+  model for semantic chunking, instead of opening a new Chroma collection per
+  request. `run_llm_backend` now forwards a supplied `retriever` to the
+  pipeline's tool executor.
+- **Removed the text router's re-exported private service aliases** and
+  `_process_text_internal` (#428); tests patch `api.services.text_processing_*`.
+- **Query schema uses the shared strategy types** (#427). `QueryRequest`
+  validates `aggregation_strategy` against the `AggregationStrategy` enum and
+  `query_assertion_preference` against one shared `AssertionPreference` alias
+  (`phentrieve.config`); the router casts and hand-copied `Literal`s are gone
+  and `benchmark compare-vectors` derives its valid strategies from the enum.
+  The published request JSON schema and accepted values are unchanged.
+- **API warms the default Chroma index at startup** (#419). The lifespan runs
+  one throwaway query after preloading the model and retriever, so the first
+  real request no longer pays for loading the index. A failed warm-up is
+  logged and startup continues.
+- **`QueryInterface.vue` uses `<script setup>`** (#430). The
+  `getContext()`/`getState()`/`setState()` bridge is gone:
+  `useQueryInterfaceController` now takes the component's refs, the
+  conversation store, the PII review flow and the route/router directly, and has
+  its own unit tests with plain refs. Behaviour is unchanged.
+- **One term-similarity implementation for REST and MCP**
+  ([#415](https://github.com/berntpopp/phentrieve/issues/415)). The similarity
+  router and the MCP `phentrieve_compare_hpo_terms` tool both call
+  `phentrieve.evaluation.term_similarity.compute_term_similarity` and only
+  translate its errors. Response shapes are unchanged. Differences: labels in
+  both now come from the same `hpo_data.db` as the graph data; MCP reports
+  missing ontology data as `temporarily_unavailable` instead of `not_found`;
+  the REST 404/400/500 error details now serialize (`formula_used` was an enum
+  and failed JSON encoding).
+
+- **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
+  decides experiencer, assertion and temporality in independent steps: a
+  negation cue applies to every item of the coordinated list it introduces (also
+  across chunk lines), `uncertain` is defined with multilingual cues, absent and
+  uncertain findings are extracted as exhaustively as present ones, and
+  non-phenotype information (onset, inheritance, age, measurement) always gets
+  category Other. Findings of another person who is not a relative
+  (experiencer `other`) are returned in a new `other_person_findings` list on
+  the pipeline result, REST response and MCP extract tools, and are never
+  exported into a phenopacket. Every term gets a `temporality`
+  (`current` | `historical` | `unknown`); unexpected values are coerced to
+  `unknown`, and an `unknown` twin of a term with a known temporality is merged
+  into it. The phase-1 schema no longer asks for character offsets.
+  `PROMPT_BEHAVIOR_VERSION` is bumped to `4`.
+- **One helper for located chunks and the gaps between them** (#401). The
+  "chunk has a document position" check and the walk over the text cleanup
+  dropped between chunks were written several times (evidence offsets, full-text
+  adapter, phase-1 prompt rendering, pipeline offset attachment). They now live
+  in `phentrieve.llm.evidence_offsets`, and a rendered chunk's evidence search
+  region is exactly the source text its phase-1 line shows (before, it extended
+  over the whole gap to the next chunk).
+- **One `needs_semantic_model()` check for chunking pipelines** (#429). The
+  "does this chunking pipeline need a sentence-transformer model" loop that was
+  copy-pasted in `text process`, `text chunk` and `text interactive` now lives
+  in `phentrieve.text_processing.config_resolver.needs_semantic_model`.
+- **One health route: `GET /api/v1/health`** (#433). It now answers directly
+  (the Docker health checks used to get a 307 to `/api/v1/health/`) and
+  returns `{"status": "healthy", "service", "version", "timestamp"}`, the shape
+  `/api/v1/system/health` already returned; the old body was
+  `{"status": "ok"}`. `/api/v1/health/` and `/api/v1/system/health` stay as
+  undocumented aliases with the same payload, and the frontend connection
+  poll now calls `/api/v1/health`.
+- **Batched embedding and spaCy calls in standard text processing** (#410).
+  The sliding-window splitter encodes the windows of all segments in one
+  `model.encode` call instead of one call per segment, and assertion detection
+  parses all chunks of a document with one `nlp.pipe` call
+  (`AssertionDetector.detect_batch`, `DependencyAssertionDetector.detect_doc`)
+  instead of one `nlp()` call per chunk. Output is unchanged.
+
+### Fixed
+
+- **`/api/v1/query` no longer blocks the event loop** (#405).
+  `execute_hpo_retrieval_for_api` is now synchronous and both the REST router
+  and the MCP `search_hpo_terms` adapter run it via `run_in_threadpool`, so one
+  query no longer stalls health checks, MCP and text processing.
+- **`GET /api/v1/query` returns 422 for invalid parameters and uses the
+  requested model's retriever** (#408). The retriever dependency binds
+  `model_name` directly (no more un-awaited coroutine or stray `?model=`
+  parameter), `QueryRequest` validation errors become 422 instead of 500, and
+  the retriever-mismatch re-initialization and second model-policy resolution
+  are removed.
+- **API model caches no longer expire hourly or race** (#416). The SBERT model,
+  retriever, status and lock caches are plain dicts (bounded by the model
+  allowlist) read once with `.get()`, a failed model load is retried after a
+  30 s cooldown instead of sticking for an hour, and `cleanup_model_caches`
+  also clears the embedding model registry so models are actually freed.
+- **Other-person findings get correct highlight offsets** (#394). The full-text
+  adapter mapped their document spans without the document text, so offsets
+  drifted by the whitespace that chunk cleanup collapsed.
+- **Full-text attribution offsets on non-ASCII text** (#411). The fallback
+  search for evidence inside a chunk ran on the lowered chunk text, whose length
+  can differ ("İ" lowers to two code points), shifting the offsets. It now
+  searches the original text case-insensitively. (The other points of #411 do
+  not apply on this branch: attribution offsets are computed in code and
+  clipped to the chunk, not taken from the model.)
+- **LLM evidence offsets** (#397):
+  - A `chunk_span` fallback (evidence not found in the cited chunks) is no
+    longer shown as an exact highlight of the whole chunk. The adapter searches
+    the cited chunks for the evidence text and adds no attribution when it is
+    absent, as before the evidence-offset rework; the frontend then falls back
+    to the label. The evidence record keeps `offset_basis="chunk_span"`.
+  - Soft hyphens (U+00AD) and words hyphenated at a line break
+    (`"Hämo-\nglobin"`), common in text pasted from PDFs, no longer prevent a
+    match.
+  - A chunk that follows a chunk the text pipeline could not locate no longer
+    repeats that chunk's text in its phase-1 line, so the model cannot cite it
+    for the unlocated finding. This changes the phase-1 prompt content for such
+    notes; `PROMPT_BEHAVIOR_VERSION` is bumped to `5`.
+  - Each search region is normalized once per document instead of once per
+    finding.
+- **Phenopacket export honours every negation synonym and `excluded: true`**
+  (#407). `denied`, `no`, `negative` and `excluded` now export as excluded
+  features (they previously normalized to `unknown`, i.e. present); an explicit
+  `excluded: true` wins over any `status`/`assertion` string; and the MCP
+  export reads the extractor's `excluded` flag.
+
+- **MCP response budget keeps the patient's findings** (#396). The extract
+  tools now trim `other_person_findings` first, then `family_history_findings`,
+  and `aggregated_hpo_terms` only if still over budget, so a large secondary
+  list no longer pushes the patient's own terms out of the response.
+- **Frontend health poll and response logging are cheaper** (#431). The API
+  health poll skips its interval tick while the tab is hidden, and API response
+  logs read the size from `Content-Length` instead of `JSON.stringify`-ing every
+  response body.
+
+- **ESLint no longer lints the generated `frontend/coverage/` directory** (#432).
+
+- **Full-text "normal" findings are no longer collected as present** (#404).
+  The frontend mapped a `status: "normal"` term (and any term the API flags
+  `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out
+  findings as present phenotypes. They now map to `negated` when the curation
+  model is seeded and in the findings receipt.
+- **Long notes no longer silently return zero HPO terms**
+  ([#402](https://github.com/berntpopp/phentrieve/issues/402)).
+  `DenseRetriever.query_batch` sent every chunk embedding to Chroma in one
+  query, which exceeded SQLite's bound-variable limit ("too many SQL
+  variables") for notes of a few hundred chunks; the error was logged and every
+  chunk got empty results, so the API answered HTTP 200 with no terms. Chroma is
+  now queried in slices of `CHROMA_QUERY_BATCH_SIZE` (64) embeddings. A failed
+  index query raises `RetrievalError` instead of returning empty results
+  (`query_batch_multi_vector` no longer swallows errors either, and an invalid
+  aggregation strategy raises `ValueError`), so API, CLI and MCP callers report
+  an error.
+
+- **Bundle verification no longer accepts a corrupted SQLite index**
+  ([#398](https://github.com/berntpopp/phentrieve/issues/398)). The
+  lock-row-tolerant "stable" `indexes/` checksum hashes the SQLite dump, which
+  never reads index pages. It is now accepted only if `PRAGMA integrity_check`
+  reports `ok`. The verified inventory (and so the benchmark retrieval-asset
+  `content_sha256`) records the checksum computed from the data rather than the
+  manifest hash: for a directory holding `chroma.sqlite3` this is its stable
+  checksum, which does not change when Chroma adds lock rows. Benchmark
+  checkpoints written before this change therefore do not resume.
+
+- **Similarity recovers once HPO data is prepared**
+  ([#417](https://github.com/berntpopp/phentrieve/issues/417)). A missing or
+  empty HPO database was cached as empty graph data (and the REST router cached
+  an empty label map), so similarity answered 503 until the process restarted.
+  Failed graph loads are no longer cached and labels are looked up per request.
+
+- **LLM evidence offsets are computed in code from the cited chunks.** The
+  model reported `start_char`/`end_char` relative to a chunk, so evidence spans
+  did not point into the document. The pipeline now locates `evidence_text`
+  inside the cited chunks (tolerating typography, whitespace, letter case and
+  Unicode composition) and records how the span was found in a new
+  `offset_basis` (`evidence_in_chunk`, `evidence_in_chunk_hull`, `chunk_span`,
+  `unresolved`). A hull search only spans runs of adjacent cited chunks, and
+  chunks the text pipeline could not locate (`-1` positions) are ignored. The
+  full-text adapter maps the document offsets into each chunk's cleaned text for
+  `text_attributions`. Paraphrased evidence now gets a whole-chunk attribution
+  (`chunk_span`) where it previously had none.
+
+- **Grounded phase-1 extraction sees negation cues that chunk cleanup removed**
+  ([#375](https://github.com/berntpopp/phentrieve/issues/375)). `FinalChunkCleaner`
+  strips leading words such as `no`/`not`, and assertion detection is disabled
+  for grounded chunks, so the extraction prompt showed e.g. `hepatosplenomegaly`
+  for "There was no hepatosplenomegaly" and the model extracted it as present.
+  Grounded chunks now carry a `prompt_text` that prefixes the source text dropped
+  since the previous chunk ("There was no hepatosplenomegaly"). It is used only
+  in the phase-1 chunk index (ungrouped, precomputed and fallback groups), with
+  whitespace runs and line breaks in the restored text collapsed so each chunk
+  stays on one index line. Chunk `text` and offsets, retrieval, phase-2 mapping
+  context and API output are unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to
+  `3` so earlier LLM benchmark checkpoints do not match new runs. Limitation: a
+  cue that scopes over a coordinated list is restored only for the chunk it
+  directly precedes ("no plantar or palmar pits, facial abnormalities or
+  macrocephaly" restores `no` for `plantar` but not for the later items).
+
+- **Runaway phase-1 generations no longer burn the full output budget repeatedly**
+  ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate
+  response (e.g. a repeated `\n` escape inside `evidence_text`) previously ran to
+  the fixed 65,536-token ceiling, was retried identically and then re-sent as a
+  single large group, costing four maximal requests before small groups ran.
+  Grounded phase-1 requests now get a chunk-proportional output budget
+  (`max(8192, 1024 + 256 × chunks)`, capped at 65,536). Structured retries are
+  skipped when a response was truncated at a budget the retry cannot raise.
+  Grounded phase-1 always passes its budget explicitly, so the budget is also
+  the retry ceiling: a truncated grounded phase-1 response is never retried with
+  a larger budget (it was not before either, at 65,536) and recovery comes from
+  the grouped fallback. After such a truncation, `grouped_large` is skipped when
+  it would resend all chunks as one group, and extraction falls back directly to
+  `grouped_small`. Reasoning models count hidden reasoning tokens against the
+  same budget; the 8,192-token floor was derived from a non-reasoning model.
+- **Grounded Phase-1 prompt no longer sends an empty clinical-text block.** In
+  grounded and grouped extraction the chunk index is the note, but the user
+  prompt still rendered an empty `UNTRUSTED_CLINICAL_TEXT` block while the system
+  prompt asked for extraction "from the full note". Grounded requests now use a
+  dedicated chunk-index-only `grounded_user_prompt_template`, and the system
+  prompt names both note sources: the chunk index, or the clinical text block
+  when the chunk index is empty (legacy whole-document mode), with chunk_ids
+  required only when the index is not empty (prompt `v3.1.0` → `v3.2.0`).
+  Custom templates without the new key keep the previous rendering. The prompt
+  identity hashes the grounded template, and `PROMPT_BEHAVIOR_VERSION` is bumped
+  to `2`, so earlier LLM benchmark checkpoints no longer match new runs.
+- **Other-person findings are fully accounted for** (#401). The LLM benchmark
+  assertion distribution counts `other_person_findings` next to the family
+  count, and the other-person resolution path records phase timings, the
+  phase-2b LLM trace, `local_fallbacks` and `llm_mapped_phrases` under
+  `other_person_*` keys through the same helper as the family path. The dead
+  span-overlap guard and bounds merge in phase-1 deduplication are removed
+  (phase-1 items carry no offsets until after deduplication).
+- **A truncated phase-1 group is no longer dropped silently** (#395). A
+  `grouped_small` group (the last fallback level) that truncates at its scaled
+  output budget is retried once at a fixed 65,536-token ceiling
+  (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
+  keep the scaled budget, so runaway generations are still cut early. At most
+  two such retries run per request
+  (`DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES`), so a model that runs away
+  in every group of a long note cannot cost one ceiling call per group. A group
+  that still fails is counted in `phase1_unrecovered_groups`, and REST
+  responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
+  (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
+  Retries are traced per group (`truncation_retry`) and counted in
+  `phase1_truncation_retries`. The frontend does not display the flag yet.
+- **REST `allow_standard_fallback` now also covers LLM backend errors** (#418),
+  as on MCP: the request reruns on the standard backend with
+  `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
+  the failed LLM attempt's quota reservation is released.
+### Removed
+
+- **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
+  script still parsed `QueryInterface.vue` after the defaults moved to
+  `frontend/src/constants/defaults.js`, so it always failed;
+  `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
+  `AdvancedOptionsPanel.vue` now takes its prop defaults from
+  `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
+
+- **Unused evaluation code** (#414). Deleted the unreferenced
+  `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
+  `hierarchical_matching`, `threshold_optimization`, `full_text_runner` and
+  `semantic_metrics` (with its tests), the unused `result_analyzer` dataframe
+  helpers, the `ExtractionReporter.plot_*` methods, and the dead helpers
+  `utils.get_index_dir`, `utils.load_german_translation_text`,
+  `config.get_sliding_window_config`,
+  `evaluation.runner.compare_models_with_statistics`,
+  `query_orchestrator._format_structured_results_to_text_display`,
+  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
+
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
+
 ## [0.29.1] — 2026-10-28 (CLI 0.29.1 / API 0.19.0 / Frontend 0.19.1)
 
 Case workspace labels follow the UI language.

@@ -80,6 +80,7 @@ class FakeProvider(LLMProvider):
         if "exception" in response:
             self.last_usage = response.get("usage") or {}
             self.last_request_count = response.get("request_count", 1)
+            self.last_finish_reason = response.get("finish_reason")
             raise response["exception"]
         self.last_usage = response.get("usage") or {
             "prompt_tokens": 10,
@@ -331,6 +332,7 @@ def test_two_phase_pipeline_maps_phrase_via_retrieved_candidates():
                     phrase="recurrent seizures",
                     evidence_text="recurrent seizures",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -452,11 +454,10 @@ def test_ungrouped_phase1_debug_capture_persists_in_trace() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1],
-                "start_char": None,
-                "end_char": None,
             }
         ]
     }
@@ -765,11 +766,10 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
                 "evidence_text": "recurrent seizures",
                 "experiencer": "proband",
                 "assertion": "present",
+                "temporality": "unknown",
                 "negated_qualifier": None,
                 "category": "Abnormal",
                 "chunk_ids": [1, 2],
-                "start_char": None,
-                "end_char": None,
             }
         ]
     }
@@ -783,6 +783,8 @@ def test_grouped_phase1_debug_capture_is_additive_and_opt_in() -> None:
             "start_char": None,
             "end_char": None,
             "experiencer": "proband",
+            # Not emitted by the model, so threaded as None like assertion.
+            "temporality": None,
             # The model omitted assertion, so the parsed shape threads None
             # (unset) not the schema default "present". Note the raw
             # structured_response above still dumps the defaulted "present"
@@ -1065,8 +1067,9 @@ def test_grouped_phase1_deduplicates_overlapping_mentions_and_merges_grounding()
             phrase="recurrent seizures",
             evidence_text="Patient had recurrent seizures since infancy",
             chunk_ids=[1, 2, 3],
-            start_char=12,
-            end_char=44,
+            start_char=None,
+            end_char=None,
+            offset_basis="unresolved",
             match_method="local",
         )
     ]
@@ -1176,110 +1179,22 @@ def test_grouped_mentions_deduplicate_before_retrieval() -> None:
                     phrase="progressive ataxia",
                     evidence_text="difficulty with balance",
                     chunk_ids=[1, 2],
-                    start_char=12,
-                    end_char=30,
+                    start_char=None,
+                    end_char=None,
+                    offset_basis="unresolved",
                     match_method="local",
                 ),
                 LLMPhenotypeEvidence(
                     phrase="progressive ataxia",
                     evidence_text="unsteady gait",
                     chunk_ids=[2, 3],
-                    start_char=64,
-                    end_char=78,
+                    start_char=None,
+                    end_char=None,
+                    offset_basis="unresolved",
                     match_method="local",
                 ),
             ],
         )
-    ]
-
-
-def test_grouped_phase1_keeps_far_apart_mentions_separate() -> None:
-    provider = FakeProvider(
-        responses=[
-            {
-                "parsed": {
-                    "phenotypes": [
-                        {
-                            "phrase": "recurrent seizures",
-                            "category": "Abnormal",
-                            "chunk_ids": [1, 2],
-                            "evidence_text": "recurrent seizures",
-                            "start_char": 12,
-                            "end_char": 30,
-                        }
-                    ]
-                }
-            },
-            {
-                "parsed": {
-                    "phenotypes": [
-                        {
-                            "phrase": "recurrent seizures",
-                            "category": "Abnormal",
-                            "chunk_ids": [2, 3],
-                            "evidence_text": "recurrent seizures",
-                            "start_char": 112,
-                            "end_char": 130,
-                        }
-                    ]
-                }
-            },
-        ]
-    )
-    tool_executor = FakeToolExecutor(
-        batch_results=[
-            {
-                "phrase": "recurrent seizures",
-                "candidates": [
-                    {
-                        "hpo_id": "HP:0001250",
-                        "term_name": "Recurrent seizures",
-                        "score": 0.95,
-                    }
-                ],
-            }
-        ]
-    )
-    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
-
-    result = pipeline.run(
-        text="Patient had recurrent seizures twice in the note.",
-        grounded_chunks=[
-            {"chunk_id": 1, "text": "Patient had recurrent"},
-            {"chunk_id": 2, "text": "recurrent seizures"},
-            {"chunk_id": 3, "text": "seizures twice in the note."},
-        ],
-        extraction_groups=[
-            {
-                "group_id": 1,
-                "chunk_ids": [1, 2],
-                "text": "chunk_id=1: Patient had recurrent\nchunk_id=2: recurrent seizures",
-            },
-            {
-                "group_id": 2,
-                "chunk_ids": [2, 3],
-                "text": "chunk_id=2: recurrent seizures\nchunk_id=3: seizures twice in the note.",
-            },
-        ],
-        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
-    )
-
-    assert result.meta.phase_counts["extracted_phrases"] == 2
-    assert result.meta.trace["phase1"]["extracted"] == [
-        {
-            "phrase": "recurrent seizures",
-            "category": "abnormal",
-            "chunk_ids": [1, 2],
-            "evidence_text": "recurrent seizures",
-            "actionable": True,
-        },
-        {
-            "phrase": "recurrent seizures",
-            "category": "abnormal",
-            "chunk_ids": [2, 3],
-            "evidence_text": "recurrent seizures",
-            "actionable": True,
-        },
     ]
 
 
@@ -1663,6 +1578,327 @@ def test_pipeline_chains_phase1_fallback_from_ungrouped_to_grouped_large_to_grou
     assert result.meta.phase_counts["phase1_failed_groups"] == 2
     assert result.meta.phase_counts["phase1_partial_failures"] == 1
     assert result.meta.phase_request_counts["phase1_requests"] == 6
+
+
+@pytest.mark.parametrize(
+    ("chunk_count", "expected_budget"),
+    [
+        (1, 2048),
+        (2, 2048),
+        (17, 5376),
+        (100, 26624),
+        (300, 65536),
+    ],
+)
+def test_grounded_phase1_output_budget_scales_with_chunk_count(
+    chunk_count, expected_budget
+) -> None:
+    provider = FakeProvider(responses=[{"parsed": {"phenotypes": []}}])
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    pipeline.run(
+        text="Clinical note.",
+        grounded_chunks=[
+            {"chunk_id": index, "text": f"Chunk {index}."}
+            for index in range(1, chunk_count + 1)
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert provider.structured_calls[0]["max_output_tokens"] == expected_budget
+
+
+def test_pipeline_skips_single_group_grouped_large_after_output_truncation(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_SMALL_GROUP_MAX_CHUNKS",
+        1,
+    )
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError(
+                    "Invalid JSON: EOF while parsing a string at line 27"
+                ),
+                "finish_reason": "max_output_tokens",
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Opening. Middle. Closing.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Middle sentence."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    phase1_trace = result.meta.trace["phase1"]
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_small",
+    ]
+    assert phase1_trace["final_mode"] == "grouped_small"
+    assert phase1_trace["failure_class"] == "structured_json_invalid"
+    assert result.meta.phase_counts["phase1_fallbacks"] == 1
+    assert result.meta.phase_request_counts["phase1_requests"] == 4
+
+
+def test_pipeline_keeps_multi_group_grouped_large_after_output_truncation(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        pipeline_module,
+        "DEFAULT_PHASE1_LARGE_GROUP_MAX_PROMPT_TOKENS",
+        21,
+    )
+    provider = FakeProvider(
+        responses=[
+            {
+                "exception": RuntimeError("Invalid JSON: EOF while parsing a string"),
+                "finish_reason": "max_output_tokens",
+                "request_count": 1,
+            },
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ],
+        provider_name="openai",
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=FakeToolExecutor([]),
+    )
+
+    result = pipeline.run(
+        text="Opening. Middle. Closing.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Opening sentence."},
+            {"chunk_id": 2, "text": "Middle sentence."},
+            {"chunk_id": 3, "text": "Closing sentence."},
+        ],
+        extraction_groups=[],
+        config=LLMPipelineConfig(
+            provider="openai",
+            model="gpt-5.4-mini",
+            mode="two_phase",
+        ),
+    )
+
+    phase1_trace = result.meta.trace["phase1"]
+    assert [attempt["mode"] for attempt in phase1_trace["attempts"]] == [
+        "ungrouped",
+        "grouped_large",
+    ]
+    assert [
+        group["source_chunk_ids"] for group in phase1_trace["attempts"][1]["groups"]
+    ] == [[1, 2], [2, 3]]
+    assert result.meta.phase_request_counts["phase1_requests"] == 3
+
+
+# Issue #395 scenario: the ungrouped request truncates, then the last
+# grouped_small window ([3, 4], holding the dense negated list) truncates too.
+_TRUNCATION_CHUNKS = [
+    {"chunk_id": 1, "text": "Recurrent seizures."},
+    {"chunk_id": 2, "text": "Normal EEG."},
+    {"chunk_id": 3, "text": "No hypotonia."},
+    {"chunk_id": 4, "text": "No ataxia, no microcephaly, no cardiomyopathy."},
+]
+_TRUNCATION_CANDIDATES = {
+    "recurrent seizures": [
+        {"hpo_id": "HP:0001250", "term_name": "recurrent seizures", "score": 0.99}
+    ],
+    "hypotonia": [{"hpo_id": "HP:0001252", "term_name": "hypotonia", "score": 0.99}],
+    "ataxia": [{"hpo_id": "HP:0001251", "term_name": "ataxia", "score": 0.99}],
+}
+
+
+def _truncated_response() -> dict[str, object]:
+    return {
+        "exception": RuntimeError("Invalid JSON: EOF while parsing a string"),
+        "finish_reason": "max_output_tokens",
+        "request_count": 1,
+    }
+
+
+def _run_truncation_scenario(monkeypatch, last_group_responses):
+    # One worker: the sequential fake provider then answers groups in order.
+    monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
+    provider = FakeProvider(
+        responses=[
+            _truncated_response(),
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype("recurrent seizures", "Abnormal"),
+                    ]
+                },
+                "request_count": 1,
+            },
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "hypotonia", "Normal", chunk_ids=[3], assertion="absent"
+                        ),
+                    ]
+                },
+                "request_count": 1,
+            },
+            *last_group_responses,
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider,
+        tool_executor=PhraseKeyedToolExecutor(_TRUNCATION_CANDIDATES),
+    )
+    result = pipeline.run(
+        text=" ".join(str(chunk["text"]) for chunk in _TRUNCATION_CHUNKS),
+        grounded_chunks=[dict(chunk) for chunk in _TRUNCATION_CHUNKS],
+        extraction_groups=[],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+    return result, provider
+
+
+def test_truncated_grouped_small_group_is_retried_once_at_the_ceiling(
+    monkeypatch,
+) -> None:
+    result, provider = _run_truncation_scenario(
+        monkeypatch,
+        [
+            _truncated_response(),
+            {
+                "parsed": {
+                    "phenotypes": [
+                        grounded_phenotype(
+                            "ataxia", "Normal", chunk_ids=[4], assertion="absent"
+                        ),
+                    ]
+                },
+                "request_count": 1,
+            },
+        ],
+    )
+
+    assert sorted((t.term_id, t.assertion) for t in result.terms) == [
+        ("HP:0001250", "present"),
+        ("HP:0001251", "negated"),
+        ("HP:0001252", "negated"),
+    ]
+    budgets = [call["max_output_tokens"] for call in provider.structured_calls]
+    # The runaway guard is intact: every first attempt uses the scaled budget;
+    # only the truncated grouped_small group is retried, once, at the ceiling.
+    assert budgets == [2048, 2048, 2048, 2048, 65536]
+    assert provider.responses == []
+    counts = result.meta.phase_counts
+    assert counts["phase1_truncation_retries"] == 1
+    assert counts["phase1_unrecovered_groups"] == 0
+    assert counts["phase1_failed_groups"] == 0
+    retried_group = result.meta.trace["phase1"]["groups"][2]
+    assert retried_group["status"] == "completed"
+    assert retried_group["truncation_retry"] is True
+    assert retried_group["request_count"] == 2
+
+
+def test_group_still_truncated_after_retry_is_reported_unrecovered(
+    monkeypatch,
+) -> None:
+    result, provider = _run_truncation_scenario(
+        monkeypatch, [_truncated_response(), _truncated_response()]
+    )
+
+    # The request still succeeds with the findings of the other groups ...
+    assert sorted(t.term_id for t in result.terms) == ["HP:0001250", "HP:0001252"]
+    assert [call["max_output_tokens"] for call in provider.structured_calls] == [
+        2048,
+        2048,
+        2048,
+        2048,
+        65536,
+    ]
+    # ... but the lost group is counted, so callers can flag the result.
+    counts = result.meta.phase_counts
+    assert counts["phase1_unrecovered_groups"] == 1
+    assert counts["phase1_truncation_retries"] == 1
+    assert counts["phase1_failed_groups"] == 1
+    failed_group = result.meta.trace["phase1"]["groups"][2]
+    assert failed_group["status"] == "failed"
+    assert failed_group["truncation_retry"] is True
+    assert failed_group["chunk_ids"] == [3, 4]
+
+
+def test_truncation_retries_stop_when_the_request_budget_is_spent(
+    monkeypatch,
+) -> None:
+    """The per-request cap wins: no ceiling retry once the budget is used up."""
+    monkeypatch.setattr(
+        pipeline_module, "DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES", 0
+    )
+    result, provider = _run_truncation_scenario(monkeypatch, [_truncated_response()])
+
+    assert 65536 not in [
+        call["max_output_tokens"] for call in provider.structured_calls
+    ]
+    assert provider.responses == []
+    counts = result.meta.phase_counts
+    assert counts["phase1_truncation_retries"] == 0
+    assert counts["phase1_unrecovered_groups"] == 1
+
+
+def test_grouped_large_truncation_is_not_retried_at_the_ceiling(monkeypatch) -> None:
+    """A truncated grouped_large window falls back to smaller groups instead."""
+    monkeypatch.setattr(pipeline_module, "DEFAULT_PHASE1_GROUP_MAX_WORKERS", 1)
+    provider = FakeProvider(
+        responses=[
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+            _truncated_response(),
+            {"parsed": {"phenotypes": []}, "request_count": 1},
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=FakeToolExecutor([])
+    )
+
+    result = pipeline.run(
+        text="One. Two.",
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "One."},
+            {"chunk_id": 2, "text": "Two."},
+        ],
+        extraction_groups=[
+            {"group_id": 1, "chunk_ids": [1], "text": "chunk_id=1: One."},
+            {"group_id": 2, "chunk_ids": [2], "text": "chunk_id=2: Two."},
+        ],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert 65536 not in [
+        call["max_output_tokens"] for call in provider.structured_calls
+    ]
+    assert result.meta.phase_counts["phase1_unrecovered_groups"] == 0
+    assert result.meta.phase_counts["phase1_truncation_retries"] == 0
 
 
 def test_pipeline_retries_only_failed_grouped_large_windows_in_grouped_small(
@@ -2361,6 +2597,7 @@ def test_two_phase_pipeline_uses_mapping_prompt_for_unresolved_phrase():
                     phrase="frequent falls",
                     evidence_text="frequent falls",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -2542,6 +2779,7 @@ def test_two_phase_pipeline_preserves_evidence_records_for_local_matches() -> No
                     phrase="recurrent seizures",
                     evidence_text="Patient had recurrent seizures.",
                     chunk_ids=[4],
+                    offset_basis="unresolved",
                     match_method="local",
                 )
             ],
@@ -2807,6 +3045,7 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
                     phrase="frequent falls",
                     evidence_text="frequent falls",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -2824,6 +3063,7 @@ def test_two_phase_pipeline_batches_unresolved_phrase_mapping_calls():
                     phrase="sleep disturbances",
                     evidence_text="sleep disturbances",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -2933,8 +3173,6 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
             "local_fallback": False,
             "evidence_text": "Frequent falls were also reported at school.",
             "chunk_ids": [3],
-            "start_char": 52,
-            "end_char": 66,
         },
     ]
     assert result.terms == [
@@ -2951,16 +3189,18 @@ def test_unresolved_mapping_batches_skip_duplicate_phrase_candidate_sets() -> No
                     phrase="frequent falls",
                     evidence_text="The child has frequent falls while walking.",
                     chunk_ids=[1],
-                    start_char=14,
-                    end_char=28,
+                    start_char=None,
+                    end_char=None,
+                    offset_basis="unresolved",
                     match_method="llm",
                 ),
                 LLMPhenotypeEvidence(
                     phrase="frequent falls",
                     evidence_text="Frequent falls were also reported at school.",
                     chunk_ids=[3],
-                    start_char=52,
-                    end_char=66,
+                    start_char=None,
+                    end_char=None,
+                    offset_basis="unresolved",
                     match_method="llm",
                 ),
             ],
@@ -3052,6 +3292,7 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
                     phrase="knock-knee (genu valgum)",
                     evidence_text="knock-knee (genu valgum)",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -3069,6 +3310,7 @@ def test_two_phase_pipeline_batch_mapping_uses_item_ids_for_batch_selections():
                     phrase="Legg Perthes disease",
                     evidence_text="Legg Perthes disease",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -3213,6 +3455,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                     phrase="motor issues",
                     evidence_text="motor issues",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -3230,6 +3473,7 @@ def test_two_phase_pipeline_batch_mapping_disambiguates_duplicate_phrase_text() 
                     phrase="motor issues",
                     evidence_text="motor issues",
                     chunk_ids=[2],
+                    offset_basis="unresolved",
                     match_method="llm",
                 )
             ],
@@ -3351,6 +3595,7 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
                     phrase="recurrent seizures",
                     evidence_text="recurrent seizures",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="local",
                 )
             ],
@@ -3368,6 +3613,7 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
                     phrase="nystagmus",
                     evidence_text="nystagmus",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="local",
                 )
             ],
@@ -3385,6 +3631,7 @@ def test_two_phase_pipeline_excludes_family_history_and_preserves_assertions():
                     phrase="skeletal anomalies",
                     evidence_text="skeletal anomalies",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="local",
                 )
             ],
@@ -3702,6 +3949,7 @@ def test_two_phase_pipeline_falls_back_to_local_match_after_invalid_mapping_sele
                     phrase="frequent falls",
                     evidence_text="frequent falls",
                     chunk_ids=[1],
+                    offset_basis="unresolved",
                     match_method="local",
                 )
             ],

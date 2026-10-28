@@ -192,6 +192,40 @@ describe('FullTextResponseReceipt', () => {
     expect(wrapper.get('.result-item-stub').text()).toContain('uncertain');
   });
 
+  it.each([
+    ['normal', { status: 'normal' }],
+    ['absent', { status: 'absent' }],
+    ['excluded=true', { status: 'present', excluded: true }],
+  ])(
+    'maps a ruled-out %s finding to negated for display and collection (#404)',
+    async (_, extra) => {
+      const wrapper = mountReceipt({
+        item: {
+          id: `turn-${_}`,
+          response: {
+            aggregated_hpo_terms: [
+              { hpo_id: 'HP:0001249', name: 'Intellectual disability', confidence: 0.8, ...extra },
+            ],
+            processed_chunks: [{ chunk_id: 1, text: 'Normal intellect.' }],
+          },
+        },
+      });
+
+      expect(wrapper.get('.result-item-stub').text()).toContain('negated');
+
+      // Add all needs a confirming second click
+      const addAll = wrapper.get('[data-testid="full-text-response-add-all"]');
+      await addAll.trigger('click');
+      await addAll.trigger('click');
+      expect(wrapper.emitted('add-all-to-collection')[0][0]).toEqual([
+        { hpo_id: 'HP:0001249', label: 'Intellectual disability', assertion_status: 'negated' },
+      ]);
+
+      await wrapper.get('.result-item-stub').trigger('click');
+      expect(wrapper.emitted('add-to-collection')[0][0].assertion_status).toBe('negated');
+    }
+  );
+
   it('reflects curated findings and shows a manual badge', async () => {
     const store = useFullTextCurationStore();
     // Pre-seed the turn so the receipt reads curation instead of re-seeding.

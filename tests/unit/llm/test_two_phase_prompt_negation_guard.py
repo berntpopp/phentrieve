@@ -3,9 +3,9 @@
 This test protects the LLM extraction contract from a silent regression where
 a future localized (or edited) `two_phase` extraction prompt drops either:
 
-  1. the negation-scope rule that tells the model a negation cue (e.g. "X
-     without Y") negates only the noun phrase it directly modifies, not the
-     whole sentence, and
+  1. the negation-scope rules: a negation cue applies to every finding of a
+     coordinated list it introduces, also across chunk lines, up to a scope
+     terminator (#379); and in "X without Y" only Y is negated, and
   2. a `negated_qualifier` few-shot example that demonstrates the rule with a
      real (non-null) value.
 
@@ -27,13 +27,17 @@ TWO_PHASE_TEMPLATES_DIR = PACKAGE_TEMPLATES_DIR / "two_phase"
 # Excluded suffixes: mapping-phase templates, not extraction-phase templates.
 _MAPPING_SUFFIXES = ("_mapping.yaml", "_mapping_batch.yaml")
 
-# Distinctive negation-scope rule text (en.yaml:28-30). Robust to minor
-# reformatting but specific enough that a template lacking the guidance
-# would fail the check.
+# Distinctive negation-scope rule text. Robust to minor reformatting but
+# specific enough that a template lacking the guidance would fail the check.
 _NEGATION_SCOPE_MARKERS = (
-    "negates ONLY",
+    "coordinated list",
+    "several chunk lines",
+    "scope ends",
     "X without Y",
 )
+
+# The narrow rule of prompt v3.2.0 contradicts the coordination scope (#379).
+_RETIRED_NEGATION_MARKERS = ("negates ONLY",)
 
 # A negated_qualifier few-shot must show a real (non-null, non-empty) value,
 # not just "negated_qualifier": null.
@@ -73,6 +77,15 @@ def test_extraction_templates_keep_negation_scope_rule() -> None:
             assert marker in text, (
                 f"{path.name} is missing negation-scope guidance "
                 f"(expected marker {marker!r})"
+            )
+
+
+def test_extraction_templates_drop_the_narrow_negation_rule() -> None:
+    for path in _extraction_templates():
+        text = path.read_text(encoding="utf-8")
+        for marker in _RETIRED_NEGATION_MARKERS:
+            assert marker not in text, (
+                f"{path.name} still contains the narrow negation rule {marker!r}"
             )
 
 

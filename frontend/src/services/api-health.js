@@ -1,7 +1,7 @@
 /**
  * API health monitoring service for connection status tracking.
  *
- * Polls /api/v1/system/health endpoint every 30 seconds to verify API connectivity.
+ * Polls the /api/v1/health endpoint every 30 seconds to verify API connectivity.
  * Provides reactive connection status for UI components.
  *
  * Design patterns:
@@ -67,7 +67,7 @@ class ApiHealthService {
     const startTime = performance.now();
 
     try {
-      const response = await axios.get('/api/v1/system/health', {
+      const response = await axios.get('/api/v1/health', {
         timeout: this.requestTimeout,
       });
 
@@ -113,6 +113,8 @@ class ApiHealthService {
 
     // Periodic checks
     this.intervalId = setInterval(() => {
+      // Skip polls while the tab is hidden; the next visible tick catches up.
+      if (typeof document !== 'undefined' && document.hidden) return;
       this.checkHealth();
     }, this.checkInterval);
   }

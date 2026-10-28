@@ -12,6 +12,7 @@ from phentrieve.text_processing.full_text_service import (
     MAX_GROUNDED_PHASE1_INPUT_TOKENS,
     FullTextService,
     _adapt_llm_aggregated_terms,
+    _infer_text_attribution_offsets,
     adapt_standard_response,
     preprocess_grounded_document,
     run_llm_backend,
@@ -269,6 +270,7 @@ def test_run_llm_backend_adapts_grounded_chunks_and_text_attributions(mocker):
             "evidence": "recurrent seizures",
             "status": "present",
             "experiencer": "proband",
+            "temporality": "unknown",
             "excluded": False,
             "evidence_records": [
                 {
@@ -277,6 +279,7 @@ def test_run_llm_backend_adapts_grounded_chunks_and_text_attributions(mocker):
                     "chunk_ids": [1],
                     "start_char": 12,
                     "end_char": 30,
+                    "offset_basis": None,
                     "match_method": "local",
                 }
             ],
@@ -542,6 +545,257 @@ def test_llm_adaptation_drops_terms_without_valid_chunk_references() -> None:
     )
 
     assert adapted == []
+
+
+_POSITIONED_CHUNKS = [
+    {"chunk_id": 1, "text": "Fever.", "start_char": 0, "end_char": 6},
+    {
+        "chunk_id": 2,
+        "text": "Patient had recurrent seizures.",
+        "start_char": 7,
+        "end_char": 38,
+    },
+]
+
+
+def _seizure_term(record: dict) -> SimpleNamespace:
+    return SimpleNamespace(
+        term_id="HP:0001250",
+        label="Seizure",
+        evidence="recurrent seizures",
+        assertion="present",
+        score=0.9,
+        confidence=0.9,
+        evidence_records=[record],
+    )
+
+
+def test_llm_text_attributions_convert_document_offsets_to_chunk_offsets() -> None:
+    # Evidence records carry document offsets; text attributions are relative
+    # to their chunk, and the frontend adds the chunk position itself.
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [2],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 19,
+                    "end_char": 37,
+                    "offset_basis": "evidence_in_chunk",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
+def test_llm_text_attributions_map_document_offsets_into_cleaned_chunk_text() -> None:
+    # Chunk text is whitespace-cleaned, so its characters do not line up with
+    # the document span the chunk positions point to.
+    document = "Patient   had\n  recurrent seizures."
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 16,
+                    "end_char": 34,
+                    "offset_basis": "evidence_in_chunk",
+                }
+            )
+        ],
+        grounded_chunks=[
+            {
+                "chunk_id": 1,
+                "text": "Patient had recurrent seizures.",
+                "start_char": 0,
+                "end_char": 35,
+            }
+        ],
+        document_text=document,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 1,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
+def test_llm_text_attributions_split_a_span_over_its_cited_chunks() -> None:
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1, 2],
+                    "evidence_text": "Fever. Patient had recurrent seizures.",
+                    "start_char": 0,
+                    "end_char": 38,
+                    "offset_basis": "evidence_in_chunk_hull",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 1,
+            "start_char": 0,
+            "end_char": 6,
+            "matched_text_in_chunk": "Fever.",
+        },
+        {
+            "chunk_id": 2,
+            "start_char": 0,
+            "end_char": 31,
+            "matched_text_in_chunk": "Patient had recurrent seizures.",
+        },
+    ]
+
+
+def test_llm_text_attributions_skip_a_chunk_span_fallback() -> None:
+    # A chunk_span basis means the evidence was not found; the span is the whole
+    # chunk and must not be shown as an exact quote (#397).
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [2],
+                    "evidence_text": "repeated fits",
+                    "start_char": 7,
+                    "end_char": 38,
+                    "offset_basis": "chunk_span",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == []
+
+
+def test_llm_text_attributions_search_the_chunk_after_a_chunk_span_fallback() -> None:
+    adapted = _adapt_llm_aggregated_terms(
+        [
+            _seizure_term(
+                {
+                    "chunk_ids": [1, 2],
+                    "evidence_text": "recurrent seizures",
+                    "start_char": 0,
+                    "end_char": 6,
+                    "offset_basis": "chunk_span",
+                }
+            )
+        ],
+        grounded_chunks=_POSITIONED_CHUNKS,
+    )
+
+    assert adapted[0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 12,
+            "end_char": 30,
+            "matched_text_in_chunk": "recurrent seizures",
+        }
+    ]
+
+
+def test_inferred_attribution_offsets_survive_non_ascii_case_folding() -> None:
+    # "İ".lower() is two code points, which shifted offsets found in the
+    # lowered string (#411).
+    chunk_text = "İnfant with Seizures"
+
+    start, end = _infer_text_attribution_offsets(
+        chunk_text=chunk_text, matched_text="seizures"
+    )
+
+    assert (start, end) == (12, 20)
+    assert chunk_text[start:end] == "Seizures"
+
+
+def test_run_llm_backend_maps_other_person_offsets_into_cleaned_chunk_text(
+    mocker,
+):
+    # Chunk text has whitespace runs collapsed; without document_text the
+    # document span drifted by the removed whitespace (#394).
+    document = "Intro.\n\n   Her   roommate  has   hypothyroidism."
+    second = document.index("Her")
+    preprocessed = SimpleNamespace(
+        grounded_chunks=[
+            {"chunk_id": 1, "text": "Intro.", "start_char": 0, "end_char": 6},
+            {
+                "chunk_id": 2,
+                "text": "Her roommate has hypothyroidism.",
+                "start_char": second,
+                "end_char": len(document),
+            },
+        ],
+        extraction_groups=[],
+    )
+    evidence_start = document.index("hypothyroidism")
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        other_person_findings=[
+            LLMPhenotype(
+                term_id="HP:0000821",
+                label="Hypothyroidism",
+                evidence="hypothyroidism",
+                assertion="present",
+                experiencer="other",
+                evidence_records=[
+                    {
+                        "phrase": "hypothyroidism",
+                        "evidence_text": "hypothyroidism",
+                        "chunk_ids": [2],
+                        "start_char": evidence_start,
+                        "end_char": evidence_start + len("hypothyroidism"),
+                        "offset_basis": "evidence_in_chunk",
+                    }
+                ],
+            )
+        ],
+        meta=LLMMeta(llm_model="gpt-4o-mini", llm_mode="two_phase"),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.get_llm_provider",
+        return_value=mocker.Mock(),
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=preprocessed,
+    )
+    mocker.patch(
+        "phentrieve.text_processing.full_text_service.TwoPhaseLLMPipeline",
+        return_value=pipeline,
+    )
+
+    result = run_llm_backend(
+        text=document, llm_model="gpt-4o-mini", llm_mode="two_phase"
+    )
+
+    assert result["other_person_findings"][0]["text_attributions"] == [
+        {
+            "chunk_id": 2,
+            "start_char": 17,
+            "end_char": 31,
+            "matched_text_in_chunk": "hypothyroidism",
+        }
+    ]
 
 
 def test_llm_adaptation_trusts_llm_assertion_over_chunk_status() -> None:
@@ -1493,6 +1747,93 @@ def test_run_standard_backend_invokes_adaptive_when_enabled(mocker):
     assert result["meta"]["num_aggregated_hpo_terms"] == 1
     # The aggregated terms come from the rechunker output, not the initial pass.
     assert [t["id"] for t in result["aggregated_hpo_terms"]] == ["HP:0002"]
+
+
+def test_run_llm_backend_reuses_supplied_retriever_and_model(mocker) -> None:
+    """#420: a caller-owned retriever/model is used instead of building new ones."""
+    provider = mocker.Mock()
+    provider.count_tokens.return_value = {"total_tokens": 1}
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(llm_model="gemini-2.5-flash", llm_mode="two_phase"),
+    )
+    pipeline_factory = mocker.Mock(return_value=pipeline)
+    preprocess = mocker.patch(
+        "phentrieve.text_processing.full_text_service.preprocess_grounded_document",
+        return_value=SimpleNamespace(grounded_chunks=[], extraction_groups=[]),
+    )
+    from_model_name = mocker.patch(
+        "phentrieve.retrieval.dense_retriever.DenseRetriever.from_model_name"
+    )
+    retriever = mocker.Mock()
+    retriever.detect_index_type.return_value = "multi_vector"
+    sbert_model = object()
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_grounded",
+        retrieval_model_name="some/model",
+        retriever=retriever,
+        sbert_model_for_semantic_chunking=sbert_model,
+        provider_factory=mocker.Mock(return_value=provider),
+        pipeline_factory=pipeline_factory,
+    )
+
+    assert (
+        preprocess.call_args.kwargs["sbert_model_for_semantic_chunking"] is sbert_model
+    )
+    tool_executor = pipeline_factory.call_args.kwargs["tool_executor"]
+    assert tool_executor._retriever is retriever
+    assert tool_executor.model_name == "some/model"
+    assert tool_executor.multi_vector is True
+    from_model_name.assert_not_called()
+
+
+def test_run_llm_backend_without_retriever_keeps_default_tool_executor(mocker):
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(llm_model="gemini-2.5-flash", llm_mode="two_phase"),
+    )
+    pipeline_factory = mocker.Mock(return_value=pipeline)
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_legacy",
+        provider_factory=mocker.Mock(return_value=mocker.Mock()),
+        pipeline_factory=pipeline_factory,
+    )
+
+    assert "tool_executor" not in pipeline_factory.call_args.kwargs
+
+
+def test_build_grounded_chunks_uses_supplied_semantic_model(mocker) -> None:
+    from phentrieve.llm import preprocessing
+
+    load_model = mocker.patch("phentrieve.embeddings.load_embedding_model")
+    pipeline_cls = mocker.patch(
+        "phentrieve.text_processing.pipeline.TextProcessingPipeline"
+    )
+    pipeline_cls.return_value.process.return_value = []
+    sbert_model = object()
+
+    preprocessing.build_grounded_chunks_from_text_pipeline(
+        text="Patient has seizures.",
+        language="en",
+        chunking_pipeline_config=None,
+        assertion_config=None,
+        retrieval_model_name="some/model",
+        sbert_model_for_semantic_chunking=sbert_model,
+    )
+
+    load_model.assert_not_called()
+    assert (
+        pipeline_cls.call_args.kwargs["sbert_model_for_semantic_chunking"]
+        is sbert_model
+    )
 
 
 def test_cancelled_run_starts_no_further_llm_calls() -> None:

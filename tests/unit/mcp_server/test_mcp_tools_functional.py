@@ -13,6 +13,7 @@ import pytest
 
 from api.mcp.facade import create_phentrieve_mcp
 from phentrieve.evaluation.metrics import load_hpo_graph_data
+from tests.unit.tiny_hpo_db import use_hpo_data_dir, write_tiny_hpo_db
 
 
 def _ontology_terms_available(*term_ids: str) -> bool:
@@ -104,11 +105,19 @@ def test_compare_real_similarity():
     assert data["_meta"]["next_commands"]
 
 
-def test_compare_not_found_envelope():
-    data = _call(
-        "phentrieve_compare_hpo_terms",
-        {"term1_id": "HP:0000001", "term2_id": "HP:9999999"},
-    )
+def test_compare_not_found_envelope(tmp_path, monkeypatch):
+    # Use a tiny prepared ontology so "not found" is tested independently of
+    # whether `phentrieve data prepare` has run (missing data is now reported
+    # as temporarily_unavailable, not not_found).
+    use_hpo_data_dir(monkeypatch, tmp_path / "data")
+    write_tiny_hpo_db(tmp_path / "data")
+    try:
+        data = _call(
+            "phentrieve_compare_hpo_terms",
+            {"term1_id": "HP:0000001", "term2_id": "HP:9999999"},
+        )
+    finally:
+        load_hpo_graph_data.cache_clear()
     assert data["success"] is False
     assert data["error_code"] == "not_found"
     assert data["retryable"] is False
@@ -116,6 +125,20 @@ def test_compare_not_found_envelope():
     assert data["recovery_action"] == "resolve_identifier"
     next_tools = {c["tool"] for c in data["_meta"]["next_commands"]}
     assert "phentrieve_search_hpo_terms" in next_tools
+
+
+def test_compare_missing_ontology_is_temporarily_unavailable(tmp_path, monkeypatch):
+    use_hpo_data_dir(monkeypatch, tmp_path / "data")
+    try:
+        data = _call(
+            "phentrieve_compare_hpo_terms",
+            {"term1_id": "HP:0001250", "term2_id": "HP:0002133"},
+        )
+    finally:
+        load_hpo_graph_data.cache_clear()
+    assert data["success"] is False
+    assert data["error_code"] == "temporarily_unavailable"
+    assert data["retryable"] is True
 
 
 @requires_compare_ontology

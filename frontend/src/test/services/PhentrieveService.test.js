@@ -34,6 +34,23 @@ describe('PhentrieveService', () => {
     vi.clearAllMocks();
   });
 
+  it('logs response size from content-length without re-serializing the body (#431)', async () => {
+    const toJSON = vi.fn(() => ({}));
+    axios.post.mockResolvedValueOnce({
+      status: 200,
+      headers: { 'content-length': '1234' },
+      data: { processed_chunks: [], aggregated_hpo_terms: [], toJSON },
+    });
+
+    await PhentrieveService.processText({ text: 'Seizures.', extractionBackend: 'standard' });
+
+    expect(toJSON).not.toHaveBeenCalled();
+    expect(logService.debug).toHaveBeenCalledWith(
+      'Text Processing API response received',
+      expect.objectContaining({ dataSize: 1234 })
+    );
+  });
+
   it('sets a request timeout and maps timeouts and cancels to distinct errors', async () => {
     const controller = new AbortController();
     axios.post.mockRejectedValueOnce({ isAxiosError: true, code: 'ECONNABORTED' });

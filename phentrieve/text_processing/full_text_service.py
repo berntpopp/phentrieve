@@ -9,6 +9,7 @@ from __future__ import annotations
 import inspect
 import logging
 import os
+import re
 import threading
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
@@ -28,6 +29,7 @@ from phentrieve.llm.config import (
     DEFAULT_LLM_MODEL,
     DEFAULT_PROVIDER_NAME,
 )
+from phentrieve.llm.evidence_offsets import is_located
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline, _render_phase1_user_prompt
 from phentrieve.llm.preprocessing import (
     build_extraction_groups,
@@ -35,6 +37,7 @@ from phentrieve.llm.preprocessing import (
 )
 from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.provider import get_llm_provider
+from phentrieve.llm.tools import ToolExecutor
 from phentrieve.llm.types import AnnotationMode, LLMPipelineConfig
 
 StableBackendResponse = dict[str, Any]
@@ -83,6 +86,14 @@ def _build_provider_factory_kwargs(
     }
 
 
+def _retriever_is_multi_vector(retriever: Any) -> bool:
+    """Whether a supplied retriever points at a multi-vector index."""
+    detect_index_type = getattr(retriever, "detect_index_type", None)
+    if callable(detect_index_type):
+        return bool(detect_index_type() == "multi_vector")
+    return True
+
+
 @dataclass(frozen=True)
 class _PreprocessedGroundedDocument:
     grounded_chunks: list[dict[str, Any]]
@@ -99,6 +110,7 @@ def preprocess_grounded_document(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> _PreprocessedGroundedDocument:
     grounded_chunks = build_grounded_chunks_from_text_pipeline(
         text=text,
@@ -107,6 +119,7 @@ def preprocess_grounded_document(
         assertion_config=assertion_config,
         retrieval_model_name=retrieval_model_name,
         include_positions=include_positions,
+        sbert_model_for_semantic_chunking=sbert_model_for_semantic_chunking,
     )
     extraction_groups: list[dict[str, Any]] = []
     token_count_fn = getattr(provider, "count_tokens", None)
@@ -155,6 +168,7 @@ def adapt_full_text_response(
     processed_chunks: list[Any] = []
     aggregated_hpo_terms: list[Any] = []
     family_history_findings: list[Any] = []
+    other_person_findings: list[Any] = []
 
     if response is not None:
         response_meta = response.get("meta")
@@ -171,6 +185,7 @@ def adapt_full_text_response(
         # them through normalization so both the direct LLM payload path and the
         # generic path preserve them (B2, F4).
         family_history_findings = _coerce_list(response.get("family_history_findings"))
+        other_person_findings = _coerce_list(response.get("other_person_findings"))
 
     meta["extraction_backend"] = extraction_backend
     return {
@@ -178,6 +193,7 @@ def adapt_full_text_response(
         "processed_chunks": processed_chunks,
         "aggregated_hpo_terms": aggregated_hpo_terms,
         "family_history_findings": family_history_findings,
+        "other_person_findings": other_person_findings,
     }
 
 
@@ -300,43 +316,109 @@ def _infer_text_attribution_offsets(
     *,
     chunk_text: str,
     matched_text: str | None,
-    start_char: Any,
-    end_char: Any,
 ) -> tuple[int | None, int | None]:
-    if isinstance(start_char, int) and isinstance(end_char, int):
-        return start_char, end_char
     if not matched_text:
         return None, None
-
-    start_idx = chunk_text.lower().find(matched_text.lower())
-    if start_idx < 0:
+    # Search the original string: lowering it first can change its length
+    # ("İ" lowers to two code points) and shift every later offset (#411).
+    match = re.search(re.escape(matched_text), chunk_text, re.IGNORECASE)
+    if match is None:
         return None, None
-    return start_idx, start_idx + len(matched_text)
+    return match.start(), match.end()
+
+
+def _chunk_relative_span(
+    chunk: Mapping[str, Any], start_char: Any, end_char: Any
+) -> tuple[int, int] | None:
+    """Clip a document span to a chunk and make it relative to the chunk start."""
+    if not (
+        isinstance(start_char, int)
+        and isinstance(end_char, int)
+        and is_located(chunk.get("start_char"), chunk.get("end_char"))
+    ):
+        return None
+    chunk_start, chunk_end = int(chunk["start_char"]), int(chunk["end_char"])
+    start, end = max(start_char, chunk_start), min(end_char, chunk_end)
+    if start >= end:
+        return None
+    return start - chunk_start, end - chunk_start
+
+
+_WHITESPACE_RUN = re.compile(r"\s+")
+
+
+def _cleaned_length(raw_prefix: str) -> int:
+    """Length of a chunk prefix after chunk cleanup collapsed its whitespace."""
+    return len(_WHITESPACE_RUN.sub(" ", raw_prefix).lstrip())
+
+
+def _cleaned_chunk_span(
+    *,
+    document_text: str,
+    chunk: Mapping[str, Any],
+    chunk_text: str,
+    span: tuple[int, int],
+) -> tuple[int, int]:
+    """Map a span relative to the chunk's document slice into its cleaned text.
+
+    Chunk positions point at the raw document slice, while chunk ``text`` has
+    its whitespace runs collapsed and its ends stripped.
+    """
+    raw_chunk = document_text[int(chunk["start_char"]) : int(chunk["end_char"])]
+    start = min(_cleaned_length(raw_chunk[: span[0]]), len(chunk_text))
+    end = min(_cleaned_length(raw_chunk[: span[1]]), len(chunk_text))
+    return start, max(start, end)
 
 
 def _adapt_llm_text_attributions(
     evidence_records: list[Mapping[str, Any]],
     *,
-    chunk_text_by_id: Mapping[int, str],
+    chunk_by_id: Mapping[int, Mapping[str, Any]],
+    document_text: str | None = None,
 ) -> list[dict[str, Any]]:
     text_attributions: list[dict[str, Any]] = []
     seen: set[tuple[int, int | None, int | None, str | None]] = set()
-    valid_chunk_ids = set(chunk_text_by_id)
 
     for record in evidence_records:
         chunk_ids = [
             _coerce_chunk_id(chunk_id) for chunk_id in record.get("chunk_ids", [])
         ]
-        matched_text = record.get("evidence_text") or record.get("phrase")
+        record_start, record_end = record.get("start_char"), record.get("end_char")
+        if record.get("offset_basis") == "chunk_span":
+            # The evidence was not found and the span is the whole cited chunk;
+            # showing it would look like an exact quote (#397). Search the
+            # chunk for the evidence instead and skip it when absent.
+            record_start = record_end = None
         for chunk_id in chunk_ids:
-            if chunk_id is None or chunk_id not in valid_chunk_ids:
+            if chunk_id is None or chunk_id not in chunk_by_id:
                 continue
-            start_char, end_char = _infer_text_attribution_offsets(
-                chunk_text=chunk_text_by_id.get(chunk_id, ""),
-                matched_text=matched_text,
-                start_char=record.get("start_char"),
-                end_char=record.get("end_char"),
-            )
+            chunk = chunk_by_id[chunk_id]
+            chunk_text = str(chunk.get("text", ""))
+            matched_text = record.get("evidence_text") or record.get("phrase")
+            # Evidence records carry document offsets, while attributions are
+            # relative to their chunk (consumers add the chunk position).
+            start_char: int | None
+            end_char: int | None
+            span = _chunk_relative_span(chunk, record_start, record_end)
+            if span is not None:
+                if document_text is not None:
+                    span = _cleaned_chunk_span(
+                        document_text=document_text,
+                        chunk=chunk,
+                        chunk_text=chunk_text,
+                        span=span,
+                    )
+                start_char, end_char = span
+                matched_text = chunk_text[start_char:end_char]
+            elif isinstance(record_start, int) and is_located(
+                chunk.get("start_char"), chunk.get("end_char")
+            ):
+                # The evidence span lies outside this cited chunk.
+                continue
+            else:
+                start_char, end_char = _infer_text_attribution_offsets(
+                    chunk_text=chunk_text, matched_text=matched_text
+                )
             if start_char is None or end_char is None:
                 continue
             key = (
@@ -364,14 +446,15 @@ def _adapt_llm_aggregated_terms(
     terms: Sequence[Any],
     *,
     grounded_chunks: Sequence[Mapping[str, Any]],
+    document_text: str | None = None,
 ) -> list[dict[str, Any]]:
     adapted_terms: list[dict[str, Any]] = []
-    chunk_text_by_id = {
-        chunk_id: str(chunk.get("text", ""))
+    chunk_by_id = {
+        chunk_id: chunk
         for chunk in grounded_chunks
         if (chunk_id := _coerce_chunk_id(chunk.get("chunk_id"))) is not None
     }
-    valid_chunk_ids = set(chunk_text_by_id)
+    valid_chunk_ids = set(chunk_by_id)
 
     for term in terms:
         evidence_records = [
@@ -421,7 +504,8 @@ def _adapt_llm_aggregated_terms(
             continue
         text_attributions = _adapt_llm_text_attributions(
             evidence_records,
-            chunk_text_by_id=chunk_text_by_id,
+            chunk_by_id=chunk_by_id,
+            document_text=document_text,
         )
         top_evidence_chunk_id = None
         top_evidence_score = None
@@ -449,6 +533,8 @@ def _adapt_llm_aggregated_terms(
                 # orthogonal to the present/negated assertion. Shared by proband
                 # and family terms since both flow through this adapter.
                 "experiencer": getattr(term, "experiencer", None),
+                # current / historical / unknown, orthogonal to the other axes.
+                "temporality": getattr(term, "temporality", None),
                 # Derived, non-breaking excluded signal (F2): the extract surface
                 # still reports the raw pipeline ``status`` (present/negated/...),
                 # but a consumer gets the actionable ruled-out flag here too.
@@ -797,6 +883,9 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
             chunking_pipeline_config=kwargs.get("chunking_pipeline_config"),
             assertion_config=kwargs.get("assertion_config"),
             retrieval_model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            sbert_model_for_semantic_chunking=kwargs.get(
+                "sbert_model_for_semantic_chunking"
+            ),
         )
         grounded_chunks = preprocessed.grounded_chunks
         extraction_groups = preprocessed.extraction_groups
@@ -870,7 +959,22 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         except (AttributeError, NotImplementedError):
             logger.debug("Provider does not support token preflight counting")
 
-    pipeline = pipeline_factory(provider=provider)
+    retriever = kwargs.get("retriever")
+    if retriever is not None:
+        # Hand a caller-owned (e.g. API-cached) retriever to the tool executor so
+        # the pipeline does not open a new Chroma collection per request.
+        tool_executor = ToolExecutor(
+            retriever=retriever,
+            model_name=kwargs.get("retrieval_model_name", DEFAULT_MODEL),
+            multi_vector=_retriever_is_multi_vector(retriever),
+        )
+        pipeline = pipeline_factory(
+            **_build_provider_factory_kwargs(
+                pipeline_factory, provider=provider, tool_executor=tool_executor
+            )
+        )
+    else:
+        pipeline = pipeline_factory(provider=provider)
     resolved_provider_name = getattr(provider, "provider_name", None)
     if not isinstance(resolved_provider_name, str) or not resolved_provider_name:
         resolved_provider_name = llm_provider or DEFAULT_PROVIDER_NAME
@@ -904,10 +1008,17 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     adapted_terms = _adapt_llm_aggregated_terms(
         result.terms,
         grounded_chunks=grounded_chunks,
+        document_text=text,
     )
     adapted_family = _adapt_llm_aggregated_terms(
         getattr(result, "family_history_findings", []),
         grounded_chunks=grounded_chunks,
+        document_text=text,
+    )
+    adapted_other = _adapt_llm_aggregated_terms(
+        getattr(result, "other_person_findings", []),
+        grounded_chunks=grounded_chunks,
+        document_text=text,
     )
     adapted_chunks = _adapt_llm_processed_chunks(grounded_chunks, adapted_terms)
 
@@ -965,6 +1076,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         "processed_chunks": adapted_chunks,
         "aggregated_hpo_terms": adapted_terms,
         "family_history_findings": adapted_family,
+        "other_person_findings": adapted_other,
     }
 
     logger.info(

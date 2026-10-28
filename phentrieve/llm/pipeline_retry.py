@@ -29,6 +29,11 @@ class LLMPipelinePhaseError(RuntimeError):
         self.final_mode: Phase1Mode | None = None
         self.fallback_triggered = False
         self.failure_class: Phase1FailureClass = None
+        # True when the provider reported that the response hit its output budget.
+        self.output_truncated = False
+        # True when a truncated phase-1 group was already retried once at the
+        # fixed truncation-retry ceiling.
+        self.truncation_retried = False
 
 
 def phase1_failure_message(exc: Exception) -> str:

@@ -87,6 +87,11 @@ def clean_text(text: str) -> str:
     return " ".join(text.split())
 
 
+def phase1_chunk_text(chunk: dict[str, Any]) -> str:
+    """Chunk text for the extraction prompt, keeping context cleanup dropped."""
+    return str(chunk.get("prompt_text") or chunk.get("text", ""))
+
+
 def render_phase1_user_prompt(
     *,
     extraction_prompt: PromptTemplate,
@@ -96,22 +101,16 @@ def render_phase1_user_prompt(
 ) -> str:
     if chunk_index_text is not None:
         chunk_index = chunk_index_text or "[]"
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
+        return extraction_prompt.render_grounded_user_prompt(chunk_index=chunk_index)
     if grounded_chunks:
         chunk_index = (
             "\n".join(
-                f"- chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+                f"- chunk_id={chunk['chunk_id']}: {phase1_chunk_text(chunk)}"
                 for chunk in grounded_chunks
             )
             or "[]"
         )
-        return extraction_prompt.render_user_prompt(
-            "",
-            chunk_index=chunk_index,
-        )
+        return extraction_prompt.render_grounded_user_prompt(chunk_index=chunk_index)
     return extraction_prompt.render_user_prompt(text, chunk_index="[]")
 
 
@@ -196,7 +195,7 @@ def render_group_chunk_index_text(
         group_text
         if isinstance(group_text, str) and group_text.strip()
         else "\n".join(
-            f"chunk_id={chunk['chunk_id']}: {chunk.get('text', '')}"
+            f"chunk_id={chunk['chunk_id']}: {phase1_chunk_text(chunk)}"
             for chunk in grounded_chunks
         )
     )
@@ -220,7 +219,13 @@ def phase1_extraction_dedup_key(item: dict[str, Any]) -> tuple[Any, ...]:
         # collapse. A model-silent item contributes a uniform "" so pre-existing
         # tuples' relative equality is unchanged (backward-compatible).
         str(item.get("assertion") or "").strip().lower(),
+        temporality_axis(item),
     )
+
+
+def temporality_axis(item: dict[str, Any]) -> str:
+    """Temporality of a phase-1 item; a model-silent item is ``unknown``."""
+    return str(item.get("temporality") or "").strip().lower() or "unknown"
 
 
 def sorted_chunk_ids(chunk_ids: list[Any]) -> list[int]:
@@ -239,19 +244,6 @@ def prefer_richer_text(current: str | None, incoming: str | None) -> str | None:
     if not incoming_text:
         return current_text
     return incoming_text if len(incoming_text) > len(current_text) else current_text
-
-
-def merge_optional_bounds(
-    current: int | None,
-    incoming: int | None,
-    *,
-    pick: str,
-) -> int | None:
-    if current is None:
-        return incoming
-    if incoming is None:
-        return current
-    return min(current, incoming) if pick == "min" else max(current, incoming)
 
 
 def _clone_split_phase1_item(item: dict[str, Any], phrase: str) -> dict[str, Any]:
@@ -322,20 +314,3 @@ def expand_combined_phase1_extractions(
             for split_phrase in split_phrases
         )
     return expanded
-
-
-def spans_overlap(
-    start_a: int | None,
-    end_a: int | None,
-    start_b: int | None,
-    end_b: int | None,
-) -> bool:
-    if None in (start_a, end_a, start_b, end_b):
-        return False
-    assert start_a is not None
-    assert end_a is not None
-    assert start_b is not None
-    assert end_b is not None
-    if end_a <= start_a or end_b <= start_b:
-        return False
-    return max(start_a, start_b) < min(end_a, end_b)

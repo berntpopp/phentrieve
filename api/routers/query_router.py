@@ -1,7 +1,9 @@
 import logging
-from typing import Literal, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 
 from api.dependencies import get_dense_retriever_dependency
 from api.research_use import (
@@ -18,6 +20,7 @@ from phentrieve.config import (
     DEFAULT_MULTI_VECTOR,
     DEFAULT_NUM_RESULTS,
     MIN_SIMILARITY_THRESHOLD,
+    AssertionPreference,
 )
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
 from phentrieve.retrieval.dense_retriever import DenseRetriever
@@ -70,30 +73,29 @@ async def get_retriever_for_request(request: QueryRequest) -> DenseRetriever:
         model_policy = resolve_retrieval_model_policy(request.model_name)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    multi_vector_flag = (
-        request.multi_vector
-        if hasattr(request, "multi_vector")
-        else DEFAULT_MULTI_VECTOR
-    )
     return await get_dense_retriever_dependency(
         sbert_model_name_for_retriever=model_policy.model_name,
-        multi_vector=multi_vector_flag,
+        multi_vector=request.multi_vector,
     )
 
 
 # Helper function for GET params to get retriever for model name
 async def get_retriever_for_get_params(
-    model_name: str = DEFAULT_MODEL,
-    multi_vector: bool = DEFAULT_MULTI_VECTOR,
+    model_name: str | None = DEFAULT_MODEL,
 ) -> DenseRetriever:
-    """Get retriever dependency for GET request's model name parameter"""
+    """Get retriever dependency for GET request's model name parameter.
+
+    ``model_name`` binds to the same query parameter as the GET route, so the
+    retriever always matches the requested model. GET uses the configured
+    multi-vector default.
+    """
     try:
         model_policy = resolve_retrieval_model_policy(model_name)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return await get_dense_retriever_dependency(
         sbert_model_name_for_retriever=model_policy.model_name,
-        multi_vector=multi_vector,
+        multi_vector=DEFAULT_MULTI_VECTOR,
     )
 
 
@@ -118,10 +120,8 @@ async def run_hpo_query_get(
     include_details: bool = False,
     detect_query_assertion: bool = True,
     query_assertion_language: str | None = None,
-    query_assertion_preference: str = DEFAULT_ASSERTION_PREFERENCE,
-    retriever: DenseRetriever = Depends(
-        lambda model=DEFAULT_MODEL: get_retriever_for_get_params(model)
-    ),
+    query_assertion_preference: AssertionPreference = DEFAULT_ASSERTION_PREFERENCE,
+    retriever: DenseRetriever = Depends(get_retriever_for_get_params),
 ):
     """Simple GET endpoint for HPO term queries.
 
@@ -132,38 +132,27 @@ async def run_hpo_query_get(
     - similarity_threshold: Minimum similarity score
     - include_details: Include HPO term definitions and synonyms in results
     """
-    # Create a QueryRequest object with the provided parameters
-    request = QueryRequest(
-        text=text,
-        model_name=model_name,
-        language=language,
-        num_results=num_results,
-        similarity_threshold=similarity_threshold,
-        include_details=include_details,
-        # Multi-vector params (use configured default)
-        multi_vector=DEFAULT_MULTI_VECTOR,
-        aggregation_strategy=cast(
-            Literal[
-                "label_only",
-                "label_synonyms_min",
-                "label_synonyms_max",
-                "all_weighted",
-                "all_max",
-                "all_min",
-                "custom",
-            ],
-            DEFAULT_AGGREGATION_STRATEGY,
-        ),
-        component_weights=None,
-        custom_formula=None,
-        # Assertion detection
-        detect_query_assertion=detect_query_assertion,
-        query_assertion_language=query_assertion_language,
-        query_assertion_preference=cast(
-            Literal["dependency", "keyword", "any_negative"],
-            query_assertion_preference,
-        ),
-    )
+    # Build the QueryRequest here; its validators (e.g. num_results bounds)
+    # must surface as 422 like any other request validation error.
+    try:
+        request = QueryRequest(
+            text=text,
+            model_name=model_name,
+            language=language,
+            num_results=num_results,
+            similarity_threshold=similarity_threshold,
+            include_details=include_details,
+            # Multi-vector params (use configured default)
+            multi_vector=DEFAULT_MULTI_VECTOR,
+            component_weights=None,
+            custom_formula=None,
+            # Assertion detection
+            detect_query_assertion=detect_query_assertion,
+            query_assertion_language=query_assertion_language,
+            query_assertion_preference=query_assertion_preference,
+        )
+    except ValidationError as exc:
+        raise RequestValidationError(exc.errors()) from exc
 
     # Reuse the POST endpoint logic
     return await run_hpo_query(
@@ -196,43 +185,11 @@ async def run_hpo_query(
     """
     require_research_use_acknowledgement(http_request)
 
-    try:
-        model_policy = resolve_retrieval_model_policy(request.model_name)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-    sbert_model_to_use_for_retrieval = model_policy.model_name
-
-    # Log information about the retriever we're using
-    if hasattr(retriever, "model_name"):
-        logger.info(
-            "API: Using retriever '%s' for request '%s'",
-            _sanitize(retriever.model_name),
-            _sanitize(sbert_model_to_use_for_retrieval),
-        )
-
-    # Ensure retriever is using the correct SBERT model
-    if (
-        not retriever
-        or not hasattr(retriever, "model_name")
-        or retriever.model_name != sbert_model_to_use_for_retrieval
-    ):
-        logger.warning(
-            "Retriever mismatch for %s. Re-initializing.",
-            _sanitize(sbert_model_to_use_for_retrieval),
-        )
-
-        # Initialize retriever using environment-variable based resolution
-        # This will use PHENTRIEVE_INDEX_DIR or PHENTRIEVE_DATA_ROOT_DIR/indexes
-        retriever = await get_dense_retriever_dependency(
-            sbert_model_name_for_retriever=sbert_model_to_use_for_retrieval
-        )
-
-        if not retriever:
-            raise HTTPException(
-                status_code=503,
-                detail=f"Retriever for {sbert_model_to_use_for_retrieval} could not be initialized.",
-            )
+    # The retriever dependency already resolved the model policy.
+    sbert_model_to_use_for_retrieval = retriever.model_name or DEFAULT_MODEL
+    logger.info(
+        "API: Using retriever '%s'", _sanitize(sbert_model_to_use_for_retrieval)
+    )
 
     # Language detection for the main query
     language_to_use = _resolve_query_language(
@@ -257,7 +214,9 @@ async def run_hpo_query(
         )
 
     # Call the core HPO retrieval logic
-    query_results_dict = await execute_hpo_retrieval_for_api(
+    # Blocking model inference: keep it off the event loop.
+    query_results_dict = await run_in_threadpool(
+        execute_hpo_retrieval_for_api,
         text=request.text,
         # Raw request language: None lets assertion detection try all languages,
         # since detection on short queries is unreliable.

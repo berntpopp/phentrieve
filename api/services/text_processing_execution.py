@@ -5,6 +5,7 @@ import anyio
 from fastapi.concurrency import run_in_threadpool
 
 from api.config import PHENTRIEVE_MAX_CONCURRENT_INFERENCE
+from api.dependencies import get_dense_retriever_dependency
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -26,6 +27,7 @@ from phentrieve.config import (
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
+from phentrieve.llm.pipeline_trace import incomplete_extraction_signal
 from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
@@ -87,6 +89,7 @@ def _build_aggregated_hpo_term(term: dict[str, Any]) -> AggregatedHPOTermAPI:
         confidence=term.get("confidence", 0.0),
         status=term.get("status", "unknown"),
         experiencer=term.get("experiencer"),
+        temporality=term.get("temporality"),
         excluded=bool(term.get("excluded", is_excluded(term.get("status", "")))),
         evidence_count=term.get("evidence_count", 0),
         source_chunk_ids=term.get("source_chunk_ids")
@@ -205,6 +208,11 @@ def adapt_shared_service_response_to_api(
         )
         if isinstance(term, dict)
     ]
+    other_person_findings = [
+        _build_aggregated_hpo_term(term)
+        for term in _coerce_response_items(service_result.get("other_person_findings"))
+        if isinstance(term, dict)
+    ]
 
     if standard_context is not None:
         meta.update(
@@ -222,6 +230,8 @@ def adapt_shared_service_response_to_api(
     else:
         meta.setdefault("num_processed_chunks", len(processed_chunks))
         meta.setdefault("num_aggregated_hpo_terms", len(aggregated_terms))
+        # A partial LLM result is flagged at the top level of meta (#395).
+        meta.update(incomplete_extraction_signal(meta.get("observability")))
 
     response = TextProcessingResponseAPI.model_validate(
         {
@@ -229,6 +239,7 @@ def adapt_shared_service_response_to_api(
             "processed_chunks": processed_chunks,
             "aggregated_hpo_terms": aggregated_terms,
             "family_history_findings": family_history_findings,
+            "other_person_findings": other_person_findings,
         }
     )
 
@@ -240,6 +251,9 @@ def adapt_shared_service_response_to_api(
         # space, so give them the same dangling-chunk-ref sanity check (B2fix).
         validate_response_chunk_references(
             response.processed_chunks, response.family_history_findings
+        )
+        validate_response_chunk_references(
+            response.processed_chunks, response.other_person_findings
         )
 
     return response
@@ -315,6 +329,11 @@ async def execute_llm_text_processing(
     retrieval_model_name_to_load = validate_model_name(
         "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
     )
+    # Reuse the process-wide cached retriever (and its model) instead of letting
+    # the LLM backend open a fresh Chroma collection on every request (#420).
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=retrieval_model_name_to_load
+    )
     service_kwargs: dict[str, Any] = {
         "text": request.text,
         "extraction_backend": request.extraction_backend,
@@ -332,6 +351,8 @@ async def execute_llm_text_processing(
             "language": actual_language,
         },
         "retrieval_model_name": retrieval_model_name_to_load,
+        "retriever": retriever,
+        "sbert_model_for_semantic_chunking": retriever.model,
         "cancel_event": cancel_event,
     }
 

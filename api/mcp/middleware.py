@@ -72,7 +72,7 @@ class ArgValidationMiddleware(Middleware):
         except ValidationError as exc:
             return self._error_result(name, valid, schema, exc)
         except FastMCPValidationError as exc:
-            # FastMCP >=3.4.10 re-raises the pydantic error wrapped in its own type.
+            # fastmcp >= 3.4.10 wraps the pydantic error raised during binding.
             if not isinstance(exc.__cause__, ValidationError):
                 raise
             return self._error_result(name, valid, schema, exc.__cause__)

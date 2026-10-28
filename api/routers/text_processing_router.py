@@ -26,44 +26,12 @@ from api.schemas.text_processing_schemas import (
     TextProcessingRequest,
     TextProcessingResponseAPI,
 )
-from api.services.text_processing_context import (
-    get_chunking_config_for_api as _get_chunking_config_for_api,
-)
-from api.services.text_processing_context import (
-    get_trust_remote_code_for_model as _get_trust_remote_code_for_model,
-)
-from api.services.text_processing_context import (
-    prepare_standard_text_processing_context as _prepare_standard_request_context,
-)
-from api.services.text_processing_context import (
-    validate_model_name as _validate_model_name,
-)
-from api.services.text_processing_execution import (
-    process_text_via_shared_service as _service_process_text_via_shared_service,
-)
-from api.services.text_processing_execution import (
-    run_full_text_service,
-)
-from api.services.text_processing_execution import (
-    validate_response_chunk_references as _validate_response_chunk_references,
-)
+from api.services import text_processing_execution
 from phentrieve.text_processing.full_text_service import LLMCancelToken
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/text", tags=["Text Processing and HPO Extraction"])
-
-__all__ = [
-    "QuotaExceededError",
-    "_get_chunking_config_for_api",
-    "_get_trust_remote_code_for_model",
-    "_prepare_standard_request_context",
-    "_process_text_internal",
-    "_process_text_via_shared_service",
-    "_validate_model_name",
-    "_validate_response_chunk_references",
-    "run_full_text_service",
-]
 
 
 def _resolve_authenticated_subject(http_request: Request) -> tuple[str, bool] | None:
@@ -185,10 +153,10 @@ def get_llm_quota_status(http_request: Request) -> dict[str, Any]:
                     "enum": ["true"],
                 },
                 "description": (
-                    "Optional opt-in for LLM requests in production. When set "
-                    "to `true`, a quota-exhausted LLM request falls back to "
-                    "the standard extraction backend instead of returning "
-                    "`429 Too Many Requests`."
+                    "Optional opt-in for LLM requests. When set to `true`, an "
+                    "LLM request that is quota-exhausted (instead of `429 Too "
+                    "Many Requests`) or whose LLM backend fails falls back to "
+                    "the standard extraction backend."
                 ),
             },
             research_ack_openapi_parameter(),
@@ -272,10 +240,46 @@ async def process_text_extract_hpo(
     )
     try:
         # Wrap processing with timeout protection
-        response = await asyncio.wait_for(
-            _process_text_via_shared_service(request, cancel_event),
-            timeout=timeout_seconds,
-        )
+        try:
+            response = await asyncio.wait_for(
+                text_processing_execution.process_text_via_shared_service(
+                    request, cancel_event
+                ),
+                timeout=timeout_seconds,
+            )
+        except (HTTPException, asyncio.exceptions.TimeoutError):
+            raise
+        except Exception as exc:
+            # Mirror the MCP adapter: an opted-in LLM request whose backend
+            # fails reruns on the standard backend instead of returning a 500.
+            # A cancelled request is never rerun: the client has gone away.
+            if (
+                request.extraction_backend != "llm"
+                or not allow_standard_fallback
+                or cancel_event.is_set()
+            ):
+                raise
+            logger.warning(
+                "API: LLM backend failed (%s); falling back to standard backend.",
+                type(exc).__name__,
+            )
+            # Refund only if no paid LLM call started; after spend the
+            # reservation is kept, as for a timeout or a cancel.
+            if quota_status is not None and cancel_event.llm_calls_started == 0:
+                release_llm_quota(quota_status)
+            quota_status = None
+            request = request.model_copy(
+                update={
+                    "extraction_backend": "standard",
+                    "llm_mode": None,
+                    "llm_internal_mode": None,
+                }
+            )
+            forced_standard_fallback = {"fallback_reason": "llm_backend_error"}
+            response = await asyncio.wait_for(
+                text_processing_execution.process_text_via_shared_service(request),
+                timeout=timeout_seconds,
+            )
     except asyncio.exceptions.TimeoutError:
         # Keep the reservation: the in-flight paid LLM call still completes,
         # but no further calls start.
@@ -329,15 +333,3 @@ async def _cancel_on_disconnect(
             cancel_event.set()
             return
         await asyncio.sleep(0.5)
-
-
-async def _process_text_via_shared_service(
-    request: TextProcessingRequest, cancel_event: LLMCancelToken | None = None
-):
-    """Compatibility wrapper for the shared-service-based text processing path."""
-    return await _service_process_text_via_shared_service(request, cancel_event)
-
-
-async def _process_text_internal(request: TextProcessingRequest):
-    """Compatibility wrapper for the shared-service-based text processing path."""
-    return await _process_text_via_shared_service(request)

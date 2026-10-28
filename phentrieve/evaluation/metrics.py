@@ -26,6 +26,10 @@ from phentrieve.utils import (
 )
 
 
+class HPODataUnavailableError(RuntimeError):
+    """Raised when the prepared HPO graph data cannot be loaded."""
+
+
 class SimilarityFormula(Enum):
     """
     Available semantic similarity formulas for ontology-based similarity calculations.
@@ -99,21 +103,22 @@ def _load_hpo_graph_data_impl(
         - ancestors_dict: {term_id: set of ancestor IDs}
         - depths_dict: {term_id: depth from root}
 
-    Note:
-        Returns empty dictionaries if database not found or loading fails.
+    Raises:
+        HPODataUnavailableError: If the database is missing, empty, or cannot
+            be read. ``lru_cache`` does not cache exceptions, so the load is
+            retried on the next call once the data has been prepared (#417).
 
+    Note:
         Thread-safe: This function uses @lru_cache's built-in locking mechanism.
         Multiple concurrent calls will wait for the first load to complete.
     """
-    try:
-        # Check if database exists
-        if not os.path.exists(db_path):
-            logging.error("HPO database not found: %s", _sanitize(db_path))
-            logging.error(
-                "Please run 'phentrieve data prepare' to generate the database."
-            )
-            return {}, {}
+    # Check if database exists
+    if not os.path.exists(db_path):
+        logging.error("HPO database not found: %s", _sanitize(db_path))
+        logging.error("Please run 'phentrieve data prepare' to generate the database.")
+        raise HPODataUnavailableError(f"HPO database not found: {db_path}")
 
+    try:
         # Load graph data from database
         logging.info("Loading HPO graph data from database: %s...", _sanitize(db_path))
         db = HPODatabase(db_path)
@@ -122,6 +127,10 @@ def _load_hpo_graph_data_impl(
 
         logging.info("Loaded ancestor sets for %s HPO terms", len(ancestors))
         logging.info("Loaded depth values for %s HPO terms", len(depths))
+        if not ancestors or not depths:
+            raise HPODataUnavailableError(
+                f"HPO database contains no graph data: {db_path}"
+            )
 
         # Log sample data for debugging
         if ancestors:
@@ -157,9 +166,11 @@ def _load_hpo_graph_data_impl(
 
         return ancestors, depths
 
+    except HPODataUnavailableError:
+        raise
     except Exception as e:
         logging.error("Error loading HPO graph data: %s", _sanitize(e), exc_info=True)
-        return {}, {}
+        raise HPODataUnavailableError(f"Error loading HPO graph data: {e}") from e
 
 
 def load_hpo_graph_data(
@@ -186,8 +197,10 @@ def load_hpo_graph_data(
 
     Note:
         Returns empty dictionaries if database not found or loading fails.
-        Results are cached via @lru_cache. To clear cache (e.g., after data updates),
-        call: load_hpo_graph_data.cache_clear()
+        Successful loads are cached via @lru_cache; failed loads are not, so
+        data prepared after a failed call is picked up on the next call. To
+        clear the cache (e.g., after data updates), call:
+        load_hpo_graph_data.cache_clear()
 
         Thread-safe: The underlying cached implementation uses @lru_cache which
         provides built-in thread-safety via locks.
@@ -208,8 +221,12 @@ def load_hpo_graph_data(
             "HPO data is now loaded from SQLite database only."
         )
 
-    # Call cached implementation with normalized path
-    return _load_hpo_graph_data_impl(normalized_path)
+    # Call cached implementation with normalized path. A failed load raises
+    # inside the cached function, so the empty fallback is never cached.
+    try:
+        return _load_hpo_graph_data_impl(normalized_path)
+    except HPODataUnavailableError:
+        return {}, {}
 
 
 # Expose lru_cache methods on public API wrapper

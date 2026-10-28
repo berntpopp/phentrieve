@@ -338,6 +338,17 @@ class AssertionDetector(ABC):
         """
         pass
 
+    def detect_batch(
+        self, text_chunks: list[str]
+    ) -> list[tuple[AssertionStatus, dict[str, Any]]]:
+        """
+        Detect assertion status for several texts.
+
+        Returns the same results as calling ``detect`` on each text in order;
+        subclasses override it to batch expensive work.
+        """
+        return [self.detect(text_chunk) for text_chunk in text_chunks]
+
 
 class KeywordAssertionDetector(AssertionDetector):
     """
@@ -903,15 +914,54 @@ class DependencyAssertionDetector(AssertionDetector):
         # Get spaCy model for language
         nlp = get_spacy_model(self.language)
         if not nlp:
-            # If no model available, return AFFIRMED with empty details
-            return AssertionStatus.AFFIRMED, {
-                "dependency_negated_concepts": [],
-                "dependency_normal_concepts": [],
-                "dependency_parser": False,
-            }
+            return self._no_parser_result()
+        return self.detect_doc(text_chunk, nlp(text_chunk) if text_chunk else None)
 
+    def detect_batch(
+        self, text_chunks: list[str]
+    ) -> list[tuple[AssertionStatus, dict[str, Any]]]:
+        """
+        Detect assertion status for several texts with one ``nlp.pipe`` call.
+
+        Same results as ``detect`` on each text, but spaCy parses the texts in
+        batches instead of one ``nlp()`` call per text (#410).
+        """
+        nlp = get_spacy_model(self.language)
+        if not nlp:
+            return [self._no_parser_result() for _ in text_chunks]
+        docs = iter(
+            list(nlp.pipe([text for text in text_chunks if text], batch_size=64))
+        )
+        return [
+            self.detect_doc(text, next(docs) if text else None) for text in text_chunks
+        ]
+
+    @staticmethod
+    def _no_parser_result() -> tuple[AssertionStatus, dict[str, Any]]:
+        # If no model available, return AFFIRMED with empty details
+        return AssertionStatus.AFFIRMED, {
+            "dependency_negated_concepts": [],
+            "dependency_normal_concepts": [],
+            "dependency_parser": False,
+        }
+
+    def detect_doc(
+        self, text_chunk: str, doc: spacy.tokens.Doc | None
+    ) -> tuple[AssertionStatus, dict[str, Any]]:
+        """
+        Detect assertion status from an already parsed spaCy ``doc``.
+
+        Args:
+            text_chunk: Text that ``doc`` was parsed from
+            doc: ``nlp(text_chunk)``, or None for an empty text
+
+        Returns:
+            Tuple of (AssertionStatus, Dict with details)
+        """
         is_negated, is_normal, negated_concepts, normal_concepts = (
-            self._detect_negation_normality_dependency(text_chunk, self.language)
+            self._detect_negation_normality_dependency(
+                text_chunk, self.language, doc=doc
+            )
         )
 
         assertion_details = {
@@ -928,7 +978,7 @@ class DependencyAssertionDetector(AssertionDetector):
             return AssertionStatus.AFFIRMED, assertion_details
 
     def _detect_negation_normality_dependency(
-        self, chunk: str, lang: str = "en"
+        self, chunk: str, lang: str = "en", doc: spacy.tokens.Doc | None = None
     ) -> tuple[bool, bool, list[str], list[str]]:
         """
         Detect negation and normality using dependency parsing.
@@ -938,6 +988,7 @@ class DependencyAssertionDetector(AssertionDetector):
         Args:
             chunk: Text to analyze
             lang: Language code
+            doc: ``chunk`` already parsed by the ``lang`` model; parsed here if None
 
         Returns:
             Tuple of (is_negated, is_normal, negated_concepts, normal_concepts)
@@ -949,7 +1000,8 @@ class DependencyAssertionDetector(AssertionDetector):
         if not nlp:
             return False, False, [], []
 
-        doc = nlp(chunk)
+        if doc is None:
+            doc = nlp(chunk)
 
         # Get negation and normality cues for the requested language (with caching)
         if lang not in self._negation_cues_cache:
@@ -1205,6 +1257,59 @@ class CombinedAssertionDetector(AssertionDetector):
                 text_chunk
             )
 
+        return self._combine(
+            keyword_status, keyword_details, dependency_status, dependency_details
+        )
+
+    def detect_batch(
+        self, text_chunks: list[str]
+    ) -> list[tuple[AssertionStatus, dict[str, Any]]]:
+        """
+        Detect assertion status for several texts.
+
+        Same results as ``detect`` on each text; the dependency detector parses
+        all non-empty texts in one batched spaCy call (#410).
+        """
+        non_empty = [text for text in text_chunks if text.strip()]
+        dependency_results: list[tuple[AssertionStatus, dict[str, Any]]] = []
+        if self.enable_dependency and self.dependency_detector:
+            dependency_results = self.dependency_detector.detect_batch(non_empty)
+        dependency_iter = iter(dependency_results)
+
+        results: list[tuple[AssertionStatus, dict[str, Any]]] = []
+        for text_chunk in text_chunks:
+            if not text_chunk.strip():
+                results.append((AssertionStatus.AFFIRMED, {"empty_input": True}))
+                continue
+
+            keyword_status = None
+            keyword_details: dict[str, Any] = {}
+            dependency_status = None
+            dependency_details: dict[str, Any] = {}
+            if self.enable_keyword and self.keyword_detector:
+                keyword_status, keyword_details = self.keyword_detector.detect(
+                    text_chunk
+                )
+            if self.enable_dependency and self.dependency_detector:
+                dependency_status, dependency_details = next(dependency_iter)
+            results.append(
+                self._combine(
+                    keyword_status,
+                    keyword_details,
+                    dependency_status,
+                    dependency_details,
+                )
+            )
+        return results
+
+    def _combine(
+        self,
+        keyword_status: AssertionStatus | None,
+        keyword_details: dict[str, Any],
+        dependency_status: AssertionStatus | None,
+        dependency_details: dict[str, Any],
+    ) -> tuple[AssertionStatus, dict[str, Any]]:
+        """Combine the sub-detector results according to the preference."""
         # Combine the results according to strategy
         combined_details = {
             **keyword_details,

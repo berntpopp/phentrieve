@@ -180,17 +180,19 @@ function mapTextProcessPhenotypeToResult(term) {
     similarity: confidence ?? similarity ?? 0,
     definition: details.definition || '',
     synonyms: Array.isArray(details.synonyms) ? details.synonyms : [],
-    assertion_status: normalizeAssertionStatus(term.status),
+    assertion_status: normalizeAssertionStatus(term.status, term.excluded),
   };
 }
 
-function normalizeAssertionStatus(status) {
-  if (status === 'present') {
-    return 'affirmed';
+function normalizeAssertionStatus(status, excluded = false) {
+  // Ruled-out findings ('absent', 'normal', or flagged excluded by the API) must
+  // never reach the collection as present phenotypes (#404).
+  if (excluded === true || status === 'absent' || status === 'normal') {
+    return 'negated';
   }
 
-  if (status === 'absent') {
-    return 'negated';
+  if (status === 'present') {
+    return 'affirmed';
   }
 
   if (
@@ -209,7 +211,7 @@ function normalizeTextProcessPhenotype(term) {
   return {
     hpo_id: term.hpo_id,
     label: term.name,
-    assertion_status: normalizeAssertionStatus(term.status),
+    assertion_status: normalizeAssertionStatus(term.status, term.excluded),
   };
 }
 

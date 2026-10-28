@@ -3384,6 +3384,7 @@ def test_assertion_distribution_surfaces_dropped_deliverable():
     pipeline_result = types.SimpleNamespace(
         terms=[term("present"), term("present"), term("negated"), term("uncertain")],
         family_history_findings=[term("present")],
+        other_person_findings=[term("present"), term("negated")],
     )
 
     dist = llm_benchmark._assertion_distribution(pipeline_result, dataset="GeneReviews")
@@ -3393,6 +3394,8 @@ def test_assertion_distribution_surfaces_dropped_deliverable():
     assert dist["proband_scored"] == 3
     assert dist["proband_dropped_by_projection"] == 1
     assert dist["family_history_findings"] == 1
+    # A patient finding misrouted to experiencer ``other`` stays visible (#401).
+    assert dist["other_person_findings"] == 2
 
 
 def test_aggregate_assertion_distribution_sums_records():
@@ -3403,6 +3406,7 @@ def test_aggregate_assertion_distribution_sums_records():
                 "proband_scored": 2,
                 "proband_dropped_by_projection": 1,
                 "family_history_findings": 1,
+                "other_person_findings": 2,
             }
         },
         {
@@ -3411,6 +3415,7 @@ def test_aggregate_assertion_distribution_sums_records():
                 "proband_scored": 3,
                 "proband_dropped_by_projection": 0,
                 "family_history_findings": 0,
+                "other_person_findings": 1,
             }
         },
         # A checkpoint-restored record from before the field existed: no block.
@@ -3423,6 +3428,7 @@ def test_aggregate_assertion_distribution_sums_records():
     assert agg["proband_scored"] == 5
     assert agg["proband_dropped_by_projection"] == 1
     assert agg["family_history_findings"] == 1
+    assert agg["other_person_findings"] == 3
     # Undercount is visible: 2 of 3 records contributed.
     assert agg["documents_counted"] == 2
     assert agg["documents_total"] == 3

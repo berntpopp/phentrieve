@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
+from phentrieve.llm.evidence_offsets import rendered_regions
 from phentrieve.llm.types import ExtractionGroup, GroundedChunk
 
 
@@ -51,7 +52,42 @@ def _status_with_left_context(
 
 
 def _render_group_text(chunks: list[GroundedChunk]) -> str:
-    return "\n".join(f"chunk_id={chunk.chunk_id}: {chunk.text}" for chunk in chunks)
+    return "\n".join(
+        f"chunk_id={chunk.chunk_id}: {chunk.prompt_text or chunk.text}"
+        for chunk in chunks
+    )
+
+
+def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
+    """Render each chunk with the source text that cleanup removed around it.
+
+    Chunk cleanup strips leading words such as "no" and the separators between
+    chunks; the extraction prompt must still show them. A chunk is prefixed with
+    the words dropped since the previous chunk and followed by the punctuation
+    that follows it in the source, so a coordinated list split into several
+    chunks ("no A," / "B," / "or C.") stays recognisable (#375). Separators
+    are shown once, after the chunk they follow, and whitespace runs in the
+    prefix are collapsed so it stays on its chunk-index line. A chunk after an
+    unlocated chunk gets no prefix, which would repeat that chunk's text
+    (#397). ``None`` when nothing differs from the cleaned chunk text.
+    """
+    prompt_texts: list[str | None] = [None] * len(chunks)
+    for region in rendered_regions(
+        text, [(chunk.get("start_char"), chunk.get("end_char")) for chunk in chunks]
+    ):
+        gap = text[region.start : region.chunk_start]
+        if gap:
+            gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
+        trailing = "".join(
+            character
+            for character in text[region.chunk_end : region.end]
+            if not character.isspace()
+        )
+        if gap or trailing:
+            prompt_texts[region.index] = (
+                f"{gap}{chunks[region.index].get('text', '')}{trailing}"
+            )
+    return prompt_texts
 
 
 def build_grounded_chunks_from_text_pipeline(
@@ -62,6 +98,7 @@ def build_grounded_chunks_from_text_pipeline(
     assertion_config: dict[str, Any] | None,
     retrieval_model_name: str,
     include_positions: bool = True,
+    sbert_model_for_semantic_chunking: Any | None = None,
 ) -> list[GroundedChunk]:
     from phentrieve.config import get_default_chunk_pipeline_config
     from phentrieve.embeddings import load_embedding_model
@@ -77,9 +114,14 @@ def build_grounded_chunks_from_text_pipeline(
         assertion_config=(
             {"disable": True} if assertion_config is None else assertion_config
         ),
-        sbert_model_for_semantic_chunking=load_embedding_model(retrieval_model_name),
+        sbert_model_for_semantic_chunking=(
+            sbert_model_for_semantic_chunking
+            if sbert_model_for_semantic_chunking is not None
+            else load_embedding_model(retrieval_model_name)
+        ),
     )
     processed_chunks = text_pipeline.process(text, include_positions=include_positions)
+    prompt_texts = _prompt_texts(text, processed_chunks)
     return [
         GroundedChunk(
             chunk_id=index + 1,
@@ -91,6 +133,7 @@ def build_grounded_chunks_from_text_pipeline(
                 chunk=chunk,
                 assertion_detector=text_pipeline.assertion_detector,
             ),
+            prompt_text=prompt_texts[index],
         )
         for index, chunk in enumerate(processed_chunks)
     ]

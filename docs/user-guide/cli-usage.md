@@ -159,7 +159,6 @@ encoder-calibration warning, cost envelope, and worked examples.
 **Advanced Options**:
 - `--input-file`, `-i`: Read text from file instead of argument
 - `--output-file`, `-f`: Save results to file instead of stdout
-- `--cross-language-hpo-retrieval`: Enable retrieval of HPO terms in a different language
 
 ### HPO Term Similarity
 

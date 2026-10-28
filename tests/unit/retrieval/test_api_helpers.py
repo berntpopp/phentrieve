@@ -5,7 +5,7 @@ Tests for the API-specific retrieval orchestration:
 
 Following best practices:
 - Mock external dependencies (retriever, assertion detector)
-- Test async function behavior
+- Test synchronous function behavior (callers run it in a threadpool)
 - Comprehensive path coverage (empty query, no results, filtering)
 - Clear Arrange-Act-Assert structure
 """
@@ -25,15 +25,14 @@ pytestmark = pytest.mark.unit
 class TestExecuteHpoRetrievalForApi:
     """Test execute_hpo_retrieval_for_api() function."""
 
-    @pytest.mark.asyncio
-    async def test_empty_query_text(self, mocker):
+    def test_empty_query_text(self, mocker):
         """Test that empty query text returns error response."""
         # Arrange
         mock_retriever = mocker.Mock()
         empty_text = ""
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=empty_text,
             language="en",
             retriever=mock_retriever,
@@ -49,15 +48,14 @@ class TestExecuteHpoRetrievalForApi:
         # Retriever should not be called for empty text
         mock_retriever.query.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_whitespace_only_query_text(self, mocker):
+    def test_whitespace_only_query_text(self, mocker):
         """Test that whitespace-only text returns error response."""
         # Arrange
         mock_retriever = mocker.Mock()
         whitespace_text = "   \n\t  "
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=whitespace_text,
             language="en",
             retriever=mock_retriever,
@@ -70,8 +68,7 @@ class TestExecuteHpoRetrievalForApi:
         assert "Error" in result["header"]
         assert result["results"] == []
 
-    @pytest.mark.asyncio
-    async def test_successful_dense_retrieval(self, mocker):
+    def test_successful_dense_retrieval(self, mocker):
         """Test successful dense retrieval."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -91,7 +88,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -115,15 +112,14 @@ class TestExecuteHpoRetrievalForApi:
             text=query_text.strip(), n_results=5, include_similarities=True
         )
 
-    @pytest.mark.asyncio
-    async def test_debug_logs_do_not_include_raw_query_text(self, mocker, caplog):
+    def test_debug_logs_do_not_include_raw_query_text(self, mocker, caplog):
         """Debug logging should report metadata without submitted text."""
         mock_retriever = mocker.Mock()
         query_text = "Herr Bernt Popp ist dumm"
         mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
 
         with caplog.at_level("DEBUG", logger="phentrieve.retrieval.api_helpers"):
-            await execute_hpo_retrieval_for_api(
+            execute_hpo_retrieval_for_api(
                 text=query_text,
                 language="en",
                 retriever=mock_retriever,
@@ -137,8 +133,7 @@ class TestExecuteHpoRetrievalForApi:
         assert query_text not in caplog.text
         assert f"text_chars={len(query_text)}" in caplog.text
 
-    @pytest.mark.asyncio
-    async def test_no_results_found(self, mocker):
+    def test_no_results_found(self, mocker):
         """Test handling when no results are found."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -148,7 +143,7 @@ class TestExecuteHpoRetrievalForApi:
         mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -163,14 +158,13 @@ class TestExecuteHpoRetrievalForApi:
         assert "No HPO terms found" in result["header"]
         assert result["results"] == []
 
-    @pytest.mark.asyncio
-    async def test_multi_vector_request_rejects_single_vector_index(self, mocker):
+    def test_multi_vector_request_rejects_single_vector_index(self, mocker):
         """A requested multi-vector query must not silently downgrade."""
         mock_retriever = mocker.Mock()
         mock_retriever.detect_index_type.return_value = "single_vector"
 
         with pytest.raises(RuntimeError, match="Multi-vector mode requested"):
-            await execute_hpo_retrieval_for_api(
+            execute_hpo_retrieval_for_api(
                 text="Patient has fever",
                 language="en",
                 retriever=mock_retriever,
@@ -183,8 +177,7 @@ class TestExecuteHpoRetrievalForApi:
         mock_retriever.query.assert_not_called()
         mock_retriever.query_multi_vector.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_similarity_threshold_filtering(self, mocker):
+    def test_similarity_threshold_filtering(self, mocker):
         """Test that results below similarity threshold are filtered out."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -204,7 +197,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -219,8 +212,7 @@ class TestExecuteHpoRetrievalForApi:
         assert result["results"][0]["hpo_id"] == "HP:0001945"
         assert result["results"][0]["similarity"] == 0.92
 
-    @pytest.mark.asyncio
-    async def test_result_limiting(self, mocker):
+    def test_result_limiting(self, mocker):
         """Test that results are limited to num_results."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -237,7 +229,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act - request only 3 results
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -252,8 +244,7 @@ class TestExecuteHpoRetrievalForApi:
         assert result["results"][0]["hpo_id"] == "HP:0001"
         assert result["results"][2]["hpo_id"] == "HP:0003"
 
-    @pytest.mark.asyncio
-    async def test_assertion_detection_enabled(self, mocker):
+    def test_assertion_detection_enabled(self, mocker):
         """Test query assertion detection when enabled."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -278,7 +269,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -298,7 +289,6 @@ class TestExecuteHpoRetrievalForApi:
         )
         mock_assertion_detector.detect.assert_called_once_with(query_text)
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("language", "query", "expected_embedded"),
         [
@@ -306,14 +296,14 @@ class TestExecuteHpoRetrievalForApi:
             ("de", "keine Krampfanfälle", "krampfanfälle"),
         ],
     )
-    async def test_negated_query_embeds_text_without_negation_cue(
+    def test_negated_query_embeds_text_without_negation_cue(
         self, mocker, language, query, expected_embedded
     ):
         """Negation cue is stripped before embedding; status stays negated."""
         mock_retriever = mocker.Mock()
         mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
 
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query,
             language=language,
             retriever=mock_retriever,
@@ -327,7 +317,6 @@ class TestExecuteHpoRetrievalForApi:
         assert result["query_text_processed"] == expected_embedded
         assert result["original_query_assertion_status"] == "negated"
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         ("query", "expected_status", "expected_embedded"),
         [
@@ -340,14 +329,14 @@ class TestExecuteHpoRetrievalForApi:
             ("short stature", "affirmed", "short stature"),
         ],
     )
-    async def test_auto_language_assertion(
+    def test_auto_language_assertion(
         self, mocker, query, expected_status, expected_embedded
     ):
         """With no language given, every language is tried; English wins its words."""
         mock_retriever = mocker.Mock()
         mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
 
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query,
             language=None,
             retriever=mock_retriever,
@@ -360,8 +349,7 @@ class TestExecuteHpoRetrievalForApi:
         assert mock_retriever.query.call_args.kwargs["text"] == expected_embedded
         assert result["original_query_assertion_status"] == expected_status
 
-    @pytest.mark.asyncio
-    async def test_assertion_detection_disabled(self, mocker):
+    def test_assertion_detection_disabled(self, mocker):
         """Test that assertion detection is skipped when disabled."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -378,7 +366,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -393,8 +381,7 @@ class TestExecuteHpoRetrievalForApi:
         # Assertion detector should not be created
         mock_assertion_detector_class.assert_not_called()
 
-    @pytest.mark.asyncio
-    async def test_assertion_detection_error_handling(self, mocker):
+    def test_assertion_detection_error_handling(self, mocker):
         """Test error handling in assertion detection."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -419,7 +406,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,
@@ -440,8 +427,7 @@ class TestExecuteHpoRetrievalForApi:
             "Error in assertion detection" in message for message in warning_messages
         )
 
-    @pytest.mark.asyncio
-    async def test_debug_logging_enabled(self, mocker):
+    def test_debug_logging_enabled(self, mocker):
         """Test that debug logging is enabled when debug=True."""
         # Arrange
         mock_retriever = mocker.Mock()
@@ -456,7 +442,7 @@ class TestExecuteHpoRetrievalForApi:
         }
 
         # Act
-        result = await execute_hpo_retrieval_for_api(
+        result = execute_hpo_retrieval_for_api(
             text=query_text,
             language="en",
             retriever=mock_retriever,

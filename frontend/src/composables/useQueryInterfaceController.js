@@ -1,16 +1,4 @@
-function getContextOrThrow(getContext) {
-  const context = getContext?.();
-
-  if (
-    !context ||
-    typeof context.getState !== 'function' ||
-    typeof context.setState !== 'function'
-  ) {
-    throw new Error('QueryInterface controller requires an explicit component context.');
-  }
-
-  return context;
-}
+import { nextTick as vueNextTick } from 'vue';
 
 function getFirstQueryValue(value) {
   return Array.isArray(value) ? value[0] : value;
@@ -28,27 +16,28 @@ function hasOwnQueryParam(query, key) {
 function getSanitizedSubmissionLog({
   mode,
   text,
-  latestState,
+  selectedLanguage,
+  textProcessOptions,
   piiScanResult = null,
   redactionApplied = false,
 }) {
   return {
     mode,
     textLength: String(text ?? '').length,
-    selectedLanguage: latestState.selectedLanguage,
+    selectedLanguage,
     extractionBackend:
-      mode === 'textProcess' ? latestState.textProcessOptions?.extractionBackend || null : null,
+      mode === 'textProcess' ? textProcessOptions?.extractionBackend || null : null,
     piiSummary: piiScanResult?.summary || { high: {}, review: {} },
     piiRedactionApplied: redactionApplied,
   };
 }
 
-function clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService) {
-  if (!isAutoSubmit && hasOwnQueryParam(context.routeQuery, 'autoSubmit')) {
-    const newRouteQuery = { ...context.routeQuery };
+function clearAutoSubmitQueryParamIfNeeded(route, router, isAutoSubmit, logService) {
+  if (!isAutoSubmit && hasOwnQueryParam(route?.query, 'autoSubmit')) {
+    const newRouteQuery = { ...route.query };
     delete newRouteQuery.autoSubmit;
 
-    Promise.resolve(context.replaceRouteQuery(newRouteQuery)).catch((error) => {
+    Promise.resolve(router.replace({ query: newRouteQuery })).catch((error) => {
       if (error.name !== 'NavigationDuplicated' && error.name !== 'NavigationCancelled') {
         logService.warn('Error clearing autoSubmit from URL:', error);
       }
@@ -56,26 +45,57 @@ function clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService) {
   }
 }
 
-export function useQueryInterfaceController({ getContext, service, logService }) {
+/**
+ * Model bootstrap, URL-parameter handling and query submission for QueryInterface.
+ *
+ * The controller reads and writes the component's refs directly (`.value`), so it
+ * can be exercised in tests with plain refs and a fake store/router.
+ *
+ * @param {Object} options
+ * @param {Object} options.state - Refs: queryText, selectedModel, availableModels,
+ *   modelsLoading, isLoading, shouldScrollToTop, userHasScrolled,
+ *   showAdvancedOptions, forceEndpointMode, isTextProcessModeActive (computed),
+ *   selectedLanguage, similarityThreshold, numResults, includeDetails,
+ *   expandedUserNotes, textProcessOptions, chunkingStrategy, windowSize, stepSize,
+ *   splitThreshold, minSegmentLength, semanticModelForChunking,
+ *   retrievalModelForTextProcess, chunkRetrievalThreshold, numResultsPerChunk,
+ *   noAssertionDetectionForTextProcess, assertionPreferenceForTextProcess,
+ *   aggregatedTermConfidence, topTermPerChunkForAggregation.
+ *   Optional: uiLocale (ref of the UI locale, used for PII rules).
+ * @param {Object} options.conversationStore - Conversation Pinia store.
+ * @param {Object} options.piiReviewFlow - usePiiReviewFlow() instance.
+ * @param {Object} options.route - Current route location (reads `query`).
+ * @param {Object} options.router - Router (uses `replace`).
+ * @param {Function} [options.nextTick] - Defaults to Vue's nextTick.
+ * @param {Object} options.service - PhentrieveService-compatible API client.
+ * @param {Object} options.logService - Logger.
+ */
+export function useQueryInterfaceController({
+  state,
+  conversationStore,
+  piiReviewFlow,
+  route,
+  router,
+  nextTick = vueNextTick,
+  service,
+  logService,
+}) {
   let hasAppliedInitialUrlParameters = false;
   let activeRequest = null;
 
   function setFallbackModel() {
-    const context = getContextOrThrow(getContext);
-
-    context.setState({
-      availableModels: [{ text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' }],
-      selectedModel: 'FremyCompany/BioLORD-2023-M',
-    });
+    state.availableModels.value = [
+      { text: 'BioLORD 2023-M', value: 'FremyCompany/BioLORD-2023-M' },
+    ];
+    state.selectedModel.value = 'FremyCompany/BioLORD-2023-M';
 
     logService.info('Using fallback embedding model', {
-      model: context.getState().selectedModel,
+      model: state.selectedModel.value,
     });
   }
 
   function applyUrlParametersAndAutoSubmit() {
-    const context = getContextOrThrow(getContext);
-    const queryParams = context.routeQuery ?? {};
+    const queryParams = route?.query ?? {};
 
     logService.debug('URL query parameters received', {
       keys: Object.keys(queryParams),
@@ -95,13 +115,13 @@ export function useQueryInterfaceController({ getContext, service, logService })
     const autoSubmitParam = getStringQueryValue(queryParams.autoSubmit);
 
     if (textParam !== undefined) {
-      context.setState({ queryText: textParam });
+      state.queryText.value = textParam;
     }
 
     if (modelParam !== undefined) {
-      const validModels = context.getState().availableModels.map((model) => model.value);
+      const validModels = state.availableModels.value.map((model) => model.value);
       if (validModels.includes(modelParam)) {
-        context.setState({ selectedModel: modelParam });
+        state.selectedModel.value = modelParam;
         advancedOptionsWereSet = true;
       }
     }
@@ -109,43 +129,37 @@ export function useQueryInterfaceController({ getContext, service, logService })
     if (thresholdParam !== undefined) {
       const parsedThreshold = parseFloat(thresholdParam);
       if (!Number.isNaN(parsedThreshold) && parsedThreshold >= 0 && parsedThreshold <= 1) {
-        context.setState({ similarityThreshold: parsedThreshold });
+        state.similarityThreshold.value = parsedThreshold;
         advancedOptionsWereSet = true;
       }
     }
 
     if (forceEndpointModeParam !== undefined) {
-      context.setState({ forceEndpointMode: forceEndpointModeParam });
+      state.forceEndpointMode.value = forceEndpointModeParam;
       advancedOptionsWereSet = true;
     }
 
     if (chunkingStrategyParam !== undefined) {
-      context.setState({ chunkingStrategy: chunkingStrategyParam });
+      state.chunkingStrategy.value = chunkingStrategyParam;
       advancedOptionsWereSet = true;
     }
 
     if (advancedOptionsWereSet) {
-      context.setState({ showAdvancedOptions: true });
+      state.showAdvancedOptions.value = true;
     }
 
-    const currentState = context.getState();
+    const currentQueryText = state.queryText.value;
     const performAutoSubmit =
       autoSubmitParam !== undefined ? parseBooleanParam(autoSubmitParam) : textParam !== undefined;
 
-    if (
-      performAutoSubmit &&
-      typeof currentState.queryText === 'string' &&
-      currentState.queryText.trim()
-    ) {
+    if (performAutoSubmit && typeof currentQueryText === 'string' && currentQueryText.trim()) {
       logService.info('Auto-submitting query based on URL parameters.');
-      context.nextTick(() => setTimeout(() => submitQuery(true), 300));
+      nextTick(() => setTimeout(() => submitQuery(true), 300));
     }
   }
 
   async function fetchAvailableModels() {
-    const context = getContextOrThrow(getContext);
-
-    context.setState({ modelsLoading: true });
+    state.modelsLoading.value = true;
 
     try {
       const config = await service.getConfigInfo();
@@ -160,10 +174,8 @@ export function useQueryInterfaceController({ getContext, service, logService })
         }));
         const selectedModel = config.default_embedding_model || availableModels[0]?.value || null;
 
-        context.setState({
-          availableModels,
-          selectedModel,
-        });
+        state.availableModels.value = availableModels;
+        state.selectedModel.value = selectedModel;
 
         logService.info('Loaded embedding models from API', {
           count: availableModels.length,
@@ -178,7 +190,7 @@ export function useQueryInterfaceController({ getContext, service, logService })
       });
       setFallbackModel();
     } finally {
-      context.setState({ modelsLoading: false });
+      state.modelsLoading.value = false;
 
       if (!hasAppliedInitialUrlParameters) {
         hasAppliedInitialUrlParameters = true;
@@ -196,15 +208,11 @@ export function useQueryInterfaceController({ getContext, service, logService })
     piiScanResult = null,
     redactionApplied = false,
   }) {
-    const context = getContextOrThrow(getContext);
+    state.isLoading.value = true;
+    state.shouldScrollToTop.value = true;
+    state.userHasScrolled.value = false;
 
-    context.setState({
-      isLoading: true,
-      shouldScrollToTop: true,
-      userHasScrolled: false,
-    });
-
-    const queryId = context.conversationStore.addQuery({
+    const queryId = conversationStore.addQuery({
       query: rawQueryForHistory,
       redactedQuery: redactedQueryForHistory,
       loading: true,
@@ -212,11 +220,11 @@ export function useQueryInterfaceController({ getContext, service, logService })
     });
 
     if (useTextProcessMode) {
-      context.setExpandedUserNote(queryId, true);
+      state.expandedUserNotes.value = { ...state.expandedUserNotes.value, [queryId]: true };
     }
 
     if (!isAutoSubmit) {
-      context.setState({ queryText: '' });
+      state.queryText.value = '';
     }
 
     const abortController = new AbortController();
@@ -225,11 +233,12 @@ export function useQueryInterfaceController({ getContext, service, logService })
 
     try {
       let response;
-      const latestState = context.getState();
+      const textProcessOptions = state.textProcessOptions.value;
       const sanitizedLog = getSanitizedSubmissionLog({
         mode: useTextProcessMode ? 'textProcess' : 'query',
         text: currentQuery,
-        latestState,
+        selectedLanguage: state.selectedLanguage.value,
+        textProcessOptions,
         piiScanResult,
         redactionApplied,
       });
@@ -237,87 +246,86 @@ export function useQueryInterfaceController({ getContext, service, logService })
       if (useTextProcessMode) {
         const textProcessPayload = {
           text: currentQuery,
-          extractionBackend: latestState.textProcessOptions.extractionBackend,
-          llmModel: latestState.textProcessOptions.llmModel,
-          llmMode: latestState.textProcessOptions.llmMode,
-          language: latestState.selectedLanguage,
-          chunkingStrategy: latestState.chunkingStrategy,
-          windowSize: latestState.windowSize,
-          stepSize: latestState.stepSize,
-          splitThreshold: latestState.splitThreshold,
-          minSegmentLength: latestState.minSegmentLength,
+          extractionBackend: textProcessOptions.extractionBackend,
+          llmModel: textProcessOptions.llmModel,
+          llmMode: textProcessOptions.llmMode,
+          language: state.selectedLanguage.value,
+          chunkingStrategy: state.chunkingStrategy.value,
+          windowSize: state.windowSize.value,
+          stepSize: state.stepSize.value,
+          splitThreshold: state.splitThreshold.value,
+          minSegmentLength: state.minSegmentLength.value,
           semanticModelForChunking:
-            latestState.semanticModelForChunking || latestState.selectedModel,
+            state.semanticModelForChunking.value || state.selectedModel.value,
           retrievalModelForTextProcess:
-            latestState.retrievalModelForTextProcess || latestState.selectedModel,
-          chunkRetrievalThreshold: latestState.chunkRetrievalThreshold,
-          numResultsPerChunk: latestState.numResultsPerChunk,
-          noAssertionDetectionForTextProcess: latestState.noAssertionDetectionForTextProcess,
-          assertionPreferenceForTextProcess: latestState.assertionPreferenceForTextProcess,
-          aggregatedTermConfidence: latestState.aggregatedTermConfidence,
-          topTermPerChunkForAggregation: latestState.topTermPerChunkForAggregation,
-          includeDetails: latestState.includeDetails,
+            state.retrievalModelForTextProcess.value || state.selectedModel.value,
+          chunkRetrievalThreshold: state.chunkRetrievalThreshold.value,
+          numResultsPerChunk: state.numResultsPerChunk.value,
+          noAssertionDetectionForTextProcess: state.noAssertionDetectionForTextProcess.value,
+          assertionPreferenceForTextProcess: state.assertionPreferenceForTextProcess.value,
+          aggregatedTermConfidence: state.aggregatedTermConfidence.value,
+          topTermPerChunkForAggregation: state.topTermPerChunkForAggregation.value,
+          includeDetails: state.includeDetails.value,
         };
         logService.info('Submitting text request', sanitizedLog);
         response = await service.processText(textProcessPayload, requestOptions);
       } else {
         const queryPayload = {
           text: currentQuery,
-          model_name: latestState.selectedModel,
-          language: latestState.selectedLanguage,
-          num_results: latestState.numResults,
-          similarity_threshold: latestState.similarityThreshold,
-          query_assertion_language: latestState.selectedLanguage,
+          model_name: state.selectedModel.value,
+          language: state.selectedLanguage.value,
+          num_results: state.numResults.value,
+          similarity_threshold: state.similarityThreshold.value,
+          query_assertion_language: state.selectedLanguage.value,
           detect_query_assertion: true,
-          include_details: latestState.includeDetails,
+          include_details: state.includeDetails.value,
         };
         logService.info('Submitting text request', sanitizedLog);
         response = await service.queryHpo(queryPayload, requestOptions);
       }
 
-      context.conversationStore.updateQueryResponse(queryId, response);
+      conversationStore.updateQueryResponse(queryId, response);
     } catch (error) {
       if (error?.type === 'CANCELED') {
         // A cancelled request leaves no error turn behind
-        const history = context.conversationStore.queryHistory;
+        const history = conversationStore.queryHistory;
         const index = history.findIndex((item) => item.id === queryId);
         if (index !== -1) history.splice(index, 1);
       } else {
-        context.conversationStore.updateQueryResponse(queryId, null, error);
+        conversationStore.updateQueryResponse(queryId, null, error);
         logService.error('Error submitting query/processing text', error);
       }
       // Give the text back on failure so a pasted note is not lost (unless the user typed anew)
-      if (!isAutoSubmit && !context.getState().queryText) {
-        context.setState({ queryText: currentQuery });
+      if (!isAutoSubmit && !state.queryText.value) {
+        state.queryText.value = currentQuery;
       }
     } finally {
       if (activeRequest === abortController) activeRequest = null;
-      context.setState({ isLoading: false });
-      clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
+      state.isLoading.value = false;
+      clearAutoSubmitQueryParamIfNeeded(route, router, isAutoSubmit, logService);
     }
   }
 
   async function submitQuery(isAutoSubmit = false) {
-    const context = getContextOrThrow(getContext);
-    const state = context.getState();
-    const queryTextTrimmed = typeof state.queryText === 'string' ? state.queryText.trim() : '';
+    const queryText = state.queryText.value;
+    const queryTextTrimmed = typeof queryText === 'string' ? queryText.trim() : '';
 
     if (!queryTextTrimmed) {
       logService.warn('Empty query submission prevented');
       return;
     }
 
-    const useTextProcessMode = state.isTextProcessModeActive;
-    const piiReviewResult = context.piiReviewFlow.scanSubmissionForPii({
+    const useTextProcessMode = state.isTextProcessModeActive.value;
+    const piiReviewResult = piiReviewFlow.scanSubmissionForPii({
       text: queryTextTrimmed,
       // Query language may be auto-detected server-side; the UI locale picks PII rules
-      locale: state.selectedLanguage || state.uiLocale || 'en',
+      locale: state.selectedLanguage.value || state.uiLocale?.value || 'en',
       useTextProcessMode,
       isAutoSubmit,
     });
 
     if (piiReviewResult.hasFindings) {
-      clearAutoSubmitQueryParamIfNeeded(context, isAutoSubmit, logService);
+      clearAutoSubmitQueryParamIfNeeded(route, router, isAutoSubmit, logService);
       return;
     }
 
@@ -335,17 +343,15 @@ export function useQueryInterfaceController({ getContext, service, logService })
   }
 
   async function continueWithPiiRedaction() {
-    const context = getContextOrThrow(getContext);
-    return context.piiReviewFlow.continueWithPiiRedaction({
+    return piiReviewFlow.continueWithPiiRedaction({
       submitQueryText,
     });
   }
 
   function redactPiiInInput() {
-    const context = getContextOrThrow(getContext);
-    return context.piiReviewFlow.redactPiiInInput({
+    return piiReviewFlow.redactPiiInInput({
       setQueryText(value) {
-        context.setState({ queryText: value });
+        state.queryText.value = value;
       },
     });
   }

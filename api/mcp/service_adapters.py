@@ -9,9 +9,9 @@ adapters hold only the domain logic (including the LLM quota / fallback policy).
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
 from typing import Any
 
+from fastapi.concurrency import run_in_threadpool
 from fastmcp.server.dependencies import get_http_request
 
 import api.config as api_config
@@ -36,11 +36,12 @@ from phentrieve.config import (
     DEFAULT_MULTI_VECTOR,
     get_default_chunk_pipeline_config,
 )
-from phentrieve.evaluation.metrics import (
-    SimilarityFormula,
-    calculate_semantic_similarity,
-    find_lowest_common_ancestor,
-    load_hpo_graph_data,
+from phentrieve.evaluation.metrics import SimilarityFormula, load_hpo_graph_data
+from phentrieve.evaluation.term_similarity import (
+    HPODataUnavailableError,
+    HPOTermNotFoundError,
+    TermSimilarityResult,
+    compute_term_similarity,
 )
 from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.api_helpers import execute_hpo_retrieval_for_api
@@ -90,7 +91,8 @@ async def search_hpo_terms_service(
         sbert_model_name_for_retriever=DEFAULT_MODEL,
         multi_vector=DEFAULT_MULTI_VECTOR,
     )
-    result = await execute_hpo_retrieval_for_api(
+    result = await run_in_threadpool(
+        execute_hpo_retrieval_for_api,
         text=text,
         language=language or DEFAULT_LANGUAGE,
         retriever=retriever,
@@ -257,28 +259,7 @@ def extract_hpo_terms_llm_service(
 # --------------------------------------------------------------------------- #
 # Similarity
 # --------------------------------------------------------------------------- #
-def _hpo_label_map(ids: list[str]) -> dict[str, str]:
-    """Best-effort id -> label lookup; empty dict if the HPO DB is unavailable."""
-    try:
-        from phentrieve.config import DEFAULT_HPO_DB_FILENAME
-        from phentrieve.data_processing.hpo_database import HPODatabase
-        from phentrieve.utils import get_default_data_dir, resolve_data_path
-
-        db_path = (
-            resolve_data_path(None, "data_dir", get_default_data_dir)
-            / DEFAULT_HPO_DB_FILENAME
-        )
-        if not db_path.exists():
-            return {}
-        db = HPODatabase(db_path)
-        terms = db.get_terms_by_ids([i for i in ids if i])
-        db.close()
-        return {hid: t.get("label", "") for hid, t in terms.items()}
-    except Exception:  # pragma: no cover - label is a non-essential enrichment
-        return {}
-
-
-def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[str, Any]:
+def _build_lca_details(result: TermSimilarityResult) -> dict[str, Any]:
     """Explain a similarity score: MICA, per-term depth + normalized depth, path.
 
     D2: the per-term structural proxy is depth/max_depth -- normalized ontology
@@ -286,11 +267,9 @@ def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[st
     consumers do not mistake it for a Resnik-style IC (the bundle ships no corpus
     to compute true IC).
     """
-    lca, lca_depth = find_lowest_common_ancestor(t1, t2)
-    max_depth = max(depths.values()) if depths else 0
-    d1 = depths.get(t1)
-    d2 = depths.get(t2)
-    labels = _hpo_label_map([t1, t2, lca] if lca else [t1, t2])
+    lca = result.lca_id
+    lca_depth = result.lca_depth
+    max_depth = result.max_depth
 
     def _normalized_depth(depth: float | None) -> float | None:
         if depth is None or not max_depth:
@@ -298,27 +277,29 @@ def _build_lca_details(t1: str, t2: str, depths: Mapping[str, float]) -> dict[st
         return round(depth / max_depth, 4)
 
     path_length: int | None = None
-    if d1 is not None and d2 is not None and lca_depth is not None and lca_depth >= 0:
-        path_length = int((d1 - lca_depth) + (d2 - lca_depth))
+    if lca_depth is not None:
+        path_length = int(
+            (result.term1_depth - lca_depth) + (result.term2_depth - lca_depth)
+        )
 
     return {
         "mica": {
             "hpo_id": lca,
-            "label": labels.get(lca) if lca else None,
-            "depth": lca_depth if lca else None,
+            "label": result.lca_label,
+            "depth": lca_depth,
         },
-        "lca_depth": lca_depth if lca else None,
+        "lca_depth": lca_depth,
         "term1": {
-            "hpo_id": t1,
-            "label": labels.get(t1),
-            "depth": d1,
-            "normalized_depth": _normalized_depth(d1),
+            "hpo_id": result.term1_id,
+            "label": result.term1_label,
+            "depth": result.term1_depth,
+            "normalized_depth": _normalized_depth(result.term1_depth),
         },
         "term2": {
-            "hpo_id": t2,
-            "label": labels.get(t2),
-            "depth": d2,
-            "normalized_depth": _normalized_depth(d2),
+            "hpo_id": result.term2_id,
+            "label": result.term2_label,
+            "depth": result.term2_depth,
+            "normalized_depth": _normalized_depth(result.term2_depth),
         },
         "path_length": path_length,
     }
@@ -329,28 +310,34 @@ def compare_hpo_terms_service(
 ) -> McpResult:
     t1 = normalize_id(term1_id)
     t2 = normalize_id(term2_id)
-    similarity_formula = SimilarityFormula(formula)
-    _ancestors, depths = load_hpo_graph_data()
-    if t1 not in depths or t2 not in depths:
-        missing = [t for t in (t1, t2) if t not in depths]
+    try:
+        result = compute_term_similarity(
+            t1, t2, SimilarityFormula(formula), with_lca=include_lca_details
+        )
+    except HPODataUnavailableError as exc:
+        raise McpToolError(
+            "temporarily_unavailable",
+            "HPO ontology data is currently unavailable; run "
+            "`phentrieve data prepare` or retry later.",
+            details={"term1_id": t1, "term2_id": t2},
+        ) from exc
+    except HPOTermNotFoundError as exc:
         raise McpToolError(
             "not_found",
-            f"HPO term(s) not found in ontology data: {', '.join(missing)}.",
+            f"HPO term(s) not found in ontology data: {', '.join(exc.missing)}.",
             details={"term1_id": t1, "term2_id": t2},
-        )
-    result: McpResult = {
-        "term1_id": t1,
-        "term2_id": t2,
-        "formula_used": similarity_formula.value,
-        "similarity_score": calculate_semantic_similarity(
-            t1, t2, formula=similarity_formula
-        ),
+        ) from exc
+    response: McpResult = {
+        "term1_id": result.term1_id,
+        "term2_id": result.term2_id,
+        "formula_used": result.formula.value,
+        "similarity_score": result.similarity_score,
     }
     # At standard/full, explain the score with the MICA, per-term IC and the
     # subsumer path so the number is not a bare scalar (defect D5).
     if include_lca_details:
-        result["lca_details"] = _build_lca_details(t1, t2, depths)
-    return result
+        response["lca_details"] = _build_lca_details(result)
+    return response
 
 
 # --------------------------------------------------------------------------- #
@@ -378,10 +365,11 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     # into an affirmed feature on the subject (LLM-1). Drop it from the packet.
     # Experiencer (not assertion) now carries family-ness (B1 split them into
     # separate axes); key the guard on experiencer, keeping the legacy
-    # assertion check as a defensive OR fallback (B2).
+    # assertion check as a defensive OR fallback (B2). A finding of another
+    # person who is not a relative (experiencer "other") is dropped likewise.
     experiencer = str(p.get("experiencer") or "").strip().lower()
     if (
-        experiencer == "family_history"
+        experiencer in {"family_history", "other"}
         or str(assertion).strip().lower() == "family_history"
     ):
         return None
@@ -397,7 +385,14 @@ def _coerce_export_phenotype(request_cls: Any, p: dict[str, Any], idx: int) -> A
     return request_cls(
         hpo_id=hpo_id,
         label=p.get("label") or p.get("name") or hpo_id,
-        assertion_status="negated" if is_excluded(assertion) else "affirmed",
+        # The extractor's ``excluded`` flag is authoritative; the assertion
+        # string is checked too so negation synonyms are never exported as
+        # present (#407).
+        assertion_status=(
+            "negated"
+            if p.get("excluded") is True or is_excluded(assertion)
+            else "affirmed"
+        ),
         confidence=confidence,
         source_chunk_ids=[c for c in chunk_ids if isinstance(c, int)],
         match_method=match_method,

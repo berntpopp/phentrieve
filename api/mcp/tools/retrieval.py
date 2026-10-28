@@ -42,6 +42,7 @@ from phentrieve.config import (
     DEFAULT_NUM_RESULTS,
     MIN_SIMILARITY_THRESHOLD,
 )
+from phentrieve.llm.pipeline_trace import incomplete_extraction_signal
 
 if TYPE_CHECKING:
     from fastmcp import FastMCP
@@ -169,15 +170,20 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped = apply_response_mode(
                 raw, mode, keep_detail_fields=_detail_keep(include_details)
             )
-            shaped, trunc = enforce_budget(
-                shaped, mode, list_field="aggregated_hpo_terms"
+            # Trim in reverse clinical priority toward the SAME total-payload
+            # char budget (enforce_budget measures the whole payload each call):
+            # other-person findings first, then family history, and the
+            # patient's own aggregated terms only if still over budget. A large
+            # secondary list must never push the patient's findings out (#396).
+            # Every list stays budgeted and disclosed, never exempted (B2).
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
             )
-            # Budget the family list after the aggregated list and toward the
-            # SAME total-payload char budget (enforce_budget measures the whole
-            # payload each call), so it is never silently trimmed nor exempted
-            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
+            )
+            shaped, trunc = enforce_budget(
+                shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(
@@ -188,6 +194,8 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 meta["truncated"] = trunc
             if family_trunc:
                 meta["family_history_findings_truncated"] = family_trunc
+            if other_trunc:
+                meta["other_person_findings_truncated"] = other_trunc
             _maybe_citation(meta, mode)
             shaped["_meta"] = meta
             return shaped
@@ -255,15 +263,20 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
             shaped = apply_response_mode(
                 raw, mode, keep_detail_fields=_detail_keep(include_details)
             )
-            shaped, trunc = enforce_budget(
-                shaped, mode, list_field="aggregated_hpo_terms"
+            # Trim in reverse clinical priority toward the SAME total-payload
+            # char budget (enforce_budget measures the whole payload each call):
+            # other-person findings first, then family history, and the
+            # patient's own aggregated terms only if still over budget. A large
+            # secondary list must never push the patient's findings out (#396).
+            # Every list stays budgeted and disclosed, never exempted (B2).
+            shaped, other_trunc = enforce_budget(
+                shaped, mode, list_field="other_person_findings"
             )
-            # Budget the family list after the aggregated list and toward the
-            # SAME total-payload char budget (enforce_budget measures the whole
-            # payload each call), so it is never silently trimmed nor exempted
-            # from the mode's budget (B2).
             shaped, family_trunc = enforce_budget(
                 shaped, mode, list_field="family_history_findings"
+            )
+            shaped, trunc = enforce_budget(
+                shaped, mode, list_field="aggregated_hpo_terms"
             )
             meta: dict[str, Any] = {
                 "next_commands": after_extract(
@@ -274,6 +287,18 @@ def register_retrieval_tools(mcp: FastMCP) -> None:
                 meta["truncated"] = trunc
             if family_trunc:
                 meta["family_history_findings_truncated"] = family_trunc
+            if other_trunc:
+                meta["other_person_findings_truncated"] = other_trunc
+            # A partial LLM result (a phase-1 group lost for good) is flagged
+            # here, where every response mode keeps it (#395).
+            raw_meta = raw.get("meta")
+            meta.update(
+                incomplete_extraction_signal(
+                    raw_meta.get("observability")
+                    if isinstance(raw_meta, dict)
+                    else None
+                )
+            )
             _maybe_citation(meta, mode)
             shaped["_meta"] = meta
             return shaped

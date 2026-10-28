@@ -41,8 +41,8 @@ class TextProcessingRequest(BaseModel):
     allow_standard_fallback: bool = Field(
         default=False,
         description=(
-            "When true, production LLM quota exhaustion falls back to the standard "
-            "backend instead of returning a quota error."
+            "When true, LLM quota exhaustion or an LLM backend error falls back "
+            "to the standard backend instead of returning an error."
         ),
     )
     language: str | None = Field(
@@ -209,6 +209,13 @@ class AggregatedHPOTermAPI(BaseModel):
             "the backend does not attribute an experiencer."
         ),
     )
+    temporality: str | None = Field(
+        default=None,
+        description=(
+            "When the finding applies ('current', 'historical', 'unknown'). "
+            "None when the backend does not attribute a temporality."
+        ),
+    )
     excluded: bool = Field(
         default=False,
         description=(
@@ -274,7 +281,9 @@ class TextProcessingResponseAPI(BaseModel):
             "Metadata about the request and processing parameters used. "
             "Common keys include extraction_backend, quota_limit, "
             "quota_remaining, quota_reset_at, fallback_reason, "
-            "llm_quota_limit, and llm_quota_reset_at."
+            "llm_quota_limit, and llm_quota_reset_at. An LLM result that "
+            "is missing findings because an extraction group failed for good "
+            "carries incomplete=true and a short incomplete_reason."
         ),
         json_schema_extra={
             "examples": [
@@ -309,5 +318,12 @@ class TextProcessingResponseAPI(BaseModel):
             "HPO terms attributed to a family member (experiencer != proband), "
             "kept separate from aggregated_hpo_terms so a relative's finding is "
             "never conflated with the proband's."
+        ),
+    )
+    other_person_findings: list[AggregatedHPOTermAPI] = Field(
+        default_factory=list,
+        description=(
+            "HPO terms attributed to another person who is not a relative "
+            "(experiencer 'other'), kept separate from aggregated_hpo_terms."
         ),
     )

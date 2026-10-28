@@ -22,10 +22,17 @@ def _structured(result):
     return data
 
 
-def test_protocol_roundtrip_surface_and_envelope():
+def test_protocol_roundtrip_surface_and_envelope(tmp_path, monkeypatch):
     from fastmcp import Client
 
     from api.mcp.facade import create_phentrieve_mcp
+    from phentrieve.evaluation.metrics import load_hpo_graph_data
+    from tests.unit.tiny_hpo_db import use_hpo_data_dir, write_tiny_hpo_db
+
+    # A tiny prepared ontology makes "not found" independent of whether
+    # `phentrieve data prepare` has run (missing data is temporarily_unavailable).
+    use_hpo_data_dir(monkeypatch, tmp_path / "data")
+    write_tiny_hpo_db(tmp_path / "data")
 
     async def run():
         mcp = create_phentrieve_mcp()
@@ -52,7 +59,10 @@ def test_protocol_roundtrip_surface_and_envelope():
             assert err["success"] is False
             assert err["error_code"] == "not_found"
 
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    finally:
+        load_hpo_graph_data.cache_clear()
 
 
 def test_protocol_initialize_exposes_instructions():

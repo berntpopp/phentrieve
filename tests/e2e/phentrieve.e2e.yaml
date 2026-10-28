@@ -1,2 +1,4 @@
+# The API image embeds the multi-vector BioLORD bundle (api/Dockerfile BUNDLE_URL),
+# so E2E must query the multi-vector collection.
 multi_vector:
-  enabled: false
+  enabled: true
