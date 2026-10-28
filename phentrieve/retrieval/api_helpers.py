@@ -96,7 +96,7 @@ def _convert_multi_vector_results(
     return candidates
 
 
-async def execute_hpo_retrieval_for_api(
+def execute_hpo_retrieval_for_api(
     text: str,
     language: str,
     retriever: DenseRetriever,
@@ -118,6 +118,9 @@ async def execute_hpo_retrieval_for_api(
 
     This function adapts the core logic from process_query and orchestrate_query
     for API usage, removing CLI outputs and returning structured data.
+
+    This is a blocking call (assertion detection, embedding, Chroma query,
+    SQLite enrichment). Async callers must run it via ``run_in_threadpool``.
 
     Args:
         text: The clinical text to process and query for HPO terms

@@ -6,6 +6,8 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Self
 
+from phentrieve.assertion_vocab import is_excluded
+
 AssertionValue = Literal[
     "affirmed",
     "negated",
@@ -31,7 +33,14 @@ _ASSERTION_ALIASES: dict[str, AssertionValue] = {
 
 def _normalize_assertion(value: str | None) -> AssertionValue:
     normalized = (value or "affirmed").strip().lower()
-    return _ASSERTION_ALIASES.get(normalized, "unknown")
+    if normalized in _ASSERTION_ALIASES:
+        return _ASSERTION_ALIASES[normalized]
+    # Defer negation to the shared export vocabulary so every ruled-out
+    # synonym (denied / no / negative / excluded ...) exports as negated
+    # rather than falling through to "unknown" (present) (#407).
+    if is_excluded(normalized):
+        return "negated"
+    return "unknown"
 
 
 def _resolve_legacy_assertion(legacy: Mapping[str, Any]) -> str:
@@ -43,7 +52,13 @@ def _resolve_legacy_assertion(legacy: Mapping[str, Any]) -> str:
     ``excluded`` bool, and carries NEITHER canonical field. Reading ``status``
     and then the ``excluded`` flag here ensures a ruled-out finding routed
     through the aggregated phenopacket/sidecar path exports as ``negated`` rather
-    than silently defaulting to ``affirmed`` (present)."""
+    than silently defaulting to ``affirmed`` (present).
+
+    An explicit ``excluded: True`` wins over every string field: it is the
+    extractor's authoritative ruled-out flag, so ``{status: "unknown",
+    excluded: True}`` must not export as present (#407)."""
+    if legacy.get("excluded") is True:
+        return "negated"
     explicit = (
         legacy.get("assertion")
         or legacy.get("assertion_status")

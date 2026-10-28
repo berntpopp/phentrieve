@@ -1,6 +1,6 @@
-from typing import Literal, cast
+from typing import Annotated
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, WithJsonSchema, model_validator
 
 from phentrieve.config import (
     DEFAULT_AGGREGATION_STRATEGY,
@@ -8,10 +8,21 @@ from phentrieve.config import (
     DEFAULT_MULTI_VECTOR,
     DEFAULT_NUM_RESULTS,
     MIN_SIMILARITY_THRESHOLD,
+    AssertionPreference,
 )
+from phentrieve.retrieval.aggregation import AggregationStrategy
 
 # Queries are phrases/sentences; longer input belongs on /text/process.
 MAX_QUERY_CHARS = 10_000
+
+# Validate against the AggregationStrategy enum but keep the inline string-enum
+# JSON schema the API has always published (no separate $ref component).
+AggregationStrategyField = Annotated[
+    AggregationStrategy,
+    WithJsonSchema(
+        {"type": "string", "enum": [strategy.value for strategy in AggregationStrategy]}
+    ),
+]
 
 
 class QueryRequest(BaseModel):
@@ -51,30 +62,9 @@ class QueryRequest(BaseModel):
         default=DEFAULT_MULTI_VECTOR,
         description="Use multi-vector index with component-level aggregation.",
     )
-    aggregation_strategy: (
-        Literal[
-            "label_only",
-            "label_synonyms_min",
-            "label_synonyms_max",
-            "all_weighted",
-            "all_max",
-            "all_min",
-            "custom",
-        ]
-        | None
-    ) = Field(
-        cast(
-            Literal[
-                "label_only",
-                "label_synonyms_min",
-                "label_synonyms_max",
-                "all_weighted",
-                "all_max",
-                "all_min",
-                "custom",
-            ],
-            DEFAULT_AGGREGATION_STRATEGY,
-        ),
+    aggregation_strategy: AggregationStrategyField | None = Field(
+        default=AggregationStrategy(DEFAULT_AGGREGATION_STRATEGY),
+        title="Aggregation Strategy",
         description="Aggregation strategy for multi-vector results.",
     )
     component_weights: dict[str, float] | None = Field(
@@ -94,14 +84,9 @@ class QueryRequest(BaseModel):
         None,
         description="Language for assertion detection (e.g., 'en', 'de'). If None, uses the query language.",
     )
-    query_assertion_preference: Literal["dependency", "keyword", "any_negative"] = (
-        Field(
-            cast(
-                Literal["dependency", "keyword", "any_negative"],
-                DEFAULT_ASSERTION_PREFERENCE,
-            ),
-            description="Assertion detection strategy (dependency-based, keyword-based, or any negative detection).",
-        )
+    query_assertion_preference: AssertionPreference = Field(
+        DEFAULT_ASSERTION_PREFERENCE,
+        description="Assertion detection strategy (dependency-based, keyword-based, or any negative detection).",
     )
 
     # Add sentence_mode if you want to expose it directly, default to False for whole text processing by the API
