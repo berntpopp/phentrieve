@@ -6,7 +6,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { createApp } from 'vue';
 import { setActivePinia, createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { useConversationStore } from '../stores/conversation';
 
 describe('Conversation Store', () => {
@@ -40,6 +42,24 @@ describe('Conversation Store', () => {
       expect(store.hasConversation).toBe(false);
       expect(store.phenotypeCount).toBe(0);
       expect(store.hasPhenotypes).toBe(false);
+    });
+  });
+
+  describe('Hydration', () => {
+    it('stops the spinner of a request that was in flight at reload', async () => {
+      localStorage.setItem(
+        'phentrieve-conversation',
+        JSON.stringify({ queryHistory: [{ id: 'q1', loading: true, response: null, error: null }] })
+      );
+      // Persistence plugins only run once pinia is installed in an app
+      const pinia = createPinia();
+      pinia.use(piniaPluginPersistedstate);
+      createApp({}).use(pinia);
+      setActivePinia(pinia);
+      const store = useConversationStore();
+
+      expect(store.queryHistory[0].loading).toBe(false);
+      expect(store.queryHistory[0].error).toEqual({ userMessageKey: 'errors.requestInterrupted' });
     });
   });
 

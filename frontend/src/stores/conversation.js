@@ -75,6 +75,10 @@ function sanitizeHydratedQueryHistory(queryHistory) {
 
   return queryHistory.map(({ rawQuerySessionOnly: _rawQuerySessionOnly, ...item }) => ({
     ...item,
+    // A request still in flight at reload can never finish; stop its spinner
+    ...(item.loading && !item.response
+      ? { loading: false, error: item.error || { userMessageKey: 'errors.requestInterrupted' } }
+      : {}),
     query: REDACTED_QUERY_PLACEHOLDER,
     redactedQuery: normalizeRedactedQuery(item.redactedQuery),
   }));

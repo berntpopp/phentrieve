@@ -9,25 +9,26 @@
     "unknown": "Unknown"
   },
   "conversationSettings": {
-    "tooltip": "Conversation Settings",
-    "title": "Conversation Settings",
-    "historyLength": "Maximum History Length",
+    "tooltip": "Conversation settings",
+    "title": "Conversation settings",
+    "historyLength": "Maximum history length",
     "historyHint": "Lower values improve performance. Higher values keep more history.",
-    "stats": "Current Statistics",
-    "totalQueries": "Total Queries",
-    "totalPhenotypes": "Collected Phenotypes",
-    "storageUsed": "Storage Used",
-    "clearAll": "Clear All",
+    "stats": "Current statistics",
+    "totalQueries": "Total queries",
+    "totalPhenotypes": "Collected phenotypes",
+    "storageUsed": "Storage used",
+    "clearAll": "Clear all",
     "close": "Close",
-    "confirmClearTitle": "Clear All Data?",
+    "confirmClearTitle": "Clear all data?",
     "confirmClearMessage": "This will permanently delete all conversation history and collected phenotypes. This action cannot be undone."
   },
   "home": {
-    "logoAlt": "Phentrieve Logo - Click to reset",
+    "logoAlt": "Phentrieve logo - reset the application",
     "resetAriaLabel": "Reset conversation",
-    "resetTitle": "Reset Application?",
+    "resetTitle": "Reset application?",
     "resetMessage": "This will clear all conversation history and collected phenotypes. Your disclaimer acknowledgment will be preserved.",
-    "resetConfirm": "Reset"
+    "resetConfirm": "Reset",
+    "resetTooltip": "Start over: clear the conversation and collected phenotypes"
   },
   "models": {
     "biolord": "BioLORD 2023-M"
@@ -35,6 +36,11 @@
   "app": {
     "footer": {
       "homeTooltip": "Go to home",
+      "theme": {
+        "system": "Theme: follows system. Click for light",
+        "light": "Theme: light. Click for dark",
+        "dark": "Theme: dark. Click to follow system"
+      },
       "disclaimer": "Disclaimer",
       "disclaimerTooltip": "View important disclaimer and usage information",
       "disclaimerAcknowledgedTooltip": "Acknowledged on {date}",
@@ -49,32 +55,33 @@
       "docsTooltip": "View project documentation",
       "licenseTooltip": "View project license",
       "apiTooltip": "Open the API documentation (OpenAPI)",
-      "mcpTooltip": "Connect an AI agent (MCP)"
+      "mcpTooltip": "Connect an AI agent (MCP)",
+      "more": "More links"
     }
   },
   "disclaimerDialog": {
-    "title": "Research Use Disclaimer",
+    "title": "Research use disclaimer",
     "mainHeader": "Phentrieve is intended for research and informational purposes only.",
     "description": "This tool is designed to map research text to standardized Human Phenotype Ontology (HPO) terms to aid in research and knowledge discovery.",
-    "limitationsTitle": "Important Limitations:",
+    "limitationsTitle": "Important limitations:",
     "limitations": {
       "item1": "Phentrieve is NOT a clinical diagnostic tool and should not replace professional medical advice, diagnosis, or treatment.",
       "item2": "The AI models and HPO mapping may contain inaccuracies, errors, or limitations.",
       "item3": "Results require independent review before any downstream use and must not be used for clinical decision-making.",
       "item4": "The tool does not establish a doctor-patient relationship and is not a substitute for consulting with healthcare providers."
     },
-    "responsibilityTitle": "User Responsibility:",
+    "responsibilityTitle": "User responsibility:",
     "responsibilityText": "By using Phentrieve, you acknowledge that you understand these limitations and that you assume full responsibility for how you interpret and use the information provided by this tool.",
-    "acceptButton": "I Understand and Agree"
+    "acceptButton": "I understand and agree"
   },
   "queryInterface": {
     "title": "Phentrieve",
-    "subtitle": "HPO Term Mapping for Research Phenotype Descriptions",
+    "subtitle": "HPO term mapping for research phenotype text",
     "welcomeText": "Phentrieve is an AI-powered research tool that maps phenotype text to standardized Human Phenotype Ontology (HPO) terms for research annotation and knowledge discovery.",
-    "queryModeLabel": "Query Mode",
-    "documentModeLabel": "Document Mode",
+    "queryModeLabel": "Query mode",
+    "documentModeLabel": "Full-text mode",
     "modeSwitch": {
-      "autoFullTextNotice": "Switched to Full Text for longer research text"
+      "autoFullTextNotice": "Switched to full-text mode for longer research text"
     },
     "inputLabel": "Enter research text description",
     "examples": {
@@ -83,32 +90,32 @@
       "example1": "The research note describes short stature, recurrent fractures, and blue sclerae.",
       "example2": "The research summary mentions facial dysmorphism with hypertelorism, downslanting palpebral fissures, low-set ears, congenital heart defects, and developmental delay."
     },
-    "formLabel": "Research Subject Metadata (Optional)",
+    "formLabel": "Research subject metadata (optional)",
     "idLabel": "Subject ID",
     "sexLabel": "Sex",
-    "dobLabel": "Date of Birth",
+    "dobLabel": "Date of birth",
     "sexOptions": {
       "male": "Male",
       "female": "Female",
       "other": "Other",
       "unknown": "Unknown"
     },
-    "analyzeButton": "Analyze Text",
+    "analyzeButton": "Analyze text",
     "clearButton": "Clear",
-    "copyButton": "Copy HPO Terms",
+    "copyButton": "Copy HPO terms",
     "exportButton": "Export as Phenopacket",
     "processingMessage": "Processing...",
-    "noInputError": "Please enter some text to analyze",
+    "noInputError": "Enter some text to analyze.",
     "copySuccess": "HPO terms copied to clipboard",
-    "exportSuccess": "Phenopacket exported to clipboard",
+    "exportSuccess": "Phenopacket copied to clipboard",
     "error": "Error: {message}",
     "piiReview": {
       "title": "Possible identifiers detected",
-      "description": "Phentrieve found possible identifiers before submitting this text.",
+      "description": "Phentrieve found possible personal identifiers in this text. Review them before submitting.",
       "willRedact": "Will be redacted locally",
       "needsReview": "Needs review",
       "overrideNotice": "High-confidence identifiers will be redacted locally before submission. Other possible identifiers may remain if you continue.",
-      "safetyAid": "This is a safety aid and cannot guarantee all PII is detected or that text is de-identified.",
+      "safetyAid": "This is a safety aid. It cannot guarantee that all personal identifiers are detected or that the text is de-identified.",
       "cancel": "Review text",
       "redact": "Redact in text",
       "continue": "Continue with local redaction",
@@ -130,20 +137,20 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO Collection",
-      "close": "Close HPO Collection Panel",
+      "title": "Case workspace",
+      "close": "Close case workspace",
       "count": "{count} phenotype(s) collected",
       "empty": "No phenotypes collected yet",
       "instructions": "Click the button next to any HPO term to add it to your collection",
-      "subjectInfoHeader": "Subject Information (Optional)",
+      "subjectInfoHeader": "Subject information (optional)",
       "subjectId": "Subject ID",
       "sex": "Sex",
-      "dateOfBirth": "Date of Birth",
+      "dateOfBirth": "Date of birth",
       "exportPhenopacket": "Export as Phenopacket (JSON)",
-      "exportText": "Export as Text",
-      "exportError": "Error exporting Phenopacket. Check console for details.",
-      "clear": "Clear Collection",
-      "assertionToggle": "Toggle Assertion Status",
+      "exportText": "Export as text",
+      "exportError": "Could not export the Phenopacket. Please try again.",
+      "clear": "Clear collection",
+      "assertionToggle": "Toggle assertion status",
       "assertionStatus": {
         "affirmed": "Affirmed",
         "present": "Present",
@@ -152,50 +159,55 @@
         "unknown": "Unknown"
       },
       "aria": {
-        "openPanel": "Open HPO Collection Panel",
-        "panel": "Phenotype collection",
+        "openPanel": "Open case workspace",
+        "panel": "Case workspace",
         "toggleAssertion": "Toggle assertion status for {label} ({id})",
         "removeItem": "Remove {label} ({id}) from collection",
         "subjectId": "Enter subject identifier for Phenopacket",
         "sex": "Select subject sex for Phenopacket",
         "dateOfBirth": "Enter subject date of birth for Phenopacket",
         "exportPhenopacket": "Export collected phenotypes as Phenopacket JSON"
-      }
+      },
+      "copyIds": "Copy present HPO IDs",
+      "copied": "Copied {count} HPO IDs",
+      "clearConfirm": "Click again to clear all",
+      "markExcluded": "Mark as excluded (absent)",
+      "markPresent": "Mark as present"
     },
     "advancedOptions": {
-      "title": "Advanced Options",
-      "embeddingModel": "Embedding Model",
-      "similarityThreshold": "Similarity Threshold",
-      "includeDetails": "Include Details",
+      "title": "Advanced options",
+      "embeddingModel": "Embedding model",
+      "similarityThreshold": "Similarity threshold",
+      "includeDetails": "Include details",
       "language": "Language",
-      "processingModeTitle": "Processing Mode",
-      "processingModeLabel": "Processing Mode",
+      "processingModeTitle": "Processing mode",
+      "processingModeLabel": "Processing mode",
       "modeAutomatic": "Automatic (by text length)",
-      "modeQuery": "Query Mode (short text)",
-      "modeTextProcess": "Text Processing Mode (document)",
-      "textProcessingTitle": "Text Processing Settings",
-      "extractionBackend": "Extraction Backend",
+      "modeQuery": "Query (short text)",
+      "modeTextProcess": "Full text (longer text)",
+      "textProcessingTitle": "Full-text settings",
+      "extractionBackend": "Extraction backend",
       "standardExtraction": "Standard extraction",
       "llmExtraction": "LLM extraction",
-      "llmModel": "LLM Model",
-      "llmMode": "LLM Mode",
+      "llmModel": "LLM model",
+      "llmMode": "LLM mode",
       "llmModes": {
         "twoPhase": "Two-phase extraction"
       },
       "llmDisclosure": "LLM extraction may process submitted text with an external AI provider configured by the service operator. Use research text only; do not submit directly identifying information.",
-      "chunkingStrategy": "Chunking Strategy",
-      "windowSize": "Window Size (tokens)",
-      "stepSize": "Step Size",
-      "chunkThreshold": "Chunk Retrieval Threshold",
-      "aggConfidence": "Aggregated Term Confidence",
-      "detectAssertions": "Detect Assertions",
-      "splitThreshold": "Split Threshold",
-      "minSegmentLength": "Min Segment Length",
-      "numResultsPerChunk": "Results Per Chunk",
-      "topTermPerChunk": "Keep only top HPO term per chunk",
+      "chunkingStrategy": "Chunking strategy",
+      "windowSize": "Window size (tokens)",
+      "stepSize": "Step size",
+      "chunkThreshold": "Chunk retrieval threshold",
+      "aggConfidence": "Aggregated term confidence",
+      "detectAssertions": "Detect assertions",
+      "splitThreshold": "Split threshold",
+      "minSegmentLength": "Minimum segment length",
+      "numResultsPerChunk": "Results per chunk",
+      "topTermPerChunk": "Keep only the top HPO term per chunk",
       "strategies": {
-        "sliding_window_punct_cleaned": "Sliding Window + Punctuation + Cleaner",
-        "sliding_window_punct_conj_cleaned": "Sliding Window + Punctuation + Conjunctions + Cleaner"
+        "sliding_window_punct_cleaned": "Sliding window + punctuation + cleaner",
+        "sliding_window_punct_conj_cleaned": "Sliding window + punctuation + conjunctions + cleaner"
       }
     },
     "tooltips": {
@@ -203,32 +215,48 @@
       "phenotypeCollection": "View and manage collected phenotypes",
       "embeddingModel": "Select the AI model used for embedding text",
       "similarityThreshold": "Set the minimum similarity score required for results",
-      "includeDetails": "Include HPO term definitions and synonyms in search results (limits to 20 results for performance)",
+      "includeDetails": "Include HPO term definitions and synonyms in search results (limited to 20 results)",
       "language": "Select language for query processing and assertion detection",
-      "subjectId": "Enter an identifier for the subject/patient",
+      "subjectId": "Enter an identifier for the subject",
       "sex": "Select the subject's biological sex",
       "dateOfBirth": "Enter the subject's date of birth"
     },
     "accessibility": {
-      "textProcessInputLabel": "Clinical document input for text processing",
-      "textProcessInputDescription": "Enter longer research phenotype text for document processing.",
-      "queryInputLabel": "Clinical text input field",
+      "textProcessInputLabel": "Research text for full-text analysis",
+      "textProcessInputDescription": "Enter longer research phenotype text for full-text analysis.",
+      "queryInputLabel": "Phenotype text",
       "queryInputDescription": "Enter research phenotype text to search for HPO terms.",
       "processingInProgress": "Processing in progress.",
       "searchInProgress": "Search in progress.",
-      "openAdvancedOptions": "Open advanced options",
-      "closeAdvancedOptions": "Close advanced options",
       "searchButton": "Search HPO terms",
       "userInput": "User input",
       "response": "Phentrieve response",
       "advancedOptionsRegion": "Advanced search options",
       "selectEmbeddingModel": "Select embedding model",
       "embeddingModelDescription": "Choose the model to use for text embedding. Currently selected: {selectedModel}",
-      "similarityThresholdSlider": "Similarity threshold slider",
+      "similarityThresholdSlider": "Similarity threshold",
       "similarityThresholdDescription": "Adjust minimum similarity threshold. Current value: {similarityThreshold}",
       "selectQueryLanguage": "Select query language",
       "queryLanguageDescription": "Choose the language for query processing. Currently selected: {selectedLanguage}",
       "includeDetailsSwitch": "Include HPO term definitions and synonyms"
+    },
+    "form": {
+      "queryPill": "Query",
+      "fullTextPill": "Full text",
+      "modeGroup": "Search mode",
+      "settings": "Settings",
+      "queryLabel": "Phenotype query",
+      "noteLabel": "Research note",
+      "notePlaceholder": "Paste or type research phenotype text",
+      "noteSubmitHint": "Ctrl+Enter to analyze",
+      "cancel": "Cancel",
+      "collapseNote": "Collapse note",
+      "expandNote": "Expand note"
+    },
+    "fullTextReceipt": {
+      "title": "Full-text analysis ready",
+      "addAll": "Add all ({count})",
+      "addAllConfirm": "Click again to add all {count}"
     }
   },
   "annotatedDocumentPane": {
@@ -267,18 +295,18 @@
     "scoreLabel": "Score"
   },
   "resultsDisplay": {
-    "title": "Extracted HPO Terms",
+    "title": "Extracted HPO terms",
     "termCountLabel": "{count} terms found",
-    "noResultsMessage": "No HPO terms identified. Try a different text or check your input.",
+    "noResultsMessage": "No HPO terms found. Try rephrasing the text or lowering the similarity threshold.",
     "termIdHeader": "HPO ID",
-    "termNameHeader": "Term Name",
+    "termNameHeader": "Term name",
     "confidenceHeader": "Confidence",
     "actionsHeader": "Actions",
     "removeTermTooltip": "Remove this term",
     "confidenceTooltip": "Confidence score: {score}",
     "viewTermLink": "View on HPO website",
-    "similarityLabel": "Similarity Score",
-    "confidenceLabel": "Confidence Score",
+    "similarityLabel": "Similarity score",
+    "confidenceLabel": "Confidence score",
     "modelLabel": "Model",
     "languageLabel": "Language",
     "assertionLabel": "Assertion",
@@ -286,17 +314,17 @@
     "affirmed": "Affirmed",
     "negated": "Negated",
     "unknown": "Unknown",
-    "cosineSimilarity": "Cosine Similarity",
-    "rangeExplanation": "{min} (no similarity) to {max} (perfect match)",
-    "noMatch": "No Match",
-    "perfectMatch": "Perfect Match",
+    "cosineSimilarity": "Cosine similarity",
+    "rangeExplanation": "{min} (no similarity) to {max} (maximum similarity)",
+    "noMatch": "No similarity",
+    "perfectMatch": "Maximum similarity",
     "scoreNote": "Represents semantic similarity in vector space",
     "quality": {
-      "excellent": "Excellent Match",
-      "high": "High Match",
-      "moderate": "Moderate Match",
-      "low": "Low Match",
-      "poor": "Poor Match"
+      "excellent": "Excellent match",
+      "high": "High match",
+      "moderate": "Moderate match",
+      "low": "Low match",
+      "poor": "Poor match"
     },
     "addToCollectionTooltip": "Add HPO term {id} to your collection",
     "alreadyInCollectionTooltip": "HPO term {id} is already in your collection",
@@ -306,24 +334,24 @@
     "hideDetails": "Hide details",
     "definitionLabel": "Definition",
     "synonymsLabel": "Synonyms",
-    "defaultError": "An error occurred while processing your request.",
+    "defaultError": "An error occurred while processing your request. Please try again.",
     "confidenceScoreTooltip": "Confidence score: {score}",
     "sourceChunksTooltip": "Found in {count} text chunks",
     "maxScoreTooltip": "Highest confidence: {score}",
     "topEvidenceTooltip": "Best evidence in chunk #{id}",
     "textProcess": {
-      "title": "Processed Text Analysis",
-      "chunksTitle": "Processed Chunks & Per-Chunk HPO Terms",
-      "aggregatedTitle": "Aggregated Document Phenotypes",
+      "title": "Full-text analysis",
+      "chunksTitle": "Processed chunks and per-chunk HPO terms",
+      "aggregatedTitle": "Aggregated document phenotypes",
       "chunksLabel": "Chunks",
       "strategyLabel": "Strategy",
       "chunkLabel": "Chunk",
-      "chunkHPOTerms": "HPO Terms Identified in this Chunk:",
+      "chunkHPOTerms": "HPO terms identified in this chunk:",
       "noChunkHPOTerms": "No HPO terms were identified for this chunk.",
-      "hpoInChunkTitle": "HPO Terms found in this Chunk:",
+      "hpoInChunkTitle": "HPO terms found in this chunk:",
       "noChunkHPOTermsMatched": "No HPO terms met the retrieval threshold for this specific chunk.",
       "avgConfidenceTooltip": "Average confidence score from all evidence chunks",
-      "maxScoreTooltip": "Max Score from one Chunk",
+      "maxScoreTooltip": "Highest score in a single chunk",
       "evidenceFromChunksShort": "Chunks:",
       "hitsText": "hits",
       "evidenceCountTooltip": "Number of chunks providing evidence",
@@ -335,34 +363,37 @@
       "noChunksProcessed": "No text chunks were processed.",
       "noAggregatedTerms": "No aggregated HPO terms found.",
       "strategyUnknown": "Unknown strategy",
-      "assertionDetail": "Assertion Method:",
-      "finalStatus": "Final Status:"
+      "assertionDetail": "Assertion method:",
+      "finalStatus": "Final status:"
     }
   },
   "errors": {
     "api": {
       "unknown": "An unexpected error occurred. Please try again.",
       "network": "Could not connect to the server. Please check your internet connection and try again.",
-      "clientSide": "An error occurred while {context}.",
-      "badRequest": "Your request was invalid. Please check the input and try again. (Status: {status})",
+      "clientSide": "An error occurred while {context}. Please try again.",
+      "badRequest": "The server could not process this request. Check your input and try again. (Status: {status})",
       "validation": "The input was rejected. Check it and note the size limits: 50,000 characters for full text, 10,000 for a single query. (Status: {status})",
-      "badRequestModel": "The model specified in your request is invalid or not supported. (Status: {status})",
-      "unauthorized": "You are not authorized to perform this action. (Status: {status})",
+      "badRequestModel": "The selected model is invalid or not supported. Select a different model in Settings and try again. (Status: {status})",
+      "unauthorized": "You need to sign in to do this. Sign in and try again. (Status: {status})",
       "forbidden": "You do not have permission to access this resource. (Status: {status})",
       "notFound": "The requested resource could not be found. (Status: {status})",
-      "notFoundModel": "The requested model could not be found on the server. (Status: {status})",
+      "notFoundModel": "The selected model is not available on the server. Select a different model in Settings and try again. (Status: {status})",
       "serverError": "A server error occurred. Please try again later. (Status: {status})",
       "serviceUnavailable": "The service is temporarily unavailable. Please try again later. (Status: {status})",
-      "llmQuotaExceeded": "LLM full-text limit reached for today."
-    }
+      "llmQuotaExceeded": "You have reached today's limit for LLM full-text analysis. Try again tomorrow, or switch the extraction backend to Standard in Settings.",
+      "llmUnavailable": "LLM full-text extraction is not available right now. Open Settings, switch the extraction backend to Standard, and try again. (Status: {status})",
+      "timeout": "The request took too long and was stopped. Try a shorter text or try again later."
+    },
+    "requestInterrupted": "This request was interrupted by a page reload. Please submit it again."
   },
   "logViewer": {
-    "title": "Application Logs",
-    "clearLogsButton": "Clear Logs",
+    "title": "Application logs",
+    "clearLogsButton": "Clear logs",
     "closeButton": "Close",
     "emptyLogsMessage": "No logs to display",
     "searchPlaceholder": "Search logs",
-    "logLevels": "Log Levels",
+    "logLevels": "Log levels",
     "timestamp": "Timestamp",
     "level": "Level",
     "message": "Message",
@@ -373,8 +404,8 @@
       "memory": "Memory"
     },
     "config": {
-      "title": "Logging Configuration",
-      "description": "Set the maximum number of log entries to keep in memory. Older logs are automatically rotated (FIFO).",
+      "title": "Logging configuration",
+      "description": "Set the maximum number of log entries to keep in memory. When the limit is reached, the oldest entries are removed first.",
       "cancel": "Cancel",
       "save": "Save"
     }
@@ -388,38 +419,38 @@
       "content": "This is your starting point for mapping research phenotype text to HPO terms. Let's take a quick tour of the main features!"
     },
     "step2": {
-      "title": "Enter Clinical Text",
+      "title": "Enter research text",
       "content": "Type or paste your research description here. You can describe phenotypes or research observations you want to map to HPO terms."
     },
     "step3": {
-      "title": "Search for HPO Terms",
-      "content": "Click this button to start the AI-powered analysis. Phentrieve will process your text and find the most relevant HPO terms."
+      "title": "Search for HPO terms",
+      "content": "Click this button to start the AI-powered analysis. Phentrieve will process your text and suggest relevant HPO terms."
     },
     "step4": {
-      "title": "Review Results",
-      "content": "Your search results will appear here, ranked by relevance. Each result shows the HPO term, its definition, and confidence score."
+      "title": "Review results",
+      "content": "Your search results will appear here, ranked by similarity. Each result shows the HPO term, its ID, and a similarity score."
     },
     "step5": {
-      "title": "Advanced Options",
+      "title": "Advanced options",
       "content": "Expand this section to access advanced search parameters like model selection and result limits."
     },
     "step6": {
-      "title": "Collect Terms",
-      "content": "Add interesting HPO terms to your collection by clicking the 'Add to Collection' button. You can review and export them later."
+      "title": "Collect terms",
+      "content": "Add relevant HPO terms to your collection with the add button next to each result. You can review and export them later."
     },
     "step7": {
-      "title": "Your Collection",
-      "content": "View, manage, and export your collected HPO terms here. You can export as text or structured Phenopacket JSON format."
+      "title": "Your collection",
+      "content": "View, manage, and export your collected HPO terms here. You can export them as text or as a Phenopacket (JSON)."
     },
     "step8": {
-      "title": "Help & Resources",
+      "title": "Help and resources",
       "content": "Access documentation, FAQs, and additional resources using the footer links. You can also view logs for debugging purposes."
     },
     "navigation": {
       "next": "Next",
       "previous": "Previous",
-      "skip": "Skip Tour",
-      "finish": "Finish Tour"
+      "skip": "Skip tour",
+      "finish": "Finish tour"
     },
     "tooltips": {
       "startTour": "Start guided tour",
@@ -427,20 +458,20 @@
     }
   },
   "faq": {
-    "backToHome": "Back to Home",
-    "pageTitle": "Frequently Asked Questions",
+    "backToHome": "Back to home",
+    "pageTitle": "Frequently asked questions",
     "searchPlaceholder": "Search through {count} questions",
     "categories": {
       "general": {
-        "title": "General Information",
+        "title": "General information",
         "questions": {
           "whatIsPhentrieve": {
             "question": "What is Phentrieve?",
-            "answer": "<p>Phentrieve is an advanced AI-powered research tool that maps phenotype descriptions to standardized Human Phenotype Ontology (HPO) terms. It supports phenotype annotation for research, education, benchmarking, and knowledge discovery.</p><p>Key features include:</p><ul><li>Mapping research text to HPO terms</li><li>Semantic retrieval with state-of-the-art AI models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
+            "answer": "<p>Phentrieve is an AI-powered research tool that maps phenotype descriptions to standardized Human Phenotype Ontology (HPO) terms. It supports phenotype annotation for research, education, benchmarking, and knowledge discovery.</p><p>Key features include:</p><ul><li>Mapping research text to HPO terms</li><li>Semantic retrieval with biomedical embedding models</li><li>Support for multiple languages</li><li>User-friendly interface</li></ul>"
           },
           "howItWorks": {
             "question": "How does Phentrieve work?",
-            "answer": "<p>Phentrieve uses a sophisticated pipeline of AI models and algorithms to process research phenotype text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>This process ensures high-quality matches while maintaining efficiency.</p>"
+            "answer": "<p>Phentrieve uses a pipeline of AI models and algorithms to process research phenotype text:</p><ol><li><strong>Text Analysis:</strong> The system analyzes the input text using specialized biomedical language models</li><li><strong>Term Matching:</strong> It identifies potential HPO terms using semantic search and context-aware matching</li><li><strong>Ranking:</strong> The matches are ranked by relevance</li><li><strong>Results:</strong> The most relevant HPO terms are presented to the user</li></ol><p>Results are suggestions and should be reviewed before any downstream use.</p>"
           },
           "whoCanUse": {
             "question": "Who can use Phentrieve?",
@@ -449,15 +480,15 @@
         }
       },
       "technical": {
-        "title": "Technical Details",
+        "title": "Technical details",
         "questions": {
           "performance": {
             "question": "What performance can I expect?",
-            "answer": "<p>Our benchmark results show:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
+            "answer": "<p>Results on our benchmark set (hit rate at ranks 1, 3, and 5):</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>Performance may vary based on the complexity and specificity of the input text.</p>"
           },
           "similarityScore": {
             "question": "What do the similarity scores mean?",
-            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your research phenotype text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (perfect match).</p><h4>Score Ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical Details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 indicates identical semantic meaning, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty.</p>"
+            "answer": "<p>Phentrieve uses cosine similarity to measure how closely your research phenotype text matches HPO terms. Scores range from 0.0 (no similarity) to 1.0 (maximum similarity).</p><h4>Score ranges</h4><ul><li><strong>0.90 - 1.00:</strong> Excellent match - highly relevant</li><li><strong>0.75 - 0.89:</strong> High match - very relevant</li><li><strong>0.60 - 0.74:</strong> Moderate match - potentially relevant</li><li><strong>0.40 - 0.59:</strong> Low match - loosely related</li><li><strong>0.00 - 0.39:</strong> Poor match - not recommended</li></ul><h4>Technical details</h4><p>Scores are calculated using cosine similarity between embedding vectors. A score of 1.0 means the embeddings point in the same direction, while 0.0 indicates no similarity.</p><p><strong>Note:</strong> These scores represent semantic similarity in vector space, not clinical certainty.</p>"
           }
         }
       }
@@ -492,7 +523,7 @@
     },
     "links": {
       "forgotPassword": "Forgot password?",
-      "needAccount": "Need an account? Register",
+      "needAccount": "Need an account? Create one",
       "backToLogin": "Back to sign in"
     },
     "validation": {
@@ -504,7 +535,7 @@
     },
     "messages": {
       "registerSuccess": "Account created. Check your email to verify and unlock the higher daily quota.",
-      "resetSent": "If the address is valid, a password reset link has been sent."
+      "resetSent": "If an account exists for this address, a password reset link has been sent."
     },
     "errors": {
       "loginFailed": "Invalid email or password.",
@@ -512,7 +543,7 @@
       "generic": "Something went wrong. Please try again."
     },
     "account": {
-      "loginRegister": "Sign in or register",
+      "loginRegister": "Sign in or create account",
       "account": "Account",
       "signedInAs": "Signed in as",
       "verified": "Verified",

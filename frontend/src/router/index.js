@@ -33,6 +33,8 @@ const router = createRouter({
       name: 'reset-password',
       component: () => import('../views/ResetPasswordView.vue'),
     },
+    // Unknown paths would otherwise render an empty page
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });
 

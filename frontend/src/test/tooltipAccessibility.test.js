@@ -14,16 +14,17 @@ const tooltipFiles = [
 ];
 
 describe('tooltip accessibility markup', () => {
-  it('keeps audited tooltip components paired with content-props labels', () => {
+  it('names every audited tooltip on its role="tooltip" root', () => {
     for (const relativePath of tooltipFiles) {
       const source = readFileSync(resolve(import.meta.dirname, '../../', relativePath), 'utf8');
       const tooltipCount = (source.match(/<v-tooltip\b/g) || []).length;
-      const contentPropsCount = (source.match(/content-props=/g) || []).length;
+      // Vuetify puts role="tooltip" on the overlay root; content-props would name the inner div
+      const labelCount = (source.match(/<v-tooltip\b[^>]*?\s:?aria-label=/gs) || []).length;
 
-      expect(
-        contentPropsCount,
-        `${relativePath} should provide content-props for each tooltip`
-      ).toBe(tooltipCount);
+      expect(labelCount, `${relativePath} should give each v-tooltip an aria-label`).toBe(
+        tooltipCount
+      );
+      expect(source).not.toMatch(/content-props="\{\s*'aria-label'/);
     }
   });
 

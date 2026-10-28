@@ -37,7 +37,7 @@
             <!-- Assertion status -->
             <div v-if="responseData.query_assertion_status" class="info-item mb-1">
               <v-icon
-                :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
+                :color="responseData.query_assertion_status === 'negated' ? 'warning' : 'success'"
                 class="mr-1"
                 size="small"
               >
@@ -53,7 +53,7 @@
                 >
                 <v-chip
                   size="x-small"
-                  :color="responseData.query_assertion_status === 'negated' ? 'error' : 'success'"
+                  :color="responseData.query_assertion_status === 'negated' ? 'warning' : 'success'"
                   class="ml-1"
                   density="comfortable"
                 >
@@ -250,7 +250,7 @@ export default {
     },
     getAssertionColor(status) {
       if (!status) return 'grey';
-      return status === 'negated' ? 'error' : 'success';
+      return status === 'negated' ? 'warning' : 'success';
     },
 
     isAlreadyCollected(hpoId) {
@@ -377,18 +377,19 @@ export default {
   border-radius: 3px;
   padding: 0.5px 2px;
   box-shadow: 0 0 3px rgba(255, 210, 50, 0.5);
+  color: rgba(0, 0, 0, 0.87); /* fixed light highlight: keep dark text in dark mode */
 }
 
 .details-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  background-color: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
   padding: 8px 12px;
   border-radius: 4px;
 }
 
 .definition-text {
   line-height: 1.6;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgba(var(--v-theme-on-surface), 0.87);
 }
 
 .synonym-chip {

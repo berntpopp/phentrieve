@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Resource hints for performance optimization -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.phentrieve.kidney-genetics.org">
 
     <!-- Favicon setup for multiple platforms -->
@@ -18,8 +17,8 @@
     <meta name="theme-color" content="#1867C0">
 
     <!-- Font display:swap is used in CSS to ensure text remains visible during font loading -->
-    <title>Phentrieve: AI-Powered Clinical Text to HPO Term Mapping</title>
-    <meta name="description" content="Phentrieve accurately maps free-text clinical notes to HPO terms using cutting-edge AI. Streamline phenotype annotation for research and diagnostics.">
+    <title>Phentrieve: AI-Powered Research Phenotype Text to HPO Term Mapping</title>
+    <meta name="description" content="Phentrieve is an AI-powered research tool that maps phenotype text to Human Phenotype Ontology (HPO) terms for research annotation and knowledge discovery. Not a diagnostic tool.">
     <link rel="canonical" href="https://phentrieve.kidney-genetics.org/">
     <script type="application/ld+json">
     {
@@ -27,10 +26,10 @@
       "@type": "WebApplication",
       "name": "Phentrieve",
       "url": "https://phentrieve.kidney-genetics.org/",
-      "description": "AI-powered tool for accurately mapping clinical text to Human Phenotype Ontology (HPO) terms to streamline phenotype annotation for research and diagnostics.",
-      "applicationCategory": "HealthcareApplication",
+      "description": "AI-powered research tool that maps phenotype text to Human Phenotype Ontology (HPO) terms for research annotation and knowledge discovery. For research use only; not a diagnostic tool.",
+      "applicationCategory": "ResearchApplication",
       "softwareVersion": "0.15.0",
-      "keywords": "HPO, Human Phenotype Ontology, clinical text mapping, phenotype annotation, medical AI, bioinformatics",
+      "keywords": "HPO, Human Phenotype Ontology, phenotype text mapping, phenotype annotation, research, bioinformatics",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -44,6 +43,10 @@
     }
     </script>
     <!-- No modulepreload to avoid MIME type errors -->
+    <!-- Paint the app background before JS mounts (avoids a white flash) -->
+    <style>html, body { background: #f5f5f5; } @media (prefers-color-scheme: dark) { html:not(.theme-light), html:not(.theme-light) body { background: #121212; } } html.theme-dark, html.theme-dark body { background: #121212; }</style>
+    <!-- Apply an explicit saved theme before first paint (key matches ThemeToggle) -->
+    <script>try { var t = localStorage.getItem('phentrieve-theme'); if (t === 'light' || t === 'dark') document.documentElement.classList.add('theme-' + t); } catch (e) {}</script>
   </head>
   <body>
     <div id="app"></div>

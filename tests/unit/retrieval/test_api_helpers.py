@@ -289,6 +289,66 @@ class TestExecuteHpoRetrievalForApi:
         )
         mock_assertion_detector.detect.assert_called_once_with(query_text)
 
+    @pytest.mark.parametrize(
+        ("language", "query", "expected_embedded"),
+        [
+            ("en", "no seizures", "seizures"),
+            ("de", "keine Krampfanfälle", "krampfanfälle"),
+        ],
+    )
+    def test_negated_query_embeds_text_without_negation_cue(
+        self, mocker, language, query, expected_embedded
+    ):
+        """Negation cue is stripped before embedding; status stays negated."""
+        mock_retriever = mocker.Mock()
+        mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
+
+        result = execute_hpo_retrieval_for_api(
+            text=query,
+            language=language,
+            retriever=mock_retriever,
+            num_results=5,
+            similarity_threshold=0.5,
+            query_assertion_preference="keyword",
+            multi_vector=False,
+        )
+
+        assert mock_retriever.query.call_args.kwargs["text"] == expected_embedded
+        assert result["query_text_processed"] == expected_embedded
+        assert result["original_query_assertion_status"] == "negated"
+
+    @pytest.mark.parametrize(
+        ("query", "expected_status", "expected_embedded"),
+        [
+            # Short foreign negations are still found without a language
+            ("keine Krampfanfälle", "negated", "krampfanfälle"),
+            ("pas de fièvre", "negated", "fièvre"),
+            # English words must not be re-read as foreign cues (French "non")
+            ("non ambulatory", "affirmed", "non ambulatory"),
+            ("non-progressive ataxia", "affirmed", "non-progressive ataxia"),
+            ("short stature", "affirmed", "short stature"),
+        ],
+    )
+    def test_auto_language_assertion(
+        self, mocker, query, expected_status, expected_embedded
+    ):
+        """With no language given, every language is tried; English wins its words."""
+        mock_retriever = mocker.Mock()
+        mock_retriever.query.return_value = {"ids": [[]], "documents": [[]]}
+
+        result = execute_hpo_retrieval_for_api(
+            text=query,
+            language=None,
+            retriever=mock_retriever,
+            num_results=5,
+            similarity_threshold=0.5,
+            query_assertion_preference="keyword",
+            multi_vector=False,
+        )
+
+        assert mock_retriever.query.call_args.kwargs["text"] == expected_embedded
+        assert result["original_query_assertion_status"] == expected_status
+
     def test_assertion_detection_disabled(self, mocker):
         """Test that assertion detection is skipped when disabled."""
         # Arrange

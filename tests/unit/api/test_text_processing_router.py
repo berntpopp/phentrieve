@@ -1430,3 +1430,59 @@ class TestValidateResponseChunkReferences:
         assert len(terms[0].text_attributions) == 2
         assert terms[0].text_attributions[0].chunk_id == 1
         assert terms[0].text_attributions[1].chunk_id == 2
+
+
+@pytest.mark.asyncio
+async def test_client_disconnect_sets_llm_cancel_event(monkeypatch) -> None:
+    from api.routers import text_processing_router
+    from phentrieve.text_processing.full_text_service import LLMCancelToken
+
+    monkeypatch.setattr(text_processing_router.asyncio, "sleep", AsyncMock())
+    http_request = MagicMock()
+    http_request.is_disconnected = AsyncMock(side_effect=[False, True])
+    cancel_event = LLMCancelToken()
+
+    await text_processing_router._cancel_on_disconnect(http_request, cancel_event)
+
+    assert cancel_event.is_set()
+
+
+@pytest.mark.parametrize(
+    ("llm_calls_started", "expect_refund"),
+    [(0, True), (1, False)],
+)
+def test_cancelled_llm_request_refunds_only_before_paid_calls(
+    tmp_path, monkeypatch, llm_calls_started, expect_refund
+):
+    """Cancel before any LLM call -> refund; after one started -> charged."""
+    from phentrieve.text_processing.full_text_service import LLMRequestCancelledError
+
+    monkeypatch.setattr("api.config.PHENTRIEVE_ENV", "production", raising=False)
+    monkeypatch.setattr("api.config.PHENTRIEVE_LLM_DAILY_LIMIT", 5, raising=False)
+    monkeypatch.setattr(
+        "api.config.PHENTRIEVE_LLM_QUOTA_DB_PATH",
+        str(tmp_path / "llm_quota.db"),
+        raising=False,
+    )
+    release = MagicMock()
+    monkeypatch.setattr("api.routers.text_processing_router.release_llm_quota", release)
+
+    def cancelled_run(**kwargs):
+        token = kwargs["cancel_event"]
+        token.llm_calls_started = llm_calls_started
+        token.set()  # what the disconnect watcher does
+        raise LLMRequestCancelledError("LLM request cancelled by caller")
+
+    monkeypatch.setattr(
+        "api.services.text_processing_execution.run_full_text_service", cancelled_run
+    )
+
+    with TestClient(
+        app, raise_server_exceptions=False, client=("172.18.0.10", 50000)
+    ) as local_client:
+        local_client.post(
+            "/api/v1/text/process",
+            json={"text": "Patient had seizures.", "extraction_backend": "llm"},
+        )
+
+    assert release.called is expect_refund

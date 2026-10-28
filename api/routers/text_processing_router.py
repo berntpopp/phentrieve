@@ -27,6 +27,7 @@ from api.schemas.text_processing_schemas import (
     TextProcessingResponseAPI,
 )
 from api.services import text_processing_execution
+from phentrieve.text_processing.full_text_service import LLMCancelToken
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
@@ -229,11 +230,21 @@ async def process_text_extract_hpo(
                     detail=exc.to_detail(),
                 ) from exc
 
+    # Set when the client disconnects (user cancelled) or we time out; the LLM
+    # worker then skips its remaining paid provider calls.
+    cancel_event = LLMCancelToken()
+    disconnect_watcher = (
+        asyncio.create_task(_cancel_on_disconnect(http_request, cancel_event))
+        if request.extraction_backend == "llm"
+        else None
+    )
     try:
         # Wrap processing with timeout protection
         try:
             response = await asyncio.wait_for(
-                text_processing_execution.process_text_via_shared_service(request),
+                text_processing_execution.process_text_via_shared_service(
+                    request, cancel_event
+                ),
                 timeout=timeout_seconds,
             )
         except (HTTPException, asyncio.exceptions.TimeoutError):
@@ -241,16 +252,22 @@ async def process_text_extract_hpo(
         except Exception as exc:
             # Mirror the MCP adapter: an opted-in LLM request whose backend
             # fails reruns on the standard backend instead of returning a 500.
-            if request.extraction_backend != "llm" or not allow_standard_fallback:
+            # A cancelled request is never rerun: the client has gone away.
+            if (
+                request.extraction_backend != "llm"
+                or not allow_standard_fallback
+                or cancel_event.is_set()
+            ):
                 raise
             logger.warning(
                 "API: LLM backend failed (%s); falling back to standard backend.",
                 type(exc).__name__,
             )
-            # The LLM call produced nothing: refund its reservation.
-            if quota_status is not None:
+            # Refund only if no paid LLM call started; after spend the
+            # reservation is kept, as for a timeout or a cancel.
+            if quota_status is not None and cancel_event.llm_calls_started == 0:
                 release_llm_quota(quota_status)
-                quota_status = None
+            quota_status = None
             request = request.model_copy(
                 update={
                     "extraction_backend": "standard",
@@ -264,8 +281,9 @@ async def process_text_extract_hpo(
                 timeout=timeout_seconds,
             )
     except asyncio.exceptions.TimeoutError:
-        # Keep the reservation: the worker thread (and its paid LLM call) keeps
-        # running after wait_for gives up.
+        # Keep the reservation: the in-flight paid LLM call still completes,
+        # but no further calls start.
+        cancel_event.set()
         logger.error(
             "API: Request timed out after %ss (text length: %s chars)",
             timeout_seconds,
@@ -282,9 +300,17 @@ async def process_text_extract_hpo(
         )
     except Exception:
         # Failed before producing a result: the caller got nothing, refund it.
-        if quota_status is not None:
+        # A cancel after paid LLM calls started is charged, like a timeout, so
+        # start-and-cancel loops cannot spend LLM budget for free.
+        cancelled_after_llm_spend = (
+            cancel_event.is_set() and cancel_event.llm_calls_started > 0
+        )
+        if quota_status is not None and not cancelled_after_llm_spend:
             release_llm_quota(quota_status)
         raise
+    finally:
+        if disconnect_watcher is not None:
+            disconnect_watcher.cancel()
 
     if quota_status is not None:
         response.meta["quota_limit"] = quota_status.quota_limit
@@ -295,3 +321,15 @@ async def process_text_extract_hpo(
     if forced_standard_fallback is not None:
         response.meta.update(forced_standard_fallback)
     return response
+
+
+async def _cancel_on_disconnect(
+    http_request: Request, cancel_event: LLMCancelToken
+) -> None:
+    """Flag the run as cancelled once the client goes away (e.g. it hit Cancel)."""
+    while not cancel_event.is_set():
+        if await http_request.is_disconnected():
+            logger.info("API: Client disconnected; cancelling remaining LLM calls")
+            cancel_event.set()
+            return
+        await asyncio.sleep(0.5)

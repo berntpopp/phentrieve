@@ -2,21 +2,27 @@
   <div class="fill-height">
     <div class="content-wrapper">
       <div class="d-flex justify-center align-center pb-1">
-        <img
-          src="/favicon.svg"
-          :alt="t('home.logoAlt', 'Phentrieve Logo - Click to reset')"
-          width="65"
-          height="65"
-          class="mr-2 logo-icon"
-          loading="lazy"
-          role="button"
-          tabindex="0"
-          :aria-label="t('home.resetAriaLabel', 'Reset conversation')"
-          @click="showResetDialog = true"
-          @keydown.enter="showResetDialog = true"
-          @keydown.space.prevent="showResetDialog = true"
-        />
-        <h1 class="text-h5 font-weight-light logo-text">
+        <v-tooltip location="bottom" :aria-label="t('home.resetTooltip')">
+          <template #activator="{ props: tooltipProps }">
+            <img
+              v-bind="tooltipProps"
+              src="/favicon.svg"
+              :alt="t('home.logoAlt', 'Phentrieve Logo - Click to reset')"
+              width="65"
+              height="65"
+              class="mr-2 logo-icon"
+              loading="lazy"
+              role="button"
+              tabindex="0"
+              :aria-label="t('home.resetAriaLabel', 'Reset conversation')"
+              @click="showResetDialog = true"
+              @keydown.enter="showResetDialog = true"
+              @keydown.space.prevent="showResetDialog = true"
+            />
+          </template>
+          {{ t('home.resetTooltip') }}
+        </v-tooltip>
+        <h1 class="text-h5 font-weight-light logo-text" aria-label="Phentrieve">
           <span class="logo-visible">Phen</span><span class="logo-bracket">[</span
           ><span class="logo-hidden">otype re</span><span class="logo-bracket">]</span
           ><span class="logo-visible">trieve</span>
@@ -119,7 +125,7 @@ export default {
 }
 
 .logo-icon:focus {
-  outline: 2px solid #1867c0;
+  outline: 2px solid rgb(var(--v-theme-primary));
   outline-offset: 2px;
 }
 
@@ -169,7 +175,7 @@ export default {
     opacity 0.3s ease;
   display: inline-block;
   overflow: hidden;
-  color: #1867c0;
+  color: rgb(var(--v-theme-primary));
 }
 
 .logo-visible {

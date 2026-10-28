@@ -3,7 +3,11 @@ import { mount } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { createI18n } from 'vue-i18n';
+import en from '../../locales/en.json';
 import FullTextWorkspace from '../../components/query/FullTextWorkspace.vue';
+
+const i18n = createI18n({ legacy: false, locale: 'en', messages: { en } });
 
 const vuetify = createVuetify({ components, directives });
 
@@ -38,7 +42,7 @@ function mountWorkspace(props = {}) {
       activePhenotypeId: null,
       ...props,
     },
-    global: { plugins: [vuetify] },
+    global: { plugins: [vuetify, i18n] },
   });
 }
 
@@ -69,12 +73,12 @@ describe('FullTextWorkspace annotated note', () => {
   it('gives the expand/collapse toggle an accessible name', () => {
     const collapsed = mountWorkspace({ expanded: false });
     expect(collapsed.get('[data-testid="user-note-summary-toggle"]').attributes('aria-label')).toBe(
-      'Expand clinical note'
+      'Expand note'
     );
 
     const expanded = mountWorkspace({ expanded: true });
     expect(expanded.get('[data-testid="user-note-summary-toggle"]').attributes('aria-label')).toBe(
-      'Collapse clinical note'
+      'Collapse note'
     );
   });
 

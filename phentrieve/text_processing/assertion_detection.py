@@ -181,6 +181,21 @@ def get_spacy_model(lang_code: str) -> spacy.language.Language | None:
     return NLP_MODELS.get(lang_code)
 
 
+def retrieval_text_for_assertion(
+    text: str, status: AssertionStatus | None, details: dict[str, Any] | None
+) -> str:
+    """Text to embed for retrieval: a negated query without its cue.
+
+    "no seizures" embeds as "seizures"; the cue otherwise drags retrieval toward
+    terms like "Absence seizure". Falls back to the full text when there is no scope.
+    """
+    if status == AssertionStatus.NEGATED and details:
+        scope = " ".join(details.get("negated_scope_texts") or []).strip()
+        if scope:
+            return scope
+    return text.strip()
+
+
 def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     """
     Check if a cue matches at the given position with word boundary awareness.
@@ -199,14 +214,16 @@ def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     # Check character before the cue (must be start of string or non-alphanumeric)
     if index > 0:
         char_before = text_lower[index - 1]
-        if char_before.isalnum():
+        # A hyphen joins a compound ("follow-no"), so it is not a word boundary
+        if char_before.isalnum() or char_before == "-":
             return False
 
     # Check character after the cue (must be end of string or non-alphanumeric)
     cue_end = index + len(cue_lower)
     if cue_end < len(text_lower):
         char_after = text_lower[cue_end]
-        if char_after.isalnum():
+        # "non-progressive" is a compound adjective, not the negation cue "non"
+        if char_after.isalnum() or char_after == "-":
             return False
 
     return True
@@ -1021,6 +1038,15 @@ class DependencyAssertionDetector(AssertionDetector):
         # Also check with spaCy's dependency parsing
         for token in doc:
             token_text = token.text.lower()
+
+            # "no-reflow" / "non-ambulatory": a cue glued to a hyphen is a compound
+            # prefix, not a negation (same rule as _is_cue_match)
+            if (
+                not token.whitespace_
+                and token.i + 1 < len(doc)
+                and doc[token.i + 1].text == "-"
+            ):
+                continue
 
             # Check if token or its lemma is a negation cue
             is_negation_term = False

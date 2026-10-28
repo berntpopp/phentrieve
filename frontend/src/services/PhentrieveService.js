@@ -21,14 +21,18 @@ const RESEARCH_USE_ACK_CONFIG = Object.freeze({
  * With no token the result deep-equals RESEARCH_USE_ACK_CONFIG.
  * @returns {{headers: Record<string, string>}}
  */
-const buildRequestConfig = () => {
+const buildRequestConfig = (extra = {}) => {
   const token = getAccessToken();
   const headers = { ...RESEARCH_USE_ACK_CONFIG.headers };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  return { headers };
+  return { headers, ...extra };
 };
+// LLM full-text extraction can take a minute or more; single queries are fast but
+// may hit a cold model load on the server.
+const QUERY_TIMEOUT_MS = 60000;
+const TEXT_PROCESS_TIMEOUT_MS = 120000;
 const getSerializedSize = (value) => JSON.stringify(value)?.length || 0;
 // Log the response size from the Content-Length header instead of re-serializing
 // the body on every response (full-text results can exceed 1 MB). Null when the
@@ -40,7 +44,7 @@ const getResponseSize = (response) => {
 const GENERIC_API_DETAIL = 'API returned an error. See status code for details.';
 
 class PhentrieveService {
-  async queryHpo(queryPayload) {
+  async queryHpo(queryPayload, { signal } = {}) {
     // Payload should match QueryRequest schema from FastAPI
     // Example: { text: "...", model_name: "...", num_results: 10, ... }
     try {
@@ -49,7 +53,11 @@ class PhentrieveService {
         numResults: queryPayload.num_results ?? queryPayload.numResults,
         model: queryPayload.model_name ?? queryPayload.modelName,
       });
-      const response = await axios.post(`${API_URL}/query/`, queryPayload, buildRequestConfig());
+      const response = await axios.post(
+        `${API_URL}/query/`,
+        queryPayload,
+        buildRequestConfig({ timeout: QUERY_TIMEOUT_MS, signal })
+      );
       logService.debug('HPO API response received', {
         status: response.status,
         dataSize: getResponseSize(response),
@@ -84,7 +92,7 @@ class PhentrieveService {
    * @param {Object} textProcessingData - Data matching TextProcessingRequest schema from FastAPI
    * @returns {Object} Data matching TextProcessingResponseAPI schema
    */
-  async processText(textProcessingData) {
+  async processText(textProcessingData, { signal } = {}) {
     let normalizedPayload;
     try {
       normalizedPayload = this._normalizeTextProcessPayload(textProcessingData);
@@ -101,7 +109,7 @@ class PhentrieveService {
       const response = await axios.post(
         `${API_URL}/text/process`,
         normalizedPayload,
-        buildRequestConfig()
+        buildRequestConfig({ timeout: TEXT_PROCESS_TIMEOUT_MS, signal })
       );
 
       logService.debug('Text Processing API response received', {
@@ -274,7 +282,13 @@ class PhentrieveService {
       },
     };
 
-    if (error.isAxiosError && !error.response) {
+    if (error.code === 'ERR_CANCELED') {
+      // User-initiated abort: callers treat this as a no-op, not an error
+      standardError.type = 'CANCELED';
+    } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      standardError.type = 'TIMEOUT';
+      standardError.userMessageKey = 'errors.api.timeout';
+    } else if (error.isAxiosError && !error.response) {
       standardError.type = 'NETWORK_ERROR';
       standardError.userMessageKey = 'errors.api.network';
     } else if (error.response) {
@@ -297,6 +311,10 @@ class PhentrieveService {
         standardError.quotaRemaining = quotaData?.quota_remaining;
         standardError.quotaLimit = quotaData?.quota_limit;
         standardError.extractionBackend = quotaData?.extraction_backend ?? extractionBackend;
+      }
+      // An LLM outage needs a different recovery (switch backend), not "try again later"
+      if (error.response.status === 503 && isTextProcessing && extractionBackend === 'llm') {
+        standardError.userMessageKey = 'errors.api.llmUnavailable';
       }
     } else {
       // Generic client-side error or unexpected issue

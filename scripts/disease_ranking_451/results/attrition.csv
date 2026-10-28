@@ -1,0 +1,11 @@
+step,n
+phenopacket files,10377
+"single gene, >=1 observed term",10305
+diagnosis is a gene-linked disease of the index,10126
+has a source PMID,10126
+eligible non-cited,2503
+eligible cited,7623
+sampled dev non-cited,60
+sampled dev cited,51
+sampled test non-cited,289
+sampled test cited,200

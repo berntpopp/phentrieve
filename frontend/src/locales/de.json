@@ -12,7 +12,7 @@
     "tooltip": "Konversationseinstellungen",
     "title": "Konversationseinstellungen",
     "historyLength": "Maximale Verlaufslänge",
-    "historyHint": "Niedrigere Werte verbessern die Leistung. Höhere Werte behalten mehr Verlauf.",
+    "historyHint": "Niedrigere Werte verbessern die Leistung. Höhere Werte speichern mehr Verlauf.",
     "stats": "Aktuelle Statistiken",
     "totalQueries": "Gesamtzahl der Abfragen",
     "totalPhenotypes": "Gesammelte Phänotypen",
@@ -20,14 +20,15 @@
     "clearAll": "Alles löschen",
     "close": "Schließen",
     "confirmClearTitle": "Alle Daten löschen?",
-    "confirmClearMessage": "Dies wird den gesamten Konversationsverlauf und alle gesammelten Phänotypen dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden."
+    "confirmClearMessage": "Dadurch werden der gesamte Konversationsverlauf und alle gesammelten Phänotypen dauerhaft gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
   },
   "home": {
-    "logoAlt": "Phentrieve Logo - Klicken zum Zurücksetzen",
+    "logoAlt": "Phentrieve-Logo – Anwendung zurücksetzen",
     "resetAriaLabel": "Konversation zurücksetzen",
     "resetTitle": "Anwendung zurücksetzen?",
-    "resetMessage": "Dies wird den gesamten Konversationsverlauf und alle gesammelten Phänotypen löschen. Ihre Haftungsausschluss-Bestätigung bleibt erhalten.",
-    "resetConfirm": "Zurücksetzen"
+    "resetMessage": "Dadurch werden der gesamte Konversationsverlauf und alle gesammelten Phänotypen gelöscht. Ihre Bestätigung des Haftungsausschlusses bleibt erhalten.",
+    "resetConfirm": "Zurücksetzen",
+    "resetTooltip": "Neu beginnen: Konversation und gesammelte Phänotypen löschen"
   },
   "models": {
     "biolord": "BioLORD 2023-M"
@@ -38,53 +39,59 @@
       "disclaimerTooltip": "Wichtige Informationen zum Haftungsausschluss und zur Nutzung anzeigen",
       "disclaimerAcknowledgedTooltip": "Bestätigt am {date}",
       "tutorial": "Tutorial",
-      "tutorialTooltip": "Geführte Tour durch Phentrieve starten",
+      "tutorialTooltip": "Geführte Tour starten",
       "faq": "FAQ",
       "faqTooltip": "Häufig gestellte Fragen anzeigen",
       "logs": "Protokolle",
       "logsTooltip": "Anwendungsprotokolle und Debug-Informationen anzeigen",
       "copyright": "© {year} Phentrieve",
       "githubTooltip": "Quellcode auf GitHub anzeigen",
-      "docsTooltip": "Projektdokumentation ansehen",
-      "licenseTooltip": "Projektlizenz ansehen",
+      "docsTooltip": "Projektdokumentation anzeigen",
+      "licenseTooltip": "Projektlizenz anzeigen",
       "apiTooltip": "API-Dokumentation öffnen (OpenAPI)",
       "mcpTooltip": "KI-Agent verbinden (MCP)",
-      "homeTooltip": "Zur Startseite"
+      "homeTooltip": "Zur Startseite",
+      "theme": {
+        "system": "Design: folgt dem System. Klicken für hell",
+        "light": "Design: hell. Klicken für dunkel",
+        "dark": "Design: dunkel. Klicken, um dem System zu folgen"
+      },
+      "more": "Weitere Links"
     }
   },
   "disclaimerDialog": {
-    "title": "Forschungsnutzungs-Haftungsausschluss",
+    "title": "Haftungsausschluss zur Forschungsnutzung",
     "mainHeader": "Phentrieve ist nur für Forschungs- und Informationszwecke bestimmt.",
-    "description": "Dieses Tool wurde entwickelt, um klinischen Text in standardisierte Human Phenotype Ontology (HPO) Begriffe zu übersetzen und somit Forschung und Wissensfindung zu unterstützen.",
+    "description": "Dieses Werkzeug ordnet Forschungstexte standardisierten Begriffen der Human Phenotype Ontology (HPO) zu und unterstützt so Forschung und Wissensgewinnung.",
     "limitationsTitle": "Wichtige Einschränkungen:",
     "limitations": {
-      "item1": "Phentrieve ist <strong class=\"error--text\">KEIN</strong> klinisches Diagnosewerkzeug und sollte professionellen medizinischen Rat, Diagnose oder Behandlung nicht ersetzen.",
+      "item1": "Phentrieve ist KEIN klinisches Diagnosewerkzeug und ersetzt keine professionelle medizinische Beratung, Diagnose oder Behandlung.",
       "item2": "Die KI-Modelle und HPO-Zuordnungen können Ungenauigkeiten, Fehler oder Einschränkungen enthalten.",
-      "item3": "Ergebnisse sollten von qualifizierten medizinischen Fachkräften überprüft werden, bevor sie in einem klinischen Kontext verwendet werden.",
-      "item4": "Das Tool begründet kein Arzt-Patienten-Verhältnis und ist kein Ersatz für die Konsultation von Gesundheitsdienstleistern."
+      "item3": "Die Ergebnisse müssen vor jeder weiteren Verwendung unabhängig geprüft werden und dürfen nicht für klinische Entscheidungen verwendet werden.",
+      "item4": "Das Werkzeug begründet kein Arzt-Patienten-Verhältnis und ersetzt nicht die Beratung durch medizinisches Fachpersonal."
     },
     "responsibilityTitle": "Benutzerverantwortung:",
-    "responsibilityText": "Durch die Nutzung von Phentrieve bestätigen Sie, dass Sie diese Einschränkungen verstehen und die volle Verantwortung dafür übernehmen, wie Sie die von diesem Tool bereitgestellten Informationen interpretieren und verwenden.",
-    "acceptButton": "Ich verstehe und stimme zu"
+    "responsibilityText": "Durch die Nutzung von Phentrieve bestätigen Sie, dass Sie diese Einschränkungen verstehen und die volle Verantwortung dafür übernehmen, wie Sie die von diesem Werkzeug bereitgestellten Informationen interpretieren und verwenden.",
+    "acceptButton": "Ich habe verstanden und stimme zu"
   },
   "queryInterface": {
     "title": "Phentrieve",
-    "subtitle": "HPO-Term-Mapping für klinische Phänotyp-Beschreibungen",
-    "welcomeText": "Phentrieve ist ein KI-gestütztes Tool, das klinischen Text präzise standardisierten Human Phenotype Ontology (HPO)-Begriffen zuordnet und so die Phänotyp-Annotation für Forschung und Diagnostik optimiert.",
+    "subtitle": "HPO-Begriffszuordnung für Phänotypbeschreibungen in der Forschung",
+    "welcomeText": "Phentrieve ist ein KI-gestütztes Forschungswerkzeug, das Phänotyptexte für die Forschungsannotation und Wissensgewinnung standardisierten Begriffen der Human Phenotype Ontology (HPO) zuordnet.",
     "queryModeLabel": "Abfragemodus",
-    "documentModeLabel": "Dokumentenmodus",
+    "documentModeLabel": "Volltextmodus",
     "modeSwitch": {
-      "autoFullTextNotice": "Fuer laengere klinische Texte wurde automatisch zu Volltext gewechselt"
+      "autoFullTextNotice": "Für längere Forschungstexte wurde in den Volltextmodus gewechselt"
     },
-    "inputLabel": "Klinische Textbeschreibung eingeben",
+    "inputLabel": "Forschungstext eingeben",
     "examples": {
       "title": "Beispiele",
       "loadExample": "Beispiel laden",
-      "example1": "Der Patient präsentiert sich mit Kleinwuchs, wiederkehrenden Frakturen und blauen Skleren, was auf Osteogenesis imperfecta hindeutet.",
-      "example2": "Das Kind zeigt Gesichtsdysmorphien mit Hypertelorismus, abfallenden Lidfalten und tief ansetzenden Ohren, zusammen mit angeborenen Herzfehlern und Entwicklungsverzögerung."
+      "example1": "Die Forschungsnotiz beschreibt Kleinwuchs, wiederkehrende Frakturen und blaue Skleren.",
+      "example2": "Die Forschungszusammenfassung erwähnt eine faziale Dysmorphie mit Hypertelorismus, abfallenden Lidachsen, tief sitzenden Ohren, angeborenen Herzfehlern und Entwicklungsverzögerung."
     },
-    "formLabel": "Patienteninformationen (Optional)",
-    "idLabel": "Patienten-ID",
+    "formLabel": "Metadaten zum Probanden (optional)",
+    "idLabel": "Probanden-ID",
     "sexLabel": "Geschlecht",
     "dobLabel": "Geburtsdatum",
     "sexOptions": {
@@ -97,21 +104,21 @@
     "clearButton": "Löschen",
     "copyButton": "HPO-Begriffe kopieren",
     "exportButton": "Als Phenopacket exportieren",
-    "processingMessage": "Verarbeitung...",
+    "processingMessage": "Verarbeitung läuft …",
     "noInputError": "Bitte geben Sie einen Text zur Analyse ein",
     "copySuccess": "HPO-Begriffe in die Zwischenablage kopiert",
-    "exportSuccess": "Phenopacket in die Zwischenablage exportiert",
+    "exportSuccess": "Phenopacket in die Zwischenablage kopiert",
     "error": "Fehler: {message}",
     "piiReview": {
-      "title": "Moegliche Kennungen erkannt",
-      "description": "Phentrieve hat vor dem Absenden dieses Textes moegliche Kennungen gefunden.",
-      "willRedact": "Wird lokal geschwaerzt",
-      "needsReview": "Muss geprueft werden",
-      "overrideNotice": "Kennungen mit hoher Konfidenz werden vor dem Absenden lokal geschwaerzt. Andere moegliche Kennungen koennen verbleiben, wenn Sie fortfahren.",
-      "safetyAid": "Dies ist eine Sicherheitshilfe und kann nicht garantieren, dass alle personenbezogenen Daten erkannt werden oder der Text de-identifiziert ist.",
-      "cancel": "Text pruefen",
-      "redact": "Im Text schwaerzen",
-      "continue": "Mit lokaler Schwaerzung fortfahren",
+      "title": "Mögliche Kennungen erkannt",
+      "description": "Phentrieve hat in diesem Text mögliche personenbezogene Kennungen gefunden. Prüfen Sie diese vor dem Absenden.",
+      "willRedact": "Wird lokal geschwärzt",
+      "needsReview": "Prüfung erforderlich",
+      "overrideNotice": "Kennungen mit hoher Konfidenz werden vor dem Absenden lokal geschwärzt. Andere mögliche Kennungen können erhalten bleiben, wenn Sie fortfahren.",
+      "safetyAid": "Dies ist eine Hilfe zum Datenschutz. Sie kann nicht garantieren, dass alle personenbezogenen Kennungen erkannt werden oder der Text de-identifiziert ist.",
+      "cancel": "Text prüfen",
+      "redact": "Im Text schwärzen",
+      "continue": "Mit lokaler Schwärzung fortfahren",
       "categories": {
         "email": "E-Mail",
         "phone": "Telefon",
@@ -120,9 +127,9 @@
         "date": "Datum",
         "dob": "Geburtsdatum",
         "medical_record": "Krankenaktennummer",
-        "accession_id": "Zugangs-ID",
+        "accession_id": "Accession-Nummer",
         "sample_id": "Proben-ID",
-        "national_identifier": "Nationale Kennung",
+        "national_identifier": "Nationale Kennziffer",
         "address": "Adresse",
         "person_name": "Name",
         "location": "Ort",
@@ -130,37 +137,42 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO-Sammlung",
-      "close": "HPO-Sammlungsbereich schließen",
+      "title": "Fallarbeitsbereich",
+      "close": "Fallarbeitsbereich schließen",
       "count": "{count} Phänotyp(en) gesammelt",
       "empty": "Noch keine Phänotypen gesammelt",
       "instructions": "Klicken Sie auf die Schaltfläche neben einem HPO-Begriff, um ihn zu Ihrer Sammlung hinzuzufügen",
-      "subjectInfoHeader": "Personeninformationen (Optional)",
-      "subjectId": "Personen-ID",
+      "subjectInfoHeader": "Angaben zum Probanden (optional)",
+      "subjectId": "Probanden-ID",
       "sex": "Geschlecht",
       "dateOfBirth": "Geburtsdatum",
       "exportPhenopacket": "Als Phenopacket exportieren (JSON)",
       "exportText": "Als Text exportieren",
-      "exportError": "Fehler beim Exportieren des Phenopackets. Details in der Konsole.",
+      "exportError": "Das Phenopacket konnte nicht exportiert werden. Bitte versuchen Sie es erneut.",
       "clear": "Sammlung leeren",
       "assertionToggle": "Aussagestatus umschalten",
       "assertionStatus": {
-        "affirmed": "Bestätigt",
+        "affirmed": "Bejaht",
         "present": "Vorhanden",
         "absent": "Nicht vorhanden",
         "negated": "Verneint",
         "unknown": "Unbekannt"
       },
       "aria": {
-        "openPanel": "HPO-Sammlung öffnen",
-        "panel": "Phänotyp-Sammlung",
+        "openPanel": "Fallarbeitsbereich öffnen",
+        "panel": "Fallarbeitsbereich",
         "toggleAssertion": "Aussagestatus für {label} ({id}) umschalten",
-        "removeItem": "{label} ({id}) aus Sammlung entfernen",
-        "subjectId": "Subjekt-ID für Phenopacket eingeben",
-        "sex": "Geschlecht des Subjekts für Phenopacket auswählen",
-        "dateOfBirth": "Geburtsdatum des Subjekts für Phenopacket eingeben",
+        "removeItem": "{label} ({id}) aus der Sammlung entfernen",
+        "subjectId": "Probanden-ID für das Phenopacket eingeben",
+        "sex": "Geschlecht des Probanden für das Phenopacket auswählen",
+        "dateOfBirth": "Geburtsdatum des Probanden für das Phenopacket eingeben",
         "exportPhenopacket": "Gesammelte Phänotypen als Phenopacket-JSON exportieren"
-      }
+      },
+      "copyIds": "Vorhandene HPO-IDs kopieren",
+      "copied": "{count} HPO-IDs kopiert",
+      "clearConfirm": "Erneut klicken, um alles zu löschen",
+      "markExcluded": "Als ausgeschlossen markieren (nicht vorhanden)",
+      "markPresent": "Als vorhanden markieren"
     },
     "advancedOptions": {
       "title": "Erweiterte Optionen",
@@ -171,9 +183,9 @@
       "processingModeTitle": "Verarbeitungsmodus",
       "processingModeLabel": "Verarbeitungsmodus",
       "modeAutomatic": "Automatisch (nach Textlänge)",
-      "modeQuery": "Abfragemodus (kurzer Text)",
-      "modeTextProcess": "Textverarbeitungsmodus (Dokument)",
-      "textProcessingTitle": "Textverarbeitungseinstellungen",
+      "modeQuery": "Abfrage (kurzer Text)",
+      "modeTextProcess": "Volltext (längerer Text)",
+      "textProcessingTitle": "Volltext-Einstellungen",
       "extractionBackend": "Extraktions-Backend",
       "standardExtraction": "Standardextraktion",
       "llmExtraction": "LLM-Extraktion",
@@ -182,7 +194,7 @@
       "llmModes": {
         "twoPhase": "Zweistufige Extraktion"
       },
-      "llmDisclosure": "Die LLM-Extraktion kann eingegebenen Text mit einem vom Betreiber konfigurierten externen KI-Anbieter verarbeiten. Verwenden Sie nur Forschungstext; geben Sie keine direkt identifizierenden Informationen ein.",
+      "llmDisclosure": "Bei der LLM-Extraktion kann der übermittelte Text von einem externen KI-Anbieter verarbeitet werden, den der Betreiber des Dienstes konfiguriert hat. Verwenden Sie nur Forschungstexte und geben Sie keine direkt identifizierenden Angaben ein.",
       "chunkingStrategy": "Aufteilungsstrategie",
       "windowSize": "Fenstergröße (Tokens)",
       "stepSize": "Schrittgröße",
@@ -194,57 +206,73 @@
       "numResultsPerChunk": "Ergebnisse pro Textabschnitt",
       "topTermPerChunk": "Nur den besten HPO-Begriff pro Textabschnitt behalten",
       "strategies": {
-        "sliding_window_punct_cleaned": "Gleitendes Fenster + Interpunktion + Bereiniger",
-        "sliding_window_punct_conj_cleaned": "Gleitendes Fenster + Interpunktion + Konjunktionen + Bereiniger"
+        "sliding_window_punct_cleaned": "Gleitendes Fenster + Interpunktion + Bereinigung",
+        "sliding_window_punct_conj_cleaned": "Gleitendes Fenster + Interpunktion + Konjunktionen + Bereinigung"
       }
     },
     "tooltips": {
       "advancedOptions": "Erweiterte Sucheinstellungen konfigurieren",
       "phenotypeCollection": "Gesammelte Phänotypen anzeigen und verwalten",
-      "embeddingModel": "KI-Modell für die Texteinbettung auswählen",
-      "similarityThreshold": "Minimale Ähnlichkeitsbewertung für Ergebnisse festlegen",
-      "includeDetails": "HPO-Begriff-Definitionen und Synonyme in Suchergebnissen einbeziehen (begrenzt auf 20 Ergebnisse für bessere Leistung)",
-      "language": "Wählen Sie die Sprache für die Verarbeitung und Negationserkennung",
-      "subjectId": "Geben Sie eine Kennung für den Patienten ein",
-      "sex": "Wählen Sie das biologische Geschlecht des Patienten",
-      "dateOfBirth": "Geben Sie das Geburtsdatum des Patienten ein"
+      "embeddingModel": "KI-Modell für das Text-Embedding auswählen",
+      "similarityThreshold": "Mindest-Ähnlichkeitswert für Ergebnisse festlegen",
+      "includeDetails": "Definitionen und Synonyme der HPO-Begriffe in die Suchergebnisse aufnehmen (zugunsten der Leistung auf 20 Ergebnisse begrenzt)",
+      "language": "Sprache für Abfrageverarbeitung und Aussageerkennung auswählen",
+      "subjectId": "Geben Sie eine Kennung für den Probanden ein",
+      "sex": "Wählen Sie das biologische Geschlecht des Probanden",
+      "dateOfBirth": "Geben Sie das Geburtsdatum des Probanden ein"
     },
     "accessibility": {
-      "textProcessInputLabel": "Eingabefeld für klinische Dokumente zur Textverarbeitung",
-      "textProcessInputDescription": "Längeren klinischen Text zur Dokumentenverarbeitung eingeben.",
-      "queryInputLabel": "Eingabefeld für klinischen Text",
-      "queryInputDescription": "Klinischen Text eingeben, um nach HPO-Begriffen zu suchen.",
+      "textProcessInputLabel": "Forschungstext für die Volltextanalyse",
+      "textProcessInputDescription": "Längeren Phänotyptext aus der Forschung zur Dokumentverarbeitung eingeben.",
+      "queryInputLabel": "Phänotyptext",
+      "queryInputDescription": "Phänotyptext aus der Forschung eingeben, um nach HPO-Begriffen zu suchen.",
       "processingInProgress": "Verarbeitung läuft.",
       "searchInProgress": "Suche läuft.",
-      "openAdvancedOptions": "Erweiterte Optionen öffnen",
-      "closeAdvancedOptions": "Erweiterte Optionen schließen",
       "searchButton": "HPO-Begriffe suchen",
       "userInput": "Benutzereingabe",
       "response": "Phentrieve-Antwort",
       "advancedOptionsRegion": "Erweiterte Suchoptionen",
-      "selectEmbeddingModel": "Einbettungsmodell auswählen",
-      "embeddingModelDescription": "Wählen Sie das Modell für die Texteinbettung. Aktuell ausgewählt: {selectedModel}",
-      "similarityThresholdSlider": "Schieberegler für Ähnlichkeitsschwelle",
+      "selectEmbeddingModel": "Embedding-Modell auswählen",
+      "embeddingModelDescription": "Wählen Sie das Modell für das Text-Embedding. Aktuell ausgewählt: {selectedModel}",
+      "similarityThresholdSlider": "Ähnlichkeitsschwelle",
       "similarityThresholdDescription": "Mindest-Ähnlichkeitsschwelle anpassen. Aktueller Wert: {similarityThreshold}",
       "selectQueryLanguage": "Abfragesprache auswählen",
       "queryLanguageDescription": "Sprache für die Abfrageverarbeitung auswählen. Aktuell ausgewählt: {selectedLanguage}",
-      "includeDetailsSwitch": "HPO-Begriff-Definitionen und Synonyme einschließen"
+      "includeDetailsSwitch": "Definitionen und Synonyme der HPO-Begriffe einbeziehen"
+    },
+    "form": {
+      "queryPill": "Abfrage",
+      "fullTextPill": "Volltext",
+      "modeGroup": "Suchmodus",
+      "settings": "Einstellungen",
+      "queryLabel": "Phänotypsuche",
+      "noteLabel": "Forschungsnotiz",
+      "notePlaceholder": "Phänotyptext aus der Forschung einfügen oder eingeben",
+      "noteSubmitHint": "Strg+Enter zum Analysieren",
+      "cancel": "Abbrechen",
+      "collapseNote": "Notiz einklappen",
+      "expandNote": "Notiz ausklappen"
+    },
+    "fullTextReceipt": {
+      "title": "Volltextanalyse fertig",
+      "addAll": "Alle hinzufügen ({count})",
+      "addAllConfirm": "Erneut klicken, um alle {count} hinzuzufügen"
     }
   },
   "annotatedDocumentPane": {
     "actions": {
       "title": "Annotationswerkzeuge",
-      "inspect": "Pruefen",
-      "addToCase": "Zum Fall hinzufuegen",
-      "changeTerm": "Begriff aendern",
+      "inspect": "Prüfen",
+      "addToCase": "Zum Fall hinzufügen",
+      "changeTerm": "Begriff ändern",
       "removeAnnotation": "Annotation entfernen",
       "annotateSelection": "Auswahl annotieren",
-      "revert": "Auf Original zuruecksetzen",
-      "addToCollection": "Zur Sammlung hinzufuegen"
+      "revert": "Auf Original zurücksetzen",
+      "addToCollection": "Zur Sammlung hinzufügen"
     },
     "undo": {
       "removed": "Annotation entfernt",
-      "action": "Rueckgaengig"
+      "action": "Rückgängig"
     },
     "origin": {
       "auto": "Automatisch",
@@ -253,23 +281,23 @@
     "spanAriaLabel": "Annotation bearbeiten: {label}"
   },
   "hpoTermPicker": {
-    "changeTitle": "HPO-Begriff aendern",
+    "changeTitle": "HPO-Begriff ändern",
     "addTitle": "Auswahl annotieren",
     "searchLabel": "HPO-Begriffe suchen",
-    "spanLabel": "Ausgewaehlter Text",
-    "assertionAffirmed": "Bestaetigt",
+    "spanLabel": "Ausgewählter Text",
+    "assertionAffirmed": "Bejaht",
     "assertionNegated": "Verneint",
     "replace": "Ersetzen",
-    "add": "Hinzufuegen",
+    "add": "Hinzufügen",
     "cancel": "Abbrechen",
     "empty": "Keine passenden HPO-Begriffe gefunden",
-    "loading": "Suche...",
+    "loading": "Suche läuft …",
     "scoreLabel": "Wert"
   },
   "resultsDisplay": {
     "title": "Extrahierte HPO-Begriffe",
     "termCountLabel": "{count} Begriffe gefunden",
-    "noResultsMessage": "Keine HPO-Begriffe identifiziert. Versuchen Sie einen anderen Text oder überprüfen Sie Ihre Eingabe.",
+    "noResultsMessage": "Keine HPO-Begriffe gefunden. Formulieren Sie den Text um oder senken Sie die Ähnlichkeitsschwelle.",
     "termIdHeader": "HPO-ID",
     "termNameHeader": "Begriffsname",
     "confidenceHeader": "Konfidenz",
@@ -280,15 +308,15 @@
     "modelLabel": "Modell",
     "languageLabel": "Sprache",
     "assertionLabel": "Aussage",
-    "negated": "Negiert",
+    "negated": "Verneint",
     "affirmed": "Bejaht",
     "unknown": "Unbekannt",
     "similarityLabel": "Ähnlichkeitswert",
     "confidenceLabel": "Konfidenzwert",
     "cosineSimilarity": "Kosinus-Ähnlichkeit",
-    "rangeExplanation": "{min} (keine Ähnlichkeit) bis {max} (perfekte Übereinstimmung)",
-    "noMatch": "Keine Übereinstimmung",
-    "perfectMatch": "Perfekte Übereinstimmung",
+    "rangeExplanation": "{min} (keine Ähnlichkeit) bis {max} (maximale Ähnlichkeit)",
+    "noMatch": "Keine Ähnlichkeit",
+    "perfectMatch": "Maximale Ähnlichkeit",
     "scoreNote": "Repräsentiert semantische Ähnlichkeit im Vektorraum",
     "quality": {
       "excellent": "Ausgezeichnete Übereinstimmung",
@@ -297,45 +325,45 @@
       "low": "Geringe Übereinstimmung",
       "poor": "Schlechte Übereinstimmung"
     },
-    "noTermsFound": "Keine HPO-Begriffe gefunden, die Ihrer Anfrage mit dem aktuellen Schwellenwert entsprechen. Versuchen Sie, den Ähnlichkeitsschwellenwert zu senken oder Ihre Anfrage umzuformulieren.",
-    "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten.",
-    "addToCollectionTooltip": "{id} zur Sammlung hinzufügen",
-    "alreadyInCollectionTooltip": "{id} bereits in Sammlung",
+    "noTermsFound": "Keine passenden HPO-Begriffe gefunden. Versuchen Sie eine andere Suche oder passen Sie die Ähnlichkeitsschwelle an.",
+    "defaultError": "Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "addToCollectionTooltip": "HPO-Begriff {id} zur Sammlung hinzufügen",
+    "alreadyInCollectionTooltip": "HPO-Begriff {id} ist bereits in Ihrer Sammlung",
     "confidenceScoreTooltip": "Konfidenzwert: {score}",
     "sourceChunksTooltip": "In {count} Textabschnitten gefunden",
     "maxScoreTooltip": "Höchste Konfidenz: {score}",
     "topEvidenceTooltip": "Beste Evidenz in Abschnitt #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) zur Sammlung hinzufügen",
-    "alreadyInCollectionAriaLabel": "HPO-Begriff {id} ({label}) ist in der Sammlung",
+    "alreadyInCollectionAriaLabel": "{label} ({id}) ist bereits in der Sammlung",
     "showDetails": "Details anzeigen",
     "hideDetails": "Details ausblenden",
     "definitionLabel": "Definition",
     "synonymsLabel": "Synonyme",
     "textProcess": {
-      "title": "Verarbeitete Textanalyse",
+      "title": "Volltextanalyse",
       "chunksTitle": "Verarbeitete Textabschnitte & HPO-Begriffe pro Abschnitt",
-      "aggregatedTitle": "Aggregierte Dokumentphänotypen",
+      "aggregatedTitle": "Aggregierte Phänotypen des Dokuments",
       "chunksLabel": "Abschnitte",
       "strategyLabel": "Strategie",
       "chunkLabel": "Abschnitt",
       "chunkHPOTerms": "In diesem Abschnitt identifizierte HPO-Begriffe:",
       "noChunkHPOTerms": "Für diesen Abschnitt wurden keine HPO-Begriffe identifiziert.",
       "hpoInChunkTitle": "In diesem Abschnitt gefundene HPO-Begriffe:",
-      "noChunkHPOTermsMatched": "Für diesen Abschnitt hat kein HPO-Begriff den Abrufschwellenwert erreicht.",
+      "noChunkHPOTermsMatched": "Für diesen Abschnitt hat kein HPO-Begriff die Abrufschwelle erreicht.",
       "avgConfidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
       "maxScoreTooltip": "Höchster Wert aus einem Abschnitt",
       "evidenceFromChunksShort": "Abschnitte:",
       "hitsText": "Treffer",
       "evidenceCountTooltip": "Anzahl der Abschnitte, die Evidenz liefern",
-      "evidenceTooltip": "Quellenabschnitte. Klicken Sie, um den besten Evidenzabschnitt zu sehen.",
+      "evidenceTooltip": "Quellabschnitte. Klicken, um den Abschnitt mit der besten Evidenz anzuzeigen.",
       "confidenceTooltip": "Durchschnittlicher Konfidenzwert aus allen Evidenzabschnitten",
-      "sourceChunks": "Quellenabschnitte",
+      "sourceChunks": "Quellabschnitte",
       "topEvidence": "Beste Evidenz",
       "llmLimitedNotice": "Eingeschränkte Demo-Version: {quotaLimit} LLM-Analysen pro Tag.",
       "noChunksProcessed": "Es wurden keine Textabschnitte verarbeitet.",
       "noAggregatedTerms": "Keine aggregierten HPO-Begriffe gefunden.",
       "strategyUnknown": "Unbekannte Strategie",
-      "assertionDetail": "Bestimmungsmethode:",
+      "assertionDetail": "Methode der Aussageerkennung:",
       "finalStatus": "Endgültiger Status:"
     }
   },
@@ -357,7 +385,7 @@
     },
     "config": {
       "title": "Protokollierungskonfiguration",
-      "description": "Legen Sie die maximale Anzahl der im Speicher zu behaltenden Protokolleinträge fest. Ältere Protokolle werden automatisch gelöscht (FIFO).",
+      "description": "Legen Sie die maximale Anzahl der Protokolleinträge fest, die im Speicher behalten werden. Ist das Limit erreicht, werden die ältesten Einträge zuerst entfernt.",
       "cancel": "Abbrechen",
       "save": "Speichern"
     }
@@ -369,47 +397,50 @@
     "api": {
       "unknown": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
       "network": "Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-      "clientSide": "Beim {context} ist ein Fehler aufgetreten.",
-      "badRequest": "Ihre Anfrage war ungültig. Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut. (Status: {status})",
+      "clientSide": "Beim {context} ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "badRequest": "Der Server konnte diese Anfrage nicht verarbeiten. Bitte prüfen Sie Ihre Eingabe und versuchen Sie es erneut. (Status: {status})",
       "validation": "Die Eingabe wurde abgelehnt. Bitte prüfen Sie sie und beachten Sie die Größenlimits: 50.000 Zeichen für Volltext, 10.000 für eine einzelne Abfrage. (Status: {status})",
-      "badRequestModel": "Das in Ihrer Anfrage angegebene Modell ist ungültig oder wird nicht unterstützt. (Status: {status})",
-      "unauthorized": "Sie sind nicht berechtigt, diese Aktion durchzuführen. (Status: {status})",
+      "badRequestModel": "Das ausgewählte Modell ist ungültig oder wird nicht unterstützt. Wählen Sie in den Einstellungen ein anderes Modell und versuchen Sie es erneut. (Status: {status})",
+      "unauthorized": "Dafür müssen Sie angemeldet sein. Bitte melden Sie sich an und versuchen Sie es erneut. (Status: {status})",
       "forbidden": "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen. (Status: {status})",
       "notFound": "Die angeforderte Ressource konnte nicht gefunden werden. (Status: {status})",
-      "notFoundModel": "Das angeforderte Modell konnte auf dem Server nicht gefunden werden. (Status: {status})",
+      "notFoundModel": "Das ausgewählte Modell ist auf dem Server nicht verfügbar. Wählen Sie in den Einstellungen ein anderes Modell und versuchen Sie es erneut. (Status: {status})",
       "serverError": "Ein Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut. (Status: {status})",
       "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut. (Status: {status})",
-      "llmQuotaExceeded": "Das LLM-Limit für den heutigen Volltext ist erreicht."
-    }
+      "llmQuotaExceeded": "Sie haben das heutige Limit für LLM-Volltextanalysen erreicht. Versuchen Sie es morgen erneut oder stellen Sie in den Einstellungen das Extraktions-Backend auf Standard um.",
+      "llmUnavailable": "Die LLM-Volltextextraktion ist derzeit nicht verfügbar. Öffnen Sie die Einstellungen, wechseln Sie das Extraktions-Backend zu Standard und versuchen Sie es erneut. (Status: {status})",
+      "timeout": "Die Anfrage hat zu lange gedauert und wurde abgebrochen. Versuchen Sie einen kürzeren Text oder versuchen Sie es später erneut."
+    },
+    "requestInterrupted": "Diese Anfrage wurde durch ein Neuladen der Seite unterbrochen. Bitte erneut senden."
   },
   "tutorial": {
     "step1": {
       "title": "Willkommen bei Phentrieve",
-      "content": "Dies ist Ihr Ausgangspunkt für die Zuordnung klinischer Texte zu HPO-Begriffen. Lassen Sie uns einen kurzen Überblick über die wichtigsten Funktionen geben!"
+      "content": "Hier beginnen Sie mit der Zuordnung von Phänotyp-Forschungstexten zu HPO-Begriffen. Machen wir einen kurzen Rundgang durch die wichtigsten Funktionen!"
     },
     "step2": {
-      "title": "Klinischen Text eingeben",
-      "content": "Geben Sie hier Ihre klinische Beschreibung ein oder fügen Sie sie ein. Sie können Patientensymptome, Phänotypen oder medizinische Beobachtungen beschreiben, die Sie HPO-Begriffen zuordnen möchten."
+      "title": "Forschungstext eingeben",
+      "content": "Geben Sie hier Ihre Forschungsbeschreibung ein oder fügen Sie sie ein. Sie können Phänotypen oder Forschungsbeobachtungen beschreiben, die Sie HPO-Begriffen zuordnen möchten."
     },
     "step3": {
       "title": "Nach HPO-Begriffen suchen",
-      "content": "Klicken Sie auf diese Schaltfläche, um die KI-gestützte Analyse zu starten. Phentrieve verarbeitet Ihren Text und findet die relevantesten HPO-Begriffe."
+      "content": "Klicken Sie auf diese Schaltfläche, um die KI-gestützte Analyse zu starten. Phentrieve verarbeitet Ihren Text und schlägt passende HPO-Begriffe vor."
     },
     "step4": {
       "title": "Ergebnisse überprüfen",
-      "content": "Ihre Suchergebnisse erscheinen hier, nach Relevanz sortiert. Jedes Ergebnis zeigt den HPO-Begriff, seine Definition und den Konfidenzwert."
+      "content": "Ihre Suchergebnisse erscheinen hier, nach Ähnlichkeit sortiert. Jedes Ergebnis zeigt den HPO-Begriff, seine ID und einen Ähnlichkeitswert."
     },
     "step5": {
       "title": "Erweiterte Optionen",
-      "content": "Erweitern Sie diesen Bereich, um auf erweiterte Suchparameter wie Modellauswahl, Ergebnislimits und Neurangierungsoptionen zuzugreifen."
+      "content": "Klappen Sie diesen Bereich auf, um erweiterte Suchparameter wie Modellauswahl und Ergebnislimits einzustellen."
     },
     "step6": {
       "title": "Begriffe sammeln",
-      "content": "Fügen Sie interessante HPO-Begriffe zu Ihrer Sammlung hinzu, indem Sie auf die Schaltfläche 'Zur Sammlung hinzufügen' klicken. Sie können sie später überprüfen und exportieren."
+      "content": "Fügen Sie passende HPO-Begriffe über die Schaltfläche neben jedem Ergebnis Ihrer Sammlung hinzu. Sie können sie später prüfen und exportieren."
     },
     "step7": {
       "title": "Ihre Sammlung",
-      "content": "Sehen, verwalten und exportieren Sie hier Ihre gesammelten HPO-Begriffe. Sie können sie als Text oder im strukturierten Phenopacket-JSON-Format exportieren."
+      "content": "Hier können Sie Ihre gesammelten HPO-Begriffe ansehen, verwalten und exportieren – als Text oder im strukturierten Phenopacket-JSON-Format."
     },
     "step8": {
       "title": "Hilfe & Ressourcen",
@@ -429,22 +460,22 @@
   "faq": {
     "backToHome": "Zurück zur Startseite",
     "pageTitle": "Häufig gestellte Fragen",
-    "searchPlaceholder": "Durchsuche {count} Fragen",
+    "searchPlaceholder": "{count} Fragen durchsuchen",
     "categories": {
       "general": {
         "title": "Allgemeine Informationen",
         "questions": {
           "whatIsPhentrieve": {
             "question": "Was ist Phentrieve?",
-            "answer": "<p>Phentrieve ist ein fortschrittliches KI-gestütztes Tool, das klinische Beschreibungen automatisch in standardisierte Human Phenotype Ontology (HPO) Begriffe überträgt. Es optimiert den Prozess der Phänotyp-Annotation für Forschung und klinische Diagnostik, macht ihn schneller und genauer.</p><p>Hauptfunktionen umfassen:</p><ul><li>Automatische Zuordnung von klinischem Text zu HPO-Begriffen</li><li>Hohe Genauigkeit durch modernste KI-Modelle</li><li>Unterstützung für mehrere Sprachen</li><li>Benutzerfreundliche Oberfläche</li></ul>"
+            "answer": "<p>Phentrieve ist ein KI-gestütztes Forschungswerkzeug, das Phänotypbeschreibungen standardisierten Begriffen der Human Phenotype Ontology (HPO) zuordnet. Es unterstützt die Phänotypannotation für Forschung, Lehre, Benchmarking und Wissensgewinnung.</p><p>Hauptfunktionen:</p><ul><li>Zuordnung von Forschungstexten zu HPO-Begriffen</li><li>Semantische Suche mit biomedizinischen Embedding-Modellen</li><li>Unterstützung mehrerer Sprachen</li><li>Benutzerfreundliche Oberfläche</li></ul>"
           },
           "howItWorks": {
             "question": "Wie funktioniert Phentrieve?",
-            "answer": "<p>Phentrieve verwendet eine anspruchsvolle Pipeline von KI-Modellen und Algorithmen zur Verarbeitung klinischer Texte:</p><ol><li><strong>Textanalyse:</strong> Das System analysiert den Eingabetext mithilfe spezialisierter biomedizinischer Sprachmodelle</li><li><strong>Begriffsabgleich:</strong> Es identifiziert potenzielle HPO-Begriffe durch semantische Suche und kontextbewusste Zuordnung</li><li><strong>Ranking:</strong> Die Treffer werden nach Relevanz geordnet</li><li><strong>Ergebnisse:</strong> Die relevantesten HPO-Begriffe werden dem Benutzer präsentiert</li></ol><p>Dieser Prozess gewährleistet hochwertige Übereinstimmungen bei gleichzeitiger Effizienz.</p>"
+            "answer": "<p>Phentrieve verarbeitet Phänotyptexte aus der Forschung mit einer Pipeline aus KI-Modellen und Algorithmen:</p><ol><li><strong>Textanalyse:</strong> Das System analysiert den Eingabetext mit spezialisierten biomedizinischen Sprachmodellen</li><li><strong>Begriffsabgleich:</strong> Es ermittelt mögliche HPO-Begriffe durch semantische Suche und kontextsensitiven Abgleich</li><li><strong>Ranking:</strong> Die Treffer werden nach Relevanz sortiert</li><li><strong>Ergebnisse:</strong> Die relevantesten HPO-Begriffe werden angezeigt</li></ol><p>Die Ergebnisse sind Vorschläge und sollten vor jeder weiteren Verwendung geprüft werden.</p>"
           },
           "whoCanUse": {
             "question": "Wer kann Phentrieve nutzen?",
-            "answer": "<p><strong>Phentrieve ist ausschließlich für Forschungs- und Informationszwecke bestimmt.</strong> Es ist KEIN klinisches Diagnosewerkzeug.</p><p>Entwickelt für:</p><ul><li><strong>Forscher:</strong> Standardisierung von Phänotypbeschreibungen in Forschungsstudien</li><li><strong>Klinische Genetiker:</strong> Forschungsphänotypisierung und Literaturrecherche (NICHT für Patientendiagnose)</li><li><strong>Bioinformatiker:</strong> Automatisierte Phänotypanalyse in Forschungsdatensätzen</li><li><strong>Medizinisches Fachpersonal:</strong> Bildungszwecke und Forschungsdokumentation</li></ul><p><strong>Wichtig:</strong> Ergebnisse müssen von qualifizierten medizinischen Fachkräften überprüft werden, bevor sie klinisch angewendet werden. Siehe Haftungsausschluss für vollständige Nutzungsbedingungen.</p>"
+            "answer": "<p><strong>Phentrieve ist ausschließlich für Forschungs- und Informationszwecke bestimmt.</strong> Es ist KEIN klinisches Diagnosewerkzeug.</p><p>Entwickelt für:</p><ul><li><strong>Forschende:</strong> Standardisierung von Phänotypbeschreibungen in Forschungsstudien</li><li><strong>Bioinformatiker:</strong> Automatisierte Phänotypanalyse in Forschungsdatensätzen</li><li><strong>Lehrende und Studierende:</strong> Kennenlernen der HPO-basierten Phänotypannotation</li><li><strong>Kuratierende:</strong> Literaturrecherche und Forschungsdokumentation</li></ul><p><strong>Wichtig:</strong> Die Ergebnisse dürfen nicht für Diagnose, Behandlung, Triage oder andere klinische Entscheidungen verwendet werden.</p>"
           }
         }
       },
@@ -453,11 +484,11 @@
         "questions": {
           "performance": {
             "question": "Welche Leistung kann ich erwarten?",
-            "answer": "<p>Unsere Benchmark-Ergebnisse zeigen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetextes variieren.</p>"
+            "answer": "<p>Ergebnisse auf unserem Benchmark-Datensatz (Trefferquote auf Rang 1, 3 und 5):</p><ul><li>BioLORD-2023-M: HR{'@'}1=0,3333, HR{'@'}3=0,6667, HR{'@'}5=0,7778</li></ul><p>Die Leistung kann je nach Komplexität und Spezifität des Eingabetexts variieren.</p>"
           },
           "similarityScore": {
             "question": "Was bedeuten die Ähnlichkeitswerte?",
-            "answer": "<p>Phentrieve verwendet Kosinus-Ähnlichkeit, um zu messen, wie genau Ihr klinischer Text mit HPO-Begriffen übereinstimmt. Die Werte reichen von 0,0 (keine Ähnlichkeit) bis 1,0 (perfekte Übereinstimmung).</p><h4>Wertebereich</h4><ul><li><strong>0,90 - 1,00:</strong> Ausgezeichnete Übereinstimmung - sehr relevant</li><li><strong>0,75 - 0,89:</strong> Hohe Übereinstimmung - sehr relevant</li><li><strong>0,60 - 0,74:</strong> Mittlere Übereinstimmung - potenziell relevant</li><li><strong>0,40 - 0,59:</strong> Geringe Übereinstimmung - lose verwandt</li><li><strong>0,00 - 0,39:</strong> Schlechte Übereinstimmung - nicht empfohlen</li></ul><h4>Technische Details</h4><p>Die Werte werden mithilfe der Kosinus-Ähnlichkeit zwischen Einbettungsvektoren berechnet. Ein Wert von 1,0 zeigt identische semantische Bedeutung an, während 0,0 keine Ähnlichkeit anzeigt.</p><p><strong>Hinweis:</strong> Diese Werte repräsentieren semantische Ähnlichkeit im Vektorraum, nicht klinische Gewissheit. Überprüfen Sie die Ergebnisse immer mit klinischer Expertise.</p>"
+            "answer": "<p>Phentrieve misst mit der Kosinus-Ähnlichkeit, wie gut Ihr Phänotyptext mit HPO-Begriffen übereinstimmt. Die Werte reichen von 0,0 (keine Ähnlichkeit) bis 1,0 (maximale Ähnlichkeit).</p><h4>Wertebereiche</h4><ul><li><strong>0,90–1,00:</strong> Ausgezeichnete Übereinstimmung – hochrelevant</li><li><strong>0,75–0,89:</strong> Hohe Übereinstimmung – sehr relevant</li><li><strong>0,60–0,74:</strong> Mittlere Übereinstimmung – potenziell relevant</li><li><strong>0,40–0,59:</strong> Geringe Übereinstimmung – lose verwandt</li><li><strong>0,00–0,39:</strong> Schlechte Übereinstimmung – nicht empfohlen</li></ul><h4>Technische Details</h4><p>Die Werte werden als Kosinus-Ähnlichkeit zwischen Embedding-Vektoren berechnet. Ein Wert von 1,0 bedeutet, dass die Embeddings in dieselbe Richtung zeigen; 0,0 bedeutet keine Ähnlichkeit.</p><p><strong>Hinweis:</strong> Diese Werte geben die semantische Ähnlichkeit im Vektorraum wieder, keine klinische Gewissheit.</p>"
           }
         }
       }
@@ -492,7 +523,7 @@
     },
     "links": {
       "forgotPassword": "Passwort vergessen?",
-      "needAccount": "Noch kein Konto? Registrieren",
+      "needAccount": "Noch kein Konto? Konto erstellen",
       "backToLogin": "Zurück zur Anmeldung"
     },
     "validation": {
@@ -504,15 +535,15 @@
     },
     "messages": {
       "registerSuccess": "Konto erstellt. Bitte bestätigen Sie Ihre E-Mail, um das höhere Tageskontingent freizuschalten.",
-      "resetSent": "Falls die Adresse gültig ist, wurde ein Link zum Zurücksetzen gesendet."
+      "resetSent": "Falls für diese Adresse ein Konto existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet."
     },
     "errors": {
-      "loginFailed": "Ungültige E-Mail oder ungültiges Passwort.",
+      "loginFailed": "E-Mail-Adresse oder Passwort ungültig.",
       "locked": "Zu viele Versuche. Bitte später erneut versuchen.",
       "generic": "Etwas ist schiefgelaufen. Bitte erneut versuchen."
     },
     "account": {
-      "loginRegister": "Anmelden oder registrieren",
+      "loginRegister": "Anmelden oder Konto erstellen",
       "account": "Konto",
       "signedInAs": "Angemeldet als",
       "verified": "Bestätigt",
@@ -522,7 +553,7 @@
       "quotaToday": "Volltext-Kontingent heute: {remaining} von {limit} übrig"
     },
     "nudge": {
-      "loginForMore": "Melden Sie sich an für ein höheres tägliches Volltext-Kontingent"
+      "loginForMore": "Anmelden für ein höheres tägliches Volltext-Kontingent"
     },
     "verifyView": {
       "title": "E-Mail-Bestätigung",
