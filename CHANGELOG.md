@@ -63,6 +63,23 @@ together:
   in `phentrieve.llm.evidence_offsets`, and a rendered chunk's evidence search
   region is exactly the source text its phase-1 line shows (before, it extended
   over the whole gap to the next chunk).
+- **One `needs_semantic_model()` check for chunking pipelines** (#429). The
+  "does this chunking pipeline need a sentence-transformer model" loop that was
+  copy-pasted in `text process`, `text chunk` and `text interactive` now lives
+  in `phentrieve.text_processing.config_resolver.needs_semantic_model`.
+- **One health route: `GET /api/v1/health`** (#433). It now answers directly
+  (the Docker health checks used to get a 307 to `/api/v1/health/`) and
+  returns `{"status": "healthy", "service", "version", "timestamp"}`, the shape
+  `/api/v1/system/health` already returned; the old body was
+  `{"status": "ok"}`. `/api/v1/health/` and `/api/v1/system/health` stay as
+  undocumented aliases with the same payload, and the frontend connection
+  poll now calls `/api/v1/health`.
+- **Batched embedding and spaCy calls in standard text processing** (#410).
+  The sliding-window splitter encodes the windows of all segments in one
+  `model.encode` call instead of one call per segment, and assertion detection
+  parses all chunks of a document with one `nlp.pipe` call
+  (`AssertionDetector.detect_batch`, `DependencyAssertionDetector.detect_doc`)
+  instead of one `nlp()` call per chunk. Output is unchanged.
 
 ### Fixed
 
@@ -215,6 +232,27 @@ together:
   `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
   `AdvancedOptionsPanel.vue` now takes its prop defaults from
   `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
+
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
+
+### Removed
+
+- **Unused evaluation code** (#414). Deleted the unreferenced
+  `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
+  `hierarchical_matching`, `threshold_optimization`, `full_text_runner` and
+  `semantic_metrics` (with its tests), the unused `result_analyzer` dataframe
+  helpers, the `ExtractionReporter.plot_*` methods, and the dead helpers
+  `utils.get_index_dir`, `utils.load_german_translation_text`,
+  `config.get_sliding_window_config`,
+  `evaluation.runner.compare_models_with_statistics`,
+  `query_orchestrator._format_structured_results_to_text_display`,
+  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 

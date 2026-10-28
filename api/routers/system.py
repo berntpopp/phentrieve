@@ -1,15 +1,15 @@
 """
-System endpoints for health checks, version info, and API metadata.
+System endpoints for version info and API metadata.
 
 Public endpoints (no authentication required) for monitoring and debugging.
 """
 
 import logging
-from datetime import UTC
 
 from fastapi import APIRouter
 
-from api.version import get_all_versions, get_api_version
+from api.routers.health import health_payload
+from api.version import get_all_versions
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/system", tags=["System"])
@@ -52,27 +52,7 @@ async def get_version() -> dict:
     return versions
 
 
-@router.get("/health")
+@router.get("/health", include_in_schema=False)
 async def health_check() -> dict:
-    """
-    Health check endpoint for monitoring and connection status.
-
-    **Public endpoint** - no authentication required.
-    Always returns 200 OK when API is alive.
-
-    Returns:
-        {
-            "status": "healthy",
-            "service": "phentrieve-api",
-            "version": "0.9.1",
-            "timestamp": "2025-11-21T10:30:00+00:00"
-        }
-    """
-    from datetime import datetime
-
-    return {
-        "status": "healthy",
-        "service": "phentrieve-api",
-        "version": get_api_version(),
-        "timestamp": datetime.now(UTC).isoformat(),
-    }
+    """Deprecated alias of ``GET /api/v1/health``; returns the same payload."""
+    return health_payload()
