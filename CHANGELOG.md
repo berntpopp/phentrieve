@@ -270,27 +270,6 @@ Chroma query failures raise instead of returning empty results;
   as on MCP: the request reruns on the standard backend with
   `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
   the failed LLM attempt's quota reservation is released.
-- **Other-person findings are fully accounted for** (#401). The LLM benchmark
-  assertion distribution counts `other_person_findings` next to the family
-  count, and the other-person resolution path records phase timings, the
-  phase-2b LLM trace, `local_fallbacks` and `llm_mapped_phrases` under
-  `other_person_*` keys through the same helper as the family path. The dead
-  span-overlap guard and bounds merge in phase-1 deduplication are removed
-  (phase-1 items carry no offsets until after deduplication).
-- **A truncated phase-1 group is no longer dropped silently** (#395). A
-  `grouped_small` group (the last fallback level) that truncates at its scaled
-  output budget is retried once at a fixed 65,536-token ceiling
-  (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
-  keep the scaled budget, so runaway generations are still cut early. At most
-  two such retries run per request
-  (`DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES`), so a model that runs away
-  in every group of a long note cannot cost one ceiling call per group. A group
-  that still fails is counted in `phase1_unrecovered_groups`, and REST
-  responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
-  (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
-  Retries are traced per group (`truncation_retry`) and counted in
-  `phase1_truncation_retries`. The frontend does not display the flag yet.
-
 ### Removed
 
 - **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
