@@ -293,3 +293,12 @@ not change the registered decision.
   [0.306, 0.438], a ratio of 0.665 to gold.
 
 Details are in `REPORT.md`, under "Post-hoc".
+- **LLM full-text backend** (`extract_llm.py`, run on 2026-10-28, `explore_arms.py`).
+  Phentrieve's `--extraction-backend llm` with its defaults: `gemini-3.1-flash-lite`,
+  two-phase, `whole_document_grounded`. Terms with status `present` that are not excluded
+  enter the profile; all 800 letters were extracted without failure. Non-cited test results:
+  - German: Hit@10 0.457 [0.381, 0.534], ratio to gold 0.82 [0.74, 0.89], Hit@1 0.194.
+  - English: Hit@10 0.509 [0.437, 0.584], ratio 0.91 [0.84, 0.98].
+
+  Caveat: Gemini also generated the letters. This arm was not registered, so it does not
+  change the registered decision.

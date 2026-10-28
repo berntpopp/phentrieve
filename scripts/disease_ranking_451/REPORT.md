@@ -1,7 +1,26 @@
 # Does extracted HPO rank the right disease? Proof of concept (#451)
 
-**Verdict: no-go for building `phentrieve match` on today's extraction output. Rework
-extraction precision first.**
+**Registered verdict: no-go, but it covers only Phentrieve's embedding backend.** The default
+`text process` backend reached 0.65 x gold Hit@10 against the 0.8 bar.
+
+**Exploratory, post-hoc: Phentrieve's LLM full-text backend reaches 0.82 x gold in German and
+0.91 x gold in English.** That is above the bar on the point estimate, but the German CI goes
+down to 0.74. It is grounds for a registered confirmation with independently generated
+letters, not a retroactive go.
+
+| Non-cited test, n = 289 | DE Hit@1 | DE Hit@10 [95% CI] | DE ratio [CI] | EN Hit@10 | EN ratio [CI] | Terms per letter |
+|---|---|---|---|---|---|---|
+| Gold | 0.23 | 0.557 [0.485, 0.632] | 1 | 0.557 | 1 | 8 |
+| **LLM full-text** (gemini-3.1-flash-lite, two-phase grounded) | **0.19** | **0.457** [0.381, 0.534] | **0.82** [0.74, 0.89] | **0.509** | **0.91** [0.84, 0.98] | 10-12 |
+| Embedding, `--top-term-per-chunk` | 0.11 | 0.370 [0.306, 0.438] | 0.67 | 0.391 | 0.70 | 15-16 |
+| Embedding, soft k = 1 (registered) | 0.11 | 0.360 [0.297, 0.427] | 0.65 | 0.384 | 0.69 | 19-21 |
+| Embedding, default (registered) | 0.06 | 0.311 [0.250, 0.376] | 0.56 | 0.325 | 0.58 | 86-88 |
+
+The LLM backend fixes precision: exact precision is 0.59 in German, against 0.06 for the
+default embedding output. Recall stays the same, at 0.84 with ancestor credit. Its gap to
+gold is -10.0 pp [-14.6, -6.1] in German and -4.8 pp [-9.2, -1.0] in English. Caveat: Gemini
+both generated the letters and runs the LLM backend, which may flatter this arm. Code is in
+`extract_llm.py` and `explore_arms.py`; results are in `results/explore_arms.csv`.
 
 Setup:
 
@@ -114,21 +133,10 @@ wrong terms.
 even with ancestor credit. The rate is highest for the ear (29%), limbs (24%) and skin
 (23%), and lowest for metabolism (7%) and blood (10%).
 
-**The existing flag** (`--top-term-per-chunk`, `top_term_per_chunk_for_aggregation` in the
-API):
+**The existing `--top-term-per-chunk` flag** and the LLM backend are compared in the
+table at the top.
 
-| | German Hit@10 | Ratio to gold | Terms per letter |
-|---|---|---|---|
-| Flag on | 0.370 [0.306, 0.438] | 0.67 | 18 |
-| Default | 0.311 | | 90 |
-| Soft k = 1 | 0.360 | | |
-
-In English the flag reaches 0.391 (ratio 0.70). It is about as good as soft k = 1, still
-well short of 0.8, and Hit@10 on dev overstated it (ratio 0.81). Fewer terms per chunk alone
-do not close the gap, because most of the remaining terms come from chunks that should not
-produce an abnormal term at all.
-
-**Fix first:** stop normal or reassuring statements from producing abnormal terms (the
+**Fix first, for the embedding backend:** stop normal or reassuring statements from producing abnormal terms (the
 normality cue lexicon and assertion handling of distractor sentences). Next, improve
 negation coverage. Then take one term per span.
 
