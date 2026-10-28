@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
@@ -10,8 +11,10 @@ from typing import Any
 from phentrieve.llm.config import (
     DEFAULT_GROUNDED_PHASE1_BASE_OUTPUT_TOKENS,
     DEFAULT_GROUNDED_PHASE1_MAX_OUTPUT_TOKENS,
+    DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES,
     DEFAULT_GROUNDED_PHASE1_MIN_OUTPUT_TOKENS,
     DEFAULT_GROUNDED_PHASE1_OUTPUT_TOKENS_PER_CHUNK,
+    DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS,
     DEFAULT_LLM_LANGUAGE,
     DEFAULT_LLM_MAPPING_BATCH_SIZE,
     DEFAULT_LOCAL_MATCH_THRESHOLD,
@@ -39,9 +42,6 @@ from phentrieve.llm.pipeline_phase1 import (
     expand_combined_phase1_extractions as _expand_combined_phase1_extractions,
 )
 from phentrieve.llm.pipeline_phase1 import (
-    merge_optional_bounds as _merge_optional_bounds,
-)
-from phentrieve.llm.pipeline_phase1 import (
     normalize_category as _normalize_category,
 )
 from phentrieve.llm.pipeline_phase1 import (
@@ -64,9 +64,6 @@ from phentrieve.llm.pipeline_phase1 import (
 )
 from phentrieve.llm.pipeline_phase1 import (
     sorted_chunk_ids as _sorted_chunk_ids,
-)
-from phentrieve.llm.pipeline_phase1 import (
-    spans_overlap as _spans_overlap,
 )
 from phentrieve.llm.pipeline_phase1 import (
     temporality_axis as _temporality_axis,
@@ -195,6 +192,44 @@ class _ItemResolutionOutcome:
     phase2b_local_trace: dict[str, Any]
     phase2b_llm_trace: dict[str, Any] | None
     mapping_ran: bool
+
+
+def _record_secondary_outcome(
+    *,
+    prefix: str,
+    item_count: int,
+    outcome: _ItemResolutionOutcome,
+    phase_timings: dict[str, float],
+    phase_counts: dict[str, int],
+    phase_request_counts: dict[str, int],
+) -> dict[str, Any]:
+    """Record a non-proband resolution outcome under ``{prefix}_*`` meta keys.
+
+    Shared by the family and other-person paths so both report timings, counts,
+    phase-2b requests and traces the same way. Returns the path's trace block.
+    """
+    phase_timings[f"{prefix}_phase2a_seconds"] = outcome.phase2a_seconds
+    phase_timings[f"{prefix}_phase2b_local_seconds"] = outcome.phase2b_local_seconds
+    phase_counts[f"{prefix}_phrases"] = item_count
+    phase_counts[f"{prefix}_candidate_sets"] = outcome.candidate_sets
+    phase_counts[f"{prefix}_unresolved_phrases"] = outcome.unresolved_phrases
+    phase_counts[f"{prefix}_local_matches"] = outcome.local_matches
+    phase_counts[f"{prefix}_resolved_phrases"] = len(outcome.resolved)
+    for key, value in outcome.routing_counts.items():
+        phase_counts[f"{prefix}_{key}"] = value
+    trace: dict[str, Any] = {
+        "phase2a": outcome.phase2a_trace,
+        "phase2b_local": outcome.phase2b_local_trace,
+    }
+    if outcome.mapping_ran:
+        phase_timings[f"{prefix}_phase2b_llm_seconds"] = outcome.phase2b_llm_seconds
+        phase_request_counts[f"{prefix}_phase2b_llm_requests"] = (
+            outcome.phase2b_llm_requests
+        )
+        phase_counts[f"{prefix}_local_fallbacks"] = outcome.local_fallbacks
+        phase_counts[f"{prefix}_llm_mapped_phrases"] = outcome.llm_mapped_phrases
+        trace["phase2b_llm"] = outcome.phase2b_llm_trace
+    return trace
 
 
 class TwoPhaseLLMPipeline:
@@ -503,6 +538,14 @@ class TwoPhaseLLMPipeline:
                 phase_counts["phase1_failed_groups"] > 0
                 and phase_counts["phase1_completed_groups"] > 0
             )
+            phase_counts["phase1_truncation_retries"] = sum(
+                1 for group in all_phase1_groups if group.get("truncation_retry")
+            )
+            # Groups whose failure no later fallback recovered: their findings
+            # are missing from this (still successful) result (#395).
+            phase_counts["phase1_unrecovered_groups"] = sum(
+                1 for group in phase1_groups_trace if group.get("status") == "failed"
+            )
         resolved_family: list[LLMPhenotype] = []
         resolved_other_person: list[LLMPhenotype] = []
         if actionable:
@@ -547,85 +590,40 @@ class TwoPhaseLLMPipeline:
                 phase_counts["llm_mapped_phrases"] = proband_outcome.llm_mapped_phrases
                 trace["phase2b_llm"] = proband_outcome.phase2b_llm_trace
 
-        if family_items:
-            # Family path: resolve ALL family phrases through the SAME retrieve
-            # -> route -> map path (they are phenotype phrases regardless of the
-            # legacy category; they must NOT be re-dropped via
-            # ACTIONABLE_CATEGORIES). Family results land in the separate
-            # ``resolved_family`` list (Task 7 attaches it to the result); they
-            # are NEVER merged into ``resolved_terms``. Family cost ALWAYS folds
-            # into the shared token/request accumulators so a family LLM pass is
-            # not underreported; family-specific breakdowns use a ``family_*`` /
-            # ``trace["family"]`` namespace so proband metrics are never
-            # overwritten.
-            family_outcome = self._resolve_items(
-                family_items,
+        # Family path: resolve ALL family phrases through the SAME retrieve ->
+        # route -> map path (they are phenotype phrases regardless of the legacy
+        # category; they must NOT be re-dropped via ACTIONABLE_CATEGORIES).
+        # Family results land in the separate ``resolved_family`` list; they are
+        # NEVER merged into ``resolved_terms``. Findings of another person who
+        # is not a relative take the same path into ``resolved_other_person``.
+        # Their cost ALWAYS folds into the shared token/request accumulators so
+        # an extra LLM pass is not underreported; per-path breakdowns use a
+        # ``family_*`` / ``other_person_*`` namespace (and ``trace[prefix]``) so
+        # proband metrics are never overwritten.
+        for prefix, items, resolved_sink in (
+            ("family", family_items, resolved_family),
+            ("other_person", other_person_items, resolved_other_person),
+        ):
+            if not items:
+                continue
+            outcome = self._resolve_items(
+                items,
                 grounded_chunks=grounded_chunks,
                 language=language,
             )
-            resolved_family.extend(family_outcome.resolved)
-            prompt_tokens_total += family_outcome.prompt_tokens
-            completion_tokens_total += family_outcome.completion_tokens
-            token_usage_total = _sum_usage_dicts(
-                token_usage_total,
-                family_outcome.token_usage,
+            resolved_sink.extend(outcome.resolved)
+            prompt_tokens_total += outcome.prompt_tokens
+            completion_tokens_total += outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(token_usage_total, outcome.token_usage)
+            request_count_total += outcome.request_count
+            trace[prefix] = _record_secondary_outcome(
+                prefix=prefix,
+                item_count=len(items),
+                outcome=outcome,
+                phase_timings=phase_timings,
+                phase_counts=phase_counts,
+                phase_request_counts=phase_request_counts,
             )
-            request_count_total += family_outcome.request_count
-            phase_timings["family_phase2a_seconds"] = family_outcome.phase2a_seconds
-            phase_timings["family_phase2b_local_seconds"] = (
-                family_outcome.phase2b_local_seconds
-            )
-            phase_counts["family_phrases"] = len(family_items)
-            phase_counts["family_candidate_sets"] = family_outcome.candidate_sets
-            phase_counts["family_unresolved_phrases"] = (
-                family_outcome.unresolved_phrases
-            )
-            phase_counts["family_local_matches"] = family_outcome.local_matches
-            phase_counts["family_resolved_phrases"] = len(family_outcome.resolved)
-            for key, value in family_outcome.routing_counts.items():
-                phase_counts[f"family_{key}"] = value
-            family_trace: dict[str, Any] = {
-                "phase2a": family_outcome.phase2a_trace,
-                "phase2b_local": family_outcome.phase2b_local_trace,
-            }
-            if family_outcome.mapping_ran:
-                phase_timings["family_phase2b_llm_seconds"] = (
-                    family_outcome.phase2b_llm_seconds
-                )
-                phase_request_counts["family_phase2b_llm_requests"] = (
-                    family_outcome.phase2b_llm_requests
-                )
-                phase_counts["family_local_fallbacks"] = family_outcome.local_fallbacks
-                phase_counts["family_llm_mapped_phrases"] = (
-                    family_outcome.llm_mapped_phrases
-                )
-                family_trace["phase2b_llm"] = family_outcome.phase2b_llm_trace
-            trace["family"] = family_trace
-
-        if other_person_items:
-            other_outcome = self._resolve_items(
-                other_person_items,
-                grounded_chunks=grounded_chunks,
-                language=language,
-            )
-            resolved_other_person.extend(other_outcome.resolved)
-            prompt_tokens_total += other_outcome.prompt_tokens
-            completion_tokens_total += other_outcome.completion_tokens
-            token_usage_total = _sum_usage_dicts(
-                token_usage_total,
-                other_outcome.token_usage,
-            )
-            request_count_total += other_outcome.request_count
-            phase_counts["other_person_phrases"] = len(other_person_items)
-            phase_counts["other_person_resolved_phrases"] = len(other_outcome.resolved)
-            if other_outcome.mapping_ran:
-                phase_request_counts["other_person_phase2b_llm_requests"] = (
-                    other_outcome.phase2b_llm_requests
-                )
-            trace["other_person"] = {
-                "phase2a": other_outcome.phase2a_trace,
-                "phase2b_local": other_outcome.phase2b_local_trace,
-            }
 
         # B3: map each resolved proband finding's negated qualifier Y (the
         # absent portion of an "X without Y" phrase) to a GENERATED excluded
@@ -909,6 +907,7 @@ class TwoPhaseLLMPipeline:
         extraction_prompt,
         chunk_index_text: str | None = None,
         capture_debug: bool = False,
+        max_output_tokens: int | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, int], int, dict[str, Any] | None]:
         user_prompt = _render_phase1_user_prompt(
             extraction_prompt=extraction_prompt,
@@ -916,11 +915,12 @@ class TwoPhaseLLMPipeline:
             grounded_chunks=grounded_chunks,
             chunk_index_text=chunk_index_text,
         )
-        max_output_tokens = (
-            _grounded_phase1_output_token_budget(len(grounded_chunks))
-            if grounded_chunks or chunk_index_text is not None
-            else DEFAULT_PHASE1_MAX_OUTPUT_TOKENS
-        )
+        if max_output_tokens is None:
+            max_output_tokens = (
+                _grounded_phase1_output_token_budget(len(grounded_chunks))
+                if grounded_chunks or chunk_index_text is not None
+                else DEFAULT_PHASE1_MAX_OUTPUT_TOKENS
+            )
         logger.debug(
             "Phase 1 request shape: grounded=%s chunk_count=%d user_prompt_chars=%d max_output_tokens=%d",
             bool(grounded_chunks),
@@ -1017,6 +1017,7 @@ class TwoPhaseLLMPipeline:
         extraction_groups: list[dict[str, Any]],
         extraction_prompt,
         capture_debug: bool = False,
+        retry_truncated_groups: bool = False,
     ) -> tuple[list[dict[str, Any]], dict[str, int], int, float, list[dict[str, Any]]]:
         extracted: list[dict[str, Any]] = []
         prompt_tokens_total = 0
@@ -1039,13 +1040,20 @@ class TwoPhaseLLMPipeline:
                 float,
                 dict[str, Any] | None,
                 LLMPipelinePhaseError | None,
+                bool,
             ]
         ] = []
         max_workers = min(len(indexed_groups), DEFAULT_PHASE1_GROUP_MAX_WORKERS) or 1
+        retry_budget = (
+            threading.Semaphore(DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES)
+            if retry_truncated_groups
+            else None
+        )
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(
-                    self._run_phase1_group,
+                    self._run_phase1_group_with_truncation_retry,
+                    retry_budget=retry_budget,
                     extraction_group=group,
                     text=text,
                     extraction_prompt=extraction_prompt,
@@ -1064,6 +1072,7 @@ class TwoPhaseLLMPipeline:
                         group_request_count,
                         group_elapsed,
                         phase1_debug,
+                        truncation_retried,
                     ) = future.result()
                     indexed_results.append(
                         (
@@ -1075,6 +1084,7 @@ class TwoPhaseLLMPipeline:
                             group_elapsed,
                             phase1_debug,
                             None,
+                            truncation_retried,
                         )
                     )
                 except LLMPipelinePhaseError as exc:
@@ -1088,6 +1098,7 @@ class TwoPhaseLLMPipeline:
                             float(exc.elapsed_seconds or 0.0),
                             None,
                             exc,
+                            exc.truncation_retried,
                         )
                     )
 
@@ -1103,8 +1114,10 @@ class TwoPhaseLLMPipeline:
             group_elapsed,
             phase1_debug,
             group_error,
+            truncation_retried,
         ) in indexed_results:
             group_chunk_ids = [int(chunk_id) for chunk_id in group.get("chunk_ids", [])]
+            retry_trace = {"truncation_retry": True} if truncation_retried else {}
             if group_error is not None:
                 if first_group_error is None:
                     first_group_error = group_error
@@ -1136,6 +1149,7 @@ class TwoPhaseLLMPipeline:
                         "extracted_count": 0,
                         "extracted": [],
                         "elapsed_seconds": group_elapsed,
+                        **retry_trace,
                         **({"debug": phase1_debug} if phase1_debug else {}),
                     }
                 )
@@ -1164,6 +1178,7 @@ class TwoPhaseLLMPipeline:
                     "request_count": group_request_count,
                     "elapsed_seconds": group_elapsed,
                     "extracted": group_trace_extracted,
+                    **retry_trace,
                     **({"debug": phase1_debug} if phase1_debug else {}),
                 }
             )
@@ -1199,6 +1214,65 @@ class TwoPhaseLLMPipeline:
             phase1_groups_trace,
         )
 
+    def _run_phase1_group_with_truncation_retry(
+        self,
+        *,
+        retry_budget: threading.Semaphore | None,
+        **group_kwargs: Any,
+    ) -> tuple[
+        list[dict[str, Any]], dict[str, int], int, float, dict[str, Any] | None, bool
+    ]:
+        """Run one phase-1 group; retry it ONCE at a fixed ceiling if truncated.
+
+        Only the last fallback level (``grouped_small``) retries: there is no
+        smaller group left to fall back to, so without the retry a group whose
+        findings legitimately exceed the scaled budget would be dropped (#395).
+        The first request keeps the scaled budget, so a runaway generation is
+        still cut early, and the retry is bounded by the fixed ceiling.
+        ``retry_budget`` is shared by all groups of one request and caps the
+        number of ceiling retries; ``None`` disables retries.
+        """
+        try:
+            return (*self._run_phase1_group(**group_kwargs), False)
+        except LLMPipelinePhaseError as exc:
+            if not (
+                retry_budget is not None
+                and exc.output_truncated
+                and retry_budget.acquire(blocking=False)
+            ):
+                raise
+            first_error = exc
+        extraction_group = group_kwargs["extraction_group"]
+        logger.warning(
+            "Phase 1 group truncated at its output budget; retrying once with "
+            "max_output_tokens=%d: group_id=%s chunk_ids=%s",
+            DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS,
+            extraction_group.get("group_id"),
+            list(extraction_group.get("chunk_ids", [])),
+        )
+        first_elapsed = float(first_error.elapsed_seconds or 0.0)
+        try:
+            extracted, usage, request_count, elapsed, debug = self._run_phase1_group(
+                **group_kwargs,
+                max_output_tokens=DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS,
+            )
+        except LLMPipelinePhaseError as retry_error:
+            retry_error.usage = _sum_usage_dicts(first_error.usage, retry_error.usage)
+            retry_error.request_count += first_error.request_count
+            retry_error.elapsed_seconds = round(
+                first_elapsed + float(retry_error.elapsed_seconds or 0.0), 6
+            )
+            retry_error.truncation_retried = True
+            raise
+        return (
+            extracted,
+            _sum_usage_dicts(first_error.usage, usage),
+            request_count + first_error.request_count,
+            round(first_elapsed + elapsed, 6),
+            debug,
+            True,
+        )
+
     def _run_phase1_group(
         self,
         *,
@@ -1207,6 +1281,7 @@ class TwoPhaseLLMPipeline:
         extraction_prompt: PromptTemplate,
         chunk_lookup: dict[int, dict[str, Any]],
         capture_debug: bool = False,
+        max_output_tokens: int | None = None,
     ) -> tuple[list[dict[str, Any]], dict[str, int], int, float, dict[str, Any] | None]:
         group_chunk_ids = [
             int(chunk_id) for chunk_id in extraction_group.get("chunk_ids", [])
@@ -1228,6 +1303,7 @@ class TwoPhaseLLMPipeline:
                     ),
                     extraction_prompt=extraction_prompt,
                     capture_debug=capture_debug,
+                    max_output_tokens=max_output_tokens,
                 )
             )
         except LLMPipelinePhaseError as exc:
@@ -1327,6 +1403,7 @@ class TwoPhaseLLMPipeline:
                 extraction_groups=active_extraction_groups,
                 extraction_prompt=extraction_prompt,
                 capture_debug=capture_phase1_debug,
+                retry_truncated_groups=mode == "grouped_small",
             )
         except LLMPipelinePhaseError as exc:
             if exc.elapsed_seconds is None:
@@ -1770,20 +1847,6 @@ class TwoPhaseLLMPipeline:
         if not (existing_chunk_ids & incoming_chunk_ids):
             return False
 
-        if (
-            existing.get("start_char") is not None
-            and existing.get("end_char") is not None
-            and incoming.get("start_char") is not None
-            and incoming.get("end_char") is not None
-            and not _spans_overlap(
-                int(existing["start_char"]),
-                int(existing["end_char"]),
-                int(incoming["start_char"]),
-                int(incoming["end_char"]),
-            )
-        ):
-            return False
-
         existing_evidence = _normalized_evidence_text(existing)
         incoming_evidence = _normalized_evidence_text(incoming)
         if not existing_evidence or not incoming_evidence:
@@ -1846,16 +1909,6 @@ class TwoPhaseLLMPipeline:
         existing["evidence_text"] = _prefer_richer_text(
             existing.get("evidence_text"),
             incoming.get("evidence_text"),
-        )
-        existing["start_char"] = _merge_optional_bounds(
-            existing.get("start_char"),
-            incoming.get("start_char"),
-            pick="min",
-        )
-        existing["end_char"] = _merge_optional_bounds(
-            existing.get("end_char"),
-            incoming.get("end_char"),
-            pick="max",
         )
 
     def _resolve_local_matches(
