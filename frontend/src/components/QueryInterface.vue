@@ -474,7 +474,6 @@ function getQueryInputDescription() {
   return isLoading.value ? `${base} ${t('queryInterface.accessibility.searchInProgress')}` : base;
 }
 
-
 function getAutoSwitchNoticeLabel() {
   const translated = t('queryInterface.modeSwitch.autoFullTextNotice');
   return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
@@ -556,7 +555,6 @@ function continueWithPiiRedaction() {
 
 // Initialization (formerly created())
 fetchAvailableModels();
-
 </script>
 
 <style scoped>

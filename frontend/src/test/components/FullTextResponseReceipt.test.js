@@ -213,7 +213,10 @@ describe('FullTextResponseReceipt', () => {
 
       expect(wrapper.get('.result-item-stub').text()).toContain('negated');
 
-      await wrapper.get('[data-testid="full-text-response-add-all"]').trigger('click');
+      // Add all needs a confirming second click
+      const addAll = wrapper.get('[data-testid="full-text-response-add-all"]');
+      await addAll.trigger('click');
+      await addAll.trigger('click');
       expect(wrapper.emitted('add-all-to-collection')[0][0]).toEqual([
         { hpo_id: 'HP:0001249', label: 'Intellectual disability', assertion_status: 'negated' },
       ]);
