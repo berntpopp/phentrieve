@@ -308,7 +308,9 @@ together:
   `config.get_sliding_window_config`,
   `evaluation.runner.compare_models_with_statistics`,
   `query_orchestrator._format_structured_results_to_text_display`,
-  `llm.types.LLMTermsResult` and `details_enrichment.DatabaseNotFoundError`.
+  `llm.types.LLMTermsResult`, `details_enrichment.DatabaseNotFoundError`, and the
+  unused `TwoPhaseLLMPipeline._resolve_local_matches`, `_optional_float` and
+  `_select_candidate_id` wrappers.
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 

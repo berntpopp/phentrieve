@@ -78,11 +78,9 @@ from phentrieve.llm.pipeline_phase2 import (
     extract_first_result_list,
     hybrid_select_candidates,
     local_match,
-    optional_float,
     phenotype_from_candidate,
     prepare_retrieval_queries,
     run_mapping_batch,
-    select_candidate_id,
     select_candidate_ids,
 )
 from phentrieve.llm.pipeline_phase2 import (
@@ -1911,16 +1909,6 @@ class TwoPhaseLLMPipeline:
             incoming.get("evidence_text"),
         )
 
-    def _resolve_local_matches(
-        self,
-        phrase_candidates: list[dict[str, Any]],
-    ) -> tuple[list[LLMPhenotype], list[dict[str, Any]]]:
-        resolved, unresolved, _ = self._route_phase2_candidates(
-            phrase_candidates=phrase_candidates,
-            language=DEFAULT_LLM_LANGUAGE,
-        )
-        return resolved, unresolved
-
     def _route_phase2_candidates(
         self,
         *,
@@ -2267,10 +2255,6 @@ class TwoPhaseLLMPipeline:
         )
 
     @staticmethod
-    def _optional_float(value: Any) -> float | None:
-        return optional_float(value)
-
-    @staticmethod
     def _phenotype_from_candidate(
         *,
         item: dict[str, Any],
@@ -2281,17 +2265,6 @@ class TwoPhaseLLMPipeline:
             item=item,
             candidate=candidate,
             match_method=match_method,
-        )
-
-    @staticmethod
-    def _select_candidate_id(
-        *,
-        mapping_response: LLMMappingSelection,
-        candidates: list[dict[str, Any]],
-    ) -> str | None:
-        return select_candidate_id(
-            mapping_response=mapping_response,
-            candidates=candidates,
         )
 
     @classmethod
