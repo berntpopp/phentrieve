@@ -186,10 +186,13 @@ export function buildUserNoteSegments({ note, chunks, terms }) {
 
 /**
  * Map an API aggregated-term assertion status onto the curation model's
- * affirmed/negated/uncertain/unknown vocabulary.
+ * affirmed/negated/uncertain/unknown vocabulary. A 'normal' verdict (e.g.
+ * "normal intellect") rules the abnormality out, so it maps to 'negated', as
+ * does any term the API already flags with excluded === true.
  */
-export function normalizeAnnotationStatus(status) {
-  if (status === 'absent' || status === 'negated') return 'negated';
+export function normalizeAnnotationStatus(status, excluded = false) {
+  if (excluded === true) return 'negated';
+  if (status === 'absent' || status === 'negated' || status === 'normal') return 'negated';
   if (status === 'uncertain') return 'uncertain';
   if (status === 'unknown') return 'unknown';
   return 'affirmed';
@@ -272,7 +275,7 @@ export function seedAnnotationsFromResponse({ note, response }) {
         id: `auto-${term.hpo_id}-${index}`,
         hpoId: term.hpo_id,
         label: term.name,
-        status: normalizeAnnotationStatus(term.status),
+        status: normalizeAnnotationStatus(term.status, term.excluded),
         spans,
         origin: 'auto',
         confidence,

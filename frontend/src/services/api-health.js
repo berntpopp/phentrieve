@@ -113,6 +113,8 @@ class ApiHealthService {
 
     // Periodic checks
     this.intervalId = setInterval(() => {
+      // Skip polls while the tab is hidden; the next visible tick catches up.
+      if (typeof document !== 'undefined' && document.hidden) return;
       this.checkHealth();
     }, this.checkInterval);
   }

@@ -36,6 +36,11 @@ together:
   one throwaway query after preloading the model and retriever, so the first
   real request no longer pays for loading the index. A failed warm-up is
   logged and startup continues.
+- **`QueryInterface.vue` uses `<script setup>`** (#430). The
+  `getContext()`/`getState()`/`setState()` bridge is gone:
+  `useQueryInterfaceController` now takes the component's refs, the
+  conversation store, the PII review flow and the route/router directly, and has
+  its own unit tests with plain refs. Behaviour is unchanged.
 
 - **Phase-1 prompt v3.3.0 with the axes contract** (#379, #375). The prompt
   decides experiencer, assertion and temporality in independent steps: a
@@ -110,6 +115,18 @@ together:
   tools now trim `other_person_findings` first, then `family_history_findings`,
   and `aggregated_hpo_terms` only if still over budget, so a large secondary
   list no longer pushes the patient's own terms out of the response.
+- **Frontend health poll and response logging are cheaper** (#431). The API
+  health poll skips its interval tick while the tab is hidden, and API response
+  logs read the size from `Content-Length` instead of `JSON.stringify`-ing every
+  response body.
+
+- **ESLint no longer lints the generated `frontend/coverage/` directory** (#432).
+
+- **Full-text "normal" findings are no longer collected as present** (#404).
+  The frontend mapped a `status: "normal"` term (and any term the API flags
+  `excluded: true`) to `affirmed`, so "add to collection" exported ruled-out
+  findings as present phenotypes. They now map to `negated` when the curation
+  model is seeded and in the findings receipt.
 
 - **LLM evidence offsets are computed in code from the cited chunks.** The
   model reported `start_char`/`end_char` relative to a chunk, so evidence spans
@@ -189,6 +206,15 @@ together:
   (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
   Retries are traced per group (`truncation_retry`) and counted in
   `phase1_truncation_retries`. The frontend does not display the flag yet.
+
+### Removed
+
+- **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
+  script still parsed `QueryInterface.vue` after the defaults moved to
+  `frontend/src/constants/defaults.js`, so it always failed;
+  `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
+  `AdvancedOptionsPanel.vue` now takes its prop defaults from
+  `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 
