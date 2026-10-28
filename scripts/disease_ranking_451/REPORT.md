@@ -1,26 +1,25 @@
 # Does extracted HPO rank the right disease? Proof of concept (#451)
 
-**Registered verdict: no-go, but it covers only Phentrieve's embedding backend.** The default
-`text process` backend reached 0.65 x gold Hit@10 against the 0.8 bar.
+**Registered verdict: no-go, but it covers only Phentrieve's embedding backend.** The
+default `text process` backend reached 0.65 x gold Hit@10 against the 0.8 bar.
 
-**Exploratory, post-hoc: Phentrieve's LLM full-text backend reaches 0.82 x gold in German and
-0.91 x gold in English.** That is above the bar on the point estimate, but the German CI goes
-down to 0.74. It is grounds for a registered confirmation with independently generated
-letters, not a retroactive go.
+**Exploratory follow-up (post hoc, RUO; details in `POSTHOC.md`).** The full pipeline below
+matches the curated gold terms on non-cited test cases (n = 289 per language):
 
-| Non-cited test, n = 289 | DE Hit@1 | DE Hit@10 [95% CI] | DE ratio [CI] | EN Hit@10 | EN ratio [CI] | Terms per letter |
-|---|---|---|---|---|---|---|
-| Gold | 0.23 | 0.557 [0.485, 0.632] | 1 | 0.557 | 1 | 8 |
-| **LLM full-text** (gemini-3.1-flash-lite, two-phase grounded) | **0.19** | **0.457** [0.381, 0.534] | **0.82** [0.74, 0.89] | **0.509** | **0.91** [0.84, 0.98] | 10-12 |
-| Embedding, `--top-term-per-chunk` | 0.11 | 0.370 [0.306, 0.438] | 0.67 | 0.391 | 0.70 | 15-16 |
-| Embedding, soft k = 1 (registered) | 0.11 | 0.360 [0.297, 0.427] | 0.65 | 0.384 | 0.69 | 19-21 |
-| Embedding, default (registered) | 0.06 | 0.311 [0.250, 0.376] | 0.56 | 0.325 | 0.58 | 86-88 |
+1. Phentrieve LLM full-text extraction, with the grounded-negation fix of PR #453;
+2. the VarLens scorer;
+3. a Claude Opus 5.5 rerank of the scorer's top 50 (prompt frozen on dev).
 
-The LLM backend fixes precision: exact precision is 0.59 in German, against 0.06 for the
-default embedding output. Recall stays the same, at 0.84 with ancestor credit. Its gap to
-gold is -10.0 pp [-14.6, -6.1] in German and -4.8 pp [-9.2, -1.0] in English. Caveat: Gemini
-both generated the letters and runs the LLM backend, which may flatter this arm. Code is in
-`extract_llm.py` and `explore_arms.py`; results are in `results/explore_arms.csv`.
+| Non-cited test | DE Hit@1 | DE Hit@10 | EN Hit@1 | EN Hit@10 |
+|---|---|---|---|---|
+| Gold terms -> scorer | 0.232 | 0.557 | 0.232 | 0.557 |
+| LLM extraction (fixed) -> scorer | 0.173 | 0.471 | 0.145 | 0.474 |
+| **+ Opus rerank** | **0.277** [0.22, 0.35] | **0.550** [0.48, 0.62] | **0.280** [0.22, 0.35] | **0.564** [0.50, 0.64] |
+
+What these rows compare: the rerank reads the letter and uses the LLM's own disease
+knowledge, while the gold arm is not reranked. "Matches gold" therefore means the full
+pipeline ranks as well as curated terms put through the plain scorer, not that the
+extraction is perfect. The LLM may also have seen the published case reports.
 
 Setup:
 
@@ -83,7 +82,7 @@ profiles (its spec, §7). Keeping one candidate per chunk removes part of the no
 recovers about 5 pp.
 
 **Rework before rebuilding (cheap: letters and extractions are cached; see the error profile
-below).**
+in `POSTHOC.md`).**
 
 1. Fix precision first. Options:
    - one term per span by default;
@@ -94,51 +93,6 @@ below).**
    threshold.
 3. Optionally test the scorer's tau = 0 on noisy profiles. That would change the frozen
    scorer, so it needs its own protocol.
-
-## Post-hoc: error profile and the existing `--top-term-per-chunk` flag
-
-This section is exploratory. It was done after the test run and does not change the
-decision. Code: `errors.py` and `explore_top_term.py`; output: `results/errors_*.csv` and
-`results/explore_top_term.csv`.
-
-**Noise costs far more than misses.** Counterfactual German Hit@10 on non-cited test cases,
-default output:
-
-| Profile | Hit@10 | Effect |
-|---|---|---|
-| Gold terms | 0.557 | |
-| Gold terms Phentrieve recovered (misses only, no noise) | 0.516 | misses cost 4 pp |
-| Gold plus Phentrieve's wrong terms (noise only) | 0.388 | noise costs 17 pp |
-| Phentrieve's related terms only (wrong terms removed) | 0.377 | term choice costs another 14 pp |
-| Phentrieve default output | 0.311 | |
-
-**What the wrong terms are.** Of the 26,666 affirmed terms extracted from German test
-letters:
-
-- 6% match gold exactly;
-- 7.5% are vaguer ancestors of a gold term;
-- 12% are more specific than a gold term;
-- **75% are unrelated to any gold term.**
-
-A chunk yields a median of 7 affirmed candidates, and 44% of chunks hit the cap of 10. The
-most frequent wrong terms come from normal findings and distractors that get mapped to the
-abnormal concept. "Normal development, doing well at school" becomes *Cognitive
-impairment*, *Developmental regression* and *Global developmental delay*; "growth on the
-50th centile" becomes *Postnatal growth retardation*; "normocephalic" becomes *Sloping
-forehead*, *Dolichocephaly* or *Turricephaly*; "pleasant, cheerful" becomes *Euphoria*.
-Negation failures, where an excluded finding is extracted as present, account for 13% of
-wrong terms.
-
-**Misses are spread across organ systems.** On average 17% of gold terms are not recovered,
-even with ancestor credit. The rate is highest for the ear (29%), limbs (24%) and skin
-(23%), and lowest for metabolism (7%) and blood (10%).
-
-**The existing `--top-term-per-chunk` flag** and the LLM backend are compared in the
-table at the top.
-
-**Fix first, for the embedding backend:** stop normal or reassuring statements from producing abnormal terms (the
-normality cue lexicon and assertion handling of distractor sentences). Next, improve
-negation coverage. Then take one term per span.
 
 ## Data, attrition and leakage
 

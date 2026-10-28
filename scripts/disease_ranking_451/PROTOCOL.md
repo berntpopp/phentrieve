@@ -302,3 +302,17 @@ Details are in `REPORT.md`, under "Post-hoc".
 
   Caveat: Gemini also generated the letters. This arm was not registered, so it does not
   change the registered decision.
+- **Grounded-negation fix and LLM rerank** (`POSTHOC.md`, run on 2026-10-28).
+  - Fix: the LLM extraction was re-run with the grounded-negation fix of PR #453.
+  - Rerank: a Claude Opus 5.5 rerank of the scorer's top 50, run via local Claude Code. The
+    prompt was tuned on dev and frozen (v2, `results/rerank_frozen.json`) before a single test
+    run.
+  - Non-cited test results:
+
+    | | Hit@1 | Hit@10 |
+    |---|---|---|
+    | German | 0.277 | 0.550 |
+    | English | 0.280 | 0.564 |
+    | Gold terms through the scorer | 0.232 | 0.557 |
+
+  This analysis was not registered and does not change the registered decision.
