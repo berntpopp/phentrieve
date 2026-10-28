@@ -1,4 +1,5 @@
 import logging
+from functools import cache
 from typing import Any
 
 from phentrieve.config import (
@@ -8,11 +9,34 @@ from phentrieve.config import (
 )
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.text_processing.assertion_detection import (
+    AssertionStatus,
     CombinedAssertionDetector,
+    retrieval_text_for_assertion,
 )
+from phentrieve.text_processing.resource_loader import load_language_resource
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
+
+# Languages with bundled ConText rules (default_lang_resources/context_rules_*.json)
+_ASSERTION_LANGUAGES = ("en", "de", "fr", "es", "nl")
+
+
+@cache
+def _english_negation_words() -> frozenset[str]:
+    prefixes = load_language_resource(
+        "negation_prefixes.json", "negation_prefixes_file"
+    )
+    return frozenset(word.lower() for word in prefixes.get("en", []))
+
+
+def _cues_are_english_words(details: dict[str, Any]) -> bool:
+    """True when every matched keyword cue ("non: ambulatory") is an English word."""
+    cues = [
+        scope.split(":", 1)[0].strip().lower()
+        for scope in details.get("keyword_negated_scopes") or []
+    ]
+    return bool(cues) and all(cue in _english_negation_words() for cue in cues)
 
 
 def _convert_single_vector_results(
@@ -98,7 +122,7 @@ def _convert_multi_vector_results(
 
 def execute_hpo_retrieval_for_api(
     text: str,
-    language: str,
+    language: str | None,
     retriever: DenseRetriever,
     num_results: int,
     similarity_threshold: float,
@@ -124,7 +148,7 @@ def execute_hpo_retrieval_for_api(
 
     Args:
         text: The clinical text to process and query for HPO terms
-        language: ISO 639-1 language code (e.g., 'en', 'de')
+        language: ISO 639-1 language code (e.g., 'en', 'de'); None = auto
         retriever: Initialized DenseRetriever instance
         num_results: Number of HPO terms to return
         similarity_threshold: Minimum similarity score for results
@@ -155,23 +179,38 @@ def execute_hpo_retrieval_for_api(
 
     # Detect assertion status if enabled
     original_query_assertion_status = None
+    details: dict[str, Any] | None = None
     if detect_query_assertion:
-        # Use the explicitly provided assertion language or fallback to the query language
-        assertion_language = query_assertion_language or language
+        # Use the explicitly provided assertion language or fallback to the query
+        # language. With neither (auto), short queries defeat language detection,
+        # so try every language with cue rules and keep the first non-affirmed hit.
+        explicit_language = query_assertion_language or language
+        assertion_languages = (
+            (explicit_language,) if explicit_language else _ASSERTION_LANGUAGES
+        )
         try:
-            # Log the language being used for assertion detection
-            logger.info(
-                "Using language '%s' for assertion detection",
-                _sanitize(assertion_language),
-            )
-
-            # Create the assertion detector with the specified language
-            assertion_detector = CombinedAssertionDetector(
-                language=assertion_language, preference=query_assertion_preference
-            )
-
-            # Detect assertion status
-            original_query_assertion_status, details = assertion_detector.detect(text)
+            original_query_assertion_status = AssertionStatus.AFFIRMED
+            for assertion_language in assertion_languages:
+                logger.info(
+                    "Using language '%s' for assertion detection",
+                    _sanitize(assertion_language),
+                )
+                assertion_detector = CombinedAssertionDetector(
+                    language=assertion_language, preference=query_assertion_preference
+                )
+                status, status_details = assertion_detector.detect(text)
+                if status == AssertionStatus.AFFIRMED:
+                    continue
+                # English already ruled on its own words: French "non" must not
+                # re-read the English "non ambulatory" as a negation.
+                if (
+                    not explicit_language
+                    and assertion_language != "en"
+                    and _cues_are_english_words(status_details)
+                ):
+                    continue
+                original_query_assertion_status, details = status, status_details
+                break
 
             logger.info(
                 "Query assertion status detected: %s",
@@ -184,7 +223,9 @@ def execute_hpo_retrieval_for_api(
             original_query_assertion_status = None
     # Process as a single text segment for now (not sentence mode)
     # Could extract sentence mode logic from process_query if needed later
-    segment_to_process = text.strip()
+    segment_to_process = retrieval_text_for_assertion(
+        text, original_query_assertion_status, details
+    )
 
     # Determine query method based on multi_vector flag and index type
     # Multi-vector mode uses aggregation to deduplicate results by HPO ID

@@ -17,13 +17,13 @@ from api.schemas.text_processing_schemas import (
 from api.services.text_processing_context import (
     get_chunking_config_for_api,
     prepare_standard_text_processing_context,
+    resolve_text_language,
     validate_model_name,
 )
 from phentrieve.assertion_vocab import is_excluded
 from phentrieve.config import (
     DEFAULT_ASSERTION_CONFIG,
     DEFAULT_CHUNK_RETRIEVAL_THRESHOLD,
-    DEFAULT_LANGUAGE,
     DEFAULT_MIN_CONFIDENCE_AGGREGATED,
     DEFAULT_MODEL,
 )
@@ -32,7 +32,10 @@ from phentrieve.llm.security_policy import resolve_public_llm_target
 from phentrieve.retrieval.adaptive_rechunker import (
     adaptive_config_from_profile_block,
 )
-from phentrieve.text_processing.full_text_service import run_full_text_service
+from phentrieve.text_processing.full_text_service import (
+    LLMCancelToken,
+    run_full_text_service,
+)
 
 # anyio's Semaphore binds to the running loop lazily, so module level is safe.
 inference_slots = anyio.Semaphore(PHENTRIEVE_MAX_CONCURRENT_INFERENCE)
@@ -318,10 +321,11 @@ async def execute_standard_text_processing(
 
 async def execute_llm_text_processing(
     request: TextProcessingRequest,
+    cancel_event: LLMCancelToken | None = None,
 ) -> TextProcessingResponseAPI:
     """Execute the shared full-text service for the public LLM backend."""
     target = resolve_public_llm_target()
-    actual_language = request.language or DEFAULT_LANGUAGE
+    actual_language = await resolve_text_language(request)
     retrieval_model_name_to_load = validate_model_name(
         "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
     )
@@ -349,6 +353,7 @@ async def execute_llm_text_processing(
         "retrieval_model_name": retrieval_model_name_to_load,
         "retriever": retriever,
         "sbert_model_for_semantic_chunking": retriever.model,
+        "cancel_event": cancel_event,
     }
 
     service_result = await _run_full_text_service_limited(**service_kwargs)
@@ -357,10 +362,11 @@ async def execute_llm_text_processing(
 
 async def process_text_via_shared_service(
     request: TextProcessingRequest,
+    cancel_event: LLMCancelToken | None = None,
 ) -> TextProcessingResponseAPI:
     """Process text through the shared full-text service for all API requests."""
     if request.extraction_backend == "standard":
         context = await prepare_standard_text_processing_context(request)
         return await execute_standard_text_processing(context, request)
 
-    return await execute_llm_text_processing(request)
+    return await execute_llm_text_processing(request, cancel_event)

@@ -1,7 +1,12 @@
 <template>
-  <v-app theme="light" class="app-container">
-    <AccountButton />
-    <v-main class="bg-grey-lighten-4 main-container">
+  <v-app class="app-container">
+    <!-- Top-right actions; below the case workspace drawer (1500) so it never
+         covers the drawer's close button -->
+    <div class="top-actions d-flex align-center">
+      <ThemeToggle />
+      <AccountButton />
+    </div>
+    <v-main class="bg-background main-container">
       <router-view v-slot="{ Component }">
         <component :is="Component" />
       </router-view>
@@ -14,7 +19,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.disclaimerTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.disclaimerTooltip') }"
+          :aria-label="$t('app.footer.disclaimerTooltip')"
         >
           <template #activator="{ props }">
             <div class="d-flex align-center">
@@ -38,11 +43,11 @@
                     date: disclaimerStore.formattedAcknowledgmentDate,
                   })
                 "
-                :content-props="{
-                  'aria-label': $t('app.footer.disclaimerAcknowledgedTooltip', {
+                :aria-label="
+                  $t('app.footer.disclaimerAcknowledgedTooltip', {
                     date: disclaimerStore.formattedAcknowledgmentDate,
-                  }),
-                }"
+                  })
+                "
               >
                 <template #activator="{ props: acknowledgedProps }">
                   <v-icon
@@ -68,7 +73,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.tutorialTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.tutorialTooltip') }"
+          :aria-label="$t('app.footer.tutorialTooltip')"
         >
           <template #activator="{ props }">
             <v-btn
@@ -88,7 +93,7 @@
         <v-tooltip
           location="top"
           :text="$t('app.footer.faqTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.faqTooltip') }"
+          :aria-label="$t('app.footer.faqTooltip')"
         >
           <template #activator="{ props }">
             <v-btn
@@ -105,131 +110,161 @@
             </v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.logsTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.logsTooltip') }"
-        >
+        <div class="d-none d-sm-flex align-center">
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.logsTooltip')"
+            :aria-label="$t('app.footer.logsTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                color="primary"
+                size="small"
+                class="mr-2"
+                aria-label="Toggle log viewer"
+                @click="logStore.toggleViewer"
+              >
+                <v-icon>mdi-text-box-search-outline</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.githubTooltip')"
+            :aria-label="$t('app.footer.githubTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-github"
+                size="small"
+                :href="GITHUB_REPO_URL"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                color="primary"
+                aria-label="View Phentrieve project on GitHub"
+                class="mr-1"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.docsTooltip')"
+            :aria-label="$t('app.footer.docsTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-book-open-page-variant-outline"
+                size="small"
+                href="https://berntpopp.github.io/phentrieve/"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                color="primary"
+                aria-label="View project documentation"
+                class="mr-1"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.licenseTooltip')"
+            :aria-label="$t('app.footer.licenseTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-license"
+                size="small"
+                :href="`${GITHUB_REPO_URL}/blob/main/LICENSE`"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                color="primary"
+                aria-label="View project license"
+                class="mr-1"
+              />
+            </template>
+          </v-tooltip>
+          <!-- Developer integrations: live OpenAPI docs + AI agent (MCP) guide -->
+          <v-divider vertical class="mx-1" />
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.apiTooltip')"
+            :aria-label="$t('app.footer.apiTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-api"
+                size="small"
+                :href="apiDocsUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="text"
+                color="primary"
+                aria-label="Open the API documentation (OpenAPI)"
+                class="mr-1"
+              />
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            location="top"
+            :text="$t('app.footer.mcpTooltip')"
+            :aria-label="$t('app.footer.mcpTooltip')"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-robot-outline"
+                size="small"
+                :to="{ name: 'connect' }"
+                variant="text"
+                color="primary"
+                aria-label="Connect an AI agent via MCP"
+                class="mr-1"
+              />
+            </template>
+          </v-tooltip>
+        </div>
+        <!-- Phones: secondary links collapse into one menu so the footer never overflows -->
+        <v-menu location="top end">
           <template #activator="{ props }">
             <v-btn
               v-bind="props"
-              icon
+              class="d-sm-none mr-1"
+              icon="mdi-dots-horizontal"
               variant="text"
               color="primary"
               size="small"
-              class="mr-2"
-              aria-label="Toggle log viewer"
+              :aria-label="$t('app.footer.more')"
+            />
+          </template>
+          <v-list density="compact">
+            <v-list-item
+              prepend-icon="mdi-text-box-search-outline"
+              :title="$t('app.footer.logsTooltip')"
               @click="logStore.toggleViewer"
-            >
-              <v-icon>mdi-text-box-search-outline</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.githubTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.githubTooltip') }"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-github"
-              size="small"
-              :href="GITHUB_REPO_URL"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              color="primary"
-              aria-label="View Phentrieve project on GitHub"
-              class="mr-1"
             />
-          </template>
-        </v-tooltip>
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.docsTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.docsTooltip') }"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-book-open-page-variant-outline"
-              size="small"
-              href="https://berntpopp.github.io/phentrieve/"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              color="primary"
-              aria-label="View project documentation"
-              class="mr-1"
+            <v-list-item
+              v-for="link in footerLinks"
+              :key="link.icon"
+              :prepend-icon="link.icon"
+              :title="$t(link.label)"
+              v-bind="
+                link.to
+                  ? { to: link.to }
+                  : { href: link.href, target: '_blank', rel: 'noopener noreferrer' }
+              "
             />
-          </template>
-        </v-tooltip>
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.licenseTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.licenseTooltip') }"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-license"
-              size="small"
-              :href="`${GITHUB_REPO_URL}/blob/main/LICENSE`"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              color="primary"
-              aria-label="View project license"
-              class="mr-1"
-            />
-          </template>
-        </v-tooltip>
-        <!-- Developer integrations: live OpenAPI docs + AI agent (MCP) guide -->
-        <v-divider vertical class="mx-1" />
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.apiTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.apiTooltip') }"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-api"
-              size="small"
-              :href="apiDocsUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              color="primary"
-              aria-label="Open the API documentation (OpenAPI)"
-              class="mr-1"
-            />
-          </template>
-        </v-tooltip>
-        <v-tooltip
-          location="top"
-          :text="$t('app.footer.mcpTooltip')"
-          :content-props="{ 'aria-label': $t('app.footer.mcpTooltip') }"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon="mdi-robot-outline"
-              size="small"
-              :to="{ name: 'connect' }"
-              variant="text"
-              color="primary"
-              aria-label="Connect an AI agent via MCP"
-              class="mr-1"
-            />
-          </template>
-        </v-tooltip>
-        <v-tooltip
-          location="top"
-          text="Version & API Status"
-          :content-props="{ 'aria-label': 'Version & API Status' }"
-        >
+          </v-list>
+        </v-menu>
+        <v-tooltip location="top" text="Version & API Status" aria-label="Version & API Status">
           <template #activator="{ props }">
             <v-btn
               v-bind="props"
@@ -348,6 +383,7 @@ import { useVersionCheck } from './composables/useVersionCheck';
 import DisclaimerDialog from './components/DisclaimerDialog.vue';
 import LogViewer from './components/LogViewer.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
+import ThemeToggle from './components/ThemeToggle.vue';
 import TutorialOverlay from './components/TutorialOverlay.vue';
 import ConversationSettings from './components/ConversationSettings.vue';
 import AccountButton from './components/auth/AccountButton.vue';
@@ -359,6 +395,7 @@ export default {
     DisclaimerDialog,
     LogViewer,
     LanguageSwitcher,
+    ThemeToggle,
     TutorialOverlay,
     ConversationSettings,
     AccountButton,
@@ -413,6 +450,23 @@ export default {
     },
     // Live OpenAPI (Swagger UI) docs URL, derived from the configured API base
     // (relative '/api/v1' in deployed setups, absolute in local dev).
+    footerLinks() {
+      return [
+        { icon: 'mdi-github', label: 'app.footer.githubTooltip', href: GITHUB_REPO_URL },
+        {
+          icon: 'mdi-book-open-page-variant-outline',
+          label: 'app.footer.docsTooltip',
+          href: 'https://berntpopp.github.io/phentrieve/',
+        },
+        {
+          icon: 'mdi-license',
+          label: 'app.footer.licenseTooltip',
+          href: `${GITHUB_REPO_URL}/blob/main/LICENSE`,
+        },
+        { icon: 'mdi-api', label: 'app.footer.apiTooltip', href: this.apiDocsUrl },
+        { icon: 'mdi-robot-outline', label: 'app.footer.mcpTooltip', to: { name: 'connect' } },
+      ];
+    },
     apiDocsUrl() {
       return `${API_URL.replace(/\/+$/, '')}/docs`;
     },
@@ -632,4 +686,12 @@ body {
 
 <style>
 /* Global styles */
+
+.top-actions {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 1400;
+  gap: 4px;
+}
 </style>

@@ -61,6 +61,7 @@ function clearAutoSubmitQueryParamIfNeeded(route, router, isAutoSubmit, logServi
  *   retrievalModelForTextProcess, chunkRetrievalThreshold, numResultsPerChunk,
  *   noAssertionDetectionForTextProcess, assertionPreferenceForTextProcess,
  *   aggregatedTermConfidence, topTermPerChunkForAggregation.
+ *   Optional: uiLocale (ref of the UI locale, used for PII rules).
  * @param {Object} options.conversationStore - Conversation Pinia store.
  * @param {Object} options.piiReviewFlow - usePiiReviewFlow() instance.
  * @param {Object} options.route - Current route location (reads `query`).
@@ -80,6 +81,7 @@ export function useQueryInterfaceController({
   logService,
 }) {
   let hasAppliedInitialUrlParameters = false;
+  let activeRequest = null;
 
   function setFallbackModel() {
     state.availableModels.value = [
@@ -225,6 +227,10 @@ export function useQueryInterfaceController({
       state.queryText.value = '';
     }
 
+    const abortController = new AbortController();
+    activeRequest = abortController;
+    const requestOptions = { signal: abortController.signal };
+
     try {
       let response;
       const textProcessOptions = state.textProcessOptions.value;
@@ -262,7 +268,7 @@ export function useQueryInterfaceController({
           includeDetails: state.includeDetails.value,
         };
         logService.info('Submitting text request', sanitizedLog);
-        response = await service.processText(textProcessPayload);
+        response = await service.processText(textProcessPayload, requestOptions);
       } else {
         const queryPayload = {
           text: currentQuery,
@@ -275,14 +281,26 @@ export function useQueryInterfaceController({
           include_details: state.includeDetails.value,
         };
         logService.info('Submitting text request', sanitizedLog);
-        response = await service.queryHpo(queryPayload);
+        response = await service.queryHpo(queryPayload, requestOptions);
       }
 
       conversationStore.updateQueryResponse(queryId, response);
     } catch (error) {
-      conversationStore.updateQueryResponse(queryId, null, error);
-      logService.error('Error submitting query/processing text', error);
+      if (error?.type === 'CANCELED') {
+        // A cancelled request leaves no error turn behind
+        const history = conversationStore.queryHistory;
+        const index = history.findIndex((item) => item.id === queryId);
+        if (index !== -1) history.splice(index, 1);
+      } else {
+        conversationStore.updateQueryResponse(queryId, null, error);
+        logService.error('Error submitting query/processing text', error);
+      }
+      // Give the text back on failure so a pasted note is not lost (unless the user typed anew)
+      if (!isAutoSubmit && !state.queryText.value) {
+        state.queryText.value = currentQuery;
+      }
     } finally {
+      if (activeRequest === abortController) activeRequest = null;
       state.isLoading.value = false;
       clearAutoSubmitQueryParamIfNeeded(route, router, isAutoSubmit, logService);
     }
@@ -300,7 +318,8 @@ export function useQueryInterfaceController({
     const useTextProcessMode = state.isTextProcessModeActive.value;
     const piiReviewResult = piiReviewFlow.scanSubmissionForPii({
       text: queryTextTrimmed,
-      locale: state.selectedLanguage.value || 'en',
+      // Query language may be auto-detected server-side; the UI locale picks PII rules
+      locale: state.selectedLanguage.value || state.uiLocale?.value || 'en',
       useTextProcessMode,
       isAutoSubmit,
     });
@@ -317,6 +336,10 @@ export function useQueryInterfaceController({
       piiScanResult: piiReviewResult.scanResult,
       redactionApplied: false,
     });
+  }
+
+  function cancelQuery() {
+    activeRequest?.abort();
   }
 
   async function continueWithPiiRedaction() {
@@ -338,6 +361,7 @@ export function useQueryInterfaceController({
     setFallbackModel,
     applyUrlParametersAndAutoSubmit,
     submitQuery,
+    cancelQuery,
     continueWithPiiRedaction,
     redactPiiInInput,
   };

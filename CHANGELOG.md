@@ -18,6 +18,17 @@ together:
 
 ## [Unreleased]
 
+## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
+
+LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
+findings, temporality), evidence offsets computed in code, bounded and capped phase-1
+retries, REST LLM-error fallback, non-blocking `/query`, bundle integrity checks, and a
+batch of API, retrieval and frontend fixes from the 2026-10-27 review.
+
+Behaviour changes: `GET /api/v1/health/` returns `"status": "healthy"` (was `"ok"`);
+Chroma query failures raise instead of returning empty results;
+`PROMPT_BEHAVIOR_VERSION` is `5`, so earlier LLM benchmark checkpoints do not match.
+
 ### Changed
 
 - **The API LLM text path reuses the cached dense retriever** (#420) and its
@@ -259,27 +270,6 @@ together:
   as on MCP: the request reruns on the standard backend with
   `meta.fallback_reason = "llm_backend_error"` instead of returning a 500, and
   the failed LLM attempt's quota reservation is released.
-- **Other-person findings are fully accounted for** (#401). The LLM benchmark
-  assertion distribution counts `other_person_findings` next to the family
-  count, and the other-person resolution path records phase timings, the
-  phase-2b LLM trace, `local_fallbacks` and `llm_mapped_phrases` under
-  `other_person_*` keys through the same helper as the family path. The dead
-  span-overlap guard and bounds merge in phase-1 deduplication are removed
-  (phase-1 items carry no offsets until after deduplication).
-- **A truncated phase-1 group is no longer dropped silently** (#395). A
-  `grouped_small` group (the last fallback level) that truncates at its scaled
-  output budget is retried once at a fixed 65,536-token ceiling
-  (`DEFAULT_GROUNDED_PHASE1_TRUNCATION_RETRY_OUTPUT_TOKENS`); first attempts
-  keep the scaled budget, so runaway generations are still cut early. At most
-  two such retries run per request
-  (`DEFAULT_GROUNDED_PHASE1_MAX_TRUNCATION_RETRIES`), so a model that runs away
-  in every group of a long note cannot cost one ceiling call per group. A group
-  that still fails is counted in `phase1_unrecovered_groups`, and REST
-  responses (`meta`) and the MCP `phentrieve_extract_hpo_terms_llm` tool
-  (`_meta`) then carry `incomplete: true` with a short `incomplete_reason`.
-  Retries are traced per group (`truncation_retry`) and counted in
-  `phase1_truncation_retries`. The frontend does not display the flag yet.
-
 ### Removed
 
 - **`scripts/validate_config_sync.py` and `make config-validate`** (#426). The
@@ -288,16 +278,6 @@ together:
   `tests/unit/profiles/test_frontend_constant_parity.py` covers the same parity.
   `AdvancedOptionsPanel.vue` now takes its prop defaults from
   `constants/defaults.js`, fixing its `similarityThreshold` default (0.5 vs 0.3).
-
-### Deprecated
-
-- **No-op `phentrieve text process` options** (#414).
-  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
-  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
-  `--help` and print a deprecation warning when passed; they will be removed in
-  a future release.
-
-### Removed
 
 - **Unused evaluation code** (#414). Deleted the unreferenced
   `phentrieve.evaluation` modules `assertion_metrics`, `document_aggregation`,
@@ -311,6 +291,70 @@ together:
   `llm.types.LLMTermsResult`, `details_enrichment.DatabaseNotFoundError`, and the
   unused `TwoPhaseLLMPipeline._resolve_local_matches`, `_optional_float` and
   `_select_candidate_id` wrappers.
+
+### Deprecated
+
+- **No-op `phentrieve text process` options** (#414).
+  `--cross-language-hpo-retrieval`/`--xlhpo`, `--use-cached-index` and
+  `--chunk-confidence`/`-cc` never had an effect. They are now hidden from
+  `--help` and print a deprecation warning when passed; they will be removed in
+  a future release.
+
+## [0.29.1] — 2026-10-28 (CLI 0.29.1 / API 0.19.0 / Frontend 0.19.1)
+
+Case workspace labels follow the UI language.
+
+### Fixed
+
+- **The case workspace drawer's title and labels are translated through the
+  locale files.** They came from a hard-coded per-language table (German spelled
+  without umlauts, e.g. "oeffnen") that overrode the "HPO collection" strings.
+  "Case workspace" now names the drawer in all five languages; "collection"
+  stays for the phenotype list inside it.
+
+## [0.29.0] — 2026-10-28 (CLI 0.29.0 / API 0.19.0 / Frontend 0.19.0)
+
+UI/UX review: correct negated queries, cancellable requests, dark mode, a
+faster frontend and research-only copy in all five languages.
+
+### Fixed
+
+- **Negated queries find the right term.** "no seizures" embedded the cue and
+  ranked absence seizure first, with Seizure outside the top 10. Negated queries
+  now retrieve on the negated concept and stay marked negated (API and CLI).
+- **German negation in an English UI** was read as affirmed, because the UI
+  language was sent as the query language. Queries now default to auto-detect;
+  for short queries, assertion detection tries all five languages. Hyphenated
+  compounds ("non-progressive ataxia", "no-reflow") are no longer negations.
+- **Negated (amber) and manually edited (violet) note highlights** never
+  rendered: a base `mark` selector outranked them.
+- **Search spinner** was dimmed to 26% and invisible in dark mode.
+- Interrupted requests restored after a reload no longer spin forever; failed
+  full-text submits restore the note; unknown routes redirect home;
+  `<html lang>` follows the UI language; accessibility fixes (tooltip labels,
+  FAQ ARIA roles, WCAG AA status colours).
+
+### Added
+
+- **Dark mode** following the system setting, with a light/dark/system toggle
+  next to sign-in.
+- **Cancel and timeouts:** requests time out (60 s query, 120 s full text) and
+  can be cancelled. The API stops starting paid LLM calls when the client
+  disconnects; a cancel before any LLM call is refunded, after one it counts
+  like a timeout.
+- "Add all" asks for a confirming click; "Copy present HPO IDs"; two-step clear;
+  logo tooltip for starting over.
+- The LLM full-text path auto-detects the text language instead of assuming
+  English.
+
+### Changed
+
+- **Frontend icons are inline SVG** (`@mdi/js`) instead of the icon font: page
+  weight 750 -> 364 KiB, mobile Lighthouse performance 68 -> 84.
+- **Research-only wording in every language**, including the page title and
+  search description; no diagnostic claims. English is sentence case with
+  actionable error messages; de/es/fr/nl were reviewed against the official HPO
+  translations and caught up with the research-use rewrite (#245).
 
 ## [0.28.7] — 2026-10-27 (CLI 0.28.7 / API 0.18.7 / Frontend 0.18.4)
 

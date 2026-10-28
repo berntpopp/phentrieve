@@ -37,8 +37,8 @@
             Connect an AI Agent (MCP)
           </h1>
           <p class="text-h6 text-medium-emphasis">
-            Map clinical text to HPO terms from Claude, ChatGPT, and coding agents over the Model
-            Context Protocol
+            Map research phenotype text to HPO terms from Claude, ChatGPT, and coding agents over
+            the Model Context Protocol
           </p>
         </div>
 

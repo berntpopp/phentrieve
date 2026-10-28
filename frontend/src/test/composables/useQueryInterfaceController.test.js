@@ -125,7 +125,8 @@ describe('useQueryInterfaceController', () => {
     await vi.advanceTimersByTimeAsync(300);
     expect(service.queryHpo).toHaveBeenCalledTimes(1);
     expect(service.queryHpo).toHaveBeenCalledWith(
-      expect.objectContaining({ text: 'Seizures', similarity_threshold: 0.8 })
+      expect.objectContaining({ text: 'Seizures', similarity_threshold: 0.8 }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
     // Auto-submit keeps the query text in the input.
     expect(state.queryText.value).toBe('Seizures');
@@ -137,16 +138,19 @@ describe('useQueryInterfaceController', () => {
 
     await controller.submitQuery();
 
-    expect(service.queryHpo).toHaveBeenCalledWith({
-      text: 'Seizures',
-      model_name: 'm',
-      language: 'en',
-      num_results: 10,
-      similarity_threshold: 0.3,
-      query_assertion_language: 'en',
-      detect_query_assertion: true,
-      include_details: false,
-    });
+    expect(service.queryHpo).toHaveBeenCalledWith(
+      {
+        text: 'Seizures',
+        model_name: 'm',
+        language: 'en',
+        num_results: 10,
+        similarity_threshold: 0.3,
+        query_assertion_language: 'en',
+        detect_query_assertion: true,
+        include_details: false,
+      },
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    );
     expect(conversationStore.updateQueryResponse).toHaveBeenCalledWith('turn-1', {
       results: [],
     });
@@ -174,9 +178,59 @@ describe('useQueryInterfaceController', () => {
         semanticModelForChunking: 'm',
         retrievalModelForTextProcess: 'm',
         windowSize: 3,
-      })
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
     expect(state.expandedUserNotes.value).toEqual({ 'turn-1': true });
+  });
+
+  it('cancelQuery drops the pending turn and gives the text back', async () => {
+    const state = createState({ queryText: ref('Seizures'), selectedModel: ref('m') });
+    const { controller, service, conversationStore } = createController({ state });
+    conversationStore.queryHistory = [{ id: 'turn-1' }];
+    service.queryHpo.mockImplementation(
+      (_payload, { signal }) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener('abort', () => reject({ type: 'CANCELED' }));
+        })
+    );
+
+    const pending = controller.submitQuery();
+    expect(state.queryText.value).toBe('');
+    controller.cancelQuery();
+    await pending;
+
+    expect(conversationStore.queryHistory).toEqual([]);
+    expect(conversationStore.updateQueryResponse).not.toHaveBeenCalled();
+    expect(state.queryText.value).toBe('Seizures');
+    expect(state.isLoading.value).toBe(false);
+  });
+
+  it('records a failed request and gives the text back', async () => {
+    const state = createState({ queryText: ref('Seizures'), selectedModel: ref('m') });
+    const { controller, service, conversationStore } = createController({ state });
+    const error = new Error('boom');
+    service.queryHpo.mockRejectedValue(error);
+
+    await controller.submitQuery();
+
+    expect(conversationStore.updateQueryResponse).toHaveBeenCalledWith('turn-1', null, error);
+    expect(state.queryText.value).toBe('Seizures');
+  });
+
+  it('uses the UI locale for PII rules when the query language is auto-detected', async () => {
+    const state = createState({
+      queryText: ref('Seizures'),
+      selectedLanguage: ref(null),
+      uiLocale: ref('de'),
+    });
+    const { controller, piiReviewFlow } = createController({ state });
+
+    await controller.submitQuery();
+
+    expect(piiReviewFlow.scanSubmissionForPii).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: 'de' })
+    );
   });
 
   it('stops for PII review and clears autoSubmit from the URL', async () => {

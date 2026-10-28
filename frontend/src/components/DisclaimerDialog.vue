@@ -56,7 +56,6 @@
           variant="elevated"
           :loading="loading"
           :disabled="loading"
-          aria-label="Accept disclaimer and continue to application"
           @click="acknowledgeDisclaimer"
         >
           {{ $t('disclaimerDialog.acceptButton') }}

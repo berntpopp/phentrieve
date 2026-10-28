@@ -100,10 +100,10 @@ function phenotypeSummaryLabel(count) {
 }
 
 .case-summary {
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 12px;
   padding: 12px;
-  background: rgba(248, 250, 252, 0.9);
+  background: rgba(var(--v-theme-on-surface), 0.03);
 }
 
 .case-actions {
@@ -113,13 +113,13 @@ function phenotypeSummaryLabel(count) {
 }
 
 .case-preview {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   padding-top: 12px;
 }
 
 .case-preview__item {
   padding: 8px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
 }
 
 .case-preview__item:last-child {

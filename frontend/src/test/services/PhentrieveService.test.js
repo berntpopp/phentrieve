@@ -51,6 +51,24 @@ describe('PhentrieveService', () => {
     );
   });
 
+  it('sets a request timeout and maps timeouts and cancels to distinct errors', async () => {
+    const controller = new AbortController();
+    axios.post.mockRejectedValueOnce({ isAxiosError: true, code: 'ECONNABORTED' });
+    await expect(
+      PhentrieveService.processText({ text: 'note' }, { signal: controller.signal })
+    ).rejects.toMatchObject({ type: 'TIMEOUT', userMessageKey: 'errors.api.timeout' });
+    expect(axios.post.mock.calls[0][2]).toMatchObject({
+      timeout: 120000,
+      signal: controller.signal,
+    });
+
+    axios.post.mockRejectedValueOnce({ isAxiosError: true, code: 'ERR_CANCELED' });
+    await expect(PhentrieveService.queryHpo({ text: 'q' })).rejects.toMatchObject({
+      type: 'CANCELED',
+    });
+    expect(axios.post.mock.calls[1][2].timeout).toBe(60000);
+  });
+
   it('sends extraction_backend=llm in text process requests', async () => {
     axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'llm' } } });
 
@@ -142,6 +160,23 @@ describe('PhentrieveService', () => {
         llmMode: 'two_phase',
       })
     ).rejects.not.toHaveProperty('originalErrorDetails.apiResponseData');
+  });
+
+  it('points LLM 503 failures at the Standard backend instead of "try again later"', async () => {
+    axios.post.mockRejectedValue({
+      isAxiosError: true,
+      message: 'Request failed with status code 503',
+      response: { status: 503, data: { detail: 'Unable to evaluate LLM quota state.' } },
+    });
+
+    await expect(
+      PhentrieveService.processText({
+        text: 'Patient had recurrent seizures.',
+        extractionBackend: 'llm',
+        llmModel: 'gpt-5.4-mini',
+        llmMode: 'two_phase',
+      })
+    ).rejects.toMatchObject({ status: 503, userMessageKey: 'errors.api.llmUnavailable' });
   });
 
   it('keeps generic handling for llm 429 responses without quota fields', async () => {

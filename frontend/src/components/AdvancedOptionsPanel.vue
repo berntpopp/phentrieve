@@ -8,7 +8,7 @@
       class="mt-2 pa-3"
       role="region"
       :aria-label="$t('queryInterface.accessibility.advancedOptionsRegion')"
-      color="white"
+      color="surface"
       style="font-size: 0.8rem"
     >
       <div class="text-subtitle-2 mb-2 px-1 font-weight-medium">
@@ -20,7 +20,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.embeddingModel')"
-            :content-props="{ 'aria-label': $t('queryInterface.tooltips.embeddingModel') }"
+            :aria-label="$t('queryInterface.tooltips.embeddingModel')"
           >
             <template #activator="{ props }">
               <v-select
@@ -34,7 +34,7 @@
                 density="compact"
                 :aria-label="$t('queryInterface.accessibility.selectEmbeddingModel')"
                 :aria-description="getEmbeddingModelDescription()"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:selectedModel', $event)"
@@ -53,9 +53,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.similarityThreshold')"
-            :content-props="{
-              'aria-label': $t('queryInterface.tooltips.similarityThreshold'),
-            }"
+            :aria-label="$t('queryInterface.tooltips.similarityThreshold')"
           >
             <template #activator="{ props }">
               <div>
@@ -95,7 +93,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.language')"
-            :content-props="{ 'aria-label': $t('queryInterface.tooltips.language') }"
+            :aria-label="$t('queryInterface.tooltips.language')"
           >
             <template #activator="{ props }">
               <v-select
@@ -109,7 +107,7 @@
                 density="compact"
                 :aria-label="$t('queryInterface.accessibility.selectQueryLanguage')"
                 :aria-description="getQueryLanguageDescription()"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:selectedLanguage', $event)"
@@ -128,7 +126,7 @@
           <v-tooltip
             location="bottom"
             :text="$t('queryInterface.tooltips.includeDetails')"
-            :content-props="{ 'aria-label': $t('queryInterface.tooltips.includeDetails') }"
+            :aria-label="$t('queryInterface.tooltips.includeDetails')"
           >
             <template #activator="{ props }">
               <v-switch
@@ -171,7 +169,7 @@
             variant="outlined"
             density="compact"
             :disabled="disabled"
-            bg-color="white"
+            bg-color="surface"
             color="primary"
             hide-details
             @update:model-value="$emit('update:forceEndpointMode', $event)"
@@ -206,7 +204,7 @@
               item-value="value"
               variant="outlined"
               density="compact"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               hide-details
               @update:model-value="
@@ -233,7 +231,7 @@
               :model-value="resolvedTextProcessOptions.llmModel"
               variant="outlined"
               density="compact"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               hide-details
               @update:model-value="
@@ -266,7 +264,7 @@
               item-value="value"
               variant="outlined"
               density="compact"
-              bg-color="white"
+              bg-color="surface"
               color="primary"
               hide-details
               @update:model-value="
@@ -308,7 +306,7 @@
                 ]"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:chunkingStrategy', $event)"
@@ -327,7 +325,7 @@
                 min="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:windowSize', Number($event))"
@@ -349,7 +347,7 @@
                 min="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:stepSize', Number($event))"
@@ -370,7 +368,7 @@
                 max="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:chunkRetrievalThreshold', Number($event))"
@@ -394,7 +392,7 @@
                 max="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:aggregatedTermConfidence', Number($event))"
@@ -436,7 +434,7 @@
                 max="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:splitThreshold', Number($event))"
@@ -455,7 +453,7 @@
                 min="1"
                 variant="outlined"
                 density="compact"
-                bg-color="white"
+                bg-color="surface"
                 color="primary"
                 hide-details
                 @update:model-value="$emit('update:minSegmentLength', Number($event))"

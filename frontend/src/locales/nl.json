@@ -15,19 +15,20 @@
     "historyHint": "Lagere waarden verbeteren de prestaties. Hogere waarden behouden meer geschiedenis.",
     "stats": "Huidige statistieken",
     "totalQueries": "Totaal aantal zoekopdrachten",
-    "totalPhenotypes": "Verzamelde fenotypes",
+    "totalPhenotypes": "Verzamelde fenotypen",
     "storageUsed": "Gebruikte opslag",
     "clearAll": "Alles wissen",
     "close": "Sluiten",
     "confirmClearTitle": "Alle gegevens wissen?",
-    "confirmClearMessage": "Dit zal permanent alle gespreksgeschiedenis en verzamelde fenotypes verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+    "confirmClearMessage": "Hiermee worden de volledige gespreksgeschiedenis en alle verzamelde fenotypen definitief verwijderd. Dit kan niet ongedaan worden gemaakt."
   },
   "home": {
-    "logoAlt": "Phentrieve Logo - Klik om te resetten",
+    "logoAlt": "Phentrieve-logo - applicatie resetten",
     "resetAriaLabel": "Gesprek resetten",
     "resetTitle": "Applicatie resetten?",
-    "resetMessage": "Dit zal alle gespreksgeschiedenis en verzamelde fenotypes wissen. Uw disclaimer-bevestiging blijft behouden.",
-    "resetConfirm": "Resetten"
+    "resetMessage": "Hiermee worden de volledige gespreksgeschiedenis en alle verzamelde fenotypen gewist. Uw akkoord met de disclaimer blijft behouden.",
+    "resetConfirm": "Resetten",
+    "resetTooltip": "Opnieuw beginnen: gesprek en verzamelde fenotypen wissen"
   },
   "models": {
     "biolord": "BioLORD 2023-M"
@@ -36,7 +37,7 @@
     "footer": {
       "disclaimer": "Disclaimer",
       "disclaimerTooltip": "Bekijk belangrijke disclaimer- en gebruiksinformatie",
-      "disclaimerAcknowledgedTooltip": "Erkend op {date}",
+      "disclaimerAcknowledgedTooltip": "Geaccepteerd op {date}",
       "tutorial": "Tutorial",
       "tutorialTooltip": "Begeleide rondleiding door Phentrieve",
       "faq": "FAQ",
@@ -49,18 +50,24 @@
       "licenseTooltip": "Bekijk projectlicentie",
       "apiTooltip": "API-documentatie openen (OpenAPI)",
       "mcpTooltip": "Een AI-agent verbinden (MCP)",
-      "homeTooltip": "Ga naar startpagina"
+      "homeTooltip": "Ga naar startpagina",
+      "theme": {
+        "system": "Thema: volgt systeem. Klik voor licht",
+        "light": "Thema: licht. Klik voor donker",
+        "dark": "Thema: donker. Klik om systeem te volgen"
+      },
+      "more": "Meer links"
     }
   },
   "disclaimerDialog": {
-    "title": "Disclaimer voor Onderzoeksgebruik",
+    "title": "Disclaimer voor onderzoeksgebruik",
     "mainHeader": "Phentrieve is alleen bedoeld voor onderzoeks- en informatiedoeleinden.",
-    "description": "Deze tool is ontworpen om klinische tekst te koppelen aan gestandaardiseerde Human Phenotype Ontology (HPO) termen om onderzoek en kennisontdekking te ondersteunen.",
-    "limitationsTitle": "Belangrijke Beperkingen:",
+    "description": "Deze tool is ontworpen om onderzoekstekst te koppelen aan gestandaardiseerde Human Phenotype Ontology (HPO)-termen ter ondersteuning van onderzoek en kennisontdekking.",
+    "limitationsTitle": "Belangrijke beperkingen:",
     "limitations": {
-      "item1": "Phentrieve is  GEEN  klinisch diagnostisch hulpmiddel en mag professioneel medisch advies, diagnose of behandeling niet vervangen.",
+      "item1": "Phentrieve is GEEN klinisch diagnostisch hulpmiddel en mag professioneel medisch advies, diagnose of behandeling niet vervangen.",
       "item2": "De AI-modellen en HPO-mapping kunnen onnauwkeurigheden, fouten of beperkingen bevatten.",
-      "item3": "Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze in een klinische context worden gebruikt.",
+      "item3": "Resultaten vereisen een onafhankelijke controle vóór elk verder gebruik en mogen niet worden gebruikt voor klinische besluitvorming.",
       "item4": "De tool creëert geen arts-patiëntrelatie en is geen vervanging voor het raadplegen van zorgverleners."
     },
     "responsibilityTitle": "Gebruikersverantwoordelijkheid:",
@@ -69,22 +76,22 @@
   },
   "queryInterface": {
     "title": "Phentrieve",
-    "subtitle": "HPO-termmapping voor klinische fenotypebeschrijvingen",
-    "welcomeText": "Phentrieve is een door AI aangedreven tool die klinische tekst nauwkeurig koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen, waardoor fenotype-annotatie voor onderzoek en diagnostiek wordt gestroomlijnd.",
-    "queryModeLabel": "Query-modus",
-    "documentModeLabel": "Documentmodus",
+    "subtitle": "HPO-termmapping voor fenotypebeschrijvingen in onderzoek",
+    "welcomeText": "Phentrieve is een door AI aangedreven onderzoekstool die fenotypetekst koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO)-termen, voor annotatie in onderzoek en kennisontdekking.",
+    "queryModeLabel": "Modus zoekopdracht",
+    "documentModeLabel": "Modus volledige tekst",
     "modeSwitch": {
-      "autoFullTextNotice": "Automatisch overgeschakeld naar volledige tekst voor langere klinische tekst"
+      "autoFullTextNotice": "Overgeschakeld naar volledige tekst vanwege langere onderzoekstekst"
     },
-    "inputLabel": "Voer klinische tekstbeschrijving in",
+    "inputLabel": "Voer een onderzoeksbeschrijving in",
     "examples": {
       "title": "Voorbeelden",
       "loadExample": "Voorbeeld laden",
-      "example1": "De patiënt presenteert met kleine gestalte, terugkerende fracturen en blauwe sclerae, wat wijst op osteogenesis imperfecta.",
-      "example2": "Het kind vertoont faciale dysmorfie met hypertelorisme, naar beneden gerichte oogleden en laag geplaatste oren, samen met aangeboren hartafwijkingen en ontwikkelingsachterstand."
+      "example1": "De onderzoeksnotitie beschrijft een kleine lengte, recidiverende fracturen en blauwe sclerae.",
+      "example2": "De onderzoekssamenvatting vermeldt faciale dysmorfie met hypertelorisme, schuin naar beneden lopende ooglidspleten, laag ingeplante oren, aangeboren hartafwijkingen en ontwikkelingsachterstand."
     },
-    "formLabel": "Patiëntinformatie (Optioneel)",
-    "idLabel": "Patiënt-ID",
+    "formLabel": "Metadata van de onderzoeksdeelnemer (optioneel)",
+    "idLabel": "Deelnemer-ID",
     "sexLabel": "Geslacht",
     "dobLabel": "Geboortedatum",
     "sexOptions": {
@@ -100,18 +107,18 @@
     "processingMessage": "Verwerken...",
     "noInputError": "Voer tekst in om te analyseren",
     "copySuccess": "HPO-termen gekopieerd naar klembord",
-    "exportSuccess": "Phenopacket geëxporteerd naar klembord",
+    "exportSuccess": "Phenopacket gekopieerd naar het klembord",
     "error": "Fout: {message}",
     "piiReview": {
-      "title": "Mogelijke identificatoren gedetecteerd",
-      "description": "Phentrieve heeft mogelijke identificatoren gevonden voordat deze tekst wordt verzonden.",
-      "willRedact": "Worden lokaal geredigeerd",
+      "title": "Mogelijke identificerende gegevens gevonden",
+      "description": "Phentrieve heeft mogelijke persoonsgegevens in deze tekst gevonden. Controleer ze voordat u de tekst verzendt.",
+      "willRedact": "Wordt lokaal weggelakt",
       "needsReview": "Moet worden gecontroleerd",
-      "overrideNotice": "Identificatoren met hoge betrouwbaarheid worden lokaal geredigeerd voordat ze worden verzonden. Andere mogelijke identificatoren kunnen blijven staan als u doorgaat.",
-      "safetyAid": "Dit is een veiligheidshulp en kan niet garanderen dat alle persoonsgegevens worden gedetecteerd of dat tekst is gede-identificeerd.",
+      "overrideNotice": "Identificerende gegevens met hoge betrouwbaarheid worden vóór verzending lokaal weggelakt. Andere mogelijke identificerende gegevens kunnen blijven staan als u doorgaat.",
+      "safetyAid": "Dit is een hulpmiddel. Het kan niet garanderen dat alle persoonsgegevens worden herkend of dat de tekst gede-identificeerd is.",
       "cancel": "Tekst controleren",
-      "redact": "Redigeren in tekst",
-      "continue": "Doorgaan met lokale redactie",
+      "redact": "Weglakken in tekst",
+      "continue": "Doorgaan met lokaal weglakken",
       "categories": {
         "email": "E-mail",
         "phone": "Telefoon",
@@ -120,9 +127,9 @@
         "date": "Datum",
         "dob": "Geboortedatum",
         "medical_record": "Medisch dossier",
-        "accession_id": "Accessie-ID",
+        "accession_id": "Accessienummer",
         "sample_id": "Monster-ID",
-        "national_identifier": "Nationale identificator",
+        "national_identifier": "Nationaal identificatienummer",
         "address": "Adres",
         "person_name": "Naam",
         "location": "Locatie",
@@ -130,20 +137,20 @@
       }
     },
     "phenotypeCollection": {
-      "title": "HPO-Verzameling",
-      "close": "HPO-verzamelingspaneel sluiten",
+      "title": "Casuswerkruimte",
+      "close": "Casuswerkruimte sluiten",
       "count": "{count} fenotype(n) verzameld",
       "empty": "Nog geen fenotypen verzameld",
       "instructions": "Klik op de knop naast een HPO-term om deze aan uw verzameling toe te voegen",
-      "subjectInfoHeader": "Patiëntinformatie (Optioneel)",
-      "subjectId": "Patiënt-ID",
+      "subjectInfoHeader": "Deelnemersinformatie (optioneel)",
+      "subjectId": "Deelnemer-ID",
       "sex": "Geslacht",
       "dateOfBirth": "Geboortedatum",
       "exportPhenopacket": "Exporteren als Phenopacket (JSON)",
       "exportText": "Exporteren als tekst",
-      "exportError": "Fout bij het exporteren van het Phenopacket. Zie de console voor details.",
+      "exportError": "Het Phenopacket kon niet worden geëxporteerd. Probeer het opnieuw.",
       "clear": "Verzameling wissen",
-      "assertionToggle": "Bevestigingsstatus omschakelen",
+      "assertionToggle": "Assertiestatus wijzigen",
       "assertionStatus": {
         "affirmed": "Bevestigd",
         "present": "Aanwezig",
@@ -152,28 +159,33 @@
         "unknown": "Onbekend"
       },
       "aria": {
-        "openPanel": "HPO-verzameling panel openen",
-        "panel": "Fenotype-verzameling",
-        "toggleAssertion": "Bevestigingsstatus voor {label} ({id}) wisselen",
+        "openPanel": "Casuswerkruimte openen",
+        "panel": "Casuswerkruimte",
+        "toggleAssertion": "Assertiestatus voor {label} ({id}) wijzigen",
         "removeItem": "{label} ({id}) uit verzameling verwijderen",
-        "subjectId": "Vul subject-ID in voor Phenopacket",
-        "sex": "Selecteer geslacht van subject voor Phenopacket",
-        "dateOfBirth": "Vul geboortedatum van subject in voor Phenopacket",
-        "exportPhenopacket": "Exporteer verzamelde fenotypen als Phenopacket JSON"
-      }
+        "subjectId": "Deelnemer-ID invoeren voor Phenopacket",
+        "sex": "Geslacht van de deelnemer selecteren voor Phenopacket",
+        "dateOfBirth": "Geboortedatum van de deelnemer invoeren voor Phenopacket",
+        "exportPhenopacket": "Verzamelde fenotypen exporteren als Phenopacket-JSON"
+      },
+      "copyIds": "Aanwezige HPO-ID's kopiëren",
+      "copied": "{count} HPO-ID's gekopieerd",
+      "clearConfirm": "Klik nogmaals om alles te wissen",
+      "markExcluded": "Markeren als uitgesloten (afwezig)",
+      "markPresent": "Markeren als aanwezig"
     },
     "advancedOptions": {
       "title": "Geavanceerde opties",
-      "embeddingModel": "Embedding-model",
-      "similarityThreshold": "Overeenkomstdrempel",
+      "embeddingModel": "Embeddingmodel",
+      "similarityThreshold": "Gelijkenisdrempel",
       "includeDetails": "Details opnemen",
       "language": "Taal",
       "processingModeTitle": "Verwerkingsmodus",
       "processingModeLabel": "Verwerkingsmodus",
       "modeAutomatic": "Automatisch (op tekstlengte)",
-      "modeQuery": "Zoekmodus (korte tekst)",
-      "modeTextProcess": "Tekstverwerking (document)",
-      "textProcessingTitle": "Tekstverwerkingsinstellingen",
+      "modeQuery": "Zoekopdracht (korte tekst)",
+      "modeTextProcess": "Volledige tekst (langere tekst)",
+      "textProcessingTitle": "Instellingen voor volledige tekst",
       "extractionBackend": "Extractie-backend",
       "standardExtraction": "Standaardextractie",
       "llmExtraction": "LLM-extractie",
@@ -182,53 +194,69 @@
       "llmModes": {
         "twoPhase": "Extractie in twee fasen"
       },
-      "llmDisclosure": "LLM-extractie kan ingediende tekst verwerken met een externe AI-aanbieder die door de servicebeheerder is geconfigureerd. Gebruik alleen onderzoekstekst; dien geen direct identificerende informatie in.",
+      "llmDisclosure": "LLM-extractie kan ingediende tekst laten verwerken door een externe AI-aanbieder die door de beheerder van de dienst is ingesteld. Gebruik alleen onderzoekstekst; voer geen direct identificerende gegevens in.",
       "chunkingStrategy": "Opdelingsstrategie",
       "windowSize": "Venstergrootte (tokens)",
       "stepSize": "Stapgrootte",
-      "chunkThreshold": "Drempelwaarde voor tekstfragmenten",
-      "aggConfidence": "Betrouwbaarheid geaggregeerde termen",
-      "detectAssertions": "Detecteer beweringen",
+      "chunkThreshold": "Ophaaldrempel per fragment",
+      "aggConfidence": "Betrouwbaarheid van geaggregeerde termen",
+      "detectAssertions": "Asserties detecteren",
       "splitThreshold": "Splitsingsdrempel",
       "minSegmentLength": "Min. segmentlengte",
       "numResultsPerChunk": "Resultaten per fragment",
       "topTermPerChunk": "Alleen de beste HPO-term per fragment behouden",
       "strategies": {
-        "sliding_window_punct_cleaned": "Schuivend venster + Interpunctie + Opschoner",
-        "sliding_window_punct_conj_cleaned": "Schuivend venster + Interpunctie + Voegwoorden + Opschoner"
+        "sliding_window_punct_cleaned": "Schuivend venster + interpunctie + opschoning",
+        "sliding_window_punct_conj_cleaned": "Schuivend venster + interpunctie + voegwoorden + opschoning"
       }
     },
     "tooltips": {
-      "advancedOptions": "Configureer geavanceerde zoekinstellingen",
-      "phenotypeCollection": "Bekijk en beheer verzamelde fenotypen",
-      "embeddingModel": "Selecteer het AI-model dat wordt gebruikt voor tekstembedding",
-      "similarityThreshold": "Stel de minimale overeenkomst in die vereist is voor matches (hoger = nauwkeuriger, minder resultaten)",
-      "includeDetails": "HPO-termdefinities en synoniemen opnemen in zoekresultaten (beperkt tot 20 resultaten voor prestaties)",
-      "language": "Selecteer de taal voor verwerking en negatie detectie",
-      "subjectId": "Voer een identificatie in voor de patiënt",
-      "sex": "Selecteer het biologische geslacht van de patiënt",
-      "dateOfBirth": "Voer de geboortedatum van de patiënt in"
+      "advancedOptions": "Geavanceerde zoekinstellingen configureren",
+      "phenotypeCollection": "Verzamelde fenotypen bekijken en beheren",
+      "embeddingModel": "Selecteer het AI-model dat tekst omzet in embeddings",
+      "similarityThreshold": "Stel de minimale gelijkenisscore in die resultaten moeten halen",
+      "includeDetails": "HPO-termdefinities en synoniemen opnemen in zoekresultaten (om prestatieredenen beperkt tot 20 resultaten)",
+      "language": "Selecteer de taal voor het verwerken van zoekopdrachten en voor assertiedetectie",
+      "subjectId": "Voer een ID in voor de deelnemer",
+      "sex": "Selecteer het biologische geslacht van de deelnemer",
+      "dateOfBirth": "Voer de geboortedatum van de deelnemer in"
     },
     "accessibility": {
-      "textProcessInputLabel": "Invoerveld voor klinisch document voor tekstverwerking",
-      "textProcessInputDescription": "Voer langere klinische tekst in voor documentverwerking.",
-      "queryInputLabel": "Invoerveld voor klinische tekst",
-      "queryInputDescription": "Voer klinische tekst in om te zoeken naar HPO-termen.",
-      "processingInProgress": "Verwerking loopt.",
-      "searchInProgress": "Zoeken loopt.",
-      "openAdvancedOptions": "Geavanceerde opties openen",
-      "closeAdvancedOptions": "Geavanceerde opties sluiten",
-      "searchButton": "Zoek HPO-termen",
+      "textProcessInputLabel": "Onderzoekstekst voor analyse van volledige tekst",
+      "textProcessInputDescription": "Voer langere fenotypetekst uit onderzoek in voor documentverwerking.",
+      "queryInputLabel": "Fenotypetekst",
+      "queryInputDescription": "Voer fenotypetekst uit onderzoek in om naar HPO-termen te zoeken.",
+      "processingInProgress": "Bezig met verwerken.",
+      "searchInProgress": "Bezig met zoeken.",
+      "searchButton": "HPO-termen zoeken",
       "userInput": "Gebruikersinvoer",
       "response": "Phentrieve-antwoord",
       "advancedOptionsRegion": "Geavanceerde zoekopties",
-      "selectEmbeddingModel": "Inbeddingsmodel selecteren",
-      "embeddingModelDescription": "Kies het model voor tekstinbedding. Momenteel geselecteerd: {selectedModel}",
-      "similarityThresholdSlider": "Schuifregelaar voor gelijkenisdrempel",
+      "selectEmbeddingModel": "Embeddingmodel selecteren",
+      "embeddingModelDescription": "Kies het model voor tekstembeddings. Huidige selectie: {selectedModel}",
+      "similarityThresholdSlider": "Gelijkenisdrempel",
       "similarityThresholdDescription": "Pas de minimale gelijkenisdrempel aan. Huidige waarde: {similarityThreshold}",
       "selectQueryLanguage": "Zoektaal selecteren",
-      "queryLanguageDescription": "Kies de taal voor zoekverwerking. Momenteel geselecteerd: {selectedLanguage}",
+      "queryLanguageDescription": "Kies de taal voor het verwerken van zoekopdrachten. Huidige selectie: {selectedLanguage}",
       "includeDetailsSwitch": "HPO-termdefinities en synoniemen opnemen"
+    },
+    "form": {
+      "queryPill": "Zoekopdracht",
+      "fullTextPill": "Volledige tekst",
+      "modeGroup": "Zoekmodus",
+      "settings": "Instellingen",
+      "queryLabel": "Fenotypezoekopdracht",
+      "noteLabel": "Onderzoeksnotitie",
+      "notePlaceholder": "Plak of typ fenotypetekst uit onderzoek",
+      "noteSubmitHint": "Ctrl+Enter om te analyseren",
+      "cancel": "Annuleren",
+      "collapseNote": "Notitie inklappen",
+      "expandNote": "Notitie uitklappen"
+    },
+    "fullTextReceipt": {
+      "title": "Analyse van volledige tekst gereed",
+      "addAll": "Alles toevoegen ({count})",
+      "addAllConfirm": "Klik nogmaals om alle {count} toe te voegen"
     }
   },
   "annotatedDocumentPane": {
@@ -263,17 +291,17 @@
     "add": "Toevoegen",
     "cancel": "Annuleren",
     "empty": "Geen overeenkomende HPO-termen gevonden",
-    "loading": "Zoeken...",
+    "loading": "Zoeken…",
     "scoreLabel": "Score"
   },
   "resultsDisplay": {
     "title": "Geëxtraheerde HPO-termen",
     "termCountLabel": "{count} termen gevonden",
-    "noResultsMessage": "Geen HPO-termen geïdentificeerd. Probeer een andere tekst of controleer uw invoer.",
+    "noResultsMessage": "Geen HPO-termen gevonden. Formuleer de tekst anders of verlaag de gelijkenisdrempel.",
     "termIdHeader": "HPO-ID",
     "termNameHeader": "Termnaam",
-    "similarityLabel": "Gelijkenis score",
-    "confidenceLabel": "Betrouwbaarheid score",
+    "similarityLabel": "Gelijkenisscore",
+    "confidenceLabel": "Betrouwbaarheidsscore",
     "confidenceHeader": "Betrouwbaarheid",
     "actionsHeader": "Acties",
     "removeTermTooltip": "Deze term verwijderen",
@@ -281,47 +309,47 @@
     "viewTermLink": "Bekijk op HPO-website",
     "modelLabel": "Model",
     "languageLabel": "Taal",
-    "assertionLabel": "Bewering",
-    "noTermsFound": "Geen HPO-termen gevonden die overeenkomen met uw zoekopdracht met de huidige drempel. Probeer de overeenkomstdrempel te verlagen of uw zoekopdracht te herformuleren.",
+    "assertionLabel": "Assertie",
+    "noTermsFound": "Geen overeenkomende HPO-termen gevonden voor uw zoekopdracht. Probeer een andere zoekopdracht of pas de gelijkenisdrempel aan.",
     "affirmed": "Bevestigd",
     "negated": "Ontkend",
     "unknown": "Onbekend",
-    "cosineSimilarity": "Cosinus gelijkenis",
-    "rangeExplanation": "{min} (geen gelijkenis) tot {max} (perfecte overeenkomst)",
-    "noMatch": "Geen overeenkomst",
-    "perfectMatch": "Perfecte overeenkomst",
-    "scoreNote": "Vertegenwoordigt semantische gelijkenis in vectorruimte",
+    "cosineSimilarity": "Cosinusgelijkenis",
+    "rangeExplanation": "{min} (geen gelijkenis) tot {max} (maximale gelijkenis)",
+    "noMatch": "Geen gelijkenis",
+    "perfectMatch": "Maximale gelijkenis",
+    "scoreNote": "Geeft semantische gelijkenis in de vectorruimte weer",
     "quality": {
       "excellent": "Uitstekende overeenkomst",
       "high": "Hoge overeenkomst",
-      "moderate": "Gematigde overeenkomst",
+      "moderate": "Matige overeenkomst",
       "low": "Lage overeenkomst",
-      "poor": "Slechte overeenkomst"
+      "poor": "Zwakke overeenkomst"
     },
-    "defaultError": "Er is een fout opgetreden bij het verwerken van uw zoekopdracht.",
-    "addToCollectionTooltip": "{id} aan verzameling toevoegen",
-    "alreadyInCollectionTooltip": "{id} is al in verzameling",
+    "defaultError": "Er is een fout opgetreden bij het verwerken van uw verzoek. Probeer het opnieuw.",
+    "addToCollectionTooltip": "HPO-term {id} aan uw verzameling toevoegen",
+    "alreadyInCollectionTooltip": "HPO-term {id} staat al in uw verzameling",
     "confidenceScoreTooltip": "Betrouwbaarheidsscore: {score}",
     "sourceChunksTooltip": "Gevonden in {count} tekstfragmenten",
     "maxScoreTooltip": "Hoogste betrouwbaarheid: {score}",
-    "topEvidenceTooltip": "Beste bewijs in fragment #{id}",
+    "topEvidenceTooltip": "Sterkste bewijs in fragment #{id}",
     "addToCollectionAriaLabel": "{label} ({id}) aan verzameling toevoegen",
-    "alreadyInCollectionAriaLabel": "HPO-term {id} ({label}) is in verzameling",
+    "alreadyInCollectionAriaLabel": "{label} ({id}) staat al in de verzameling",
     "showDetails": "Details tonen",
     "hideDetails": "Details verbergen",
     "definitionLabel": "Definitie",
     "synonymsLabel": "Synoniemen",
     "textProcess": {
-      "title": "Verwerkte Tekstanalyse",
-      "chunksTitle": "Verwerkte Fragmenten & HPO-termen per Fragment",
-      "aggregatedTitle": "Geaggregeerde Document Fenotypen",
+      "title": "Analyse van volledige tekst",
+      "chunksTitle": "Verwerkte fragmenten en HPO-termen per fragment",
+      "aggregatedTitle": "Geaggregeerde fenotypen van het document",
       "chunksLabel": "Fragmenten",
       "strategyLabel": "Strategie",
       "chunkLabel": "Fragment",
       "chunkHPOTerms": "HPO-termen geïdentificeerd in dit fragment:",
       "noChunkHPOTerms": "Er zijn geen HPO-termen geïdentificeerd voor dit fragment.",
       "hpoInChunkTitle": "HPO-termen gevonden in dit fragment:",
-      "noChunkHPOTermsMatched": "Geen HPO-termen hebben de ophaaldrempel voor dit specifieke fragment bereikt.",
+      "noChunkHPOTermsMatched": "Geen enkele HPO-term haalde de ophaaldrempel voor dit fragment.",
       "avgConfidenceTooltip": "Gemiddelde betrouwbaarheidsscore van alle bewijsfragmenten",
       "maxScoreTooltip": "Maximale score van één fragment",
       "evidenceFromChunksShort": "Fragmenten:",
@@ -335,7 +363,7 @@
       "noChunksProcessed": "Er zijn geen tekstfragmenten verwerkt.",
       "noAggregatedTerms": "Geen geaggregeerde HPO-termen gevonden.",
       "strategyUnknown": "Onbekende strategie",
-      "assertionDetail": "Bevestigingsmethode:",
+      "assertionDetail": "Assertiemethode:",
       "finalStatus": "Uiteindelijke status:"
     }
   },
@@ -352,12 +380,12 @@
     "details": "Details",
     "stats": {
       "received": "Ontvangen",
-      "dropped": "Verwijderd",
+      "dropped": "Verworpen",
       "memory": "Geheugen"
     },
     "config": {
-      "title": "Logboek configuratie",
-      "description": "Stel het maximum aantal logboekvermeldingen in om in het geheugen te bewaren. Oudere logboeken worden automatisch verwijderd (FIFO).",
+      "title": "Logboekconfiguratie",
+      "description": "Stel het maximumaantal logboekvermeldingen in dat in het geheugen wordt bewaard. Als de limiet is bereikt, worden de oudste vermeldingen eerst verwijderd.",
       "cancel": "Annuleren",
       "save": "Opslaan"
     }
@@ -369,51 +397,54 @@
     "api": {
       "unknown": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
       "network": "Kon geen verbinding maken met de server. Controleer uw internetverbinding en probeer het opnieuw.",
-      "clientSide": "Er is een fout opgetreden tijdens het {context}.",
-      "badRequest": "Uw verzoek was ongeldig. Controleer de invoer en probeer het opnieuw. (Status: {status})",
+      "clientSide": "Er is een fout opgetreden ({context}). Probeer het opnieuw.",
+      "badRequest": "De server kon dit verzoek niet verwerken. Controleer uw invoer en probeer het opnieuw. (Status: {status})",
       "validation": "De invoer is geweigerd. Controleer deze en let op de limieten: 50.000 tekens voor volledige tekst, 10.000 voor een enkele zoekopdracht. (Status: {status})",
-      "badRequestModel": "Het model dat in uw verzoek is opgegeven, is ongeldig of wordt niet ondersteund. (Status: {status})",
-      "unauthorized": "U bent niet gemachtigd om deze actie uit te voeren. (Status: {status})",
-      "forbidden": "U heeft geen toestemming om toegang te krijgen tot deze bron. (Status: {status})",
+      "badRequestModel": "Het geselecteerde model is ongeldig of wordt niet ondersteund. Kies een ander model in Instellingen en probeer het opnieuw. (Status: {status})",
+      "unauthorized": "Hiervoor moet u ingelogd zijn. Log in en probeer het opnieuw. (Status: {status})",
+      "forbidden": "U heeft geen toegang tot deze bron. (Status: {status})",
       "notFound": "De gevraagde bron kon niet worden gevonden. (Status: {status})",
-      "notFoundModel": "Het gevraagde model kon niet worden gevonden op de server. (Status: {status})",
+      "notFoundModel": "Het geselecteerde model is niet beschikbaar op de server. Kies een ander model in Instellingen en probeer het opnieuw. (Status: {status})",
       "serverError": "Er is een serverfout opgetreden. Probeer het later opnieuw. (Status: {status})",
       "serviceUnavailable": "De dienst is tijdelijk niet beschikbaar. Probeer het later opnieuw. (Status: {status})",
-      "llmQuotaExceeded": "De dagelijkse LLM-limiet voor volledige tekst is bereikt."
-    }
+      "llmQuotaExceeded": "U hebt de daglimiet voor LLM-analyse van volledige tekst bereikt. Probeer het morgen opnieuw of kies in Instellingen Standaard als extractie-backend.",
+      "llmUnavailable": "LLM-extractie van volledige tekst is nu niet beschikbaar. Open Instellingen, kies Standaard als extractie-backend en probeer het opnieuw. (Status: {status})",
+      "timeout": "Het verzoek duurde te lang en is gestopt. Probeer een kortere tekst of probeer het later opnieuw."
+    },
+    "requestInterrupted": "Dit verzoek is onderbroken door het herladen van de pagina. Verstuur het opnieuw."
   },
   "faq": {
-    "backToHome": "Terug naar hoofdpagina",
-    "pageTitle": "Veelgestelde Vragen",
-    "searchPlaceholder": "Zoek door {count} vragen",
+    "backToHome": "Terug naar startpagina",
+    "pageTitle": "Veelgestelde vragen",
+    "searchPlaceholder": "Doorzoek {count} vragen",
     "categories": {
       "general": {
-        "title": "Algemene Informatie",
+        "title": "Algemene informatie",
         "questions": {
           "whatIsPhentrieve": {
             "question": "Wat is Phentrieve?",
-            "answer": "<p>Phentrieve is een geavanceerde, door AI aangedreven tool die automatisch klinische beschrijvingen koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO) termen. Het stroomlijnt het proces van fenotype-annotatie voor zowel onderzoek als klinische diagnostiek, waardoor het sneller en nauwkeuriger wordt.</p><p>Belangrijkste kenmerken zijn:</p><ul><li>Automatische mapping van klinische tekst naar HPO-termen</li><li>Hoge nauwkeurigheid door geavanceerde AI-modellen</li><li>Ondersteuning voor meerdere talen</li><li>Gebruiksvriendelijke interface</li></ul>"
+            "answer": "<p>Phentrieve is een door AI aangedreven onderzoekstool die fenotypebeschrijvingen koppelt aan gestandaardiseerde Human Phenotype Ontology (HPO)-termen. Het ondersteunt fenotype-annotatie voor onderzoek, onderwijs, benchmarking en kennisontdekking.</p><p>Belangrijkste kenmerken zijn:</p><ul><li>Koppelen van onderzoekstekst aan HPO-termen</li><li>Semantisch zoeken met biomedische embeddingmodellen</li><li>Ondersteuning voor meerdere talen</li><li>Gebruiksvriendelijke interface</li></ul>"
           },
           "howItWorks": {
             "question": "Hoe werkt Phentrieve?",
-            "answer": "<p>Phentrieve gebruikt een geavanceerde pipeline van AI-modellen en algoritmen om klinische tekst te verwerken:</p><ol><li><strong>Tekstanalyse:</strong> Het systeem analyseert de invoertekst met behulp van gespecialiseerde biomedische taalmodellen</li><li><strong>Termmatching:</strong> Het identificeert potentiële HPO-termen met behulp van semantisch zoeken en contextbewuste matching</li><li><strong>Rangschikking:</strong> De matches worden gerangschikt op relevantie</li><li><strong>Resultaten:</strong> De meest relevante HPO-termen worden aan de gebruiker gepresenteerd</li></ol><p>Dit proces zorgt voor kwalitatief hoogwaardige matches met behoud van efficiëntie.</p>"
+            "answer": "<p>Phentrieve gebruikt een pipeline van AI-modellen en algoritmen om fenotypetekst uit onderzoek te verwerken:</p><ol><li><strong>Tekstanalyse:</strong> Het systeem analyseert de invoertekst met gespecialiseerde biomedische taalmodellen</li><li><strong>Termkoppeling:</strong> Het systeem identificeert mogelijke HPO-termen met semantisch zoeken en contextbewuste koppeling</li><li><strong>Rangschikking:</strong> De gevonden termen worden gerangschikt op relevantie</li><li><strong>Resultaten:</strong> De meest relevante HPO-termen worden aan de gebruiker getoond</li></ol><p>Resultaten zijn suggesties en moeten worden gecontroleerd voordat ze verder worden gebruikt.</p>"
           },
           "whoCanUse": {
             "question": "Wie kan Phentrieve gebruiken?",
-            "answer": "<p><strong>Phentrieve is uitsluitend voor onderzoeks- en informatiedoeleinden.</strong> Het is GEEN klinische diagnostische tool.</p><p>Ontworpen voor:</p><ul><li><strong>Onderzoekers:</strong> Standaardisatie van fenotypebeschrijvingen in onderzoeksstudies</li><li><strong>Klinische Genetici:</strong> Onderzoeksfenotypering en literatuuronderzoek (NIET voor patiëntdiagnose)</li><li><strong>Bio-informatici:</strong> Geautomatiseerde fenotype-analyse in onderzoeksdatasets</li><li><strong>Gezondheidszorgprofessionals:</strong> Educatieve doeleinden en onderzoeksdocumentatie</li></ul><p><strong>Belangrijk:</strong> Resultaten moeten worden geverifieerd door gekwalificeerde medische professionals voordat ze klinisch worden toegepast. Zie de disclaimer voor volledige gebruiksvoorwaarden.</p>"
+            "answer": "<p><strong>Phentrieve is uitsluitend bedoeld voor onderzoeks- en informatiedoeleinden.</strong> Het is GEEN klinisch diagnostisch hulpmiddel.</p><p>Ontworpen voor:</p><ul><li><strong>Onderzoekers:</strong> Standaardisatie van fenotypebeschrijvingen in onderzoeksstudies</li><li><strong>Bio-informatici:</strong> Geautomatiseerde fenotype-analyse in onderzoeksdatasets</li><li><strong>Docenten en studenten:</strong> Leren over HPO-gebaseerde fenotype-annotatie</li><li><strong>Curatoren:</strong> Literatuuronderzoek en onderzoeksdocumentatie</li></ul><p><strong>Belangrijk:</strong> Resultaten mogen niet worden gebruikt voor diagnose, behandeling, triage of andere klinische besluitvorming.</p>"
           }
         }
       },
       "technical": {
-        "title": "Technische Details",
+        "title": "Technische details",
         "questions": {
           "performance": {
             "question": "Welke prestaties kan ik verwachten?",
-            "answer": "<p>Onze benchmark resultaten tonen:</p><ul><li>BioLORD-2023-M: HR{'@'}1=0.3333, HR{'@'}3=0.6667, HR{'@'}5=0.7778</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
+            "answer": "<p>Resultaten op onze benchmarkset (hitrate op rang 1, 3 en 5):</p><ul><li>BioLORD-2023-M: HR{'@'}1 = 0,3333, HR{'@'}3 = 0,6667, HR{'@'}5 = 0,7778</li></ul><p>De prestaties kunnen variëren afhankelijk van de complexiteit en specificiteit van de invoertekst.</p>"
           },
           "similarityScore": {
             "question": "Wat betekenen de gelijkenisscores?",
-            "answer": "<p>Phentrieve gebruikt cosinus gelijkenis om te meten hoe nauw uw klinische tekst overeenkomt met HPO-termen. Scores variëren van 0,0 (geen gelijkenis) tot 1,0 (perfecte overeenkomst).</p><h4>Scorebereiken</h4><ul><li><strong>0,90 - 1,00:</strong> Uitstekende overeenkomst - zeer relevant</li><li><strong>0,75 - 0,89:</strong> Hoge overeenkomst - zeer relevant</li><li><strong>0,60 - 0,74:</strong> Gematigde overeenkomst - mogelijk relevant</li><li><strong>0,40 - 0,59:</strong> Lage overeenkomst - losjes verwant</li><li><strong>0,00 - 0,39:</strong> Slechte overeenkomst - niet aanbevolen</li></ul><h4>Technische Details</h4><p>Scores worden berekend met behulp van cosinus gelijkenis tussen inbeddingsvectoren. Een score van 1,0 geeft identieke semantische betekenis aan, terwijl 0,0 geen gelijkenis aangeeft.</p><p><strong>Opmerking:</strong> Deze scores vertegenwoordigen semantische gelijkenis in vectorruimte, niet klinische zekerheid. Controleer resultaten altijd met klinische expertise.</p>"
+            "answer": "<p>Phentrieve gebruikt cosinusgelijkenis om te meten hoe goed uw fenotypetekst uit onderzoek overeenkomt met HPO-termen. Scores variëren van 0,0 (geen gelijkenis) tot 1,0 (maximale gelijkenis).</p><h4>Scorebereiken</h4><ul><li><strong>0,90 - 1,00:</strong> Uitstekende overeenkomst - uiterst relevant</li><li><strong>0,75 - 0,89:</strong> Hoge overeenkomst - zeer relevant</li><li><strong>0,60 - 0,74:</strong> Matige overeenkomst - mogelijk relevant</li><li><strong>0,40 - 0,59:</strong> Lage overeenkomst - losjes verwant</li><li><strong>0,00 - 0,39:</strong> Zwakke overeenkomst - niet aanbevolen</li></ul><h4>Technische details</h4><p>Scores worden berekend met cosinusgelijkenis tussen embeddingvectoren. Een score van 1,0 betekent dat de embeddings in dezelfde richting wijzen, terwijl 0,0 geen gelijkenis aangeeft.</p><p><strong>Opmerking:</strong> Deze scores geven semantische gelijkenis in de vectorruimte weer, geen klinische zekerheid.</p>"
           }
         }
       }
@@ -422,41 +453,41 @@
   "tutorial": {
     "step1": {
       "title": "Welkom bij Phentrieve",
-      "content": "Dit is uw startpunt voor het koppelen van klinische tekst aan HPO-termen. Laten we een snelle rondleiding doen van de hoofdfuncties!"
+      "content": "Hier begint u met het koppelen van fenotypetekst uit onderzoek aan HPO-termen. We nemen u kort mee langs de belangrijkste functies."
     },
     "step2": {
-      "title": "Klinische Tekst Invoeren",
-      "content": "Typ of plak hier uw klinische beschrijving. U kunt patiëntsymptomen, fenotypes of medische observaties beschrijven die u wilt koppelen aan HPO-termen."
+      "title": "Onderzoekstekst invoeren",
+      "content": "Typ of plak hier uw onderzoeksbeschrijving. U kunt fenotypen of onderzoeksobservaties beschrijven die u aan HPO-termen wilt koppelen."
     },
     "step3": {
-      "title": "HPO-Termen Zoeken",
-      "content": "Klik op deze knop om de AI-gestuurde analyse te starten. Phentrieve zal uw tekst verwerken en de meest relevante HPO-termen vinden."
+      "title": "HPO-termen zoeken",
+      "content": "Klik op deze knop om de AI-analyse te starten. Phentrieve verwerkt uw tekst en stelt relevante HPO-termen voor."
     },
     "step4": {
-      "title": "Resultaten Bekijken",
-      "content": "Uw zoekresultaten verschijnen hier, gerangschikt op relevantie. Elk resultaat toont de HPO-term, definitie en betrouwbaarheidsscore."
+      "title": "Resultaten bekijken",
+      "content": "Uw zoekresultaten verschijnen hier, gerangschikt op gelijkenis. Bij elk resultaat ziet u de HPO-term, het ID en een gelijkenisscore."
     },
     "step5": {
-      "title": "Geavanceerde Opties",
-      "content": "Vouw deze sectie uit voor toegang tot geavanceerde zoekparameters zoals modelselectie, resultaatlimieten en herrangschikkingsopties."
+      "title": "Geavanceerde opties",
+      "content": "Klap dit gedeelte uit voor geavanceerde zoekparameters zoals modelselectie en resultaatlimieten."
     },
     "step6": {
-      "title": "Termen Verzamelen",
-      "content": "Voeg interessante HPO-termen toe aan uw collectie door op de 'Toevoegen aan Collectie' knop te klikken. U kunt ze later bekijken en exporteren."
+      "title": "Termen verzamelen",
+      "content": "Voeg relevante HPO-termen toe aan uw verzameling met de knop naast elk resultaat. U kunt ze later bekijken en exporteren."
     },
     "step7": {
-      "title": "Uw Collectie",
-      "content": "Bekijk, beheer en exporteer hier uw verzamelde HPO-termen. U kunt exporteren als tekst of gestructureerd Phenopacket JSON-formaat."
+      "title": "Uw verzameling",
+      "content": "Bekijk, beheer en exporteer hier uw verzamelde HPO-termen. U kunt exporteren als tekst of in het gestructureerde Phenopacket-JSON-formaat."
     },
     "step8": {
-      "title": "Hulp en Bronnen",
-      "content": "Krijg toegang tot documentatie, veelgestelde vragen en aanvullende bronnen via de voettekstlinks. U kunt ook logs bekijken voor debugging."
+      "title": "Hulp en bronnen",
+      "content": "Via de links in de voettekst vindt u documentatie, veelgestelde vragen en andere bronnen. U kunt ook de logboeken bekijken om problemen op te sporen."
     },
     "navigation": {
       "next": "Volgende",
       "previous": "Vorige",
-      "skip": "Rondleiding Overslaan",
-      "finish": "Rondleiding Beëindigen"
+      "skip": "Rondleiding overslaan",
+      "finish": "Rondleiding afsluiten"
     },
     "tooltips": {
       "startTour": "Begeleide rondleiding starten",
@@ -488,23 +519,23 @@
     "actions": {
       "login": "Inloggen",
       "register": "Account aanmaken",
-      "sendReset": "Reset-link verzenden"
+      "sendReset": "Resetlink verzenden"
     },
     "links": {
       "forgotPassword": "Wachtwoord vergeten?",
-      "needAccount": "Nog geen account? Registreren",
+      "needAccount": "Nog geen account? Maak er een aan",
       "backToLogin": "Terug naar inloggen"
     },
     "validation": {
-      "emailRequired": "E-mail is vereist",
+      "emailRequired": "E-mailadres is verplicht",
       "emailInvalid": "Voer een geldig e-mailadres in",
-      "passwordRequired": "Wachtwoord is vereist",
+      "passwordRequired": "Wachtwoord is verplicht",
       "passwordMin": "Het wachtwoord moet minstens 10 tekens lang zijn",
       "passwordMatch": "De wachtwoorden komen niet overeen"
     },
     "messages": {
       "registerSuccess": "Account aangemaakt. Controleer uw e-mail om te verifiëren en het hogere dagquotum te ontgrendelen.",
-      "resetSent": "Als het adres geldig is, is er een reset-link verzonden."
+      "resetSent": "Als er een account bij dit adres hoort, is er een link verzonden om uw wachtwoord opnieuw in te stellen."
     },
     "errors": {
       "loginFailed": "Ongeldig e-mailadres of wachtwoord.",
@@ -512,17 +543,17 @@
       "generic": "Er is iets misgegaan. Probeer het opnieuw."
     },
     "account": {
-      "loginRegister": "Inloggen of registreren",
+      "loginRegister": "Inloggen of account aanmaken",
       "account": "Account",
       "signedInAs": "Ingelogd als",
       "verified": "Geverifieerd",
       "unverified": "Niet geverifieerd",
       "resendVerification": "Verificatie-e-mail opnieuw verzenden",
       "logout": "Uitloggen",
-      "quotaToday": "Volledige-tekstquotum vandaag: {remaining} van {limit} over"
+      "quotaToday": "Quotum voor volledige tekst vandaag: nog {remaining} van {limit}"
     },
     "nudge": {
-      "loginForMore": "Log in voor een hoger dagelijks volledige-tekstquotum"
+      "loginForMore": "Log in voor een hoger dagquotum voor volledige tekst"
     },
     "verifyView": {
       "title": "E-mailverificatie",
@@ -535,8 +566,8 @@
       "title": "Kies een nieuw wachtwoord",
       "submit": "Wachtwoord bijwerken",
       "success": "Uw wachtwoord is bijgewerkt. U kunt nu inloggen.",
-      "missingToken": "Aan deze reset-link ontbreekt het token.",
-      "failed": "Deze reset-link is ongeldig of verlopen."
+      "missingToken": "Aan deze resetlink ontbreekt het token.",
+      "failed": "Deze resetlink is ongeldig of verlopen."
     }
   }
 }

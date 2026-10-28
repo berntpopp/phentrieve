@@ -12,13 +12,13 @@
         :text-process-input-description="getTextProcessInputDescription()"
         :search-button-label="$t('queryInterface.accessibility.searchButton')"
         @submit="submitQuery"
+        @cancel="queryInterfaceController.cancelQuery()"
       />
 
       <QueryModeControls
         :is-text-process-mode-active="isTextProcessModeActive"
         :is-loading="isLoading"
         :show-advanced-options="showAdvancedOptions"
-        :advanced-options-toggle-label="getAdvancedOptionsToggleLabel()"
         :show-auto-switch-notice="showAutoSwitchNotice"
         :auto-switch-notice-label="getAutoSwitchNoticeLabel()"
         @set-mode="setMode"
@@ -67,7 +67,7 @@
             <v-tooltip
               location="top"
               :text="$t('queryInterface.accessibility.userInput')"
-              :content-props="{ 'aria-label': $t('queryInterface.accessibility.userInput') }"
+              :aria-label="$t('queryInterface.accessibility.userInput')"
             >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="primary" size="36" class="mt-1 mr-2">
@@ -103,7 +103,7 @@
             <v-tooltip
               location="top"
               :text="$t('queryInterface.accessibility.response')"
-              :content-props="{ 'aria-label': $t('queryInterface.accessibility.response') }"
+              :aria-label="$t('queryInterface.accessibility.response')"
             >
               <template #activator="{ props }">
                 <v-avatar v-bind="props" color="info" size="36" class="mt-1 mr-2">
@@ -258,7 +258,7 @@ const queryText = ref('');
 const selectedModel = ref(null); // Will be set from API config
 const availableModels = ref([]); // Populated from API /info endpoint
 const modelsLoading = ref(true); // Track model loading state
-const selectedLanguage = ref(null); // Set to the current locale below
+const selectedLanguage = ref(null); // null = backend auto-detects the text language
 const availableLanguages = ref([
   { text: t('common.auto'), value: null },
   { text: 'English', value: 'en' },
@@ -322,6 +322,7 @@ const includeDetails = computed({
 const queryInterfaceController = useQueryInterfaceController({
   state: {
     queryText,
+    uiLocale: locale,
     selectedModel,
     availableModels,
     modelsLoading,
@@ -431,7 +432,7 @@ function onExportPhenopacket() {
 
 function handleAddToCollection(phenotype) {
   addToPhenotypeCollection(phenotype);
-  conversationStore.showCollectionPanel = true;
+  // No auto-open: the drawer would cover the results; the row check + FAB badge confirm the add
 }
 
 function handleAddAllToCollection(phenotypes) {
@@ -442,7 +443,6 @@ function handleAddAllToCollection(phenotypes) {
   phenotypes.forEach((phenotype) => {
     addToPhenotypeCollection(phenotype);
   });
-  conversationStore.showCollectionPanel = true;
 }
 
 /**
@@ -474,17 +474,11 @@ function getQueryInputDescription() {
   return isLoading.value ? `${base} ${t('queryInterface.accessibility.searchInProgress')}` : base;
 }
 
-function getAdvancedOptionsToggleLabel() {
-  return showAdvancedOptions.value
-    ? t('queryInterface.accessibility.closeAdvancedOptions')
-    : t('queryInterface.accessibility.openAdvancedOptions');
-}
-
 function getAutoSwitchNoticeLabel() {
   const translated = t('queryInterface.modeSwitch.autoFullTextNotice');
   return translated && translated !== 'queryInterface.modeSwitch.autoFullTextNotice'
     ? translated
-    : 'Switched to Full Text for longer clinical text';
+    : 'Switched to Full Text for longer research text';
 }
 
 function getHistoryDisplayQuery(item) {
@@ -561,25 +555,6 @@ function continueWithPiiRedaction() {
 
 // Initialization (formerly created())
 fetchAvailableModels();
-
-// Set selectedLanguage based on current locale
-const currentLocale = locale.value;
-// Only set if it's one of our supported languages
-const supportedLanguages = availableLanguages.value
-  .filter((lang) => lang.value !== null)
-  .map((lang) => lang.value);
-
-if (currentLocale && supportedLanguages.includes(currentLocale)) {
-  selectedLanguage.value = currentLocale;
-  logService.info(
-    `Using UI locale '${currentLocale}' as default language for queries and text processing`
-  );
-} else {
-  // Keep the auto-detect (null) as fallback if locale is not supported
-  logService.info(
-    `Current locale '${currentLocale}' not in supported languages, using auto-detect`
-  );
-}
 </script>
 
 <style scoped>
@@ -592,11 +567,11 @@ if (currentLocale && supportedLanguages.includes(currentLocale)) {
 /* Advanced options panel specific styling */
 #advanced-options-panel .text-subtitle-2 {
   font-size: 0.875rem !important;
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(var(--v-theme-on-surface), 0.7);
 }
 #advanced-options-panel .text-caption {
   font-size: 0.75rem !important;
-  color: rgba(0, 0, 0, 0.7); /* Updated for WCAG AA contrast (7.0:1 ratio) */
+  color: rgba(var(--v-theme-on-surface), 0.7); /* Updated for WCAG AA contrast (7.0:1 ratio) */
 }
 #advanced-options-panel .v-select,
 #advanced-options-panel .v-text-field,
@@ -635,20 +610,20 @@ if (currentLocale && supportedLanguages.includes(currentLocale)) {
   height: 8px;
 }
 .conversation-container::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: rgba(var(--v-theme-on-surface), 0.25);
   border-radius: 4px;
 }
 .conversation-container::-webkit-scrollbar-thumb:hover {
-  background: #bbb;
+  background: rgba(var(--v-theme-on-surface), 0.35);
 }
 .conversation-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(var(--v-theme-on-surface), 0.05);
   border-radius: 4px;
 }
 
 .query-bubble {
-  background-color: #e3f2fd; /* Lighter blue for user */
-  color: #1e3a8a; /* Darker blue text for contrast */
+  background-color: rgba(var(--v-theme-primary), 0.12);
+  color: rgb(var(--v-theme-on-surface));
   border-radius: 18px 18px 18px 4px; /* Chat bubble style */
   padding: 10px 15px;
   max-width: 80%;
@@ -656,8 +631,8 @@ if (currentLocale && supportedLanguages.includes(currentLocale)) {
 }
 
 .response-bubble {
-  background-color: #f8f9fa; /* Very light grey for bot */
-  border: 1px solid #e9ecef;
+  background-color: rgba(var(--v-theme-on-surface), 0.03);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-radius: 18px 18px 4px 18px; /* Chat bubble style */
   padding: 10px 15px;
   width: 100%; /* Bot bubble can take more width */
@@ -686,18 +661,21 @@ if (currentLocale && supportedLanguages.includes(currentLocale)) {
 
 /* Accessibility & General UI Polish */
 :deep(.text-high-emphasis) {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgba(var(--v-theme-on-surface), 0.87) !important;
   font-weight: 500;
 }
 :deep(.v-field--variant-outlined) {
-  background-color: #ffffff !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
   box-shadow: none;
 }
 :deep(.v-field__input) {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgba(var(--v-theme-on-surface), 0.87) !important;
 }
 :deep(.v-field__input::placeholder) {
-  color: rgba(0, 0, 0, 0.7) !important; /* Updated for WCAG AA contrast (7.0:1 ratio) */
+  color: rgba(
+    var(--v-theme-on-surface),
+    0.7
+  ) !important; /* Updated for WCAG AA contrast (7.0:1 ratio) */
 }
 
 .v-tooltip > .v-overlay__content {

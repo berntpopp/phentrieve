@@ -6,7 +6,7 @@
       'search-bar',
       isTextProcessModeActive ? 'search-bar--text-process' : 'search-bar--query',
     ]"
-    color="white"
+    color="surface"
   >
     <div
       :class="[
@@ -22,21 +22,24 @@
         v-model="queryText"
         density="comfortable"
         variant="outlined"
-        hide-details
+        hide-details="auto"
+        persistent-hint
         class="search-input search-input--text-process ml-2 ml-sm-3 flex-grow-1"
         :disabled="isLoading"
-        bg-color="white"
+        bg-color="surface"
         color="primary"
         rows="3"
         auto-grow
         clearable
-        placeholder="Paste or type a clinical note"
+        :placeholder="$t('queryInterface.form.notePlaceholder')"
         :aria-label="textProcessInputLabel"
         :aria-description="textProcessInputDescription"
-        @keydown.enter.prevent="canSubmit ? emitSubmit() : null"
+        :hint="$t('queryInterface.form.noteSubmitHint')"
+        @keydown.enter.ctrl.exact.prevent="canSubmit ? emitSubmit() : null"
+        @keydown.enter.meta.exact.prevent="canSubmit ? emitSubmit() : null"
       >
         <template #label>
-          <span class="text-high-emphasis">Clinical note</span>
+          <span class="text-high-emphasis">{{ $t('queryInterface.form.noteLabel') }}</span>
         </template>
       </v-textarea>
       <v-text-field
@@ -48,7 +51,7 @@
         hide-details
         class="search-input search-input--query ml-2 ml-sm-3 flex-grow-1"
         :disabled="isLoading"
-        bg-color="white"
+        bg-color="surface"
         color="primary"
         clearable
         :aria-label="queryInputLabel"
@@ -56,7 +59,7 @@
         @keydown.enter.prevent="canSubmit ? emitSubmit() : null"
       >
         <template #label>
-          <span class="text-high-emphasis">Phenotype query</span>
+          <span class="text-high-emphasis">{{ $t('queryInterface.form.queryLabel') }}</span>
         </template>
       </v-text-field>
 
@@ -75,14 +78,26 @@
           icon
           rounded="circle"
           :loading="isLoading"
-          :disabled="!queryText.trim()"
+          :disabled="!isLoading && !queryText.trim()"
           class="search-submit-button"
           :aria-label="searchButtonLabel"
           size="small"
           data-tutorial-step="search-button"
-          @click="emitSubmit"
+          @click="canSubmit ? emitSubmit() : null"
         >
           <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+        <v-btn
+          v-if="isLoading"
+          variant="text"
+          icon
+          size="small"
+          :aria-label="$t('queryInterface.form.cancel')"
+          :title="$t('queryInterface.form.cancel')"
+          data-testid="query-cancel"
+          @click="$emit('cancel')"
+        >
+          <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
     </div>
@@ -126,7 +141,7 @@ export default {
       required: true,
     },
   },
-  emits: ['update:modelValue', 'submit'],
+  emits: ['update:modelValue', 'submit', 'cancel'],
   computed: {
     queryText: {
       get() {
@@ -177,11 +192,11 @@ export default {
   width: 34px !important;
   height: 34px !important;
   min-width: 34px !important;
-  color: rgba(25, 82, 166, 0.7) !important;
+  color: rgba(var(--v-theme-primary), 0.85) !important;
 }
 
 .search-submit-button:hover {
-  background: rgba(25, 82, 166, 0.08);
+  background: rgba(var(--v-theme-primary), 0.08);
 }
 
 .search-input--text-process {
@@ -190,7 +205,7 @@ export default {
 
 .search-input--text-process :deep(.v-label) {
   font-size: 0.92rem;
-  color: rgba(60, 72, 88, 0.62);
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
 }
 
 .search-input :deep(.v-field) {
@@ -214,7 +229,7 @@ export default {
 }
 
 .search-bar {
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.15);
   border-radius: 24px;
   transition:
     padding 0.18s ease,

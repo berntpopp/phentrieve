@@ -7,7 +7,6 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import viteCompression from 'vite-plugin-compression'
 // vite-plugin-imagemin removed due to unmaintained status and 29+ security vulnerabilities
 // Images are served as-is; consider vite-imagetools for future optimization needs
-import iconOptimizer from './vite-icon-optimizer.js'
 
 // Read version from package.json at build time
 const packageJson = JSON.parse(
@@ -27,7 +26,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     vue(),
-    iconOptimizer(),
     // Brotli compression and bundle visualizer are deploy-time concerns.
     // Skip in CI to save 10-30s per build; keep for local builds so the
     // dev can inspect stats.html and see the actual deploy-ready payload.
