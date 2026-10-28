@@ -118,3 +118,6 @@ SERENA.md
 .understand-anything/
 
 data/hp.json
+
+# Issue #451 evaluation: case-level results are versioned
+!scripts/disease_ranking_451/results/
