@@ -56,7 +56,7 @@ def test_text_processing_accepts_research_ack_in_public_hosted_mode(
         "api.config.PHENTRIEVE_REQUIRE_RESEARCH_ACK", False, raising=False
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router._process_text_via_shared_service",
+        "api.services.text_processing_execution.process_text_via_shared_service",
         AsyncMock(return_value=_empty_text_response()),
     )
 
@@ -79,7 +79,7 @@ def test_public_hosted_mode_allows_llm_after_research_ack(client, monkeypatch):
         "api.config.PHENTRIEVE_REQUIRE_RESEARCH_ACK", False, raising=False
     )
     monkeypatch.setattr(
-        "api.routers.text_processing_router._process_text_via_shared_service",
+        "api.services.text_processing_execution.process_text_via_shared_service",
         AsyncMock(
             return_value=TextProcessingResponseAPI.model_validate(
                 {

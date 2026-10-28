@@ -5,6 +5,7 @@ import anyio
 from fastapi.concurrency import run_in_threadpool
 
 from api.config import PHENTRIEVE_MAX_CONCURRENT_INFERENCE
+from api.dependencies import get_dense_retriever_dependency
 from api.schemas.text_processing_schemas import (
     AggregatedHPOTermAPI,
     HPOMatchInChunkAPI,
@@ -321,6 +322,11 @@ async def execute_llm_text_processing(
     retrieval_model_name_to_load = validate_model_name(
         "retrieval_model_name", request.retrieval_model_name or DEFAULT_MODEL
     )
+    # Reuse the process-wide cached retriever (and its model) instead of letting
+    # the LLM backend open a fresh Chroma collection on every request (#420).
+    retriever = await get_dense_retriever_dependency(
+        sbert_model_name_for_retriever=retrieval_model_name_to_load
+    )
     service_kwargs: dict[str, Any] = {
         "text": request.text,
         "extraction_backend": request.extraction_backend,
@@ -338,6 +344,8 @@ async def execute_llm_text_processing(
             "language": actual_language,
         },
         "retrieval_model_name": retrieval_model_name_to_load,
+        "retriever": retriever,
+        "sbert_model_for_semantic_chunking": retriever.model,
     }
 
     service_result = await _run_full_text_service_limited(**service_kwargs)
