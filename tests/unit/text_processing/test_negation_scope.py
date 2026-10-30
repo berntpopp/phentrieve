@@ -51,10 +51,10 @@ def _status(chunk: dict) -> str:
 @pytest.mark.parametrize(
     ("chunk_span", "expected"),
     [
-        ((0, 15), True),  # "Ataxia cannot be"
-        ((16, 25), True),  # "ruled out"
-        ((0, 25), False),  # whole phrase: the detector judged it correctly
-        ((27, 35), False),  # another sentence
+        ((0, 16), True),  # "Ataxia cannot be"
+        ((17, 26), True),  # "ruled out"
+        ((0, 26), False),  # whole phrase: the detector judged it correctly
+        ((28, 37), False),  # another sentence
     ],
 )
 def test_chunk_holding_part_of_a_pseudo_cue_is_detected(chunk_span, expected) -> None:
