@@ -28,6 +28,11 @@ together:
 - **Full-text results warn when the LLM extraction is partial.** The API already flagged
   `meta.incomplete` when a chunk group failed after all retries, but the result looked
   complete in the UI. It now shows a warning that findings may be missing.
+### Added
+
+- **`GET /api/v1/health/ready` reports whether the default model is loaded.** It answers
+  503 while the model loads and 200 afterwards. `/api/v1/health` stays a liveness check,
+  and the E2E suite now waits for readiness instead of failing on a cold start.
 
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
