@@ -9,6 +9,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from functools import lru_cache
 from typing import Any
 
 import spacy
@@ -206,6 +207,19 @@ def _find_cue_span(text_lower: str, cue_lower: str) -> tuple[int, int] | None:
     return None
 
 
+def pseudo_cue_spans(text: str, language: str) -> list[tuple[int, int]]:
+    """Spans of phrases like "cannot be ruled out", which leave a finding open."""
+    text_lower = text.lower()
+    spans: list[tuple[int, int]] = []
+    for cue in load_context_cues(language, "PSEUDO"):
+        index = text_lower.find(cue)
+        while index >= 0:
+            if _is_cue_match(text_lower, cue, index):
+                spans.append((index, index + len(cue)))
+            index = text_lower.find(cue, index + 1)
+    return spans
+
+
 def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     """
     Check if a cue matches at the given position with word boundary awareness.
@@ -315,6 +329,43 @@ def parse_context_rules(context_data: dict[str, Any]) -> list[ConTextRule]:
 
     logger.info("Parsed %s ConText rules from JSON", len(rules))
     return rules
+
+
+@lru_cache(maxsize=32)
+def load_context_cues(lang: str, category: str) -> tuple[str, ...]:
+    """Lowercased literals of one ConText category, falling back to English."""
+    import importlib.resources
+    import json
+
+    resources_package = "phentrieve.text_processing.default_lang_resources"
+
+    for rule_lang in dict.fromkeys((lang, "en")):
+        try:
+            resource_path = importlib.resources.files(resources_package).joinpath(
+                f"context_rules_{rule_lang}.json"
+            )
+            with resource_path.open("r", encoding="utf-8") as f:
+                context_data = json.load(f)
+            cues = tuple(
+                rule["literal"].strip().lower()
+                for rule in context_data.get("context_rules", [])
+                if rule.get("category") == category
+            )
+        except (FileNotFoundError, AttributeError, KeyError):
+            continue
+        logger.info(
+            "Loaded %s %s cues from ConText rules (%s) for '%s'",
+            len(cues),
+            category,
+            rule_lang,
+            _sanitize(lang),
+        )
+        return cues
+
+    logger.warning(
+        "No ConText rules found for lang '%s', returning empty cues", _sanitize(lang)
+    )
+    return ()
 
 
 class AssertionDetector(ABC):
@@ -818,11 +869,9 @@ class DependencyAssertionDetector(AssertionDetector):
         # Cache negation and normality cues per language
         self._negation_cues_cache: dict[str, list[str]] = {}
         self._normality_cues_cache: dict[str, list[str]] = {}
-        self._pseudo_cues_cache: dict[str, list[str]] = {}
         # Pre-load cues for the default language
         self._negation_cues_cache[language] = self._load_negation_cues(language)
         self._normality_cues_cache[language] = self._load_normality_cues(language)
-        self._pseudo_cues_cache[language] = self._load_context_cues(language, "PSEUDO")
 
     def _load_negation_cues(self, lang: str) -> list[str]:
         """
@@ -834,43 +883,7 @@ class DependencyAssertionDetector(AssertionDetector):
         Returns:
             List of negation cue strings (lowercase)
         """
-        return self._load_context_cues(lang, "NEGATED_EXISTENCE")
-
-    def _load_context_cues(self, lang: str, category: str) -> list[str]:
-        """Load the literals of one ConText category, falling back to English."""
-        import importlib.resources
-        import json
-
-        resources_package = "phentrieve.text_processing.default_lang_resources"
-
-        for rule_lang in dict.fromkeys((lang, "en")):
-            try:
-                resource_path = importlib.resources.files(resources_package).joinpath(
-                    f"context_rules_{rule_lang}.json"
-                )
-                with resource_path.open("r", encoding="utf-8") as f:
-                    context_data = json.load(f)
-                cues = [
-                    rule["literal"].strip().lower()
-                    for rule in context_data.get("context_rules", [])
-                    if rule.get("category") == category
-                ]
-            except (FileNotFoundError, AttributeError, KeyError):
-                continue
-            logger.info(
-                "Loaded %s %s cues from ConText rules (%s) for '%s'",
-                len(cues),
-                category,
-                rule_lang,
-                _sanitize(lang),
-            )
-            return cues
-
-        logger.warning(
-            "No ConText rules found for lang '%s', returning empty cues",
-            _sanitize(lang),
-        )
-        return []
+        return list(load_context_cues(lang, "NEGATED_EXISTENCE"))
 
     def _load_normality_cues(self, lang: str) -> list[str]:
         """
@@ -1001,7 +1014,6 @@ class DependencyAssertionDetector(AssertionDetector):
             # Load and cache cues for this language
             self._negation_cues_cache[lang] = self._load_negation_cues(lang)
             self._normality_cues_cache[lang] = self._load_normality_cues(lang)
-            self._pseudo_cues_cache[lang] = self._load_context_cues(lang, "PSEUDO")
 
         lang_negation_cues = self._negation_cues_cache[lang]
         lang_normality_cues = self._normality_cues_cache[lang]
@@ -1020,11 +1032,7 @@ class DependencyAssertionDetector(AssertionDetector):
         # Handle German negation directly with a text check first (more reliable for short phrases)
         chunk_lower = chunk.lower()
         # "not ruled out" keeps a finding open, so nothing inside it counts as a cue
-        pseudo_spans = [
-            span
-            for cue in self._pseudo_cues_cache[lang]
-            if (span := _find_cue_span(chunk_lower, cue))
-        ]
+        pseudo_spans = pseudo_cue_spans(chunk, lang)
         searchable_text = chunk_lower
         for start, end in pseudo_spans:
             searchable_text = (

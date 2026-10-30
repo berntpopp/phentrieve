@@ -14,6 +14,7 @@ from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
     AssertionStatus,
     CombinedAssertionDetector,
+    pseudo_cue_spans,
 )
 from phentrieve.text_processing.chunkers import (
     NoOpChunker,
@@ -27,6 +28,23 @@ from phentrieve.text_processing.spans import find_span_in_text
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
+
+
+def _splits_pseudo_cue(
+    chunk_span: tuple[int, int], pseudo_spans: list[tuple[int, int]]
+) -> bool:
+    """True if the chunk holds only part of a phrase like "cannot be ruled out".
+
+    The detector cannot see such a phrase across chunks, so each half reads as
+    negated. A chunk holding the whole phrase was already judged correctly.
+    """
+    chunk_start, chunk_end = chunk_span
+    return any(
+        chunk_start < pseudo_end
+        and chunk_end > pseudo_start
+        and not (chunk_start <= pseudo_start and pseudo_end <= chunk_end)
+        for pseudo_start, pseudo_end in pseudo_spans
+    )
 
 
 class TextProcessingPipeline:
@@ -245,6 +263,7 @@ class TextProcessingPipeline:
 
         processed_chunks_with_assertion: list[dict[str, Any]] = []
         assertion_inputs: list[str] = []
+        chunk_document_spans: list[tuple[int, int]] = []
         search_start = 0  # Track position for sequential search (handles duplicates)
 
         for idx, final_text_chunk in enumerate(final_raw_chunks_text_only):
@@ -298,6 +317,7 @@ class TextProcessingPipeline:
 
             # "status" and "assertion_details" are filled in below, after one
             # batched assertion-detection call for all chunks (#410).
+            chunk_document_spans.append((start_char, end_char))
             chunk_data: dict[str, Any] = {
                 "text": cleaned_final_chunk,
                 "status": None,
@@ -313,9 +333,18 @@ class TextProcessingPipeline:
             processed_chunks_with_assertion.append(chunk_data)
 
         assertion_results = self.assertion_detector.detect_batch(assertion_inputs)
-        for chunk_data, (assertion_status, assertion_details) in zip(
-            processed_chunks_with_assertion, assertion_results, strict=True
+        pseudo_spans = pseudo_cue_spans(original_text, self.language)
+        for chunk_data, chunk_span, (assertion_status, assertion_details) in zip(
+            processed_chunks_with_assertion,
+            chunk_document_spans,
+            assertion_results,
+            strict=True,
         ):
+            if assertion_status is AssertionStatus.NEGATED and _splits_pseudo_cue(
+                chunk_span, pseudo_spans
+            ):
+                assertion_status = AssertionStatus.AFFIRMED
+                assertion_details = {**assertion_details, "negated_scope_texts": []}
             chunk_data["status"] = assertion_status
             chunk_data["assertion_details"] = assertion_details
 
