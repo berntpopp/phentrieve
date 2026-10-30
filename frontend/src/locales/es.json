@@ -256,7 +256,12 @@
     "fullTextReceipt": {
       "title": "Análisis de texto completo listo",
       "addAll": "Añadir todos ({count})",
-      "addAllConfirm": "Haga clic de nuevo para añadir los {count}"
+      "addAllConfirm": "Haga clic de nuevo para añadir los {count}",
+      "incomplete": "No se pudo analizar parte de este texto. Pueden faltar hallazgos; revíselo manualmente o ejecute el análisis de nuevo.",
+      "familyFindings": "Antecedentes familiares",
+      "otherFindings": "Otras personas",
+      "relatedFindingsHint": "No son hallazgos del paciente y no se incluyen en «Añadir todos».",
+      "relatedFindingAbsent": "Ausente"
     }
   },
   "annotatedDocumentPane": {

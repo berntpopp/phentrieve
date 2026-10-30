@@ -309,6 +309,16 @@ def test_a_word_hyphenated_at_a_line_break_matches_the_whole_word():
     assert located.basis == "evidence_in_chunk"
 
 
+def test_a_quote_keeping_the_line_break_hyphen_still_matches():
+    document = "The child has low hemo-\nglobin and hypotonia."
+    chunks = {1: (0, len(document))}
+
+    located = locate_evidence(document, "low hemo- globin", [1], chunks)
+
+    assert document[located.start : located.end] == "low hemo-\nglobin"
+    assert located.basis == "evidence_in_chunk"
+
+
 def test_a_hyphen_that_does_not_split_a_word_is_kept():
     document = "Ein X-chromosomaler Erbgang; Fieber -\nkeines."
     chunks = {1: (0, len(document))}

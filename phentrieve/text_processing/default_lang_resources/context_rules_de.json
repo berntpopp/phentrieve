@@ -270,6 +270,30 @@
         "type": "pseudo-negation",
         "note": "Double negative - 'not excluded' means affirmed"
       }
+    },
+    {
+      "literal": "nicht auszuschließen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "de", "note": "Finding stays open"}
+    },
+    {
+      "literal": "nicht auszuschliessen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "de", "note": "Finding stays open"}
+    },
+    {
+      "literal": "nicht ausschließen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "de", "note": "Finding stays open"}
+    },
+    {
+      "literal": "nicht ausschliessen",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "de", "note": "Finding stays open"}
     }
   ]
 }

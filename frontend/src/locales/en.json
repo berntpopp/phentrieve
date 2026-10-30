@@ -256,7 +256,12 @@
     "fullTextReceipt": {
       "title": "Full-text analysis ready",
       "addAll": "Add all ({count})",
-      "addAllConfirm": "Click again to add all {count}"
+      "addAllConfirm": "Click again to add all {count}",
+      "incomplete": "Part of this note could not be analyzed. Findings may be missing, so review it manually or run it again.",
+      "familyFindings": "Family history",
+      "otherFindings": "Other people",
+      "relatedFindingsHint": "Not patient findings, and not included in Add all.",
+      "relatedFindingAbsent": "Absent"
     }
   },
   "annotatedDocumentPane": {

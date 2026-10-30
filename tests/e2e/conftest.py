@@ -118,12 +118,12 @@ def api_service(docker_ip: str, docker_services) -> str:
     # Port from docker-compose.test.yml (host:container = 8001:8000)
     port = docker_services.port_for("phentrieve_api_test", 8000)
     api_url = f"http://{docker_ip}:{port}"
-    health_url = f"{api_url}/api/v1/health"
+    ready_url = f"{api_url}/api/v1/health/ready"
 
-    # Wait up to 180 seconds for API to become healthy
-    # (matches start_period in docker-compose.test.yml)
+    # Wait up to 180 seconds for the model to load: /health answers before that,
+    # and the first queries would then return 503.
     docker_services.wait_until_responsive(
-        timeout=180.0, pause=2.0, check=lambda: is_api_responsive(health_url)
+        timeout=180.0, pause=2.0, check=lambda: is_api_responsive(ready_url)
     )
 
     return api_url

@@ -131,6 +131,24 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "context-pseudo", "language": "nl", "note": "Double negative"}
+    },
+    {
+      "literal": "niet uit te sluiten",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "nl", "note": "Finding stays open"}
+    },
+    {
+      "literal": "niet kan worden uitgesloten",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "nl", "note": "Finding stays open"}
+    },
+    {
+      "literal": "niet worden uitgesloten",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "nl", "note": "Finding stays open"}
     }
   ]
 }

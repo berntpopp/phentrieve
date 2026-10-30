@@ -244,14 +244,15 @@ async def test_full_text_service_runs_are_capped_by_semaphore(monkeypatch) -> No
 
 
 @pytest.mark.asyncio
-async def test_execute_llm_auto_detects_language_when_none(monkeypatch) -> None:
+@pytest.mark.parametrize("language", [None, "auto"])
+async def test_execute_llm_auto_detects_language(monkeypatch, language) -> None:
     from api.services import text_processing_context, text_processing_execution
 
     captured_kwargs: dict[str, object] = {}
     request = TextProcessingRequest(
         text="Der Patient hat keine Krampfanfälle.",
         extraction_backend="llm",
-        language=None,
+        language=language,
     )
 
     def fake_run_full_text_service(**kwargs):

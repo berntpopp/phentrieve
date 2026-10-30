@@ -44,6 +44,7 @@ _TYPOGRAPHY = str.maketrans(
 # text pasted from PDFs; it is dropped together with the line break.
 _LINE_BREAK_HYPHEN = re.compile(r"[-\u2010\u2011\u00ad][^\S\r\n]*[\r\n]\s*")
 _SOFT_HYPHEN = "\u00ad"
+_QUOTED_LINE_BREAK_HYPHEN = re.compile(r"(?<=\w)- (?=\w)")
 
 # Separators the phase-1 chunk index shows after the chunk they follow.
 _SEPARATORS = " \t\r\n.,;:!?)]"
@@ -199,6 +200,11 @@ class EvidenceLocator:
             self._normalized_regions[(start, end)] = region
         haystack, starts, ends = region
         position = haystack.find(needle)
+        if position == -1:
+            # The chunk index renders "hemo-\nglobin" as "hemo- globin", so a quote
+            # can keep a hyphen that the normalized document no longer has.
+            needle = _QUOTED_LINE_BREAK_HYPHEN.sub("", needle)
+            position = haystack.find(needle)
         if position == -1:
             return None
         return start + starts[position], start + ends[position + len(needle) - 1]
