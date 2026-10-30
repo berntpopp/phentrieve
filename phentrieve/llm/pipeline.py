@@ -1707,7 +1707,9 @@ class TwoPhaseLLMPipeline:
 
                 for candidate in candidates:
                     hpo_id = str(candidate.get("hpo_id", "")).strip()
-                    if not hpo_id:
+                    # Filter before mapping: _drop_non_phenotypic runs after a term is
+                    # chosen, so a finding mapped to a modifier would be lost entirely.
+                    if not hpo_id or is_non_phenotypic_abnormality(hpo_id):
                         continue
                     existing = merged_candidates.get(hpo_id)
                     if existing is None or float(
