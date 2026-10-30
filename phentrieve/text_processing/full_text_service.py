@@ -830,7 +830,7 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     # The provider resolver reads the environment itself and ignores it for Gemini.
     llm_base_url = kwargs.get("llm_base_url")
 
-    llm_mode =(kwargs.get("llm_mode") or "two_phase").strip()
+    llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
     if llm_mode != DEFAULT_LLM_MODE:
         raise ValueError(
             f"Unsupported LLM mode: {llm_mode!r}. Expected {DEFAULT_LLM_MODE!r}."
