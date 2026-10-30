@@ -1854,3 +1854,33 @@ def test_cancelled_run_starts_no_further_llm_calls() -> None:
 
     assert calls == ["phase1"]
     assert cancel_event.llm_calls_started == 1
+
+
+def test_run_llm_backend_leaves_ambient_base_url_to_the_resolver(
+    mocker, monkeypatch
+) -> None:
+    """An ambient base URL must not reach the resolver as an explicit one (#461)."""
+    monkeypatch.setenv("PHENTRIEVE_LLM_BASE_URL", "https://proxy.example/v1")
+    factory = mocker.Mock(
+        return_value=SimpleNamespace(
+            provider_name="gemini", model_name="gemini-2.5-flash", base_url=None
+        )
+    )
+    pipeline = mocker.Mock()
+    pipeline.run.return_value = LLMExtractionResult(
+        terms=[],
+        meta=LLMMeta(
+            llm_provider="gemini", llm_model="gemini-2.5-flash", llm_mode="two_phase"
+        ),
+    )
+
+    run_llm_backend(
+        text="Patient has seizures.",
+        llm_provider="gemini",
+        llm_model="gemini-2.5-flash",
+        llm_internal_mode="whole_document_legacy",
+        provider_factory=factory,
+        pipeline_factory=mocker.Mock(return_value=pipeline),
+    )
+
+    assert factory.call_args.kwargs["llm_base_url"] is None
