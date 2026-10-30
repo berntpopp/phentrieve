@@ -71,6 +71,33 @@
         </div>
       </div>
     </v-list>
+    <section
+      v-for="group in relatedFindings"
+      :key="group.key"
+      :data-testid="`full-text-related-findings-${group.key}`"
+      class="mt-3"
+    >
+      <div class="full-text-receipt__title">
+        {{ $t(`queryInterface.fullTextReceipt.${group.key}Findings`) }}
+      </div>
+      <div class="text-caption text-medium-emphasis">
+        {{ $t('queryInterface.fullTextReceipt.relatedFindingsHint') }}
+      </div>
+      <v-list density="compact" class="full-text-response-list">
+        <v-list-item
+          v-for="term in group.terms"
+          :key="`${group.key}-${term.hpo_id}`"
+          :title="term.name"
+          :subtitle="relatedFindingDetail(term)"
+        >
+          <template v-if="isExcludedFinding(term)" #append>
+            <v-chip size="x-small" color="warning" variant="tonal" label>
+              {{ $t('queryInterface.fullTextReceipt.relatedFindingAbsent') }}
+            </v-chip>
+          </template>
+        </v-list-item>
+      </v-list>
+    </section>
   </div>
 </template>
 
@@ -160,6 +187,24 @@ const receiptMeta = computed(() => {
 
   return `${terms} findings across ${chunks} document sections`;
 });
+
+// Findings about relatives and other people stay out of the patient's list and "Add all".
+const relatedFindings = computed(() => {
+  const response = props.item?.response;
+  return [
+    { key: 'family', terms: response?.family_history_findings },
+    { key: 'other', terms: response?.other_person_findings },
+  ].filter((group) => Array.isArray(group.terms) && group.terms.length > 0);
+});
+
+function relatedFindingDetail(term) {
+  const evidence = term.text_attributions?.[0]?.matched_text_in_chunk;
+  return evidence ? `${term.hpo_id} · "${evidence}"` : term.hpo_id;
+}
+
+function isExcludedFinding(term) {
+  return normalizeAssertionStatus(term.status, term.excluded) === 'negated';
+}
 
 function parseScoreValue(value) {
   if (typeof value === 'number' && Number.isFinite(value)) {

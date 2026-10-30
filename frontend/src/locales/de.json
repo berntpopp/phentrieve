@@ -257,7 +257,11 @@
       "title": "Volltextanalyse fertig",
       "addAll": "Alle hinzufügen ({count})",
       "addAllConfirm": "Erneut klicken, um alle {count} hinzuzufügen",
-      "incomplete": "Ein Teil dieses Textes konnte nicht analysiert werden. Es können Befunde fehlen. Prüfen Sie ihn daher manuell oder starten Sie die Analyse erneut."
+      "incomplete": "Ein Teil dieses Textes konnte nicht analysiert werden. Es können Befunde fehlen. Prüfen Sie ihn daher manuell oder starten Sie die Analyse erneut.",
+      "familyFindings": "Familienanamnese",
+      "otherFindings": "Andere Personen",
+      "relatedFindingsHint": "Keine Befunde des Patienten und nicht in „Alle hinzufügen“ enthalten.",
+      "relatedFindingAbsent": "Nicht vorhanden"
     }
   },
   "annotatedDocumentPane": {

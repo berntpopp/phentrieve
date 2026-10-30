@@ -66,6 +66,41 @@ function mountReceipt(props = {}) {
 }
 
 describe('FullTextResponseReceipt', () => {
+  it('lists family and other-person findings apart from the patient findings', () => {
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-related',
+        response: {
+          aggregated_hpo_terms: [],
+          family_history_findings: [
+            { hpo_id: 'HP:0001250', name: 'Seizure', status: 'negated', excluded: true },
+          ],
+          other_person_findings: [
+            {
+              hpo_id: 'HP:0000821',
+              name: 'Hypothyroidism',
+              status: 'present',
+              text_attributions: [{ matched_text_in_chunk: 'hypothyroidism' }],
+            },
+          ],
+          processed_chunks: [{ chunk_id: 1, text: 'Her roommate has hypothyroidism.' }],
+        },
+      },
+    });
+
+    const family = wrapper.get('[data-testid="full-text-related-findings-family"]');
+    expect(family.text()).toContain('Seizure');
+    expect(family.text()).toContain('Absent');
+
+    const other = wrapper.get('[data-testid="full-text-related-findings-other"]');
+    expect(other.text()).toContain('Hypothyroidism');
+    expect(other.text()).toContain('"hypothyroidism"');
+    expect(other.text()).not.toContain('Absent');
+
+    // Never offered for collection as the patient's phenotypes.
+    expect(wrapper.find('[data-testid="full-text-response-add-all"]').exists()).toBe(false);
+  });
+
   it('warns only when the API flags a partial extraction', () => {
     const warning = '[data-testid="full-text-incomplete-warning"]';
     expect(mountReceipt().find(warning).exists()).toBe(false);
