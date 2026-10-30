@@ -182,6 +182,12 @@ function scoreNameCandidate(text, candidate, config) {
   if (normalizedValues.some((value) => config.blockedTerms.includes(value))) {
     return 0;
   }
+  if (
+    config.nonNameFirstTokenPattern.test(normalizedValues[0]) ||
+    config.nonNameLastTokenPattern.test(normalizedValues.at(-1))
+  ) {
+    return 0;
+  }
 
   let score = candidate.nameTokenCount >= config.minNameTokens ? 2 : 0;
   if (candidate.hasParticle) score += 1;

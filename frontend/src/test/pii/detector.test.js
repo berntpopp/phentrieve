@@ -127,6 +127,29 @@ describe('scanPii', () => {
     expect(result.summary.review.person_name).toBeUndefined();
   });
 
+  it.each([
+    ['Der Patient hat keine Krampfanfälle. Eine Ataxie wurde ausgeschlossen.'],
+    ['Die Patientin hat eine Mikrozephalie. Der Vater hat eine Epilepsie.'],
+    ['Rezidivierende Krampfanfälle seit der Kindheit.'],
+    ['Beidseitige Ptosis und Generalisierte Anfälle.'],
+    ['Keine Ataxie. Muskuläre Hypotonie.'],
+    ['Low Hämo-\nglobin level.'],
+  ])('does not mark German clinical sentences as untitled names: %s', (text) => {
+    const result = scanPii(text, { locale: 'de' });
+
+    expect(result.summary.review.person_name).toBeUndefined();
+  });
+
+  it.each([
+    ['Bernt Popp ist dumm'],
+    ['Patientin Anna Müller hat Fieber'],
+    ['Maria Schmidt, 34 J.'],
+  ])('still marks real German names: %s', (text) => {
+    const result = scanPii(text, { locale: 'de' });
+
+    expect(result.summary.review.person_name).toBe(1);
+  });
+
   it('detects French NIR labels', () => {
     const result = scanPii('NIR 1900675123456 pour le patient.', { locale: 'fr' });
     expect(result.summary.high.national_identifier).toBe(1);
