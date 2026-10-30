@@ -18,21 +18,33 @@ together:
 
 ## [Unreleased]
 
-### Fixed
-
-- **Full-text "Auto" language is detected again (#458).** The frontend dropped
-  `language: null` from the request, so the API fell back to `en` and German text lost its
-  negations in the standard backend. It now sends `language: "auto"`.
 ### Added
 
 - **Full-text results warn when the LLM extraction is partial.** The API already flagged
   `meta.incomplete` when a chunk group failed after all retries, but the result looked
   complete in the UI. It now shows a warning that findings may be missing.
-### Added
-
+- **Family and other-person findings appear in full-text results (#460).** They are listed
+  apart from the patient's findings and stay out of "Add all". A note naming only other
+  people used to report 0 findings.
 - **`GET /api/v1/health/ready` reports whether the default model is loaded.** It answers
   503 while the model loads and 200 afterwards. `/api/v1/health` stays a liveness check,
   and the E2E suite now waits for readiness instead of failing on a cold start.
+
+### Fixed
+
+- **Standard negation no longer inverts clinical meaning (#459).** Multi-word cues such as
+  "ruled out", "negative for" and "absence of" were affirmed, and "cannot be ruled out" was
+  negated. This also holds when chunking splits such a phrase. Open findings are reported
+  as affirmed, not uncertain.
+- **The LLM pipeline no longer loses findings mapped to clinical-modifier terms (#471).**
+  "Patient has recurrent seizures." returned nothing, because the exact match Seizure
+  cluster was removed after mapping. Such terms now leave the candidates before mapping.
+- **Full-text "Auto" language is detected again (#458).** The frontend dropped
+  `language: null` from the request, so the API fell back to `en` and German text lost its
+  negations in the standard backend. It now sends `language: "auto"`.
+- **REST LLM requests no longer return 500 when `PHENTRIEVE_LLM_BASE_URL` is set (#461).**
+- **LLM highlights work across line-break hyphens (#462).**
+- **German clinical sentences no longer open the PII dialog as possible names (#467).**
 
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 

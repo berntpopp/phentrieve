@@ -288,6 +288,26 @@ New findings:
   `tests/unit/cli/test_similarity_commands.py` fail because they assume no `hpo_data.db`
   exists. `make frontend-i18n-check` fails on Windows with "vueFiles glob has no files".
 
+## Follow-up fixes 2026-10-30
+
+Branch `fix/acceptance-followups-2026-10-30`. Issues #459-#472 record all findings above.
+
+Fixed and checked in the browser, in English and German: #458, #459, #460, #461, #462,
+#467, #471, plus the `incomplete` warning and `/health/ready`. In the query path and
+standard full text, "ruled out" reads as negated and "cannot be ruled out" as open.
+
+Benchmarks, `main` against the branch, GeneReviews (10 documents):
+
+| Run | Micro F1 main | Micro F1 branch | Note |
+|---|---|---|---|
+| Standard backend, BioLORD | 0.2463 | 0.2463 | Identical metrics |
+| LLM, Gemini 3.1 Flash Lite via OpenRouter | 0.8266 | 0.8266 | 274 terms each, one differs per side |
+
+These runs use no fixed seed, and GeneReviews has few of the affected phrases, so they
+show no regression but do not measure the gain. The full CSC/GSC run is still open.
+
+Still open: #463, #464, #465, #466, #468, #469, #470, #472. The E2E suite was not run.
+
 ## Sign-off
 
 | PR | Result | Notes |
