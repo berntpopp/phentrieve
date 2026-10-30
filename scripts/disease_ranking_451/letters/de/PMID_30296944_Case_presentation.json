@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30296944_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 349,
+  "completion_tokens": 431,
+  "total_tokens": 2882,
+  "thoughts_tokens": 2102,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den 17-jährigen Schüler Felix zur dringenden elektrophysiologischen Beurteilung. \n\nVor zwei Wochen erlitt der Jugendliche während des Schulsports einen plötzlichen Kreislaufkollaps. Die eintreffende Notärztin dokumentierte ein Kammerflimmern, welches glücklicherweise nach zwei Defibrillationen erfolgreich terminiert werden konnte, sodass der Patient dieses Ereignis im Sinne eines überlebten plötzlichen Herztodes neurologisch unbeeinträchtigt überstand. Anamnestisch war bereits vor vier Wochen eine kurze, abrupte Synkope im häuslichen Umfeld aufgetreten, die damals als vasovagale Fehlregulation eingestuft worden war.\n\nIm aktuellen 12-Kanal-EKG imponiert eine vollständige Rechtsschenkelblockierung mit einer QRS-Dauer von 135 ms. Im Verlauf des kontinuierlichen Monitorings zeigte sich zudem wiederholt eine ventrikuläre Bigeminie. \n\nDie weiterführende Diagnostik mittels Kardio-MRT und Echokardiographie ergab regelrechte Ventrikeldimensionen ohne regionale Wandbewegungsstörungen; eine strukturelle Kardiomyopathie konnte zweifelsfrei ausgeschlossen werden. Ebenso fand sich kernspintomographisch und serologisch kein Anhalt für eine abgelaufene oder akute Myokarditis. \n\nDer sonstige internistische Untersuchungsbefund ist unauffällig. Die Vitalwerte liegen stabil im Normbereich (Blutdruck 120/75 mmHg, normofrequenter Sinusrhythmus). Vorerkrankungen bestehen nicht, der Patient nimmt keine Medikamente ein, und die kardiovaskuläre Familienanamnese ist leer. \n\nIch bitte Sie um Ihre geschätzte Einschätzung dieses Falles sowie um eine Empfehlung zum weiteren rhythmologischen Vorgehen, insbesondere im Hinblick auf eine sekundärprophylaktische Defibrillatorimplantation.\n\nMit freundlichen kollegialen Grüßen"
+}

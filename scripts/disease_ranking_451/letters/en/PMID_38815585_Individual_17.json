@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_17",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 550,
+  "completion_tokens": 417,
+  "total_tokens": 5005,
+  "thoughts_tokens": 4038,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing Clara, a 6-year-old girl who attends primary school and is currently on no regular medications, for a specialist evaluation. Her past medical history is generally unremarkable.\n\nDuring our visit, physical examination revealed remarkable generalized joint laxity throughout her extremities. On facial inspection, her palpebral apertures slant distinctly cephalad, and she has a prominent ocular misalignment, though her eyes show no outward divergent deviation, are not sunken, and have normal globe volume. Fundoscopy confirms well-formed maculae, and intercanthal distance is normal without epicanthic folds or downward slants. Her forehead span is ample, the middle face projects well, and her facial contour is neither vertically elongated nor wedge-shaped. Her lips display very narrow red margins, though the oral angles do not sag. Within the oropharynx, her palate is of typical height, the uvula is undivided, and there is no tongue-tie. Her auricles are normally positioned, lacking low planting, backward tilt, or forward angling. Mandibular alignment is preserved without posterior recession, and calvarial shape and fontanelle closure are entirely typical.\n\nClara's linear growth and head size are right along the 50th percentile, showing no diminished stature or microcephaly/macrocephaly. Her chest demonstrates no hollowed sternum, and her nipples are appropriately spaced and non-retracted. Her skin is completely opaque without visible superficial veins, her groin canals show no bulges, and her lower spine lacks any cutaneous pit. Her fingers are not spindly, medial foot arches are well-maintained, and she displays no loss of strength or generalized debility. \n\nDevelopmentally, her spoken communication is rich and age-appropriate, without parrot-like repetition of words. She displays no spectrum-like features, twirling behaviors, repeated hand-waving mannerisms, or episodes of rage and physical violence.\n\nI would appreciate your expert opinion regarding these findings.\n\nSincerely,\nDr. Elizabeth Miller"
+}

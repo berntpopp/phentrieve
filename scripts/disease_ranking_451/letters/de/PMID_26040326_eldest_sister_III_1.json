@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26040326_eldest_sister_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 397,
+  "total_tokens": 2343,
+  "thoughts_tokens": 1616,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen heute Frau Julia Sommer, 33 Jahre alt, zur weiteren konsiliarischen Einordnung.\n\nAnamnestisch bestehen auffällige Laborwerte bei der Patientin offenbar bereits seit früher Kindheit, etwa ab dem zweiten Lebensjahr. Aktuell stellte sie sich wegen persistierender Abgeschlagenheit vor. Im Routinelabor zeigte sich ein Hämoglobinwert von 8,4 g/dl bei deutlich gesteigertem mittlerem korpuskulärem Volumen von 114 fl. Im peripheren Blutausstrich imponierten hypersegmentierte Granulozyten und eindeutige megaloblastäre Zellveränderungen. Ergänzend bestimmte Laborparameter ergaben einen stark erniedrigten Cobalaminspiegel im Serum von 78 pg/ml. Zudem konnte in den Urinanalysen wiederholt ein vermehrter Nachweis von Eiweiß objektiviert werden, im aktuellen Sammelurin fand sich eine Ausscheidung von 0,9 g Protein pro Tag. Das Serumkreatinin liegt mit 0,8 mg/dl im Normbereich.\n\nDie körperliche Untersuchung bot unauffällige Befunde: Der Blutdruck lag bei 118/75 mmHg, die Auskultation von Herz und Lunge ergab regelrechte Verhältnisse, peripher zeigten sich keine Ödeme. Auch die orientierende neurologische Testung inklusive Tiefensensibilität war unbeeinträchtigt. Die Patientin arbeitet im Büro, ernährt sich ausgewogen und nimmt aktuell keine Dauermedikation ein. Die Familienanamnese ist hinsichtlich Nieren- und Blutzellveränderungen leer.\n\nIch wäre Ihnen für eine differentialdiagnostische Einschätzung dieser Konstellation sowie eine Empfehlung zum weiteren diagnostischen Vorgehen sehr dankbar.\n\nMit besten kollegialen Grüßen\n\nDr. med. Christian Brandner"
+}

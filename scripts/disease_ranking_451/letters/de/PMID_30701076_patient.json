@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30701076_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 516,
+  "total_tokens": 2902,
+  "thoughts_tokens": 1947,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen Herrn M., 31 Jahre alt, zur konsiliarischen Beurteilung eines komplexen Befundmusters. Erste Veränderungen machten sich im Jugendalter um das 15. Lebensjahr bemerkbar.\n\nKraniofazial imponieren ein ausgeprägter Langschädel nach anamnestisch operiertem vorzeitigem Nahtverschluss der Schädelkalotte sowie ein fliehendes Kinn bei mandibulärer Rücklage. Es zeigt sich eine bilaterale periorbitale Faltenbildung im Sinne eines Epikanthus medialis. Ophthalmologisch besteht ein manifester Strabismus divergens bei hochgradiger Myopie von beidseits über acht Dioptrien. Zudem berichtet der Patient über nächtliche obstruktive Atemaussetzer, die schlafmedizinisch als OSAS gesichert wurden.\n\nKardiovaskulär dokumentierte die Echokardiographie eine Ektasie der Aortenwurzel mit einem Bulbusdurchmesser von 45 mm sowie einen Mitralklappenprolaps. Angiographisch fielen elongierte, auffallend geschlängelte Hirnarterien auf.\n\nAm muskuloskelettalen System fallen eine thorakolumbale Skoliose, eine Gefügelockerung der Halswirbelsäule sowie eine ausgeprägte Kielbrust auf; eine Trichterbrust liegt nicht vor. Im Thoraxröntgen imponieren überzählige Rippenabgänge zervikal. Es bestehen beidseitige X-Beine sowie radiologisch nachgewiesene tief stehende Pfannen im Sinne einer Protrusio acetabuli. Die Hände und Füße sind regelrecht fünfstrahlig angelegt, postaxiale Polydaktylien wurden ausgeschlossen. Die MRT der Lendenwirbelsäule zeigte zudem eine spindelförmige Ektasie des lumbosakralen Duralsacks. Dermatologisch finden sich breite Dehnungsstreifen an Glutealregion und Flanken ohne wesentliche Gewichtsschwankungen in der Vorgeschichte.\n\nHerr M. arbeitet im IT-Bereich und ist Nichtraucher. Das Routine-Basislabor inklusive Entzündungs- und Nierenwerten war unauffällig.\n\nIch danke Ihnen für die Mitbeurteilung und kollegiale Einschätzung der Befundkonstellation.\n\nMit freundlichen Grüßen"
+}

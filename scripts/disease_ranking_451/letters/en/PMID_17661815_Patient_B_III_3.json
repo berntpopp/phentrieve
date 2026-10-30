@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_B_III_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 442,
+  "completion_tokens": 369,
+  "total_tokens": 4231,
+  "thoughts_tokens": 3420,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Gallagher,\n\nThank you for agreeing to evaluate this one-month-old male infant who was admitted to our neonatal unit shortly after birth. He was delivered at 39 weeks gestation following an uneventful pregnancy, with prenatal imaging confirming a normal amniotic fluid index and no polyhydramnios. \n\nIn the delivery room, he developed immediate neonatal respiratory compromise requiring non-invasive positive pressure support. Physical examination is notable for a distinctly recessed mandible, bilateral cup-shaped pinnae, and an asymmetric cry due to a unilateral seventh cranial nerve weakness. Dilated funduscopy identified a gap in the inferior retina. Temporal bone CT demonstrated well-developed semicircular canals without hypoplasia, alongside an incomplete partition of the cochlear apex where the middle and apical turns form a common cystic cavity. Neck CT angiography confirmed symmetric, full-caliber vessels with no internal carotid artery hypoplasia. Thus far, he has experienced no recurrent otitis media. \n\nEnteral feeding has been particularly difficult because of a weak, poorly coordinated suck, exacerbated by significant gastroesophageal regurgitation requiring thickened formula. On genital examination, he was noted to have an abnormally small phallus and bilaterally undescended testes. \n\nHis inpatient course has also been complicated by episodes of paroxysmal supraventricular tachyarrhythmia and progressive signs of congestive cardiac failure, prompting digitalization. Transthoracic echocardiography showed apical displacement of the septal tricuspid leaflet characteristic of an Ebstein malformation, but there was no atrial septal defect, no ventricular septal defect, and no overriding aorta. \n\nGiven this infant's multi-system involvement, I would greatly appreciate your specialized assessment and recommendations for further diagnostic evaluation. \n\nSincerely,\n\nDr. Marcus Vance, MD\nDepartment of Neonatology"
+}

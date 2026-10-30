@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9398836_Family_J2_20_III_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 320,
+  "completion_tokens": 387,
+  "total_tokens": 2409,
+  "thoughts_tokens": 1702,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn Felix Winter, 31 Jahre alt, zur konsiliarischen Einschätzung.\n\nBeim Patienten besteht seit seinem 15. Lebensjahr eine dokumentierte, chronische Erhöhung der Nüchternblutzuckerwerte, die damals im Rahmen einer jugendärztlichen Routinekontrolle auffiel. Der Verlauf gestaltete sich über die letzten 16 Jahre ausgesprochen stabil und oligosymptomatisch, ohne Neigung zu metabolischen Entgleisungen oder Ketoseereignissen. Eine Insulintherapie war zu keinem Zeitpunkt erforderlich, und die körpereigene Sekretionsleistung stellte sich in den bisherigen Kontrollen als gut erhalten dar. \n\nKörperlich präsentiert sich der Patient in einem sehr guten Allgemeinzustand. Bei einer Körpergröße von 181 cm und einem Gewicht von 74 kg liegt ein stabiles Normalgewicht vor. Die klinische Untersuchung von Herz, Lunge und Abdomen erbrachte regelrechte Befunde. Die peripheren Pulse sind allseits kräftig und seitengleich tastbar, trophische Störungen oder periphere Ödeme finden sich nicht. Der Blutdruck lag bei 118/76 mmHg. Routinelaborchemisch zeigten sich die Nierenretentionsparameter, Elektrolyte sowie die Transaminasen vollständig normwertig. Der Patient ist als Softwareentwickler tätig, Nichtraucher und betreibt in seiner Freizeit regelmäßig Ausdauersport. \n\nAufgrund des frühen Beginns dieser Störung der Glukoseregulation bereits im Jugendalter bei schlankem Phänotyp und blandem Verlauf bitte ich um Ihre geschätzte fachärztliche Beurteilung sowie Empfehlungen zum weiteren Vorgehen.\n\nMit besten kollegialen Grüßen\n\nDr. med. Thomas Hauser"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_1680289_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 353,
+  "completion_tokens": 348,
+  "total_tokens": 2760,
+  "thoughts_tokens": 2059,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den heute zweijährigen Jungen Liam zur weiteren Abklärung. \n\nErste infektassoziierte Auffälligkeiten zeigten sich anamnestisch bereits extrem früh am dritten Lebenstag. Aktuell befindet sich das Kind wegen einer radiologisch und klinisch gesicherten Pneumonie in unserer stationären Behandlung. Unter begonnener intravenöser Antibiose ist er derzeit kreislaufstabil. Die Herztöne sind rein und regelmäßig, das Abdomen präsentiert sich weich ohne Resistenzen oder Hepatosplenomegalie, und der neurologische Entwicklungsstand ist unauffällig. Die Eltern sind gesund und nicht blutsverwandt; die Familienanamnese ist unergiebig.\n\nIm Routinelabor fiel eine ausgeprägte absolute Lymphopenie auf. Die daraufhin veranlasste Bestimmung der humoralen Parameter erbrachte ein stark vermindertes Serum-IgM sowie ein deutlich erniedrigtes zirkulierendes IgA, jeweils weit unterhalb der altersentsprechenden Normalwerte. Ergänzend zeigte sich in der funktionellen zellulären Diagnostik eine signifikant abgeschwächte T-Zell-Proliferation nach Stimulation mit Mitogenen. \n\nInsgesamt imponiert bei dem Patienten das klinische Bild einer massiven kombinierten Abwehrschwäche, die sowohl den T-zellulären als auch den B-zellulären Zweig betrifft. Ich bitte Sie um eine konsiliarische Beurteilung und Ihre geschätzte Empfehlung bezüglich des weiteren diagnostischen und therapeutischen Managements.\n\nMit freundlichen kollegialen Grüßen"
+}

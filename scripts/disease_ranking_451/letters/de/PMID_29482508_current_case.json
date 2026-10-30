@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29482508_current_case",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 370,
+  "total_tokens": 2596,
+  "thoughts_tokens": 1866,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 16-jährigen Jonas Becker zur konsiliarischen Mitbeurteilung. Die Beschwerden begannen anamnestisch im Alter von etwa neun Jahren. Der Jugendliche berichtet aktuell über wiederkehrende, teils bewegungsabhängige Schmerzen im Bereich des Rumpfes und der Extremitäten.\n\nKlinisch sowie sonographisch zeigen sich derbe, druckdolente Raumforderungen; in der Bildgebung imponieren multilokuläre, ektopische Verknöcherungen innerhalb der Skelettmuskulatur, vor allem paravertebral. Bei der Untersuchung des Fußskeletts fallen zudem beidseits auffällig verlängerte Großzehen auf, die gleichzeitig eine deutliche Valgusfehlstellung aufweisen.\n\nLaborchemisch zeigt sich eine signifikante Erhöhung der alkalischen Phosphatase auf 285 U/l. Das Serum-Calcium liegt im mittleren Normbereich, eine Hyperkalzämie liegt nicht vor. Ebenso konnte eine Hyperphosphatämie ausgeschlossen werden; die Phosphatwerte waren ausnahmslos unauffällig. Die Konzentration des C-reaktiven Proteins ist nicht erhöht.\n\nDer Patient besucht die zehnte Klasse eines Gymnasiums. Die Familienanamnese bezüglich knöcherner Auffälligkeiten ist leer. Vitalparameter, Auskultation von Herz und Lunge sowie der grobneurologische Untersuchungsbefund waren unauffällig. Bei Schmerzspitzen nimmt er gelegentlich Paracetamol ein, sonst besteht keine Dauermedikation.\n\nIch bitte Sie um eine differentialdiagnostische Beurteilung dieser Befundkonstellation und Vorschläge zum weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

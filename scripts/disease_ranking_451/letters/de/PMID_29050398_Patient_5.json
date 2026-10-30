@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050398_Patient_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 436,
+  "total_tokens": 3627,
+  "thoughts_tokens": 2821,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindner,\n\nich überweise Ihnen die dreijährige Lea Becker zur neuropädiatrischen Beurteilung. Lea wächst behütet bei ihren gesunden Eltern auf; die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer.\n\nErste Symptome zeigten sich im Alter von sieben Monaten. Seither imponiert eine gravierende Verzögerung sämtlicher Entwicklungsmeilensteine: Das Mädchen kann bis heute weder frei sitzen noch Blickkontakt sicher halten oder gezielt lautieren. Körperlich fällt ein verminderter Kopfumfang auf, der mit 44,5 cm deutlich unterhalb der dritten Perzentile liegt. Bei der Untersuchung zeigt sich Lea stammbetont muskulär stark herabgesetzt und auffallend schlaff, während die kardiopulmonale Untersuchung sowie das Abdomen regelrecht beurteilt wurden.\n\nDas Anfallsgeschehen ist vielgestaltig. Die Eltern berichten über rezidivierende, wenige Sekunden dauernde tonische Versteifungsepisoden sowie über fokale Anfälle, bei denen Lea nicht ansprechbar wirkt, starr blickt und orale Automatismen zeigt. Klassische epileptische Spasmen wurden zu keinem Zeitpunkt beobachtet. Auch bilaterale tonisch-klonische Krampfanfälle traten nicht auf, und typische Absence-Ereignisse konnten wir anamnestisch ausschließen.\n\nIm EEG imponierte eine kontinuierlich desorganisierte, hochamplitudige Kurvenkonstellation im Sinne eines hypsarrhythmischen Musters. Die zerebrale Bildgebung mittels MRT wies auf eine für das Lebensalter deutlich verzögerte Markreifung hin, ohne dass fokale strukturelle Defekte erkennbar waren. Unter der aktuellen Medikation mit Levetiracetam besteht weiterhin keine zufriedenstellende Anfallskontrolle.\n\nFür Ihre geschätzte Einschätzung zum weiteren Vorgehen und zur differenzialdiagnostischen Einordnung wäre ich Ihnen sehr verbunden.\n\nMit freundlichen Grüßen\nDr. med. Thomas Martin"
+}

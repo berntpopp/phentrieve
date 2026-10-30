@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_5_5_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 356,
+  "total_tokens": 2462,
+  "thoughts_tokens": 1707,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 3-year-old child, who presents for an expert comprehensive assessment across several organ systems. The parents are healthy, non-consanguineous, and the child currently takes only routine multivitamin drops.\n\nFrom early infancy, there has been a notable lag in motor milestones; independent ambulation has not yet been achieved. A baseline brain MRI demonstrated complete non-development of the corpus callosum. Reassuringly, the child has remained free of any seizure activity. Head circumference traces steadily along the 45th percentile, with no microcephaly noted. Examination of the face shows completely intact lips and palate. Formal auditory testing has confirmed age-appropriate responses with no sensorineural hearing deficits. \n\nOn ocular examination, bilateral lenticular opacities were identified, though visual fix-and-follow is preserved and there is no nystagmus. Examination of the integument reveals striking, diffuse cutaneous hypopigmentation when compared to familial complexion. The patient has also suffered recurrent, severe bacterial infections, and immunological workup confirmed a profound immune dysfunction. Notably, chest radiography demonstrated a preserved, appropriately sized thymic silhouette, ruling out thymic aplasia or hypoplasia.\n\nA recent cardiology referral was prompted by a newly identified murmur; echocardiography established the presence of a non-ischemic cardiomyopathy with decreased ventricular ejection fraction. On physical examination, the abdomen is soft and non-tender with no hepatomegaly, and the back demonstrates a straight spinal axis with no scoliosis.\n\nGiven this complex presentation involving cardiac, immunologic, ocular, and neurological findings, I would value your clinical perspective on diagnostic workup and management.\n\nSincerely,\nDr. Laura Sterling, MD"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11950863_Individual_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 430,
+  "total_tokens": 3618,
+  "thoughts_tokens": 2757,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich stelle Ihnen heute Frau Sabine Meier, 50 Jahre alt, zur konsiliarischen Begutachtung vor. Die Patientin ist kaufmännisch tätig, nimmt lediglich bei Bedarf Ibuprofen ein und berichtet über eine unauffällige Familienanamnese. Kognitiv zeigt sie sich vollkommen unbeeinträchtigt und eloquent. In der Vorgeschichte traten epileptische Anfälle nie auf.\n\nKörperlich ist die Patientin normwüchsig bei einer Körpergröße von 169 cm. Das Gesicht ist seitengleich aufgebaut ohne fassbare Asymmetrien, die Stirnregion glatt konturiert ohne prominente Metopikaleiste. Auffällig sind eine beidseitige Abflachung der Wangenknochen sowie eine messbar vergrößerte Distanz zwischen den beiden inneren Lidwinkeln. Die Nasenflügel präsentieren sich unterentwickelt und zart. Die Gesichtshaut ist frei von Milien.\n\nIm Mundbereich fällt ein sehr schmales Oberlippenrot mit einer medianen Einkerbung im Sinne einer Pseudospaltbildung auf. Korrespondierend zeigt sich eine zentrale Einkerbung des oberen Alveolarkamms. Der Gaumen stellt sich vollständig intakt dar, ohne Spaltbildung. Dental besteht eine Nichtanlage mehrerer bleibender Zähne. Die Zungenoberfläche imponiert auffällig gelappt gegliedert; eine gespaltene Zunge, Zungenhamartome oder überzählige Mundschleimhautbänder lassen sich nicht nachweisen.\n\nAn den Extremitäten zeigen sich keine Syndaktylien. Die Strahlen an Händen und Füßen sind harmonisch angelegt, insbesondere das vierte Metatarsale ist seitengleich regelrecht lang. Ein abdomineller Ultraschall ergab unauffällige Nieren ohne Hinweise auf eine zystische Fehlbildung.\n\nWir bitten um Ihre geschätzte differentialdiagnostische Einschätzung der vorliegenden Merkmalskonstellation.\n\nMit freundlichen Grüßen"
+}

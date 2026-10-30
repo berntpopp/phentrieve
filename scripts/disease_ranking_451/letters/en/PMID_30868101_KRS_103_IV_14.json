@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30868101_KRS_103_IV_14",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 300,
+  "total_tokens": 2017,
+  "thoughts_tokens": 1336,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 24-year-old gentleman who has experienced a progressive neurological decline since approximately 12 years of age. He currently lives at home with his parents and has no significant family history of neurologic illness.\n\nOver the past several years, his family noted worsening low mood and depressive affect, alongside distressing episodes of seeing figures and animals that are not present. On motor examination, he exhibits a striking akinetic-rigid presentation characterized by generalized slowness of movement, bilateral cogwheel tone across all limbs, and an asymmetric resting and action tremor of the hands. He demonstrates pronounced difficulty managing oral secretions with persistent saliva pooling, and his speech is markedly slurred and scanning. \n\nNeuro-ophthalmologic assessment reveals impaired voluntary conjugate gaze in both vertical and horizontal directions with preserved oculocephalic reflexes, accompanied by sluggish, slow-velocity saccades. His deep tendon reflexes are brisk and exaggerated at 3+ in all four limbs, yet his plantar responses are strictly flexor. Musculoskeletal inspection reveals prominent bilateral high-arched feet. Importantly, there are no sustained twisting postures or abnormal involuntary writhing movements observed. Primary sensation to pinprick and vibration remains intact, and pupillary light responses are normal. His current daily regimen includes escitalopram and artificial tears.\n\nGiven the progressive nature of his presentation, I would greatly appreciate your expert evaluation and recommendations regarding further assessment and management.\n\nSincerely,\nDr. Marcus Vance"
+}

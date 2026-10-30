@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27180139_case_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 372,
+  "completion_tokens": 310,
+  "total_tokens": 1971,
+  "thoughts_tokens": 1289,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Ethan, an 11-year-old boy who first presented in early infancy with developmental concerns. I would appreciate your expert assessment regarding his multifaceted presentation.\n\nEthan attends a specialized classroom and exhibits marked global cognitive deficits alongside longstanding expressive and receptive language delays. A previous audiogram documented bilateral sensorineural hearing loss. Historical neuroimaging demonstrated incomplete formation of the corpus callosum as well as a stable intracranial arachnoid cyst. \n\nOn physical examination today, his vital signs and growth parameters were reassuring, with height and weight tracking along the 40th percentile. Cardiovascular and respiratory examinations were normal, and the abdomen was soft and non-tender. Neurologically, cranial nerves were grossly intact aside from the known auditory deficit. Craniofacial inspection is notable for a distinctly triangular facial contour, sunken, deep-set eyes, and unusually thin, sparse eyebrows. His auricles are noticeably rotated toward the occiput. Musculoskeletal examination showed normal axial tone and normal leg joints, but marked hyperextension was demonstrable at both cubital joints. \n\nEthan lives at home with his parents and older sister, both of whom are healthy with no remarkable medical background. He is currently not on any prescribed medications, and basic screening bloodwork from last month was unremarkable. \n\nGiven his developmental trajectory, structural neuroimaging, and dysmorphic features, I would value your formal opinion and recommendations for next steps.\n\nSincerely,\nDr. Julian Hayes, MD\nWestbrook Pediatric Clinic"
+}

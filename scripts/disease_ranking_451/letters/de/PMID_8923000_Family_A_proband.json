@@ -1,0 +1,18 @@
+{
+ "case": "PMID_8923000_Family_A_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 380,
+  "total_tokens": 2301,
+  "thoughts_tokens": 1570,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute Frau Weber, eine 40-jährige Patientin, zur weiteren Abklärung und differenzialdiagnostischen Einschätzung. \n\nDie Patientin berichtet über Auffälligkeiten, die bereits seit frühester Kindheit bestehen. Bei der klinischen Untersuchung fällt vor allem ein generalisiert vermehrtes Bewegungsausmaß an den großen und kleinen Extremitätengelenken auf. Das Hautkolorit ist unauffällig, die Kutis fühlt sich jedoch bemerkenswert weich und teigig an. An den Unterarmen sowie am Hals lässt sich die Haut weit über das übliche Maß anheben, schnellt jedoch elastisch wieder zurück. Zudem besteht eine ausgeprägte Vulnerabilität des Integuments: Kleinste Bagatelltraumen führen rasch zu Risswunden, und nach Abheilung zeigen sich multipel flache, zigarettenpapierartig ausgedünnte Narbenareale, insbesondere über beiden Kniescheiben und den Schienbeinkanten. Begleitend besteht eine deutliche Neigung zu spontanen oder druckbedingten Suffusionen und Hämatomen.\n\nAnamnestisch ergeben sich keine Hinweise auf gehäufte oder rezidivierende Infekte der Atemwege; der Auskultationsbefund von Cor und Pulmo ist vollkommen regelrecht. Die Patientin arbeitet im Büro, treibt moderat Sport und nimmt außer einer gelegentlichen Einnahme von Magnesium keine Dauermedikation ein. Auch die kardiovaskulären Parameter und das Routinelabor zeigten sich unauffällig. In der Familie sind keine ähnlichen Veränderungen bekannt.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung und Ihre fachliche Beurteilung des Beschwerdebildes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

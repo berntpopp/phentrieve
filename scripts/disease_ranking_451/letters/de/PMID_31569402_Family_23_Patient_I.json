@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_23_Patient_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 556,
+  "completion_tokens": 530,
+  "total_tokens": 5035,
+  "thoughts_tokens": 3949,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen Herrn Jonas Becker, 23 Jahre, zur fachärztlichen Beurteilung.\n\nKörperlich fällt ein überproportionaler Hochwuchs mit relativ langen Extremitäten auf. Craniofazial zeigen sich eine Dolichozephalie, eine Abflachung der Wangenknochen, eine Mikrognathie, tief ansetzende Ohrmuscheln sowie ein spitzbogig hoher Gaumen; das Zäpfchen ist intakt und ungeteilt. Es besteht eine Kurzsichtigkeit. Der Interorbitalabstand ist normal, ein Epikanthus, Schielen, Keratokonus oder blaue Sklären fehlen ebenso wie eine bosselierte Stirn oder eine auffallend prominente Nase. \n\nThorakal imponiert eine Kielbrust, eine Trichterbrust oder Skoliose liegen nicht vor. An den Fingern bestehen Beugekontrakturen im Sinne einer Kamptodaktylie, wohingegen keine Arachnodaktylie nachweisbar ist. Es finden sich beidseits X-Beine, Plattfüße und eine Valgus-Spitzfuß-Fehlstellung; in den großen Gelenken sind bereits frühzeitige Knorpelabnutzungen und Arthrosen radiologisch verifiziert. Eine abnorme Gelenküberbeweglichkeit oder habituelle Luxationen bestehen nicht.\n\nHautmorphologisch imponiert eine überdehnbare, dünne Kutis mit durchscheinendem oberflächlichem Venennetz und Dehnungsstreifen an Stamm und Oberschenkeln. Atrophische Narbenbildungen, vermehrte Hämatomneigung oder Varizen sind nicht eruierbar. Hernien – inguinal, umbilikal oder hiatal – konnten sonografisch und endoskopisch ausgeschlossen werden. \n\nEchokardiografisch dokumentierten wir einen Mitralklappenprolaps mit begleitender Regurgitation; ein offener Ductus arteriosus, Koronardissektionen oder pathologische arterielle Gefäßschlängelungen waren bildgebend nicht nachweisbar. \n\nDas äußere Genitale ist regelrecht ohne Hypospadie. Nahrungsmittelallergien sind nicht bekannt, die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig. Der Patient arbeitet als Bankkaufmann und nimmt derzeit keine Dauermedikation ein.\n\nIch bitte um Ihre konsiliarische Einschätzung des Gesamtbefundes.\n\nMit freundlichen Grüßen"
+}

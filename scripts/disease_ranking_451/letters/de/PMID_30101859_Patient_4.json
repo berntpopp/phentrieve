@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30101859_Patient_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 386,
+  "total_tokens": 2673,
+  "thoughts_tokens": 1879,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 9-jährige Emma zur weiteren klinischen Einordnung und Mitbeurteilung. Die Schülerin lebt bei ihren gesunden Eltern, die Familienanamnese ist unauffällig. Die bisherige schulische und motorische Entwicklung verlief regelrecht.\n\nIn unserer transthorakalen Echokardiographie zeigte sich eine aneurysmatische Aufweitung der Aortenwurzel mit ausgeprägter Ektasie der Sinus valsalvae sowie ein diastolischer Regurgitationsjet an der Aortenklappe. Neben einem Vorfall der Trikuspidalklappensegel in der Systole stellten sich eine aneurysmatisch dilatierte Pulmonalarterie, ein Defekt im Vorhofseptum und ein zusätzlich persistierendes offenes Foramen ovale dar.\n\nKörperlich imponieren mehrere muskuloskelettale Auffälligkeiten. Der Brustkorb zeigt ein prominentes, vorstehendes Sternum im Sinne einer Kielbrust; eine Trichterbrust liegt explizit nicht vor. Die Wirbelsäule weist eine Skoliose auf. Die Finger wirken auffallend lang und schmal, zudem fällt eine persistierende Adduktionsstellung der Daumen auf. Kraniofazial zeigen sich abgeflachte Wangenknochen sowie ein zurückweichender Unterkiefer. Bei der Inspektion des Rachenraums fand sich eine gespaltene Uvula. Ophthalmologisch besteht ein divergenter Strabismus, die Sehschärfe ist ansonsten seitengleich normal. Die neurologische Untersuchung und die Routinelaborwerte zeigten keine Auffälligkeiten.\n\nAufgrund dieser Befundkonstellation bitte ich um Ihre geschätzte Einschätzung und Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26239674_proband_III_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 414,
+  "completion_tokens": 520,
+  "total_tokens": 4648,
+  "thoughts_tokens": 3714,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Dr. Lindemann,\n\nich überweise Ihnen Frau Renate V., eine 54-jährige Verwaltungsangestellte, zur differenzialdiagnostischen Abklärung. Erste Symptome manifestierten sich bereits im Alter von 30 Jahren.\n\nAktuell klagt die Patientin über chronische Schläfenkopfschmerzen und tief sitzende Kreuzschmerzen sowie rezidivierende wässrige Durchfallepisoden. Gynäkologisch besteht seit Jahren ein sekundäres Erlöschen der Monatsblutung, begleitet von einem spontanen Milchaustritt aus beiden Mamillen. Zerebral zeigte sich kernspintomographisch eine gut 15 mm messende Adenomformation der Hypophyse. Passend dazu imponierten laborchemisch stark überhöhte Prolaktinwerte sowie ein funktioneller Ausfall der ACTH-Produktion. Zudem besteht eine medikamentös geführte, insulinpflichtige Zuckerkrankheit.\n\nGastroenterologisch fand sich gastroskopisch ein florides Zwölffingerdarmulkus. Begleitend zeigte sich eine stark gesteigerte Gastrinkonzentration im Serum, passend zu einem bioptisch gesicherten gastrinsezernierenden Tumor im Duodenum. In der thoraxchirurgischen Vorgeschichte wurde vor Jahren eine mediastinale Thymusdrüsengeschwulst reseziert; ferner ist ein neuroendokriner Karzinoidherd der Lunge dokumentiert.\n\nLaborchemisch fällt seit Längerem das Bild einer autonomen primären Nebenschilddrüsenüberfunktion auf, einhergehend mit Hyperkalzämie und pathologisch erhöhten Parathormonspiegeln. Eine unlängst aufgetretene Episode mit makroskopisch blutigem Urin veranlasste eine urologische Sonographie: Konkremente im Nierenbecken oder den ableitenden Harnwegen waren hierbei nicht nachweisbar.\n\nDie körperliche Untersuchung war bis auf eine leichte Adipositas unauffällig. Kardiopulmonal und im neurologischen Orientierungstest ergaben sich regelrechte Befunde. Die Familienanamnese ist bezüglich endokriner oder neoplastischer Prozesse leer, Nikotinkonsum wird verneint.\n\nIch danke Ihnen für die Mitbeurteilung und die weitere konsiliarische Einordnung dieses komplexen Krankheitsbildes.\n\nMit freundlichen Grüßen\nDr. med. M. Krause"
+}

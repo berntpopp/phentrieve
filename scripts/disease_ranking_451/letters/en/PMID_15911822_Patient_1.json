@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15911822_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 410,
+  "completion_tokens": 372,
+  "total_tokens": 3004,
+  "thoughts_tokens": 2222,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for agreeing to see this 26-year-old gentleman for diagnostic consultation. He presented to our clinic accompanied by his parents, who note an insidious functional decline that first manifested when he was roughly 11 years old.\n\nHis early childhood development was entirely unremarkable, achieving all motor and cognitive milestones on schedule without generalized developmental delay. Over the past decade, however, he has experienced progressive loss of executive faculties and memory, culminating in a significant acquired dementia. His demeanor is characterized by prominent motor hyperactivity and restlessness, coupled with time-consuming compulsive rituals and obsessive tendencies. Involuntary phonic phenomena, primarily sudden throat-clearing and grunting sounds, are frequent; however, no associated motor tics have been observed.\n\nOn examination, his speech is severely dysarthric and slow. Neurological assessment is significant for generalized rigid tone in all extremities alongside painful, involuntary dystonic posturing of the hands and feet. Deep tendon reflexes are universally brisk with bilateral extensor plantar responses. His gait is unsteady and poorly coordinated, yet he remains ambulatory and has suffered no complete loss of independent ambulation. Bulbar function is preserved with no swallowing difficulty, and we noted no resting or kinetic tremors. Comprehensive ophthalmic evaluation revealed crisp disc margins without optic nerve pallor, and there was no abnormal retinal pigmentation. Mood screening was unremarkable, with no evidence of major depressive disorder. \n\nRecent blood work showed normal ceruloplasmin and copper levels, and repeated peripheral smears were negative for spiked erythrocytes. His brain MRI demonstrated striking central T2 hyperintensity surrounded by a rim of profound hypointensity within the bilateral globi pallidi. \n\nI would greatly appreciate your specialized assessment regarding this patient's presentation and your recommendations for further workup.\n\nWarm regards,\n\nDr. Evelyn Reed\nDepartment of Neurology"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30053862_Case_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 438,
+  "total_tokens": 3910,
+  "thoughts_tokens": 3064,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die heute 10 Monate alte Patientin zur konsiliarischen Mitbeurteilung. Das Mädchen ist das erste Kind gesunder, nicht konsanguiner Eltern; innerfamiliär sind keine chronischen Erkrankungen bekannt.\n\nBereits unmittelbar postnatal imponierte ein angeborener Defekt des Zwerchfells, der primär operativ verschlossen werden musste. Im Verlauf entwickelten sich rezidivierende abdominelle Probleme mit einer Herniation am Hiatus oesophageus sowie einer akut interventionspflichtigen axialen Darmtorsion.\n\nRenal besteht seit den ersten Lebensmonaten ein nephrotischer Symptomenkomplex mit starker Eiweißausscheidung im Urin, ausgeprägter Hypalbuminämie und generalisierten Ödemen, weshalb wir eine diuretische Therapie etabliert haben. Sonografisch stellen sich beide Nieren diffus echovermehrt dar, wobei die Mark-Rinden-Grenze verwaschen und kaum abgrenzbar ist. Eine Biopsie erbrachte histologisch segmentale Sklerosierungen einzelner Nierenkörperchen in fokalem Verteilungsmuster.\n\nNeuropädiatrisch besteht ein Kopfumfang weit unterhalb der dritten Perzentile. Im kranialen MRT zeigte sich neben einem generalisierten zerebralen Parenchymverlust ein auffallend verarmtes, vereinfachtes Furchungs- und Windungsrelief des Kortex.\n\nIm Bereich des Gesichts fallen ein weiter Augenabstand sowie tief ansetzende Ohren auf. Eine Verschmälerung der Stirnpartie ist nicht zu verzeichnen. Die Nasenwurzel imponiert unauffällig und ist nicht eingesunken, der Unterkiefer zeigt keine Rücklage und der Gaumen ist intakt ohne Spaltbildung. Eine orientierende Echokardiografie zeigte normale anatomische Verhältnisse.\n\nÜber Ihre geschätzte Einschätzung bezüglich des weiteren diagnostischen Vorgehens bei diesem komplexen Bild würden wir uns sehr freuen.\n\nMit freundlichen Grüßen\nDr. med. Stefan Lindemann"
+}

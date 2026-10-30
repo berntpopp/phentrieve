@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33097959_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 469,
+  "completion_tokens": 509,
+  "total_tokens": 3464,
+  "thoughts_tokens": 2486,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den 8-jährigen Felix zur konsiliarischen Mitbeurteilung. Bei dem zuvor gesunden Grundschüler traten vor wenigen Wochen erstmals tastbare, teils petechiale Effloreszenzen an den Unterschenkeln auf. Eine Hautbiopsie zeigte oberflächliche perivaskuläre Entzündungsinfiltrate im Korium, passend zum Bild einer kutanen Vaskulitis. \n\nHämatologisch imponieren eine Verminderung der Thrombozytenzahlen auf 72.000/µl sowie eine erniedrigte absolute Neutrophilenzahl von 820/µl. Das Hämoglobin liegt im Referenzbereich, eine Panzytopenie liegt nicht vor. Serologisch zeigte sich eine Positivität für antinukleäre Antikörper (1:640). Die erweiterte Immunphänotypisierung ergab einen deutlich verminderten Anteil klassengewechselter Gedächtnis-B-Zellen. Der Anteil der nicht-geswitchten Gedächtnis-B-Zellen war hingegen unauffällig. Auch das CD4/CD8-Verhältnis war nicht invertiert. Die zirkulierenden Immunglobuline waren vollkommen normwertig, und die Serumkonzentrationen der Komplementfaktoren C3 sowie C4 zeigten sich nicht erniedrigt. Eine Knochenmarkbiopsie schloss eine akute lymphoblastische Leukämie der B- oder T-Zell-Reihe aus.\n\nDie Infektanamnese ist leer: Es traten weder gehäufte Infektionen noch rezidivierende Herpes-simplex-Läsionen der Mundschleimhaut oder wiederholte Meningitiden auf. Episoden einer Sepsis gab es nie. Ebenso fehlen Hinweise auf pulmonale Abszesse, eine invasive pulmonale Aspergillose oder Pneumozystosen. Chronische Diarrhöen bestehen nicht. Der Junge ist kardiopulmonal kompensiert, die abdominelle Palpation ist unauffällig, und die Familienanamnese ist bezüglich chronischer Erkrankungen bland. Felix nimmt derzeit keine Dauermedikation ein.\n\nFür Ihre geschätzte Beurteilung und Empfehlungen bezüglich der weiteren Abklärung bedanke ich mich im Voraus.\n\nMit freundlichen Grüßen"
+}

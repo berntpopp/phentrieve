@@ -1,0 +1,18 @@
+{
+ "case": "PMID_20461149_index",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 307,
+  "total_tokens": 2604,
+  "thoughts_tokens": 1909,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Harris,\n\nThank you for agreeing to see 10-year-old Lily Martinez for an outpatient consultation. Lily has a complex history of structural differences present since birth. She is currently doing well in the fifth grade, lives at home with her parents, and takes no daily medications.\n\nHer ocular history is notable for bilateral abnormally reduced globe sizes accompanied by dense lenticular opacities. Slit-lamp and dilated fundus examinations reveal inferonasal keyhole iris defects along with extensive posterior chorioretinal clefts. Functional visual testing confirms profound visual loss with a total inability to perceive light in either eye. Additionally, she has required management for chronic epiphora secondary to congenital occlusion of her tear drainage pathways.\n\nOn physical examination, her facial features include a distinct midline vertical notch of the central upper lip representing a pseudocleft, although her hard and soft palates are completely intact with no clefting present. Her lower jaw is normally formed, with a smooth anterior contour and no dimpling or clefting of the chin. Over her vertex, there is an established scarred, hairless plaque corresponding to a congenital focal defect of the scalp skin. Recent audiometric testing also demonstrated a bilateral conductive hearing deficit.\n\nHer systemic examination is otherwise benign: she has normal cardiac and respiratory findings, soft non-tender abdomen, and normal linear growth along the 50th percentile. \n\nI would greatly appreciate your evaluation and recommendations regarding her constellation of findings.\n\nSincerely,\nDr. Evelyn Reed"
+}

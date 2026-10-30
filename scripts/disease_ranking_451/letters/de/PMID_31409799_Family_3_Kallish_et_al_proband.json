@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31409799_Family_3_Kallish_et_al_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 482,
+  "completion_tokens": 456,
+  "total_tokens": 3170,
+  "thoughts_tokens": 2232,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte Mitbeurteilung der inzwischen fünfjährigen Patientin. Die Auffälligkeiten bestanden bereits intrauterin und fielen primär durch ein auffälliges sonografisches Fehlbildungsmuster auf.\n\nIm kraniofazialen Bereich imponieren eine betont kurze Nase mit unterentwickelten Nasenflügeln, eine ungewöhnlich breite Mundspalte mit kurzer Oberlippe sowie eine deutliche Mikrognathie. An den Extremitäten bestehen palmare Syndaktylien der Finger sowie beidseits kutane Verschmelzungen der Zehen II bis V. Zudem wurde postpartal ein bilateraler Pes equinovarus erstversorgt. Am Thorax fällt ein vollständiges Fehlen der Mamillen auf, am unteren Rücken findet sich ein kleines sakrales Grübchen. Das äußere Genitale zeigt eine deutliche Hypoplasie der Labien. Eine Sonografie der abdominellen Organe und der Nieren erbrachte regelrechte Befunde, Dauermedikation besteht nicht.\n\nImmunologisch ergab die Diagnostik erniedrigte Serumspiegel für IgG, IgA und IgM. Nach den Grundimmunisierungen zeigte sich laborchemisch ein unzureichender spezifischer Antikörpertiter gegen Tetanustoxoid sowie gegen Haemophilus influenzae Typ b. Im Lymphozytenstatus fiel ein prozentual erhöhter Anteil zytotoxischer CD8-T-Zellen auf, während die absolute Anzahl der natürlichen Killerzellen vermindert war. Die Gesamtleukozytenzahl lag hingegen im Normbereich, und die CD4-Helferzellen wiesen keine anteilige Erhöhung auf. Eine Beeinträchtigung der T-Zell-Proliferation nach Mitogenstimulation lag nicht vor, ebenso war die CH50-Aktivität im Serum unauffällig.\n\nDie Familienanamnese ist bezüglich syndromaler Erkrankungen leer, die Eltern sind nicht konsanguin. \n\nÜber eine baldige Vorstellung der Familie in Ihrer Sprechstunde zur differentialdiagnostischen Einordnung und Beratung bezüglich des weiteren Procederes würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

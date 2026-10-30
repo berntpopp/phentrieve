@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_82",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 479,
+  "completion_tokens": 353,
+  "total_tokens": 3375,
+  "thoughts_tokens": 2543,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for agreeing to see this 45-year-old gentleman for a comprehensive evaluation. He lives in a supportive residential setting, and his long-time caregiver accompanied him today.\n\nFrom early childhood, he showed pervasive lags across all functional areas, including a significant delay in gross motor milestones as well as marked delay in speech and language acquisition. His cognitive testing has consistently placed him in the severe range of intellectual impairment; his abilities are neither mild, moderate, nor profound in degree. He demonstrates certain autism-like behavioral patterns, yet his attention span is well preserved, he maintains steady eye contact, and his social conduct is entirely appropriate. He displays no compulsive rituals, repetitive motor mannerisms, or personality dysfunction. His caregivers report broken, disrupted nighttime sleep, though he does not experience initial insomnia. \n\nOn physical examination, he appears lean and is not overweight. Craniofacial inspection reveals an elongated facial shape, widely spaced eyes, and noticeable forward projection of the lower jaw. There is no retrognathia, the chin is broad rather than pointed, the palpebral fissures do not slant downward, and neither the nasal bridge nor the nasal base is widened. Neurological assessment is notable for generalized low muscle tone, though he ambulates independently with well-formed arches and no flat feet. His hearing and vision are completely intact, and he has no history of seizures. Gastrointestinal review is unremarkable, with regular bowel movements and no episodes of loose stools or constipation. Recent routine lab work was normal aside from an elevated total serum bilirubin level. He takes a daily multivitamin.\n\nI would be grateful for your clinical assessment and any recommendations regarding his ongoing care.\n\nSincerely,\nDr. Arthur Vance, MD"
+}

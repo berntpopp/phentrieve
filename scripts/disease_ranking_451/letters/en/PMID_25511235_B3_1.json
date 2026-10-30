@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25511235_B3_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 307,
+  "total_tokens": 1936,
+  "thoughts_tokens": 1304,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this young patient, who was admitted urgently through our pediatric emergency department earlier today following an acute decompensation at home.\n\nThe child had been previously thriving and meeting developmental milestones before abruptly experiencing a witnessed episode of generalized tonic-clonic convulsions lasting approximately three minutes. Following this convulsive event, there was no recovery of consciousness; the child has remained in a profoundly unarousable state, failing to show any purposeful movement or response to noxious stimuli.\n\nPoint-of-care testing on initial presentation showed a critically low blood glucose reading of 31 mg/dL, prompting immediate intravenous dextrose administration. Subsequent laboratory workup demonstrated significant non-respiratory acidemia, with an arterial pH of 7.16, an elevated anion gap of 22 mEq/L, and a serum bicarbonate level suppressed at 10 mEq/L.\n\nGeneral examination is otherwise unremarkable. The cardiovascular assessment reveals regular heart sounds without murmurs, the chest is clear to auscultation, and the abdomen is soft and non-distended. Pupils are equal, round, and reactive to light. The child takes no regular home medications, immunizations are up to date, and the family history is negative for sudden infant death or early childhood illnesses.\n\nGiven the severity of this clinical picture, I would greatly appreciate your assessment and guidance regarding appropriate next steps for diagnostic evaluation and ongoing stabilization.\n\nSincerely,\nDr. Laura Bennett\nDepartment of Pediatrics, Riverdale Medical Center"
+}

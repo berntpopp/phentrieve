@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27479843_Patient_162",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 444,
+  "completion_tokens": 465,
+  "total_tokens": 2848,
+  "thoughts_tokens": 1939,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 7-jährigen Noah zur weiteren differenzialdiagnostischen Beurteilung. \n\nNoah wurde reif und termingerecht ohne Anhalt für eine Frühgeburt geboren, die Geburtsmaße waren unauffällig, ohne Merkmale für ein Neugeborenes über dem Gestationsalter. Aktuell liegen Körpergröße und Gewicht stabil auf der 50. Perzentile, es bestehen weder ein Kleinwuchs noch ein Hochwuchs, auch eine Adipositas liegt nicht vor. \n\nBereits im frühen Kindesalter fiel eine globale Entwicklungsverzögerung auf. Noah weist eine deutliche kognitive Beeinträchtigung auf und zeigt einen ausgeprägten Rückstand beim Erwerb der Lautsprache; er verständigt sich derzeit weitgehend nonverbal über Gesten. \n\nKörperlich imponiert ein Schädelumfang deutlich oberhalb der 97. Perzentile bei auffallend breiter Stirnregion, weit auseinanderliegenden Augen und nach lateral-unten geneigten Lidachsen. Eine Ptose besteht nicht. Die Ohrmuscheln sind beidseits stark verkleinert ausgebildet, jedoch regelrecht inseriert, ohne Tiefsitz oder dorsale Rotation. Im Genitalbereich fällt ein den Penisschaft manschettenartig umfassendes Skrotum auf. Zudem besteht eine klinisch reizlose Leistenhernie.\n\nEin kürzlich veranlasstes Schädel-MRT zeigte regelrechte inneren und äußere Liquorräume ohne Ventrikelvergrößerung. Das Corpus callosum ist normal konfiguriert, ohne Agenesie oder Verdickung. Der Kleinhirnwurm ist orthotop und normal dimensioniert, ohne Hypoplasie. Eine Chiari-Malformation, eine Syringomyelie oder arachnoidale Zysten konnten sicher ausgeschlossen werden. \n\nDer Junge lebt mit seinen gesunden Eltern zusammen, die Familienanamnese ist bezüglich Entwicklungsstörungen unauffällig. Noah nimmt derzeit keine Medikamente ein.\n\nIch bedanke mich herzlich für Ihre fachärztliche Mitbeurteilung und die weiteren Empfehlungen.\n\nMit freundlichen Grüßen"
+}

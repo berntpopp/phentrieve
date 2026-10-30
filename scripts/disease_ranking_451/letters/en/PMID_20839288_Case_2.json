@@ -1,0 +1,18 @@
+{
+ "case": "PMID_20839288_Case_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 270,
+  "total_tokens": 2148,
+  "thoughts_tokens": 1514,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 22-year-old woman for further clinical evaluation. Her medical history began at approximately three years of age, characterized by a pattern of multiple low-trauma fractures affecting both her upper and lower extremities. \n\nOn physical examination, she demonstrates a marked deficit in linear growth, measuring 132 cm in height. She has prominent slate-blue discoloration of her sclerae and a pronounced combined coronal and sagittal spinal curvature. Cardiopulmonary auscultation was completely normal, and her abdomen was soft and non-tender with no hepatosplenomegaly. She exhibits full active mobility across all peripheral joints, and no joint contractures were observed. \n\nHer cognitive development is entirely normal; she completed a university degree without difficulty and currently works as a data analyst. Formal audiologic testing confirmed her hearing is preserved, with no auditory deficits identified. Family history is unremarkable for skeletal issues, and her only regular medication is daily cholecalciferol. \n\nRecent skeletal radiographs revealed noticeably slender, gracile shafts of the long bones, and skull films demonstrated several intrasutural ossicles. \n\nI would be very grateful for your assessment of her presentation and any recommendations regarding her long-term care.\n\nSincerely,\n\nDr. Arthur Vance\nGeneral Medicine Clinic"
+}

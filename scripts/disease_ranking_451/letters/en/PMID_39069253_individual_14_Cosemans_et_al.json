@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_14_Cosemans_et_al",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 483,
+  "completion_tokens": 345,
+  "total_tokens": 2502,
+  "thoughts_tokens": 1674,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 24-year-old male who presents for ongoing review. He resides with his parents and is not currently prescribed any regular medications. His family history is non-contributory, and his vital signs were normal at today's encounter.\n\nHis past medical history is notable for global delays spanning multiple domains since infancy. Early on, he experienced significant feeding difficulties and marked low muscle tone. He exhibited deferred gross motor milestones as well as severely protracted speech and language development. He functions with chronic intellectual disability and demonstrates prominent autistic behaviors.\n\nOn physical examination, a prominent metopic ridge is easily palpable. Craniofacial findings include high-arched brows, mild bilateral ptosis, downslanting palpebral fissures, and epicanthal folds. Interpupillary distance is normal with no hypertelorism. The nasal tip is not bulbous, and there is no anteversion of the nares. The philtrum is broad with a strikingly exaggerated cupid's bow. Both auricles are low-set. Examination of the feet reveals normal alignment without metatarsus adductus. \n\nPrevious neuroimaging demonstrated complete agenesis of the corpus callosum. Reassuringly, the olfactory bulbs appear normal, the cerebral ventricles are not enlarged, and there is no intracranial demyelinating process. Audiometric testing documented no hearing loss. A baseline echocardiogram was structurally normal, showing no ventricular septal defect, patent ductus arteriosus, bicuspid aortic valve, transposition of the great vessels, or double outlet right ventricle.\n\nI would greatly appreciate your assessment and recommendations for further diagnostic evaluation.\n\nSincerely,\n\nDr. Evelyn Cross"
+}

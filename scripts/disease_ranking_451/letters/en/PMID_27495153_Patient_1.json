@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27495153_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 362,
+  "total_tokens": 3009,
+  "thoughts_tokens": 2239,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate Maya Lin, a 7-year-old girl with an intractable, deteriorating neurological picture that first manifested at 48 days of life. \n\nHer illness began with recurrent convulsive episodes alongside frequent myoclonic twitches. A grossly abnormal electroencephalogram revealed severe background disorganization with multifocal discharges, illustrating a devastating epileptic-type encephalopathic process. Maya experienced profound delays across all developmental milestones; over time, she has transitioned into an awake but entirely unresponsive vegetative status. \n\nHer physical exams demonstrate a progressive loss of motor strength. Centrally, she exhibits generalized muscular flaccidity with a profound lack of head control, contrasted sharply by increased peripheral muscle tone in the extremities and brisk 3+ tendon jerks throughout. Plantar reflexes were flexor, with no Babinski sign elicited. Funduscopy reveals bilateral pallor of the optic nerves, though pupillary responses are preserved. Maya developed severe feeding intolerance and swallowing difficulty necessitating G-tube placement, as well as chronic hypoventilation requiring nocturnal non-invasive ventilatory support. Cardiorespiratory auscultation and basic metabolic panels are otherwise completely normal. \n\nNeuroimaging demonstrates diffuse brain volume loss, marked bilateral dilation of the sylvian cisterns, and widespread demyelinating lesions throughout the central neuroaxis. Testing for organic aciduria was negative, with excretion of organic acids in the urine completely unremarkable. There is no family history of neurologic disorders, and her current anticonvulsant regimen includes clobazam and levetiracetam.\n\nGiven her ongoing deterioration, I would greatly value your expert assessment and guidance regarding further diagnostic evaluation.\n\nSincerely,\nDr. Arthur Pendelton\nPediatric Neurology, St. Jude’s Children’s Pavilion"
+}

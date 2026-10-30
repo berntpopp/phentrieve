@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30012084_older_sister",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 432,
+  "total_tokens": 2512,
+  "thoughts_tokens": 1703,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich bitte um Ihre geschätzte Mitbeurteilung der 14-jährigen Leonie, die sich zur weiteren differentialdiagnostischen Einordnung in unserer Sprechstunde vorstellte.\n\nAnamnestisch kam es bereits vor Wehenbeginn zu einem vorzeitigen Blasensprung. In der frühen Kindheit fiel zunächst ein verlangsamter Erwerb der statomotorischen Meilensteine auf; das freie Gehen gelang erst spät. Eine umfassendere Entwicklungsstörung bestand jedoch nie, die intellektuelle Entwicklung ist vollkommen regelrecht und die Jugendliche besucht erfolgreich eine Regelschule, ohne jegliche Hinweise auf eine kognitive Beeinträchtigung.\n\nBereits im Kleinkindalter begannen repetitive Knochenbrüche nach minimalen Traumata. Infolge dieser gehäuften Frakturereignisse entwickelten sich beträchtliche Achsenfehlstellungen mit Verkrümmung der Röhrenknochen an den oberen und unteren Extremitäten. Die radiologische Bildgebung dokumentiert eine diffus rarefizierte Knochendichte sowie eine generalisierte Höhenminderung der Wirbelkörper. Leonies Körperlänge verläuft seit Jahren konstant weit unterhalb der dritten Perzentile.\n\nKlinisch imponiert bei der Untersuchung zudem ein leichtes Tiefstehen der Oberlider. Die Skleren stellen sich dabei völlig normal weiß dar, eine bläuliche Nuancierung ist nicht erkennbar. Auch der Zahnstatus ist unauffällig, ohne Schmelzdefekte oder Anhalt für eine Störung der Dentinbildung. Die kardiopulmonale und abdominelle Untersuchung bot regelrechte Befunde. Eine Dauermedikation besteht abgesehen von einer prophylaktischen Vitamin-D-Gabe nicht. Die Familienanamnese ist bezüglich Skelettauffälligkeiten leer.\n\nÜber Ihre fachliche Einschätzung dieses Beschwerdebildes und Empfehlungen zum weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\nDr. med. Stefan Winter"
+}

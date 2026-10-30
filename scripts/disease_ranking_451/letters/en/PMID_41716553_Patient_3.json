@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 425,
+  "completion_tokens": 328,
+  "total_tokens": 3248,
+  "thoughts_tokens": 2495,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate this 6-year, 2-month-old girl. She was born with birth parameters well below the tenth percentile for gestational age following an uncomplicated pregnancy. Developmental concerns emerged around nine months of age, when her parents observed that she was late in mastering rolling over. Her subsequent trajectory has shown pervasive delays across all major developmental sectors; she experienced a significant delay in independent ambulation, and her expressive and receptive communication milestones remain profoundly behind. Formal psychometric assessment has documented significant intellectual impairment. Socially, she is engaging and exhibits no atypical behavioral features.\n\nOn physical examination, her muscle tone is completely normal with no hypertonicity or spasticity. Craniofacial inspection reveals an expansive, broad forehead with noticeable frontal prominence, oversized ears, and a flattened, depressed nasal root. She exhibits ocular misalignment, though her palpebral fissures do not slant downward, and interpupillary distance is normal with no widely spaced eyes. The vertical groove between her nose and mouth is elongated, and her lip margins are notably thin. Examination of the hands shows a solitary horizontal crease running across the palms bilaterally. Cardiovascular, respiratory, and abdominal examinations are entirely unremarkable.\n\nPrior investigations include a brain MRI, which demonstrated an arachnoid cyst, and electroencephalography that proved abnormal due to background slowing and paroxysmal epileptiform discharges. She is currently not prescribed any regular medications, and her family history is non-contributory.\n\nI would be most grateful for your comprehensive clinical assessment and any further recommendations regarding her care.\n\nSincerely,\nDr. Eleanor Hayes"
+}

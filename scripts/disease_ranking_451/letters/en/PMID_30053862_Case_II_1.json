@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30053862_Case_II_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 325,
+  "total_tokens": 3627,
+  "thoughts_tokens": 2894,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate Chloe Adams, a 10-month-old female who was born at full term to healthy, non-consanguineous parents. Her family history is non-contributory, and she currently takes enalapril and ergocalciferol. \n\nChloe had a complicated neonatal course that began with surgical repair of a congenital defect in her left diaphragm with visceral displacement, alongside an acute twisting of the bowel on its mesentery. Subsequent fluoroscopy demonstrated a sliding hiatal defect. Her renal course has been marked by profound urinary protein excretion and severe hypoalbuminemia with anasarca, reflecting nephrotic status. On renal ultrasound, both kidneys appeared diffusely hyperechoic with a distinct loss of corticomedullary differentiation. A recent percutaneous kidney biopsy showed focal and segmental glomerular sclerosis.\n\nHer development is globally delayed. Her head circumference remains well below the third percentile, and recent cranial MRI demonstrated diffuse loss of cerebral volume along with a simplified, shallow gyral pattern. On examination, dysmorphic features include widely spaced eyes and low-positioned pinnae. Reassuringly, she does not have a narrow forehead, her nasal bridge is well-projected without any depression, her jaw is normally formed with no micrognathia, and she has no cleft palate. Her cardiopulmonary exam and vital signs remain stable.\n\nI would appreciate your comprehensive assessment and guidance on further workup for her multisystem issues.\n\nSincerely,\nDr. Marcus Vance, MD\nPediatric Medicine, St. Jude Children's Health Center"
+}

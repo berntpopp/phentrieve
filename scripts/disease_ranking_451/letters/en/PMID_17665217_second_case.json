@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17665217_second_case",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 384,
+  "completion_tokens": 272,
+  "total_tokens": 2419,
+  "thoughts_tokens": 1763,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Peterson,\n\nThank you for evaluating this pleasant 13-year-old young woman, whom I am referring for an expert clinical evaluation of multiple structural features present since birth. She is currently in eighth grade, doing well in school, and takes no routine medications. Her past medical history is otherwise unremarkable, and family history is negative for any inherited conditions.\n\nOn physical examination, her vital signs were normal. Craniofacial inspection revealed widely spaced eyes, a distinctly flattened bridge of the nose, and noticeable backward displacement and flattening of her central midface. An oral examination demonstrated significant overlapping and crowded dentition. Of note, her nasal length appeared entirely normal rather than shortened, her nostrils were directed downward without any upward tilt, and her eye fissures were of average length without excessive elongation.\n\nHer extremities showed stubby, shortened digits throughout both hands and feet. Both thumbs were unusually wide, as were her great toes. Additionally, she exhibited non-traumatic, fixed flexion posturing at the proximal interphalangeal joints of her fifth digits. Recent hand radiographs confirmed distinctly short first metacarpal bones bilaterally. Her cardiovascular, pulmonary, and abdominal examinations were otherwise completely unremarkable, and her gait was steady.\n\nGiven these congenital physical findings, I would greatly appreciate your formal assessment and recommendations. \n\nSincerely,\nDr. Eleanor Vance"
+}

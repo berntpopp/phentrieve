@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_A_IV_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 441,
+  "total_tokens": 2765,
+  "thoughts_tokens": 1936,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nzur weiteren Abklärung überweise ich Ihnen Herrn S., der sich in unserer Sprechstunde vorstellte. \n\nKörperlich fällt bei dem Patienten seit der Kindheit ein ausgeprägtes Übergewicht im Sinne einer manifesten Adipositas auf. Anamnestisch bestand von Geburt an ein zusätzlicher ulnarer Finger an beiden Händen, welcher im Säuglingsalter reseziert wurde. Im kognitiven Bereich zeigt sich eine globale Intelligenzminderung, wohingegen die Sprachentwicklung in der frühen Kindheit ohne Verzögerung verlaufen war. Bemerkenswerterweise findet sich in den pädiatrischen Altakten aufgrund einer initialen genitalen Fehlbeurteilung die Notiz einer primären Amenorrhö; klinisch und labormedizinisch besteht bei dem Patienten jedoch regelrechtes Testosteron und kein Hypogonadismus. \n\nOphthalmologisch klagt Herr S. über eine progrediente Sehminderung bei bekannter starker Myopie. Die Funduskopie zeigt eine fortgeschrittene Degeneration der Netzhaut mit deutlicher Verengung der retinalen Gefäße und knochenkörperchenartigen Pigmentverschiebungen in der Peripherie. Das ERG erbrachte den Nachweis einer kombinierten Stäbchen- und Zapfendystrophie. Eine Schielstellung der Augen liegt nicht vor.\n\nIm Mundbereich zeigt sich eine zeitgerechte Dentition, ein Zahnengstand ist nicht vorhanden. Das Routinelabor ist weitgehend unauffällig: Der Nüchternblutzucker und das HbA1c sind normal, sodass kein Diabetes mellitus vorliegt. Auch die Retentionsparameter sind stabil, eine Niereninsuffizienz besteht nicht. Herz und Lunge zeigten sich auskultatorisch unauffällig. Der Patient lebt selbstständig in einer betreuten Wohngruppe und nimmt derzeit keine reguläre Medikation ein.\n\nÜber Ihre geschätzte differenzialdiagnostische Beurteilung dieses komplexen Bildes würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

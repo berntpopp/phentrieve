@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26040326_younger_sister_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 385,
+  "total_tokens": 2000,
+  "thoughts_tokens": 1285,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen heute die 23-jährige Patientin Lisa Weber zur weiteren konsiliarischen Abklärung. Erste laborchemische Auffälligkeiten wurden anamnestisch bereits im Alter von drei Jahren dokumentiert.\n\nDie Patientin studiert derzeit, ernährt sich ausgewogen und nimmt bis auf eine Bedarfsmedikation bei Kopfschmerzen keine Dauermedikation ein. Die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig. Die körperliche Untersuchung bot bis auf eine leichte Blässe keine pathologischen Befunde: Cor und Pulmo auskultatorisch regelrecht, Blutdruck 118/75 mmHg, Puls 70/min, Abdomen weich ohne Resistenzen, keine peripheren Ödeme, neurologischer Status seitengleich und intakt.\n\nIm aktuellen Routinelabor imponiert eine hyperchrome Makrozytose mit einem Hämoglobinwert von 8,9 g/dl und einem MCV von 110 fl. Im peripheren Blutausstrich finden sich typische megaloblastäre Veränderungen sowie mehrfach übersegmentierte Granulozyten. Der Serumspiegel des zirkulierenden Cobalamins war mit 94 pg/ml stark unter die Normgrenze abgefallen, die Folsäure lag im Referenzbereich. Zudem zeigt sich im Spontanurin eine deutliche Eiweißausscheidung mit einem Protein-Kreatinin-Verhältnis von 1,1 g/g, während das Urinsediment bland blieb und die Retentionswerte unauffällig waren.\n\nZur weiteren ätiologischen Zuordnung dieses Befundkomplexes und Festlegung des weiteren Managements wäre ich für Ihre geschätzte Einschätzung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25802881_P85",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 295,
+  "total_tokens": 2398,
+  "thoughts_tokens": 1747,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this two-month-old female infant in your clinic for further evaluation. \n\nShe was born at full term via uncomplicated spontaneous vaginal delivery to healthy, non-consanguineous parents and is exclusively breastfed with standard vitamin D supplementation. On physical examination, her vital signs are normal, her lungs are clear, and her abdomen is soft and non-tender. Her length tracks steadily along the 50th percentile, showing no growth failure or diminished linear progress, and her weight is appropriate at the 45th percentile, without abnormal adiposity or excessive weight gain. She is alert, fixes and follows visually, coos, and demonstrates age-appropriate neurodevelopmental responsiveness, with no sign of developmental lag.\n\nRecent blood tests revealed depressed serum calcium levels down to 7.1 mg/dL; she has never exhibited elevated serum calcium. In response to this, her intact parathyroid hormone was measured and found to be markedly increased at 195 pg/mL. Complementary plain radiographs of the upper extremities demonstrated that her metacarpal bones are visibly foreshortened. However, the phalanges are unremarkable, and there is no overall digital shortening. Examination of her skin reveals smooth integument with no dermal or subcutaneous hard tissue deposits or palpable nodules.\n\nGiven these mineral imbalances and skeletal findings, I would appreciate your expert assessment and management recommendations. \n\nSincerely,\nDr. Evelyn Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18322662_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 372,
+  "completion_tokens": 290,
+  "total_tokens": 2595,
+  "thoughts_tokens": 1933,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 22-month-old male who presents for your clinical assessment regarding multiple skeletal and craniofacial anomalies present since birth. He was born at 39 weeks gestation via planned delivery due to a breech lie. \n\nOn physical examination, several cranial features are prominent. He has notably broadly spaced eyes, a markedly flattened nasal bridge, and an elongated upper lip groove. Direct inspection of the oral cavity confirmed that the secondary palate is entirely intact, with no palatal cleft present. \n\nOrthopedic findings are extensive. His spine demonstrates both a pronounced cervical kyphotic deformity and a distinct lateral curvature along the thoracic region. Upper extremity assessment reveals bilateral fixed elbow contractures in flexion along with clinical and radiographic evidence of shortened metacarpals. Within the lower limbs, he exhibits congenital dislocations affecting both his hips and knee joints. \n\nCardiovascular and respiratory evaluations remain entirely unremarkable, with clear lung fields and normal heart tones. Abdominal examination reveals soft, non-tender contours without organomegaly. His parents are healthy, non-consanguineous, and his four-year-old sister is thriving. He currently takes daily infant multivitamin drops and is otherwise on no scheduled medical therapies.\n\nI would appreciate your comprehensive opinion regarding his presentation and recommendations for multidisciplinary management.\n\nSincerely,\n\nDr. Evelyn Vance\nDepartment of Pediatrics\nRiverside County Health Center"
+}

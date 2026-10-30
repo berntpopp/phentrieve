@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34612517_F1_II_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 321,
+  "total_tokens": 3290,
+  "thoughts_tokens": 2558,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this five-month-old male infant in consultation for an overarching clinical assessment. The patient was born at term to healthy parents following a pregnancy notable for a two-vessel umbilical cord identified during a mid-second-trimester ultrasound.\n\nRecent cardiac evaluation confirmed a solitary arterial trunk originating from the base of the heart with an associated large interventricular communication and stenosis along the pulmonary outflow. The arch of the aorta remains fully continuous without any focal interruption and arcs leftward rather than forming a right-sided arch. Pulmonary venous drainage is entirely normal to the left atrium with no anomalous partial return, and the tricuspid orifice is widely patent without atresia. The anatomy is distinct from a classic Fallot anomaly. \n\nAn abdominal sonogram demonstrated inferior pole fusion of the renal parenchyma spanning the midline; there were no identifiable cystic changes within the renal beds. The infant feeds well on standard formula, maintaining age-appropriate growth with normal albumin levels and no signs of enteric protein loss. \n\nOn physical examination, his cranial circumference measures at the 50th percentile, showing no abnormally reduced head size. Prior cranial imaging noted normal visualization of the corpus callosum. Musculoskeletal assessment reveals typical five-digit hands bilaterally without any extra ulnar digits, and his lower extremities demonstrate straight, neatly aligned digits with no overlapping toes. He is meeting expected developmental milestones and takes only routine cholecalciferol drops. \n\nThank you for your expert opinion and guidance regarding his ongoing multidisciplinary management.\n\nSincerely,\nDr. Evelyn Vance"
+}

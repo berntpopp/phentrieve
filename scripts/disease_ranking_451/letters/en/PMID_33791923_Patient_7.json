@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33791923_Patient_7",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 410,
+  "completion_tokens": 350,
+  "total_tokens": 3773,
+  "thoughts_tokens": 3013,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Patel,\n\nThank you for agreeing to evaluate Julian, a 7-year, 5-month-old boy whom I have followed longitudinally. \n\nJulian’s medical issues began around 21 days of age, when he suffered an acute respiratory arrest that necessitated immediate intubation and prolonged mechanical ventilatory support. During that initial neonatal stay, feeding was severely complicated by an exceptionally weak and uncoordinated suck, though he experienced no vomiting, and pyloric ultrasound confirmed no pyloric stenosis. \n\nOn physical examination, he displays prominent central muscular floppiness accompanied by generalized hyperreflexia. His cranial features include a visibly recessed, underdeveloped lower jaw, and his head circumference has remained consistently well below the 3rd percentile. Julian demonstrates profound delays across all motor, cognitive, and communicative domains, and he suffers from recurrent convulsive seizures. An electroencephalogram obtained during infancy demonstrated an invariant burst-suppression pattern.\n\nLaboratory workup revealed abnormally high blood glycine levels in conjunction with elevated glycine concentrations within the cerebrospinal fluid. Brain magnetic resonance imaging showed a structurally dysplastic callosal body along with hydrocephalus; notably, there was no ventriculomegaly, and white matter tracts demonstrated normal age-appropriate signal without cerebral hypomyelination. Transthoracic echocardiography was normal, with an intact interatrial septum and no patent foramen ovale.\n\nJulian currently resides at home with his parents, who provide full-time care. His routine complete blood counts and renal function panels have remained within normal reference ranges, and he receives speech and physical therapy. I would be most grateful for your comprehensive neurological assessment and guidance on his ongoing clinical management.\n\nSincerely,\n\nDr. Evelyn Reed, MD\nDepartment of Pediatrics"
+}

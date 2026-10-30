@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34101994_III_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 312,
+  "total_tokens": 2573,
+  "thoughts_tokens": 1929,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nI am writing to request your consultative assessment for this 15-year-old male whom I have been following in our long-term survivorship clinic. His medical history is significant for the surgical resection of an intracranial mass diagnosed at six years of age, which demonstrated distinct atypical teratoid and rhabdoid cellular architecture. \n\nDuring his initial presentation and subsequent post-treatment surveillance, diagnostic evaluations were completed to exclude other neuro-oncologic and systemic entities. A thorough review of the original tissue specimen confirmed no features of an ependymomatous malignancy. In addition, serial hematologic investigations, including repeated peripheral smears and routine cell counts, have consistently shown normal cell lines with no sign of any leukemic process.\n\nAt his visit this week, he remains in excellent general health. He is currently a high school sophomore who enjoys running cross-country and playing the trumpet. He takes no prescription medications, only an occasional daily multivitamin. His physical examination today was unremarkable. His vital signs were normal, with a blood pressure of 114/72 mmHg and a pulse of 68 beats per minute. A complete neurological assessment revealed intact cranial nerves, normal motor strength, symmetric deep tendon reflexes, and a steady, balanced gait. His family history is non-contributory, with both parents and two younger siblings in good health.\n\nGiven his early childhood history, I would greatly appreciate your comprehensive evaluation and ongoing recommendations regarding his surveillance plan.\n\nSincerely,\nDr. Arthur Vance, MD"
+}

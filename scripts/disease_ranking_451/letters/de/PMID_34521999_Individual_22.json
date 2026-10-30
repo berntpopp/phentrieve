@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34521999_Individual_22",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 743,
+  "completion_tokens": 620,
+  "total_tokens": 5239,
+  "thoughts_tokens": 3876,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 13 Jahre und 2 Monate alte Patientin zur weiteren konsiliarischen Beurteilung. \n\nDas Mädchen kam als SGA-Neugeborenes zur Welt; Schwangerschaft und Geburt verliefen ansonsten unkompliziert. Es bestehen ein motorischer Entwicklungsrückstand sowie eine kognitive Beeinträchtigung. Zerebrale Krampfanfälle traten nie auf, das EEG zeigte sich normgerecht. Nahrungsaufnahme und Schluckakt sind unbeeinträchtigt, Schlaf und Verhalten unauffällig. Es liegt kein Tumorleiden vor, rezidivierende Otitiden sind nicht bekannt.\n\nKörperlich imponieren ein beidseitiger Cubitus valgus sowie ein Sakralgrübchen. Der Muskeltonus ist seitengleich regelrecht; Zeichen einer Hypotonie, Gelenkhypermobilität, Pes planus oder Anomalien der Finger fehlen. Endokrinologisch zeigte sich ein reduzierter Wachstumshormonspiegel bei deutlich retardierter Skelettreifung.\n\nKraniofazial fallen eine prominente Stirn bei normaler Schädelkontur, ein tiefer frontaler Haaransatz sowie horizontal verlaufende Augenbrauen ohne Synophrys oder laterale Ausdünnung auf. Es besteht ein Lidkolobom. Augenabstand, Lidachsen und Lidspaltenlänge sind regelrecht; Epikanthus, Ptosis, Strabismus, Enophthalmus oder Proptosis liegen nicht vor. Visus und Sehnervenkopf sind unauffällig. Die Ohren stehen tief, sind jedoch nicht nach dorsal rotiert. Auffällig sind ferner eine dysplastische Nasenwurzel und geblähte Nasenflügel ohne Mittelgesichtsretrusion. Der Mund ist schmal bei dünnem Oberlippenrot; das Philtrum ist normal konturiert, die Unterlippe weder verdickt noch evertiert. Mundschluss, Mundwinkel, Zungenband, Gebiss sowie Gaumen und Uvula bieten keinen pathologischen Befund.\n\nEchokardiographisch (kein ASD/VSD) und sonographisch (unauffällige Nierenmorphologie) ergaben sich keine Auffälligkeiten. Das Schädel-MRT zeigte eine Balkenhypoplasie und atypisch konfigurierte Ventrikel. Ventrikulomegalie, Heterotopien, Polymikrogyrie, vereinfachte Gyrierung, Rindendysplasien, Kleinhirnfehlbildungen, Cavum septi pellucidi, Arachnoidalzysten, Hirnatrophie, Marklagergliose, Myelinisierungsverzögerung, PVL, ischämische Läsionen sowie vergrößerte innere oder äußere Liquorräume wurden ausgeschlossen.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung des Beschwerdebildes.\n\nMit freundlichen Grüßen"
+}

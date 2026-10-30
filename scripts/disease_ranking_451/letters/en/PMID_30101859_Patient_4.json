@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30101859_Patient_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 329,
+  "total_tokens": 2687,
+  "thoughts_tokens": 1950,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to see this 9-year-old girl in consultation. She is doing well academically in the fourth grade, takes an over-the-counter daily multivitamin, and has an unremarkable family history with non-consanguineous parents. \n\nOn physical examination, she exhibits notable dysmorphic and skeletal features. Her face shows flattened cheek contours and a markedly recessed mandible, along with divergent strabismus with outward ocular drifting. Inspection of the oral cavity reveals a split uvula; the palate is otherwise intact. Musculoskeletal assessment is significant for an anteriorly prominent, keeled chest wall—with no posterior sternal concavity or sunken chest noted—alongside a noticeable rotational lateral curvature of the spine. Her hands display disproportionately long, slender fingers, and her thumbs are held persistently in adduction across the palms.\n\nHer cardiovascular assessment revealed an early diastolic murmur. A recent transthoracic echocardiogram documented severe vascular and intracardiac alterations: there is significant aneurysmal expansion of the root of the aorta with marked ectasia across the aortic sinuses, complicated by moderate aortic valvular incompetence. Additionally, she has diffuse dilatation of the main pulmonary arterial trunk, posterior billowing of the tricuspid leaflets during systole, a secundum interatrial septal communication, and a small persistent unclosed foramen ovale. Her peripheral pulses were brisk and equal, and her abdominal exam was normal.\n\nGiven this constellation of skeletal and cardiovascular abnormalities, I would value your assessment and guidance regarding further clinical workup and long-term surveillance.\n\nSincerely,\nDr. Evelyn Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27247962_USB1_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 343,
+  "completion_tokens": 409,
+  "total_tokens": 2327,
+  "thoughts_tokens": 1575,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den Patienten zur konsiliarischen Mitbeurteilung und weiteren differentialdiagnostischen Einordnung. \n\nKlinisch fällt zunächst ein ausgeprägter Minderwuchs auf; die Körperlänge liegt konstant weit unterhalb der dritten Perzentile. Das Abdomen ist weich und indolent, die kardiovaskuläre Untersuchung zeigte regelrechte Herztöne und normwertige Blutdruckwerte. Am Stamm sowie an den Extremitäten zeigt sich ein auffälliges, buntes Hautbild mit netzartigen Hyperpigmentierungen, herdförmigen kutanen Atrophien und feinen Teleangiektasien. \n\nLaborchemisch besteht im wiederholten Differenzialblutbild eine deutliche Verminderung der absoluten neutrophilen Granulozyten, während die roten Blutzellreihen und die Thrombozytenzahlen unauffällig sind. Im endokrinologischen Profil dokumentierten wir ein zentrales Hormondefizit der Gonadenachse mit inadäquat supprimierten Gonadotropinen und konsekutiv erniedrigten peripheren Sexualsteroiden. Nieren- und Leberwerte liegen im Normbereich.\n\nAufgrund rezidivierender respiratorischer Beschwerden veranlassten wir eine Computertomographie des Thorax. Hierbei imponieren strukturelle Veränderungen des Lungeninterstitiums mit feinstreifigen, retikulären Zeichnungsvermehrungen sowie beidseits multipel nachweisbare sackförmige bronchiale Dilatationen. Die Familienanamnese hinsichtlich pulmonaler oder hämatologischer Erkrankungen ist unergiebig, eine regelmäßige Medikation wird aktuell nicht eingenommen.\n\nAngesichts dieser heterogenen Befundkonstellation bitten wir um Ihre geschätzte fachärztliche Einschätzung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

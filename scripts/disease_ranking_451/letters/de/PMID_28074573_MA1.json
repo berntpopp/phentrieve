@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28074573_MA1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 495,
+  "completion_tokens": 503,
+  "total_tokens": 4532,
+  "thoughts_tokens": 3534,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich überweise Ihnen den 1 Jahr und 7 Monate alten Tim zur konsiliarischen Beurteilung.\n\nGröße und Gewicht entwickeln sich stabil auf der 45. Perzentile, ein Kleinwuchs liegt nicht vor. Fütter- oder Trinkschwierigkeiten bestanden zu keinem Zeitpunkt. Motorisch und sprachlich imponiert eine globale Entwicklungsverzögerung, eine manifeste Intelligenzminderung ist jedoch nicht feststellbar. Ein kürzlich veranlasstes Neuro-MRT zeigte keine Chiari-Typ-I-Malformation. Der Muskeltonus ist seitengleich kräftig, ohne Anhalt für eine muskuläre Hypotonie.\n\nKraniofazial fallen ein dreieckig konturiertes Gesicht mit prominenter Stirnwölbung sowie eine eingesunkene Nasenwurzel auf. Der Augenabstand ist deutlich vergrößert, die Lidachsen fallen nach temporal-kaudal ab, beidseits zeigen sich mediale Lidfalten sowie ein Herabhängen der Oberlider. Die Augenbrauen präsentieren sich sehr spärlich, während das Kopfhaar dicht wächst. Ophthalmologisch fanden sich weder Strabismus, Myopie noch eine Anisometropie. Die Ohren sind normgerecht inseriert, ein Hördefizit besteht nicht. Das Philtrum ist unauffällig konfiguriert und nicht vertieft. \n\nNuchal zeigt sich ein auffälliges Pterygium colli bei regulärer posteriorer Haargrenze. Der Thorax weist keine Schildform auf, der Mamillenabstand ist regelrecht. Kardiologisch wurden ein Vorhofseptumdefekt sowie eine Stenose der Ausflussbahn bei morphologisch dysplastischer Pulmonalklappe gesichert; eine hypertrophe Kardiomyopathie ließ sich echokardiographisch ausschließen. \n\nAn den Extremitäten besteht eine ausgeprägte Überbeweglichkeit der großen und kleinen Gelenke, ein Cubitus valgus ist nicht nachweisbar. Das Integument zeigt weder Café-au-lait-Makulae noch follikuläre Keratosen. Klinisch ergab sich kein Hinweis auf ein neoplastisches Geschehen. Die Familienanamnese ist bezüglich relevanter Vorerkrankungen vollkommen unauffällig.\n\nIch bedanke mich herzlich für Ihre geschätzte Mitbeurteilung.\n\nMit freundlichen Grüßen"
+}

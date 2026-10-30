@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_A_IV_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 302,
+  "total_tokens": 3034,
+  "thoughts_tokens": 2344,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to evaluate this male patient who has been under our care for multiple congenital concerns. He resides locally with his family, participates in a supported vocational program, and takes no prescription medications.\n\nHis history dates to birth, when an extra digit was present on the lateral aspect of both hands and feet, requiring surgical excision in early infancy. Ongoing physical examination is notable for pronounced generalized adiposity, with a current body mass index of 37. Formal neuropsychological assessments confirm significant cognitive impairment, although his early speech acquisition and expressive language developed entirely on schedule. An oral examination reveals well-aligned arches with no crowding of the teeth. Gonadal hypoplasia was absent, and he demonstrates expected male secondary sexual characteristics; curiously, his childhood transfer documentation unusually noted an earlier investigation regarding a failure of menarche initiation. Recent laboratory panels show preserved kidney function, and his fasting glucose levels show no indication of a diabetic state.\n\nRecent visual testing demonstrates severe nearsightedness. His dilated eye exam revealed diffuse atrophy of the neurosensory retina, marked narrowing of the retinal vasculature, and characteristic bone-spicule-like dark deposits scattered across the peripheral fundus. Specialized testing documented marked photoreceptor dysfunction affecting both rods and cones. His ocular alignment is completely normal, with no ocular deviation or squint.\n\nGiven this constellation of multi-system anomalies present since birth, I would greatly appreciate your assessment and guidance on his long-term care.\n\nSincerely,\nDr. Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17295247_Individual_III_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 394,
+  "total_tokens": 2723,
+  "thoughts_tokens": 1981,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen ein weibliches Neugeborenes zur differenzierten kardiologischen Mitbeurteilung und Festlegung des weiteren Procedere. Die Familienanamnese ist unauffällig, die Schwangerschaft verlief ohne Besonderheiten bei zeitgerechter Spontangeburt. \n\nPostpartal imponierte eine milde Zyanose bei ansonsten unbeeinträchtigtem Allgemeinzustand. In der initialen echokardiographischen Diagnostik stellten wir eine D-konfigurierte Transposition der großen Arterienstämme fest, wobei die Aorta anterior aus dem rechtsseitigen Ventrikel entspringt. Des Weiteren zeigte sich eine Atresie der linksventrikulären Einstromklappe mit vollständigem Fehlen einer funktionellen Mitralöffnung. Eine univentrikuläre Herzkammer liegt erfreulicherweise nicht vor, da zwei morphologisch getrennte Ventrikel zur Darstellung kommen. Ebenso ließ sich ein atretischer Verschluss der Klappe zur Lungenstrombahn sicher ausschließen; das Gefäß ist regelrecht angelegt und antegrad perfundiert.\n\nIm Rahmen des abdominellen Screenings fand sich bezüglich des lymphatischen Systems eine Besonderheit: Es imponierte ein vollständiges Fehlen der regulären Milzanlage in der linken Flanke, gleichzeitig konnten jedoch mehrere voneinander getrennte, kleine Nebenmilzherde im Abdomen detektiert werden. Die Nieren, die ableitenden Harnwege und die Leberarchitektur stellten sich sonographisch regelrecht dar. Die Vitalparameter sind derzeit unter Monitorüberwachung stabil, und die enterale Ernährung wird gut toleriert.\n\nWir bitten um Ihre geschätzte konsiliarische Beurteilung der Befunde sowie um eine Empfehlung zum weiteren Vorgehen.\n\nMit freundlichen Grüßen\nDr. med. Martin Weber"
+}

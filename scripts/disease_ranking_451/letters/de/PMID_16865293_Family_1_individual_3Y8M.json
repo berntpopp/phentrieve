@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16865293_Family_1_individual_3Y8M",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 394,
+  "completion_tokens": 428,
+  "total_tokens": 3318,
+  "thoughts_tokens": 2496,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des 3 Jahre und 8 Monate alten Patienten Felix, der sich in Begleitung seiner Eltern vorstellte. Die Familienanamnese ist bezüglich neurologischer Erkrankungen bland, das Kind erhält derzeit lediglich eine prophylaktische Vitamin-D-Gabe.\n\nFelix präsentiert sich mit einem ausgeprägten statomotorischen und kognitiven Rückstand in allen Entwicklungsdomänen. Das Längenwachstum ist massiv kompromittiert mit Werten weit unterhalb von minus drei Standardabweichungen, und es imponiert eine chronisch unzureichende Gewichtszunahme. Der Kopfumfang liegt ebenfalls signifikant unter der dritten Perzentile. Phänotypisch fallen tief im Orbitatrichter liegende Bulbi, eine auffällig hervortretende Nasenpyramide sowie eine floride Karies des Milchgebisses auf.\n\nAn den Extremitäten finden sich fixierte Bewegungseinschränkungen im Sinne von Beugekontrakturen der Knie- und Ellbogengelenke. Pädaudiologisch wurde eine Innenohrschwerhörigkeit diagnostiziert. Die Funduskopie ergab eine diffuse Sprenkelung des retinalen Pigmentepithels. Eine kutane Photosensibilität oder gesteigerte Sonnenbrandneigung besteht nicht; die Haut zeigt sich reizlos. \n\nIm aktuellen zerebralen MRT zeigte sich eine generalisierte kortikale Volumenminderung des Großhirns mit deutlicher Erweiterung der inneren Liquorräume. Die zerebellären Strukturen stellten sich dabei regelrecht und ohne Atrophiezeichen dar. Es ließen sich zudem keinerlei Verkalkungen der Basalganglien nachweisen. Die kardiopulmonale Untersuchung sowie der abdominelle Tastbefund boten Normalbefunde.\n\nÜber Ihre geschätzte Einschätzung zum weiteren differentialdiagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit kollegialen Grüßen\nDr. med. Stefan Lindner"
+}

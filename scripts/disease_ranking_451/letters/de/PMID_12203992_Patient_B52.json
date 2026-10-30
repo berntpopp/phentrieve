@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12203992_Patient_B52",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 448,
+  "completion_tokens": 492,
+  "total_tokens": 3376,
+  "thoughts_tokens": 2436,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 19-jährige Auszubildende Frau Meyer zur konsiliarischen Beurteilung eines auffälligen körperlichen Phänotyps. \n\nBei der Vorstellung imponiert eine normalwüchsige Patientin mit einer Körpergröße von 167 cm; ein Groß- oder Kleinwuchs liegt somit nicht vor. Kraniofazial fällt eine länglich proportionierte Schädelform mit hypoplastischen, abgeflachten Jochbeinen auf, ohne dass tief liegende Augäpfel festzustellen wären. Intraoral zeigt sich ein ausgeprägt hoher, schmaler Gaumen bei gleichzeitig deutlichem dentalem Engstand. Am Achsenskelett besteht eine thorakolumbale Wirbelsäulenverkrümmung. Die peripheren Gelenke zeigen eine generalisierte Überstreckbarkeit, wobei an den Ellenbogengelenken kein Streckdefizit vorliegt. Finger und Zehen sind auffällig lang und grazil gestaltet. Das Fußlängsgewölbe ist regelrecht ausgeprägt, ein Plattfuß besteht nicht. \n\nDie Thoraxwand ist unauffällig konfiguriert; eine Trichter- oder Kielbrust ist nicht vorhanden. In der transthorakalen Echokardiographie zeigte sich ein Prolaps des Mitralklappensegels mit begleitender milder Regurgitation. Die Aortenwurzel und die Aorta ascendens stellen sich kaliberstark unauffällig dar; es finden sich keine Zeichen eines Aneurysmas oder einer Aortendissektion. \n\nDermatologisch zeigt sich die Haut elastisch und weich verschieblich, ohne tastbare Gewebeverhärtungen oder Dehnungsstreifen. Die Leistenregionen sind beidseits frei von Hernien. Ophthalmologisch besteht eine korrigierte Kurzsichtigkeit; eine Ektopie der Linse, ein Linsenkolobom sowie eine Netzhautablösung wurden augenärztlich ausgeschlossen. \n\nDie Familienanamnese ist unauffällig, die Patientin nimmt bis auf ein orales Kontrazeptivum keine Dauermedikation ein.\n\nIch bedanke mich für Ihre differentialdiagnostische Einschätzung und Ihre weiteren Empfehlungen.\n\nMit freundlichen kollegialen Grüßen"
+}

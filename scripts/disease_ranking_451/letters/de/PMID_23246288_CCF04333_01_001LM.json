@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23246288_CCF04333_01_001LM",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 331,
+  "completion_tokens": 395,
+  "total_tokens": 2246,
+  "thoughts_tokens": 1520,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung der 47-jährigen Patientin Frau Monika Schulz, die sich derzeit in gutem Allgemeinzustand in meiner Praxis vorstellt.\n\nAnamnestisch erfolgte bei der Patientin vor knapp zwei Jahren eine organerhaltende Resektion der linken Niere aufgrund eines histologisch gesicherten Nierenzellkarzinoms. Die diesbezüglichen Kontrolluntersuchungen blieben bisher erfreulicherweise ohne Befund für ein Rezidiv. Kürzlich zeigte sich bei einer dermatologisch veranlassten Exzision an der Wangenschleimhaut ein gutartiges Papillom.\n\nIm Rahmen der aktuellen Durchuntersuchung wies eine zervikale Sonographie eine umschriebene Knotenbildung im rechten Schilddrüsenlappen von etwa 14 mm Durchmesser auf. Die daraufhin durchgeführte Feinnadelpunktion zeigte rein regressive Veränderungen, ein Schilddrüsenkarzinom konnte dabei eindeutig ausgeschlossen werden. Des Weiteren erfolgte kürzlich ein Mammographiescreening; das Drüsengewebe stellte sich beidseits unauffällig dar, ein Mammakarzinom liegt nicht vor.\n\nFrau Schulz ist als Bibliothekarin tätig, verheiratet und Mutter zweier gesunder Kinder. Sie ist Nichtraucherin und nimmt bis auf eine gelegentliche Gabe von Magnesium keine Medikamente ein. Der kardiopulmonale Auskultationsbefund sowie das Basislabor inklusive Nierenwerten, Blutbild und Leberenzymen waren vollkommen regelrecht. Die Familienanamnese bezüglich chronischer Erkrankungen ist leer.\n\nVor dem Hintergrund dieser Befundkonstellation erbitte ich Ihre fachliche Einschätzung und Empfehlung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

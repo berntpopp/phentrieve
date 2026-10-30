@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15911822_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 410,
+  "completion_tokens": 487,
+  "total_tokens": 4136,
+  "thoughts_tokens": 3239,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Berger,\n\nich bitte um Ihre konsiliarische Einschätzung bei dem 26-jährigen Patienten Jan Becker. Die frühkindliche Entwicklung verlief vollkommen regelrecht ohne globale Entwicklungsverzögerung. Erste Auffälligkeiten zeigten sich im Alter von 11 Jahren. \n\nAktuell berichtet die Familie über ein zunehmend unsicheres und verlangsamtes Gangbild, wenngleich die Gehfähigkeit glücklicherweise noch vollständig erhalten ist und kein Gehverlust droht. Im motorischen Bereich imponieren ein zäher Muskelwiderstand im Sinne eines Rigors sowie schmerzlose dystone Haltungsanomalien an den Extremitäten. Ein Tremor lässt sich klinisch nicht objektivieren. Es finden sich gesteigerte Muskeleigenreflexe sowie ein beidseits positives Babinski-Zeichen als Ausdruck einer Pyramidenbahnbeteiligung. Die Artikulation ist verwaschen und dysarthrisch verändert, der Schluckakt gelingt jedoch problemlos und ohne Anzeichen einer Dysphagie. Neben rezidivierenden unwillkürlichen Lautäußerungen im Sinne phonischer Tics fallen eine motorische Hyperaktivität sowie ausgeprägte anankastische Verhaltensweisen auf; motorische Tics bestehen hingegen nicht. Kognitiv zeigt sich ein progredienter dementieller Abbau, affektiv gibt es jedoch keinerlei Hinweise auf eine Depression.\n\nDie ophthalmologische Untersuchung zeigte unauffällige Sehnervenpapillen ohne Optikusatrophie und eine regelrechte Netzhaut ohne pigmentäre Retinopathie. Im peripheren Blutausstrich fand sich keine Akanthozytose. Im kürzlich angefertigten Schädel-MRT imponiert bilateral im Bereich des Globus pallidus eine ausgeprägte T2-Hypointensität mit einem umschriebenen zentralen Areal hoher Signalintensität. \n\nDer Patient lebt bei seinen Eltern, die Familienanamnese ist bezüglich neurologischer Erkrankungen unauffällig. Die Vitalparameter zeigten sich normwertig bei einem Blutdruck von 125/80 mmHg. Eine Dauermedikation besteht derzeit nicht.\n\nÜber Ihre geschätzte Beurteilung und Empfehlungen zum weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Walter"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28830446_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 445,
+  "total_tokens": 2712,
+  "thoughts_tokens": 1847,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung des inzwischen 10-jährigen Paul, der sich seit dem Alter von knapp zwei Jahren mit einer chronisch-rezidivierenden Symptomatik bei uns vorstellt. Die Familienanamnese ist bezüglich rheumatischer oder neurologischer Erkrankungen unauffällig, Paul besucht die vierte Klasse einer Grundschule und erhält aktuell physiotherapeutische Unterstützung.\n\nKlinisch stehen rezidivierende Fieberschübe im Vordergrund, die regelmäßig von krampfartigen Abdominalschmerzen sowie wiederkehrenden Schleimhautaphthen im Mundraum begleitet werden. Auffällig sind ferner netzartige, livide Hautzeichnungen an den Extremitäten. Paul klagt häufig über diffuse Gelenkschmerzen und eine ausgeprägte, den gesamten Körper betreffende Steifigkeit am Morgen. Zuletzt berichtete er vermehrt über belastende Cephalgien und Schwindelbeschwerden. \n\nIn der Vorgeschichte erlitt der Junge einen ischämischen zerebralen Infarkt, aus dem eine residuelle Hemiplegie resultierte. Bei der aktuellen neuroophthalmologischen Untersuchung imponieren zudem eine Parese des Nervus oculomotorius sowie Zeichen einer supranukleären Blickparese. Das Hörvermögen und die kardiopulmonale Untersuchung zeigten sich regelrecht.\n\nLaborchemisch zeigt sich eine ausgeprägte Entzündungsaktivität mit deutlicher Erhöhung des C-reaktiven Proteins, stark vermehrtem Interleukin-6 sowie einem erhöhten zirkulierenden löslichen CD25. Immunologisch ergab sich ein Nachweis von antinukleären Antikörpern, zudem fiel die Bestimmung des Lupus-Antikoagulans wiederholt positiv aus. Die laborchemischen Nieren- und Leberfunktionsparameter liegen durchweg im Normbereich.\n\nÜber Ihre geschätzte Einschätzung zum weiteren differentialdiagnostischen Vorgehen und Empfehlungen für das therapeutische Management wäre ich Ihnen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

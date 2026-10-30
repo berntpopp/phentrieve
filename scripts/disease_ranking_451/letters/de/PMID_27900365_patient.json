@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27900365_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 451,
+  "total_tokens": 3301,
+  "thoughts_tokens": 2475,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\n\nich überweise Ihnen heute Herrn M., 54 Jahre alt, zur weiteren fachärztlichen Beurteilung. Erste Krankheitszeichen traten anamnestisch wohl bereits um das 18. Lebensjahr herum auf; retrospektiv wurde zudem von einem auffallend langwierigen Fortbestehen der Gelbsucht in den ersten Lebenswochen berichtet. \n\nAktuell imponiert vor allem ein schleichender, fortschreitender geistiger Abbau. Seine Angehörigen schildern eine erhebliche, stetig zunehmende Vergesslichkeit sowie eine gravierend herabgesetzte Konzentrationsfähigkeit. Motorisch zeigt sich eine ausgeprägte Gang- und Standunsicherheit im Sinne einer Ataxie, welche in den vergangenen Monaten zu gehäuften Stürzen führte. Die Artikulation wirkt schwer verständlich und verwaschen. Bei der Prüfung der Okulomotorik stellten sich die raschen Blicksakkaden nach oben als deutlich hypometrisch dar. \n\nKörperlich ist der Patient in gutem Allgemeinzustand, kardiopulmonal kompensiert bei normwertigem Blutdruck. Das Basislabor inklusive Elektrolyten, Nierenwerten und TSH zeigte sich regelrecht. Palpatorisch sowie sonographisch ließen sich jedoch ein vergrößerter Leberunterrand sowie eine begleitende Milzvergrößerung dokumentieren. \n\nIn vorliegenden Vorbefunden einer auswärtigen Knochenmarkuntersuchung wurden auffällige, lipidbeladene Histiozyten mit schaumigem Zytoplasma beschrieben. Eine weiterführende zelluläre Diagnostik an Fibroblasten ergab zudem eine deutlich verminderte Rate der zellulären Cholesterinveresterung.\n\nAußer einer gelegentlichen Einnahme von Pantoprazol 20 mg bei Refluxbeschwerden besteht keine Vormedikation. Die Familienanamnese ist bezüglich neurodegenerativer Leiden leer.\n\nIch bitte um Ihre konsiliarische Mitbeurteilung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16865293_Family_2_individual_9Y11M",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 395,
+  "completion_tokens": 320,
+  "total_tokens": 3006,
+  "thoughts_tokens": 2291,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Julian Morris, a 9-year-old boy whom I follow in our general pediatric clinic, for further diagnostic assessment.\n\nJulian has demonstrated profound growth restriction since early infancy, presenting with extreme linear stunting (height Z-score -3.8) alongside chronic failure to gain weight. His cranial circumference remains well below the third percentile. On examination, he exhibits a noticeably sunken ocular appearance with deep-set globes, a disproportionately prominent nasal bridge, and extensive dental decay involving multiple primary and secondary teeth. \n\nFrom an early age, he has displayed significant developmental delay across all motor, cognitive, and communicative domains, and he currently remains non-verbal. Audiometric assessment confirmed a bilateral neurosensory hearing deficit, while dilated funduscopy revealed widespread granular mottling throughout the retinal pigment epithelium. His mother notes severe cutaneous hypersensitivity to sunlight, with brisk erythema and peeling triggered by minimal UV exposure. Musculoskeletal examination is notable for fixed flexion limitations and contractures involving the elbows, wrists, and knees. \n\nRecent neuroimaging demonstrates marked diffuse parenchymal volume loss involving both the cerebrum and the cerebellum, secondary expansion of the ventricular cavities, and prominent symmetric calcifications centered within the basal nuclei. \n\nJulian's cardiovascular, respiratory, and abdominal examinations are otherwise normal. He lives at home with both parents, has an unaffected 12-year-old sister, and takes daily pediatric multivitamins. I would greatly appreciate your evaluation of these combined features.\n\nSincerely,\nDr. Evelyn Vance, MD"
+}

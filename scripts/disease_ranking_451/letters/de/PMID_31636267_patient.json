@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31636267_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 495,
+  "completion_tokens": 513,
+  "total_tokens": 2892,
+  "thoughts_tokens": 1884,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute den 18-jährigen Lukas zur weiteren konsiliarischen Einordnung. Der Patient leidet seit seinem 11. Lebensjahr unter wiederkehrenden, periodischen Fieberschüben unklarer Genese. Phänotypisch fallen bereits seit der Kindheit ein ausgeprägter Kleinwuchs sowie ein Pterygium colli auf; zudem besteht eine leichte intellektuelle Beeinträchtigung. Lukas lebt bei den Eltern und besucht eine betreute Werkstätte, die Familienanamnese ist bezüglich chronischer Erkrankungen leer.\n\nKlinisch imponieren aktuell generalisierte Lymphknotenschwellungen zervikal und inguinal. Sonographisch zeigt sich eine ausgeprägte Hepatosplenomegalie bei ansonsten unauffälligem Abdomen. Herz- und Lungenauskultation blieben regulär, die Vitalparameter waren bis auf die febrile Körpertemperatur stabil. \n\nIm Routinelabor fiel eine Panzytopenie mit relevanter Anämie, Thrombozytopenie sowie einer Leukopenie auf. Das Differentialblutbild verdeutlichte zudem eine Neutropenie, Lymphopenie und Monozytopenie. Die Leberwerte zeigten das Bild einer Hepatitis mit deutlicher Erhöhung von ALT, AST und GGT. Des Weiteren bestehen eine Hypertriglyzeridämie, eine Hypofibrinogenämie sowie ein massiv akkumuliertes Ferritin. \n\nDie weiterführende Diagnostik ergab stark elevierte Serumkonzentrationen von löslichem CD25, Interleukin-18, Interleukin-1-beta und TNF-alpha. Immunphänotypisch zeigte sich ein signifikant erhöhter Prozentsatz naiver B-Zellen im peripheren Blut. Die zytotoxische Funktion der natürlichen Killerzellen gegenüber Zielzellen war hingegen intakt und regelrecht. Im kürzlich durchgeführten Knochenmarkaspirat fand sich der Nachweis einer Hämophagozytose.\n\nZur medikamentösen Fiebersenkung erhielt er bisher lediglich Ibuprofen nach Bedarf. \n\nAufgrund der komplexen Befundkonstellation bitte ich um Ihre geschätzte Beurteilung und Empfehlungen bezüglich des weiteren diagnostischen und therapeutischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Stefan Meyer\nFacharzt für Innere Medizin"
+}

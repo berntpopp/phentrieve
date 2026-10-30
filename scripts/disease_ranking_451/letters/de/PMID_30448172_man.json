@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30448172_man",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 438,
+  "total_tokens": 2776,
+  "thoughts_tokens": 1971,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn Thomas M., einen 52-jährigen Patienten, zur konsiliarischen Beurteilung.\n\nHerr M. stellte sich nach Abschluss seiner kardiologischen Rehabilitation bei uns vor. Vor wenigen Monaten erlitt er eine spontane Koronararteriendissektion der LAD, welche erfolgreich interventionell versorgt wurde. Anamnestisch bestehen sonst keine chronischen Vorerkrankungen, die Familienanamnese ist bezüglich kardiovaskulärer Ereignisse unauffällig, und der Patient arbeitet als Buchhalter im Büro. Aktuell nimmt er lediglich ASS und ein Statin ein; die laborchemischen Routineparameter inklusive Nierenretentionswerten zeigten sich normwertig.\n\nKörperlich fällt ein graziler, hochgewachsener Habitus auf. Das Verhältnis von oberem zu unterem Körpersegment ist deutlich vermindert, und die gemessene Armspanne übertrifft die Körpergröße um mehr als acht Zentimeter. Am Achsenskelett imponieren eine mäßige thorakolumbale Skoliose sowie eine Deformität des Sternums im Sinne einer asymmetrischen Einziehung der Thoraxwand. An beiden Füßen zeigt sich ein ausgeprägter Pes planus. Bei der Inspektion des Oropharynx fiel zudem eine ungewöhnlich breite Uvula auf. \n\nIn der rezenten CT-Angiographie zeigte sich eine deutliche Schlängelung und Elongation der thorakalen und abdominellen Aorta. Ein thorakales Aortenaneurysma konnte dabei zuverlässig ausgeschlossen werden, die Gefäßkaliber waren regelrecht limitiert. Echokardiographisch stellte sich eine normale, zarte dreiflügelige Taschenklappe dar; eine bikuspide Aortenklappe lag ausdrücklich nicht vor. Die linksventrikuläre Pumpfunktion war unbeeinträchtigt.\n\nIch bitte Sie höflich um Ihre klinische Mitbeurteilung der Gesamtsituation und eine Empfehlung zum weiteren diagnostischen Procedere.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_CHCO_09",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 358,
+  "completion_tokens": 443,
+  "total_tokens": 2759,
+  "thoughts_tokens": 1958,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich überweise Ihnen den kleinen Patienten zur dringenden stationären neuropädiatrischen Mitbeurteilung. \n\nDie Eltern berichten über neu aufgetretene, serielle Anfallsereignisse. Auffällig sind insbesondere clusterartig einschießende, plötzliche Beugebewegungen des Rumpfes und der Extremitäten, die bevorzugt in den Übergangsphasen zwischen Wachen und Schlafen zu beobachten sind. Zudem imponieren intermittierend umschriebene Versteifungsphasen einer Körperhälfte sowie isolierte, fokal auftretende myoklonische Zuckungen der Arme. Klinisch zeigt sich ein progredientes, schweres enzephalopathisches Zustandsbild mit ausgeprägter generalisierter Muskelhypotonie („Floppy-Infant“-Phänotyp). In allen Entwicklungsbereichen besteht ein gravierender globaler Rückstand; Meilensteine wurden bisher kaum erlangt, auch die Fixation ist wechselnd.\n\nIm rezent durchgeführten Schlaf- und Wach-EEG zeigte sich eine kontinuierliche, generalisierte Verlangsamung der zerebralen Grundaktivität. Interiktal ließen sich fokale Spitzenpotenziale über der Temporalregion ableiten. Im Spontanverlauf demasquierte sich schließlich das typische Bild einer hochamplitudigen, chaotischen Dysrhythmie im Sinne einer Hypsarrhythmie.\n\nDie somatische Basisuntersuchung war ansonsten unauffällig: Das Abdomen ist weich ohne Resistenzen, Herz und Lunge perkutorisch und auskultatorisch kompensiert, die Haut frei von Auffälligkeiten oder Dysmorphiezeichen. Die Familienanamnese ist bezüglich Anfallsleiden leer; die Schwangerschaft und peripartale Periode verliefen komplikationslos. Aktuell besteht noch keine antikonvulsive Medikation.\n\nIch bitte um Ihre zeitnahe differentialdiagnostische Abklärung sowie Empfehlungen zum weiteren therapeutischen Vorgehen bei diesem komplexen Geschehen.\n\nMit besten kollegialen Grüßen"
+}

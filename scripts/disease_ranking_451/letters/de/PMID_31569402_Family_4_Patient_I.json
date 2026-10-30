@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_4_Patient_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 577,
+  "completion_tokens": 540,
+  "total_tokens": 5244,
+  "thoughts_tokens": 4127,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen Herrn B., 29 Jahre alt, zur weiteren fachärztlichen Abklärung. Der Patient ist Nichtraucher, beruflich als Grafiker tätig und nimmt keine Dauermedikation ein; die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig.\n\nIm Rahmen der Untersuchung fällt ein überproportionaler Hochwuchs mit langen Extremitäten auf. Craniofazial zeigen sich ein verlängerter Schädelaufbau, eine kräftig hervortretende Stirnpartie, eine markante Nasenpyramide sowie ein vergrößerter Augenabstand. Ein Epikanthus besteht nicht, die Ohren inserieren regelrecht, das Kinn ist normal ausgebildet, und die Wangenknochen sind nicht abgeflacht. Enoral imponiert ein hoher Gaumenbogen; eine Spaltbildung des Gaumens oder eine geteilte Uvula liegen nicht vor. Ophthalmologisch präsentieren sich die Sklären weiß, Strabismus, Keratokonus oder Kurzsichtigkeit fehlen. \n\nDermatologisch zeigt sich eine feine, durchscheinende Haut mit gut erkennbarem oberflächlichem Gefäßnetz sowie diskreten periorbitalen Milien. Striae distensae, atrophe Narben, gesteigerte Hämatomneigung, dermale Überdehnbarkeit oder spontan heilende Plattenepithelgeschwülste sind nicht vorhanden. Nahrungsmittelallergien sind nicht bekannt.\n\nOrthopädisch bestehen beidseits ausgeprägte Plattfüße. Dagegen finden sich weder Klumpfüße, X-Beine noch auffallend dünne Langfinger. Gelenkkontrakturen, Überbeweglichkeiten, rezidivierende Luxationen oder Arthrosezeichen fehlen. Die Halswirbelsäule erweist sich als stabil, eine Skoliose liegt ebenso wenig vor wie eine Trichter- oder Kielbrust.\n\nIn der spinalen Bildgebung zeigte sich keine durale Ektasie. Die Gefäße stellen sich ohne Tortuositas dar, Varizen bestehen nicht. Kardial ließen sich weder ein Mitralklappenprolaps, eine Mitralregurgitation, Koronardissektionen noch ein offener Ductus arteriosus nachweisen. Ein Volvulus ist nie aufgetreten, ein Leistenbruch wurde jedoch dokumentiert; das Genitale ist ohne Hypospadie regelrecht entwickelt.\n\nIch bedanke mich für Ihre Beurteilung und verbleibe\n\nmit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30243293_case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 379,
+  "total_tokens": 2137,
+  "thoughts_tokens": 1406,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn Lukas Weber, 21 Jahre alt, zur weiteren Abklärung und differenzialdiagnostischen Beurteilung.\n\nDer Patient berichtet über eine seit etwa dem 11. Lebensjahr bestehende Muskelsteife, vor allem zu Beginn von Bewegungsabläufen. Bei der klinischen Untersuchung imponiert ein auffallend kräftiger Phänotyp mit einer generalisiert vermehrten Muskelmasse an Extremitäten und Rumpf, obgleich er keinerlei gezieltes Krafttraining betreibt. Die grobe Kraft ist dabei in allen Muskelgruppen vollständig erhalten, Paresen ließen sich zu keinem Zeitpunkt objektivieren.\n\nKlinisch zeigt sich eine deutliche Verzögerung der Muskelrelaxation, insbesondere nach kräftigem Faustschluss, passend zu einem myotonen Phänomen. Die Muskeleigenreflexe erwiesen sich an den oberen und unteren Extremitäten beidseits als durchgehend deutlich abgeschwächt. Die Sensibilitätsprüfung und die Hirnnerven zeigten sich regelrecht, das Gangbild ist sicher. Im Ruhe-EKG fand sich ein unauffälliger Sinusrhythmus.\n\nLaborchemisch imponiert eine deutliche Erhöhung der Serum-Kreatinkinase (zuletzt 680 U/l). Eine extern bereits veranlasste Muskelbiopsie erbrachte histochemisch keinen Anhalt für Cytochrom-C-Oxidase-negative Einzelfasern. Eine Dauermedikation besteht nicht, und die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen unauffällig.\n\nÜber Ihre geschätzte fachneurologische Mitbeurteilung und Empfehlungen zum weiteren diagnostischen Procedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

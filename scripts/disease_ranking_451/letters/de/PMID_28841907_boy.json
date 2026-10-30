@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28841907_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 499,
+  "total_tokens": 3384,
+  "thoughts_tokens": 2463,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich überweise Ihnen den heute zweijährigen Leon zur weiteren konsiliarischen Einordnung. Die Eltern berichten über Auffälligkeiten, die im Wesentlichen seit der Geburt bestehen.\n\nKörperlich zeigt sich ein ausgeprägter Längenminderwuchs unterhalb der dritten Perzentile. Auffällig ist die kraniofaziale Dysmorphie: Wir sehen ein zurückweichendes, unterentwickeltes Mittelgesicht mit flachem Nasenrücken und nach anterior gekippten Nasenlöchern. Die Ohrmuscheln setzen tief an. Die Augen zeigen einen deutlich vergrößerten Zwischenabstand sowie prominent hervortretende Bulbi. Augenärztlich wurden bereits beidseitige Linsentrübungen und ein weißliches Aufleuchten der Pupille beschrieben. Unmittelbar postnatal imponierte das Vollbild einer Sequenz aus ausgeprägter Unterkieferverkleinerung, Glossoptose und Spaltbildung, die anfangs eine nasopharyngeale Atemwegssicherung erforderte; am Gaumen imponiert weiterhin eine submuköse Spaltbildung.\n\nRöntgenologisch fielen uns eine auffallend sklerosierte, verdickte Schädelkalotte sowie eine verzögerte Mineralisation der proximalen Femurkerne auf. An den oberen Extremitäten besteht beidseits eine deutliche Bewegungseinschränkung bei der Ellenbogenbeugung. Eine Überbeweglichkeit der Gelenke lässt sich nirgends auslösen, Gelenkschmerzen werden nicht angegeben. Der Muskeltonus ist vollkommen seitengleich und normgerecht, eine muskuläre Hypotonie liegt nicht vor. \n\nEchokardiographisch zeigte sich ein unauffälliger Befund, insbesondere kein Hinweis auf einen Mitralklappenprolaps. Während die grobmotorische Entwicklung und der Hörtest weitgehend unauffällig verliefen, ist die Sprachentwicklung deutlich retardiert; Leon bildet bislang keine Worte. \n\nDie Familienanamnese bezüglich angeborener Fehlbildungen ist unauffällig, die Eltern sind nicht blutsverwandt. \n\nIch bitte um Ihre differenzialdiagnostische Einschätzung bezüglich des weiteren Vorgehens und danke für die Mitbeurteilung.\n\nMit freundlichen kollegialen Grüßen"
+}

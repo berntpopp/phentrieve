@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 302,
+  "total_tokens": 3184,
+  "thoughts_tokens": 2450,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating Julian, a boy aged six years and ten months whose family first noted difficulties around five months of age due to generalized delays across all developmental milestones. He demonstrated poor neck control with marked lag when pulled upright that lingered well past early infancy, was late to achieve unassisted sitting, and continues to struggle with fine motor dexterity. He demonstrates substantial cognitive impairment alongside marked expressive and receptive communication deficits. Lately, his caregivers have also noted behavioral issues, specifically episodes where he forcefully bangs his head when agitated.\n\nOn examination, his craniofacial appearance is elongated with an expanded, bulging upper forehead. His eyes are set widely apart with shortened horizontal palpebral openings; ocular alignment is intact with no strabismus, and there is no downward slant to the fissures. His eyebrows appear thin and trace an exaggerated, high arch. He has a flattened nasal bridge, and his ears project noticeably outward. \n\nHis palms show typical crease anatomy without a single transverse crease. Tone is mildly reduced throughout, with no hypertonia or rigidity detected. A 24-hour electroencephalogram was performed recently and showed no EEG abnormalities. His mother reports his rest is peaceful with no sleep disturbance. Cardiovascular, respiratory, and abdominal examinations are entirely within normal limits, and he is maintaining growth along the 50th centile. \n\nI would appreciate your expert evaluation and recommendations regarding his ongoing care.\n\nSincerely,\n\nDr. Marcus Vance, MD\nPediatric Medicine"
+}

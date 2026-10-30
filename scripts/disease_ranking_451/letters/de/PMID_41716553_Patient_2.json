@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 415,
+  "total_tokens": 3172,
+  "thoughts_tokens": 2325,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nzur weiteren differenzialdiagnostischen Abklärung stelle ich Ihnen den heute 6 Jahre und 10 Monate alten Paul vor. Bereits im Alter von etwa fünf Monaten fiel den Eltern ein verzögertes Erreichen erster Meilensteine auf.\n\nEs besteht ein tiefgreifender Entwicklungsrückstand in sämtlichen Domänen mit erheblichen kognitiven Einschränkungen. Das freie Sitzen wurde erst sehr spät erlernt, die feinmotorische Geschicklichkeit ist stark verzögert und die sprachliche Entwicklung stagniert auf dem Niveau einfacher Laute. Beim Zug an den Händen zeigt sich weiterhin ein deutliches Nachhängen des Kopfes. Verhaltensbiologisch imponiert bei Erregung ein wiederkehrendes, stereotypes Kopfschlagen gegen feste Gegenstände. Schlafstörungen werden nicht berichtet, die Nächte sind ruhig.\n\nKraniofazial fallen ein insgesamt elongiertes Gesicht, eine breite sowie deutlich vorgewölbte Stirn und eine eingesunkene Nasenwurzel auf. Die Augen stehen auffällig weit auseinander, die Lidspalten wirken schmal, jedoch ohne abwärts gerichtete Lidachsen. Ein Strabismus liegt nicht vor. Die Brauen sind lichte und bogenförmig hoch angesetzt. Die Ohrmuscheln stehen beidseits deutlich ab.\n\nIm Rahmen der bisherigen Diagnostik war das EEG frei von pathologischen Veränderungen. Es besteht keine muskuläre Hypertonie; der Tonus ist seitengleich normgerecht. An den Handflächen finden sich unauffällige Furchen ohne Hinweis auf eine Vierfingerfurche. Die internistische Untersuchung einschließlich kardiopulmonaler Auskultation ergab Normalbefunde. Paul nimmt keine Dauermedikation ein, die Familienanamnese ist leer.\n\nÜber Ihre geschätzte konsiliarische Einschätzung des Jungen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\nDr. med. Stefan Wagner"
+}

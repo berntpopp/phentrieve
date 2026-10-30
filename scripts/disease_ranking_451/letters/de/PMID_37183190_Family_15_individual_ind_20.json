@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37183190_Family_15_individual_ind_20",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 545,
+  "completion_tokens": 581,
+  "total_tokens": 3406,
+  "thoughts_tokens": 2280,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 7 1/2 Jahre alten Paul zur pädiatrischen Mitbeurteilung. Erste Auffälligkeiten zeigten sich im Alter von gut zweieinhalb Jahren.\n\nKlinisch imponiert eine deutliche globale Entwicklungsverzögerung mit kognitiver Beeinträchtigung. Die Sprachentwicklung ist hochgradig verlangsamt, er artikuliert lediglich vereinzelte Lautfolgen. Motorisch besteht eine ausgeprägte generalisierte Muskelhypotonie, Dystonien oder eine Gangataxie liegen jedoch nicht vor. Im Verlauf traten wiederholt tonische Episoden sowie generalisierte bilaterale tonisch-klonische Krampfanfälle auf. Fokale Anfallsgeschehen oder atonische Sturzereignisse wurden nie beobachtet. Ein mehrfach abgeleitetes EEG zeigte sich vollständig unauffällig ohne epilepsietypische Aktivität. \n\nDer Junge sucht aktiv und freundlich Blickkontakt; aggressive Verhaltensauffälligkeiten oder paroxysmale Hyperventilationen bestehen nicht. \n\nDie zerebrale Bildgebung mittels MRT erbrachte unauffällige Befunde ohne Hinweis auf eine Zerebral- oder Vermisatrophie, eine Verringerung des Marklagervolumens oder stattgehabte intraventrikuläre Blutungen; das Corpus callosum ist regelrecht angelegt, ohne Verdickung oder Verschmälerung.\n\nPhänotypisch zeigen sich keine vergröberten Gesichtszüge. Die Stirn ist unauffällig geformt, weder prominent noch auffallend breit, der vordere Haaransatz nicht tiefstehend. Die Lidachsen verlaufen horizontal, Epikanthusfalten oder auffallend lange Wimpern fehlen, ebenso eine Synophrys. Die Ohrmuscheln sind normal groß und weisen keine vergrößerten Ohrläppchen auf. Die Nase zeigt keine Zwiebelform, die Columella ist weder tiefstehend noch verkürzt, das Philtrum normal lang. Der Mund ist normal breit, das Lippenrot der Oberlippe weder verschmälert noch zeltförmig aufgeworfen. Die Zunge verbleibt regulär im Mundraum, der Gaumen ist flach. Es besteht keine Unterkieferprognathie, die Zähne sind normal groß und lückenlos aufgereiht.\n\nKardiopulmonal und sonografisch-abdominell ergaben sich stets Normalbefunde, die Familienanamnese bezüglich neurologischer Erkrankungen ist leer.\n\nÜber Ihre geschätzte konsiliarische Beurteilung und Empfehlungen zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

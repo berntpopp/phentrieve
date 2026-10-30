@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26567009_male_child",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 272,
+  "total_tokens": 1911,
+  "thoughts_tokens": 1279,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing this 14-month-old boy for further evaluation and management. His mother notes that he was born at term without complications, but around four months of age, he became exceptionally fretful, exhibiting marked and inconsolable irritability. \n\nOver the subsequent months, his tone increased progressively, and current physical examination reveals generalized spastic hypertonicity throughout his extremities, paired with brisk, exaggerated deep tendon reflexes. Owing to severe oral dysphagia and poor weight gain, he underwent gastrostomy tube placement in early infancy and continues to receive all nutrition enterally. His course has unfortunately been marked by repeated chest infections, including documented episodes of aspiration pneumonia, alongside frequent, recurrent bouts of unexplained fever.\n\nA metabolic investigation during his last hospital stay showed significantly diminished galactocerebrosidase activity in peripheral white blood cells. Aside from these concerns, his routine newborn screening was unremarkable, his cardiac examination is normal with regular heart sounds and no murmurs, and an abdominal exam demonstrates a clean, healthy G-tube site. His parents are non-consanguineous and his family history is negative for early childhood illnesses. He is currently receiving chest physiotherapy and respiratory support as needed.\n\nI would appreciate your comprehensive assessment and guidance on his long-term management. \n\nSincerely,\nDr. Marcus Finch"
+}

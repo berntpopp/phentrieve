@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37156989_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 345,
+  "completion_tokens": 388,
+  "total_tokens": 2907,
+  "thoughts_tokens": 2174,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute Frau Martina Keller, eine 28-jährige Patientin, zur weiteren differenzialdiagnostischen Beurteilung. Die ersten Symptome traten bei ihr bereits im Alter von 18 Jahren auf.\n\nGastrointestinal bestehen seit langem rezidivierende, transmurale Entzündungsschübe mit diskontinuierlichem Befall des terminalen Ileums und Kolons, einhergehend mit krampfartigen Bauchschmerzen. Vor wenigen Wochen bildete sich pretibial links ein extrem schmerzhaftes, rasch an Größe zunehmendes Hautulkus mit zentraler Nekrose und livide unterminiertem Randsaum. An den Streckseiten beider Ellenbogen fallen zudem scharf begrenzte, erythematöse Plaques mit silbriger Schuppung auf.\n\nAnamnestisch berichtet die Patientin über wiederkehrende Entzündungen der Nasennebenhöhlen sowie wiederholte Infektionen des Mittelohrs, teils vergesellschaftet mit serösen Paukenergüssen. Laborchemisch ließen sich wiederholt erhöhte Autoantikörpertiter nachweisen, passend zu einem ausgeprägten autoimmunologischen Geschehen.\n\nDie Patientin arbeitet als Grafikerin und lebt in festen sozialen Verhältnissen; sie ist Nichtraucherin. Die Familienanamnese ist unauffällig. Die Vitalzeichen waren bei der aktuellen Vorstellung im Normbereich, und die kardiopulmonale Untersuchung bot keinen pathologischen Befund. Nieren- und Leberwerte sowie das Basislabor zeigten sich regelrecht. Aktuell nimmt sie lediglich Pantoprazol sowie bei Bedarf Paracetamol ein.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung und Vorschläge zum weiteren Procedere sehr dankbar.\n\nMit freundlichen Grüßen\nDr. med. Stefan Berger"
+}

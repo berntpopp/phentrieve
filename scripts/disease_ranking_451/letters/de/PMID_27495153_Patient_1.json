@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27495153_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 435,
+  "total_tokens": 3308,
+  "thoughts_tokens": 2465,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 7-jährige Leonie zur konsiliarischen Beurteilung. Die Symptomatik begann im Alter von knapp sieben Wochen. Das Mädchen befindet sich mittlerweile in einem apallischen Syndrom bei schwerster globaler Entwicklungsretardierung. \n\nIm Vordergrund steht eine progrediente Schwäche der Skelettmuskulatur. Klinisch zeigt sich eine generalisierte Muskelschlaffheit mit unzureichender Kopfkontrolle; an den Extremitäten imponiert demgegenüber ein spastisch erhöhter Muskeltonus mit gesteigerten Eigenreflexen. Der Babinski-Reflex war bei den wiederholten Vorstellungen stets negativ. Auffallend sind rezidivierende zerebrale Krampfanfälle und unwillkürliche Myoklonien im Rahmen einer therapierefraktären anfallsassoziierten Enzephalopathie. Das EEG ist pathologisch verändert mit diffusen Allgemeinveränderungen und multifokaler Spikewave-Aktivität. Zudem bestehen erhebliche Ernährungsschwierigkeiten bei ausgeprägter Dysphagie sowie eine chronische respiratorische Insuffizienz, die eine nächtliche Atemunterstützung erfordert. Bei der ophthalmologischen Untersuchung fiel eine beidseitige Abblassung der Sehnervenpapillen auf.\n\nIm kranialen MRT zeigte sich eine diffuse Minderung des Hirnvolumens, eine beidseitige Erweiterung der Cisterna fossae lateralis cerebri sowie deutliche zerebrale Entmarkungsprozesse der weißen Substanz. Die metabolische Abklärung erbrachte keinen Anhalt für eine Organoazidurie im Urin. Routinelabor und Nierenretentionsparameter waren unauffällig. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer; die Eltern sind gesund und nicht konsanguin. \n\nÜber Ihre geschätzte Beurteilung und Empfehlungen zum weiteren diagnostischen Prozedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

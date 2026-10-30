@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31057532_Family_H_individual_H_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 376,
+  "completion_tokens": 434,
+  "total_tokens": 2499,
+  "thoughts_tokens": 1689,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen Herrn Lukas Meyer zur weiteren Mitbeurteilung. \n\nDer Patient berichtet über eine auffällige Infektneigung mit wiederkehrenden fieberhaften Episoden im Verlauf des vergangenen Jahres. Des Weiteren klagt er über seit vielen Monaten persistierende, breiig-flüssige Stuhlgänge. Rezidivierende Otitiden traten anamnestisch nie auf, die Gehörgänge zeigen sich aktuell reizlos. \n\nDie bisherige Abklärung erbrachte negative Befunde für spezifische Antikörper: Weder Antikörper gegen Gewebstransglutaminase noch gegen Gliadin ließen sich im Serum nachweisen. Auch bezüglich einer Hashimoto-Thyreoiditis ergab sich bei euthyreoter Stoffwechsellage und unauffälligen Antikörpertitern kein Anhalt. Eine Vergrößerung der Milz konnte sonographisch ausgeschlossen werden, das Organ stellte sich normgroß und homogen dar. Das Blutbild wies stabile, normale Thrombozytenwerte auf, womit ein autoimmuner Thrombozytenabbau ausgeschlossen werden kann. Die zytologische Differenzierung und Immunphänotypisierung zeigten keinerlei Hinweise auf unreife Blasten oder lymphoblastische Neoplasien der B- oder T-Zell-Reihe. Klinische und serologische Zeichen für eine Vaskulitis fehlen vollständig.\n\nIn der körperlichen Untersuchung zeigte sich der Patient in gutem Allgemeinzustand. Cor und Pulmo waren auskultatorisch unauffällig, der Blutdruck lag bei 125/80 mmHg. Der Patient arbeitet im Büro, ist Nichtraucher und nimmt außer gelegentlich Vitamin D keine Dauermedikation ein. Die Familienanamnese ist unauffällig.\n\nAufgrund der geschilderten Beschwerdesymptomatik bitte ich Sie um Ihre geschätzte konsiliarische Einschätzung und weitere diagnostische Einordnung.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Brandner"
+}

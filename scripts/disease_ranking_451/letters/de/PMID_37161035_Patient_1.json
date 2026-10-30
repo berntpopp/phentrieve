@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37161035_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 462,
+  "total_tokens": 3583,
+  "thoughts_tokens": 2701,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Lieber Kollege Schneider,\n\nich überweise Ihnen den dreijährigen Felix zur neuropädiatrischen Mitbeurteilung. \n\nErstmals im Lebensalter von sieben Monaten traten bei dem Jungen umschriebene halbseitige motorische Entladungen mit klonischen Zuckungen einer Körperhälfte auf. Typische epileptische Spasmen oder myoklonische Rucke wurden anamnestisch nie berichtet. Ebenso wenig kam es je zu bilateralen tonisch-klonischen Konvulsionen, isolierten tonischen Versteifungsattacken, atonischen Sturzanfällen oder klassischen Absencen. Auch Fieberkrämpfe traten trotz mehrfacher fieberhafter Infekte in der Vorgeschichte nicht auf.\n\nEntwicklungsneurologisch besteht ein deutlicher, sämtliche Domänen erfassender Entwicklungsrückstand, der sich insbesondere in einer stark verzögerten grobmotorischen Entwicklung manifestiert; Felix kann bisher weder frei stehen noch gehen. Im klinischen Untersuchungsbefund imponiert ein deutlich herabgesetzter Muskeltonus vor allem im Rumpfbereich. Der internistische Status, die Schädelform und die Hör- und Sehleistung sind unauffällig. Felix lebt bei seinen gesunden Eltern, die Familienanamnese ist bezüglich neurologischer Vorerkrankungen leer.\n\nIn den apparativen Voruntersuchungen zeigte die Hirnstromkurve pathologische Veränderungen mit herdförmigen epilepsietypischen Entladungen. Das kranielle MRT bot dagegen einen unauffälligen Befund: Es fand sich keine diffuse Hirngewebsatrophie, das Corpus callosum war kräftig und regulär angelegt, und Anzeichen für eine Sklerose der Hippocampi lagen beidseits nicht vor. Zudem zeigte sich eine altersentsprechende Marklagerreifung ohne Anhalt für eine Verzögerung der Myelinisierung und ohne Nachweis von zerebralen Demyelinisierungsherden.\n\nIch wäre Ihnen für eine differenzialdiagnostische Einordnung des Bildes und Ihre Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nHerzliche kollegiale Grüße\n\nDr. med. Martin Bach"
+}

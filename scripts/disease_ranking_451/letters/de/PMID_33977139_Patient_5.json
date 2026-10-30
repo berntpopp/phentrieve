@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 474,
+  "completion_tokens": 455,
+  "total_tokens": 3437,
+  "thoughts_tokens": 2508,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute siebenjährigen Patienten zur konsiliarischen Beurteilung eines komplexen Bildes. Bereits neonatal fielen ausgeprägte Trink- und Fütterprobleme auf, gefolgt von einem gastroösophagealen Reflux und einer anhaltenden Gedeihstörung. Die motorischen Meilensteine wurden mit deutlicher Verzögerung erreicht; das freie Sitzen gelang erst im vierten Lebensjahr, eigenständiges Gehen mit knapp sechs Jahren. Zudem bestehen rezidivierende Infekte des Respirationstrakts.\n\nIm Säuglingsalter manifestierten sich zerebrale Krampfanfälle. Das EEG demonstrierte multifokale epilepsietypische Entladungen, und die MRT-Bildgebung ergab eine Dysplasie des Corpus callosum.\n\nKörperlich imponiert eine deutliche muskuläre Hypotonie sowie eine thorakolumbale Skoliose. Der Kopfumfang liegt tief unter der 3. Perzentile bei auffallend schmaler Stirn und tief angesetzten Ohren. Fazial zeigen sich ein fliehendes Kinn, ein hoher Gaumen, ein verkürzter Abstand zwischen Nase und Oberlippe sowie nach vorn gerichtete Nares. Die Augen fallen durch kleine Bulbi, Strabismus, Myopie, beidseitige Epikanthusfalten sowie einen horizontalen Nystagmus auf. Nicht vorhanden sind eine Uvula bifida, buschige Brauen, eine Synophrys oder eine eingesunkene Nasenwurzel. Eine plumpe Nasenspitze liegt nicht vor, das Gesicht ist keineswegs rundlich geformt. \n\nDermatologisch besteht eine generalisierte ichthyotische Schuppung des gesamten Integuments, palmoplantare Hyperkeratosen fehlen jedoch vollständig. Die internistische Basisdiagnostik inklusive Abdomensonographie und Echokardiographie war unauffällig, die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer.\n\nIch bitte um Ihre klinische Einschätzung des Patienten und danke für die kollegiale Zusammenarbeit.\n\nMit freundlichen Grüßen"
+}

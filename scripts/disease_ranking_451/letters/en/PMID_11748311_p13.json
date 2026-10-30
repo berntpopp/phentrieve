@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11748311_p13",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 355,
+  "completion_tokens": 263,
+  "total_tokens": 1786,
+  "thoughts_tokens": 1168,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing this young patient in consultation for a comprehensive diagnostic assessment. \n\nThe patient initially came to our attention following parental concerns regarding significant delays across gross motor, fine motor, and expressive language milestones. Speech evaluation has been notable for prominent hypernasality and nasal air emission during phonation, consistent with poor velopharyngeal closure. On physical examination, I noted an atypical craniofacial appearance with altered facial contours. Examination of the extremities was unremarkable, specifically showing standard five-digit architecture on both hands and feet with no evidence of extra digits. Cardiopulmonary auscultation and abdominal palpation are currently normal. \n\nRecent laboratory investigations revealed marked parathyroid hormone deficiency with associated low ionized calcium, for which replacement therapy was initiated. Flow cytometry subsequently demonstrated a significant reduction in the absolute CD3+ T-lymphocyte population. Subsequent mediastinal imaging noted an absent or severely diminutive thymic silhouette. \n\nFamily history is non-contributory, with no reported consanguinity, and renal ultrasonography was unremarkable. Given the confluence of neurodevelopmental delays, immunologic abnormalities, and endocrinopathy, I would greatly appreciate your evaluation and guidance on further diagnostic workup and ongoing management.\n\nSincerely,\nDr. Robert Sterling, MD\nPediatric Care Clinic"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_I_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 408,
+  "total_tokens": 2269,
+  "thoughts_tokens": 1524,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die 68-jährige Patientin Frau Renate Keller zur konsiliarischen Abklärung. \n\nVor wenigen Tagen ereignete sich aus häuslicher Ruhe heraus ein erstmaliger tonisch-klonischer Krampfanfall mit Zungenbiss und kurzer postiktaler Verwirrtheitsphase. Das Ereignis sistierte nach etwa zwei Minuten spontan, Hinweise auf das Vorliegen eines Status epilepticus gab es erfreulicherweise nicht. Zudem schildert der Ehemann eine seit einigen Wochen bestehende, ausgeprägte psychotische Symptomatik mit Verfolgungswahn und akustischen Halluzinationen.\n\nDie frühkindliche Sprachentwicklung sei nach Auskunft der Angehörigen regelrecht und ohne Verzögerungen verlaufen. Autistische Verhaltensweisen oder Störungen der sozialen Interaktion bestanden im bisherigen Lebensverlauf nie. Eine intellektuelle Beeinträchtigung liegt nicht vor; die Patientin war bis zu ihrer Verrentung vor drei Jahren kaufmännisch voll leistungsfähig. \n\nIn der heutigen körperlichen Untersuchung präsentierte sich die Patientin internistisch stabil mit unauffälligen Vitalparametern (Blutdruck 125/78 mmHg, Herzfrequenz 70/min, normwertige Auskultation von Herz und Lunge). Der grobneurologische Untersuchungsbefund war vollständig intakt, insbesondere ergaben sich keine Paresen oder sensiblen Defizite. Die Familienanamnese ist bezüglich neuropsychiatrischer Erkrankungen leer. Die Dauermedikation umfasst lediglich L-Thyroxin 50 µg täglich bei euthyreoter Struma.\n\nIch bitte Sie freundlich um eine fachärztliche Mitbeurteilung und die Einleitung einer weiterführenden Diagnostik bei unklarem Krankheitsbeginn.\n\nMit besten kollegialen Grüßen\nDr. med. Thomas Brandner"
+}

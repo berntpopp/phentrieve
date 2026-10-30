@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 474,
+  "completion_tokens": 386,
+  "total_tokens": 2748,
+  "thoughts_tokens": 1888,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this seven-year-old boy whom I have followed since his neonatal period for complex neurodevelopmental and multisystem issues. He lives at home with both parents and an older healthy sibling; family history is non-contributory.\n\nHis early months were complicated by pronounced oral feeding struggles, severe acid reflux requiring omeprazole, and persistent poor weight gain well below the first percentile. He has also suffered from recurrent chest infections. Motor milestones were markedly delayed: he only achieved unassisted sitting at two years and could not walk independently until four and a half. Axial muscle tone has remained chronically reduced, though deep tendon reflexes are intact.\n\nOn examination, his cranial vault is small with measurements far below the 3rd percentile, displaying noticeable bitemporal tapering. His auricles sit unusually low relative to the intercanthal axis. Facial assessment reveals small globes, epicanthal folds, upturned nostrils, an abbreviated philtral column, a steep palatal arch, and a receding lower jaw. We noted no medial eyebrow confluence, the eyebrows are not unusually bushy, the nasal bridge is not flattened, the nasal tip is not bulbous, the face is elongated rather than round, and his uvula is completely normal without clefting. \n\nOphthalmology manages him for high nearsightedness, ocular misalignment, and persistent side-to-side involuntary rhythmic eye movements. His skin demonstrates widespread, generalized xerosis with fine fish-like scaling across his body and extremities, while the skin of his palms and soles remains entirely soft and unthickened. Neurologically, he suffers from recurring convulsions; his interictal EEG showed multiple independent spike foci, and brain MRI revealed callosal malformation. He has also developed a progressive lateral curvature of the spine.\n\nI would appreciate your comprehensive assessment and recommendations.\n\nSincerely,\nDr. Katherine Vance"
+}

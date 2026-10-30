@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23691375_4_year_old_girl",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 251,
+  "total_tokens": 2463,
+  "thoughts_tokens": 1852,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 4-year-old girl in your clinic. She attends preschool, lives with her parents and healthy older brother, and takes no regular medications. \n\nHer mother initially brought her in due to concerns that her scalp hair grows exceptionally slowly, requiring virtually no trims since infancy. On examination, she presents with a noticeably wide frontal region, sparse outer thirds of the eyebrows, and a prominent, rounded nasal tip. Her philtral column is elongated, and the upper vermilion border appears distinctly attenuated. Her cardiovascular, respiratory, and abdominal examinations were normal, and deep tendon reflexes were brisk and symmetric bilaterally. \n\nRecent radiographs of the left hand and wrist revealed shortened metacarpal bones, alongside skeletal maturation that lags significantly behind her chronological age. Importantly, she has achieved all motor, speech, and social milestones on target, with no evidence of generalized developmental delays or cognitive impairment. Her parents are non-consanguineous, and the family history is unremarkable for birth defects or genetic conditions. \n\nI would value your expert assessment regarding these craniofacial and bony findings and your recommendations for further diagnostic workup.\n\nSincerely,\n\nDr. Julian Vance, MD\nGeneral Pediatrics"
+}

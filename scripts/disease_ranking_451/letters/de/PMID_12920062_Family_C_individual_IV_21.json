@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12920062_Family_C_individual_IV_21",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 409,
+  "completion_tokens": 432,
+  "total_tokens": 3876,
+  "thoughts_tokens": 3035,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen Herrn Jonas Winter, 30 Jahre alt, zur kardiologischen Mitbeurteilung.\n\nDer Patient stellte sich mit intermittierenden Palpitationen vor. Im Ruhe-EKG dokumentierte sich eine tachykarde absolute Arrhythmie mit Flimmerwellen der Vorhöfe. Auffällig zeigte sich in der transthorakalen Echokardiographie ein deutlich vermehrtes linksventrikuläres enddiastolisches Volumen. Das Vollbild einer dilatativen Kardiomyopathie liegt jedoch nicht vor; die systolische Pumpfunktion ist erhalten. \n\nWeder in der Rhythmusüberwachung noch im initialen EKG fanden sich Anzeichen für einen AV-Block 1., 2. oder 3. Grades, ebenso wenig bestand ein Linksschenkelblock. Ventrikuläre Extrasystolen traten im Holter-Monitoring nicht auf, und Kammertachykardien waren zu keinem Zeitpunkt nachweisbar. Ein überlebter plötzlicher Herztod ist anamnestisch nicht bekannt, entsprechende kardiale Ereignisse fehlen auch in der Familienanamnese.\n\nKörperlich präsentiert sich der Patient in stabilem Allgemeinzustand. Das Gesicht zeigt keine progeroiden Züge und wirkt vollkommen altersentsprechend. Eine Lipodystrophie oder auffällige Fettgewebsatrophie ließ sich inspektorisch nicht feststellen. Die Gelenke sind allseits frei beweglich, Gelenkkontrakturen fehlen gänzlich. Im neurologischen Status zeigte sich keine Muskelschwäche bei seitengleich intakter Kraft (5/5), und es bestand keine Skelettmuskelatrophie.\n\nDie Routinelaborwerte inklusive Nierenretentionsparametern und Elektrolyten liegen im Normbereich. Der Patient ist beruflich im Büro tätig, Nichtraucher und nimmt aktuell keine Dauermedikation ein.\n\nIch bitte um Ihre geschätzte Beurteilung und Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

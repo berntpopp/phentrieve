@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19683336_Patient_9",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 310,
+  "total_tokens": 2530,
+  "thoughts_tokens": 1833,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating Maya Bennett, a 7-year-old girl who presented to my clinic for ongoing multi-system concerns. \n\nMaya was born with widespread peeling and universal redness affecting her entire integument. While this diffuse generalized desquamation has somewhat evolved, she remains plagued by frequent cutaneous infections requiring repeated courses of antibiotics. Examination of her brittle scalp hair under the light microscope showed classic invaginated, ball-and-socket shaft deformities. \n\nIn addition, Maya has long-standing, daily nasal congestion with persistent rhinorrhea. Her history is also notable for recurrent chest infections, including a previous hospitalization for acute lobar lung consolidation. She has confirmed IgE-mediated adverse reactions to eggs and tree nuts. \n\nImportantly, there has been no history of asthma or reactive airway disease. Her skin has never shown typical eczematoid dermatitis, nor has she experienced recurrent gastroenteritis. During infancy and early childhood, she had no episodes of hypernatremic dehydration, and she has never developed sepsis. Moreover, she is active and doing well in second grade, and her physical growth has steadily tracked along the 50th centile with no failure to thrive. Vital signs and her cardiopulmonary examination today were completely normal. Her current daily regimen consists solely of bland emollient therapy and cetirizine.\n\nGiven this complex constellation, I would be grateful for your expert assessment and recommendations for her long-term management.\n\nWarm regards,\n\nDr. Arthur Pendelton"
+}

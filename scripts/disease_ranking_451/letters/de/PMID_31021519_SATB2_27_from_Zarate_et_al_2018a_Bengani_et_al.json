@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_SATB2_27_from_Zarate_et_al_2018a_Bengani_et_al",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 391,
+  "total_tokens": 2525,
+  "thoughts_tokens": 1770,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die neunjährige Mia zur differenzialdiagnostischen Abklärung.\n\nAnamnestisch bestanden bereits in den ersten Lebensmonaten ausgeprägte Trinkschwierigkeiten mit schwachem Saugreflex. Im weiteren Verlauf manifestierte sich eine tiefgreifende Retardierung sämtlicher Entwicklungsbereiche. Das freie Laufen erlernte Mia erst mit knapp vier Jahren. Auch ihr sprachliches Ausdrucksvermögen ist bis heute gravierend limitiert; sie artikuliert lediglich einzelne Worte und verständigt sich überwiegend gestisch. Es imponiert eine deutliche kognitive Behinderung, weshalb sie aktuell eine Förderschule mit dem Schwerpunkt geistige Entwicklung besucht.\n\nBei der oralen Inspektion fällt ein unregelmäßiges Gebiss mit multiplen Stellungsanomalien und Schmelzdefekten auf. Der Gaumen ist dabei vollständig intakt, eine Spaltbildung ließ sich ausschließen. Das Längenwachstum verläuft seit jeher entlang der 40. Perzentile; ein Kleinwuchs oder eine Wachstumsverzögerung liegen nicht vor. Zerebrale Anfallsereignisse traten bisher nicht auf, und auch das vor zwei Jahren veranlasste cMRT zeigte einen unauffälligen, altersentsprechenden Befund ohne strukturelle Läsionen.\n\nDie Familienanamnese ist bezüglich neurologischer oder syndromaler Erkrankungen leer. Mia ist kardiopulmonal unauffällig, pädaudiologisch zeigte sich ein regelrechtes Hörvermögen, und sie nimmt derzeit keine Dauermedikation ein.\n\nIch wäre Ihnen für eine konsiliarische Beurteilung der Patientin und Ihre Einschätzung zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

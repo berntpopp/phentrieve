@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39416860_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 415,
+  "total_tokens": 2716,
+  "thoughts_tokens": 1966,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Müller,\n\nich überweise Ihnen den heute vier Monate alten Säugling Paul zur neuropädiatrischen Mitbeurteilung und weiteren diagnostischen Einordnung.\n\nPaul entstammt einer komplikationslosen Schwangerschaft und wurde termingerecht spontan geboren. Die Eltern sind gesund und nicht blutsverwandt. In der internistischen Untersuchung zeigt sich der Junge in stabilem Allgemeinzustand; Cor und Pulmo sind auskultatorisch regelrecht, das Abdomen ist weich ohne Organomegalie, und die Haut ist frei von Auffälligkeiten. Die laborchemischen Basalwerte inklusive Elektrolyte, Leberwerte und Entzündungsparameter lagen vollkommen im Referenzbereich. \n\nErstmals im Alter von etwa vier Wochen traten rezidivierende zerebrale Anfälle mit fokal-motorischen Entäußerungen und Blickstarre auf. Das wiederholt abgeleitete EEG zeigte ausgeprägte, kontinuierliche multifokale Spike-Wave-Muster bei deutlicher Desorganisation der Hintergrundaktivität. Klinisch besteht parallel eine ausgeprägte Entwicklungsstagnation im Sinne einer schweren, anfallsbedingten Enzephalopathie mit therapieresistentem Verlauf.\n\nIm kürzlich durchgeführten Schädel-MRT imponierte eine deutliche Verschmächtigung der Balkenstruktur bei sonst altersgemäßer Myelinisierung. Die kardiologische Funktionsdiagnostik erbrachte den Befund eines kleinen, hämodynamisch stummen offenen Foramen ovale. Zudem ergab die pädaudiologische BERA-Messung nach initial auffälligem Erstscreening eine beidseitige Schallempfindungsstörung.\n\nZur weiteren ätiologischen Einordnung und Optimierung des Therapieregimes wäre ich Ihnen für eine fachärztliche Beurteilung des Patienten sehr dankbar.\n\nMit besten kollegialen Grüßen\n\nDr. med. Stefan Wagner\nFacharzt für Kinder- und Jugendmedizin"
+}

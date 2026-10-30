@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30868101_KRS_103_IV_14",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 381,
+  "total_tokens": 2643,
+  "thoughts_tokens": 1881,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn M. W., einen 24-jährigen Patienten, der sich mit einer seit dem 12. Lebensjahr progredienten neurologischen Symptomatik in meiner Sprechstunde vorstellte.\n\nKlinisch imponiert ein hypokinetisch-rigides Syndrom mit deutlicher Verlangsamung sämtlicher Bewegungsabläufe, einer generalisierten Muskelsteifigkeit sowie einem feinschlägigen Tremor beider Hände. Des Weiteren fällt eine verwaschene, monotone Sprechweise auf, begleitet von einem störenden, unwillkürlichen Speichelfluss. Bei der neuroophthalmologischen Untersuchung zeigen sich auffällig verlangsamte Sakkaden und eine supranukleäre Einschränkung der Blickmotorik.\n\nIm Reflexstatus finden sich gesteigerte Muskeleigenreflexe an allen vier Extremitäten. Das Babinski-Zeichen ist beidseits negativ, und es lassen sich aktuell keine Dystonien nachweisen. Am Bewegungsapparat fallen beidseits ausgeprägte Hohlfüße auf.\n\nPsychiatrisch wird von einer chronisch depressiven Stimmungslage berichtet; anamnestisch traten zuletzt zudem wiederholt visuelle Sinnestäuschungen auf.\n\nDie Familienanamnese bezüglich neurologischer Erkrankungen ist unauffällig, der Patient arbeitet in einer geschützten Werkstatt. Die laborchemischen Standardparameter inklusive Blutbild, Elektrolyten sowie Leber- und Nierenwerten zeigten sich regelrecht. Die kardiopulmonale Untersuchung war bland, der Blutdruck lag bei 120/75 mmHg.\n\nIch bitte um Ihre geschätzte differentialdiagnostische Einschätzung und Weiterbehandlung dieses komplexen Krankheitsbildes.\n\nMit freundlichen kollegialen Grüßen"
+}

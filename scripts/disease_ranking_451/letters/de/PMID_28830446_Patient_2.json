@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28830446_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 425,
+  "total_tokens": 2695,
+  "thoughts_tokens": 1867,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich überweise Ihnen den heute 3-jährigen Julian zur stationären Mitbeurteilung. Die Symptomatik begann schleichend vor etwa einem halben Jahr im Alter von zweieinhalb Jahren. Die bisherige Entwicklung verlief zeitgerecht, die Familienanamnese ist bezüglich chronischer Erkrankungen blande.\n\nAnamnestisch imponieren seither wiederkehrende Fieberschübe ohne fassbaren Infektfokus, häufig vergesellschaftet mit krampfartigen abdominellen Schmerzen und einer rezidivierenden aphthösen Stomatitis. Die Eltern berichten zudem über eine generalisierte morgendliche Steifigkeit des gesamten Bewegungsapparates sowie ein kälteinduziertes Raynaud-Phänomen an den Fingerendgliedern.\n\nVor wenigen Wochen erlitt das Kind einen zerebralen ischämischen Insult, aus dem eine noch bestehende Hemiparese der linken Körperhälfte resultiert. Bei der aktuellen Inspektion fallen neben einer netzförmigen Gefäßzeichnung im Sinne einer Livedo racemosa an den Extremitäten auch anuläre Hautläsionen am Rumpf auf. Die kardiopulmonale Untersuchung war unauffällig, die Vitalparameter lagen im Normbereich.\n\nLaborchemisch zeigte sich eine deutliche Erhöhung der zirkulierenden Immunglobuline sowie ein positiver Befund für antinukleäre Antikörper. Im Zytokinprofil imponieren ein stark gesteigertes Interleukin 6 und eine deutlich erhöhte sCD25-Konzentration im Serum. Im Rahmen der enterometabolischen Basisdiagnostik fand sich zudem ein pathologisch erhöhter Calprotectinwert im Stuhl. Das Routine-Blutbild und die Nierenretentionsparameter waren unauffällig.\n\nBei diesem komplexen Krankheitsbild bitte ich um Ihre spezialisierte pädiatrische Einschätzung sowie Vorschläge zum weiteren diagnostischen und therapeutischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29575628_case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 385,
+  "completion_tokens": 302,
+  "total_tokens": 2898,
+  "thoughts_tokens": 2211,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate this two-month-old male infant. He was born at 39 weeks following an uncomplicated pregnancy to a healthy 26-year-old mother, with an unremarkable family history and normal neonatal APGAR scores. \n\nHe was recently admitted to our pediatric ward due to frequent, watery bowel movements over the past week, leading to dry mucous membranes and prolonged capillary refill reflecting significant fluid deficit and intravascular volume depletion. Serum electrolytes on presentation revealed a low sodium concentration of 127 mEq/L. Concurrently, he demonstrates poor weight gain, consistently tracking well below the third percentile despite feeding support.\n\nCraniofacial assessment is notable for an accentuated, protruding forehead. He has a congenital fissure in his upper lip accompanied by a broad opening across the secondary palate. A tiny preauricular cutaneous indentation is visible on the left, but his auricles are normally positioned on the cranium without low placement. Bilateral nasal patency was confirmed by passage of a suction catheter without choanal obstruction. His cardiopulmonary exam is benign, his abdomen is soft, and his anal opening is normally positioned and patent. A formal bedside dilated fundus examination demonstrated a localized segmental defect spanning the choroid and retina.\n\nGiven the constellation of his growth issues, metabolic instability, and anatomical findings, we would value your clinical evaluation and guidance on further diagnostic investigations.\n\nSincerely,  \nDr. Katherine Brooks, MD  \nDepartment of Pediatrics"
+}

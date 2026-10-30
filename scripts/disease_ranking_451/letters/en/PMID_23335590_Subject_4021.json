@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_4021",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 447,
+  "completion_tokens": 345,
+  "total_tokens": 2387,
+  "thoughts_tokens": 1595,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this young male whom I have been following since birth due to several congenital features and milestone concerns. He was born at full term via an uncomplicated vaginal delivery to healthy, non-consanguineous parents. The perinatal course was stable, and the family history is unremarkable for early childhood difficulties.\n\nOn physical examination, he demonstrates notable craniofacial characteristics. His eyes are widely spaced with downward-slanting fissures and bilateral drooping of the upper eyelids. Cranial imaging previously confirmed premature fusion along the coronal suture. His auricles are implanted well below the intercanthal line. Intraoral inspection reveals an unusually elevated, vaulted hard palate; however, both the lips and the palate are fully intact without clefting. His cervical region is supple without cutaneous webbing.\n\nCardiopulmonary auscultation is normal, and chest wall topography shows no pectus excavatum. The axillary vaults are free of pterygia, although his left shoulder exhibits a fixed, congenitally elevated scapula. The spine is straight with no evidence of scoliotic curvature. Examination of the abdomen shows a normal umbilicus without herniation, but a reducible right groin hernia was noted, alongside an undescended right testis. His hands and feet display noticeably shortened digits, cutaneous fusion between the adjacent toes, and pronounced longitudinal grooving of the nail plates. The fifth digits are straight without inward curvature.\n\nA brain MRI demonstrated complete non-formation of the corpus callosum. Clinically, he exhibits substantial delays across all gross motor, fine motor, and communicative milestones. \n\nI would greatly appreciate your assessment and recommendations for further diagnostic workup.\n\nSincerely,\nDr. Julian Vance"
+}

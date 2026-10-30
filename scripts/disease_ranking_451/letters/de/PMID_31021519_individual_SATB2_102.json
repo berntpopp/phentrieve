@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_individual_SATB2_102",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 347,
+  "completion_tokens": 430,
+  "total_tokens": 2345,
+  "thoughts_tokens": 1568,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Keller,\n\nich überweise Ihnen heute den nun 4-jährigen Felix zur weiteren pädiatrischen Mitbeurteilung. \n\nDie Eltern berichten über Auffälligkeiten, die sich bereits kurz nach der Geburt manifestierten. Im frühen Säuglingsalter bestanden ausgeprägte Trink- und Fütterstörungen bei schwerer Saugschwäche, die zeitweise eine enterale Ernährungssonde erforderlich machten. Zudem lag eine angeborene Gaumenspalte vor, welche im Alter von neun Monaten erfolgreich operativ verschlossen werden konnte. \n\nIm Verlauf zeigte sich eine erhebliche Verzögerung sämtlicher Entwicklungsmeilensteine; das freie Laufen erlernte der Junge erst mit 30 Monaten, der expressive Wortschatz beschränkt sich derzeit auf wenige Ein-Wort-Äußerungen. Auch das Längenwachstum verläuft seit dem Kleinkindalter persistent verlangsamt und liegt weit unterhalb der 3. Perzentile. \n\nBei der heutigen Inspektion fällt neben dem Kleinwuchs ein pathologischer Zahnstatus mit atypischer Zahnstellung, Schmelzdefekten und lückenhaftem Zahndurchbruch auf. Eine kürzlich durchgeführte zerebrale Kernspintomographie zeigte strukturelle Auffälligkeiten des Hirnparenchyms. Zerebrale Krampfanfälle traten hingegen zu keinem Zeitpunkt auf; auch das kürzlich abgeleitete Ruhe-EEG zeigte keine epilepsietypischen Entladungen.\n\nKardiopulmonal und abdominell bietet der Junge einen altersentsprechenden Normalbefund. Das Hörvermögen wurde mittels BERA als regelrecht bestätigt. Die Familienanamnese ist bezüglich angeborener Erkrankungen leer, die Eltern sind nicht blutsverwandt. Felix besucht derzeit einen integrativen Kindergarten.\n\nÜber Ihre geschätzte Einschätzung des Patienten und Empfehlungen zum weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\n\nDr. med. Tobias Berger"
+}

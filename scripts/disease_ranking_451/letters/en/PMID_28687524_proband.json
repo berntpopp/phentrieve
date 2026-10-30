@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28687524_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 335,
+  "total_tokens": 2902,
+  "thoughts_tokens": 2128,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing this seven-year-old boy in consultation for a comprehensive diagnostic opinion. \n\nHis prenatal history was notable for diminished fetal activity noted by his mother during the third trimester. He presented in the neonatal period with marked axial and peripheral floppiness, bilateral clubfoot deformities, and undescended testicles that subsequently required orchidopexy. Since infancy, he has shown substantial delays spanning all cognitive, speech, and motor domains.\n\nOn physical examination, his anterior hairline features a prominent cowlick with an upward sweep, and his pinnae are remarkably large. His eyes demonstrate shortened palpebral apertures and an alternating esotropia. Midfacial features include a broad, fleshy nasal tip, an abbreviated columella, an unusually broad oral opening, thinned lip borders, a palpable submucosal notch in his palate, and an underdeveloped, retruded chin. \n\nHis extremities show exaggerated, prominent palmar skin creases, irreducible flexion contractures at the proximal interphalangeal joints of several fingers, and overlapping lesser digits on both feet. Orthopedic evaluation also monitors an emerging mid-thoracic spinal curvature. He has long-standing, refractory bowel infrequency managed with daily polyethylene glycol. Renal ultrasonography showed bilateral pelvicalyceal dilation alongside multiple cortical parenchymal fluid collections. Previous neuroimaging demonstrated low-lying cerebellar tonsils projecting beyond the foramen magnum. \n\nHis cardiopulmonary examination is entirely normal with regular heart sounds and clear breath sounds. He lives at home with his parents, and family history is non-contributory. I would greatly appreciate your evaluation of his overall presentation."
+}

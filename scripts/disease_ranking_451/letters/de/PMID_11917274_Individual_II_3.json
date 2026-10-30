@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11917274_Individual_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 405,
+  "total_tokens": 2278,
+  "thoughts_tokens": 1536,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen die 51-jährige Patientin Frau Sabine Winter, die sich zur Abklärung einer Sehverschlechterung in unserer Praxis vorstellte.\n\nFrau Winter berichtet über ein beidseits aufgetretenes, unscharfes und verschwommenes Sehen, das sie insbesondere bei ihrer beruflichen Tätigkeit als Bibliothekarin beeinträchtige. Die ophthalmologische Familienanamnese ist leer, Allgemeinerkrankungen bestehen nicht, und sie nimmt keine regelmäßigen Medikamente ein.\n\nBei der aktuellen Untersuchung zeigte sich die Sehschärfe beidseits herabgesetzt (bestkorrigiert rechts 0,6, links 0,5). Spaltlampenbiomikroskopisch imponieren in den kortikalen Schichten der Linse beidseits feine, diffuse, staubförmige Trübungsbezirke. Der Linsenkern zeigt sich dabei vollständig transparent; eine Kernkatarakt ist nicht nachweisbar. Ebenso ließen sich keine membranösen Trübungsformationen oder membranartige Linsenveränderungen abgrenzen.\n\nDie vorderen Augenabschnitte präsentierten sich im Übrigen vollkommen regelrecht: Die Kornea war glatt, klar und spiegelnd, die Vorderkammer tief sowie reizfrei. Der intraokulare Druck lag beidseits im Normbereich bei jeweils 15 mmHg. Fundoskopisch stellten sich die Papillen randscharf und vital dar, die Netzhautgefäße waren kaliberstark und die Makula beidseits trocken und unauffällig.\n\nIch bitte Sie um eine konsiliarische Beurteilung der Patientin sowie um Ihre geschätzte Empfehlung zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Lindner\nFacharzt für Augenheilkunde"
+}

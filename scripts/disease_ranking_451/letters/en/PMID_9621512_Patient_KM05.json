@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9621512_Patient_KM05",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 312,
+  "completion_tokens": 281,
+  "total_tokens": 1495,
+  "thoughts_tokens": 902,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this young girl, who initially presented to our service at two years of age. I would appreciate your expert opinion and further assessment regarding her recent clinical course.\n\nHer medical history had been entirely unremarkable until around her second birthday, having achieved all developmental milestones on schedule. She lives at home with her parents and an older brother, and the family history is non-contributory. She takes no regular medications and has no known allergies.\n\nDuring her acute presentation, laboratory workup demonstrated a profound high anion gap metabolic acidemia accompanied by marked ketonuria and significantly elevated circulating beta-hydroxybutyrate levels. She required supportive fluid resuscitation and acute stabilization to resolve the acidotic state. \n\nFollowing treatment, her general physical examination has returned to baseline. She is alert, interactive, and well-hydrated. Her heart sounds are normal without murmurs, her lungs are clear to auscultation, and her abdomen is soft, non-tender, and without hepatosplenomegaly. Neurological tone and reflexes are symmetric and age-appropriate. Basic hematology and routine renal profiles have also normalized.\n\nGiven this episode of severe ketonemic metabolic acidemia originating at age two, I would value your comprehensive evaluation and advice on ongoing surveillance. Thank you for your assistance with her care.\n\nSincerely,\nDr. Evelyn Vance"
+}

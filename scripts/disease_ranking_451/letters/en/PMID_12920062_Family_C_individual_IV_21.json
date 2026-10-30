@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12920062_Family_C_individual_IV_21",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 409,
+  "completion_tokens": 333,
+  "total_tokens": 2979,
+  "thoughts_tokens": 2237,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for seeing this 30-year-old male who was recently referred to my office after an irregular pulse was detected during an occupational health check. He works as an accountant, does not smoke, and takes only a daily multivitamin. His family history is unremarkable for early cardiovascular events.\n\nA 12-lead tracing demonstrated an irregularly irregular supraventricular rhythm with fibrillatory baseline waves. Extended ambulatory rhythm monitoring showed an average rate of 82 bpm without ventricular premature complexes or runs of ventricular tachyarrhythmia. There was no PR interval prolongation, no second-degree nodal block, no complete atrioventricular dissociation, and no conduction defect resembling a left bundle branch pattern. He denies any history of syncopal episodes or aborted sudden cardiovascular collapse.\n\nTransthoracic echocardiography showed preserved ejection fraction at 57%, though his left ventricular end-diastolic volume was elevated at 192 mL. There were no structural hallmarks of a dilated cardiomyopathic process.\n\nOn physical examination, his chest was clear to auscultation and his abdomen was soft and non-tender. His facial appearance was entirely normal for his age, with no premature aging characteristics. Adipose tissue was distributed normally throughout, with no localized or generalized fat loss. On neuromuscular evaluation, he demonstrated 5/5 strength throughout with no muscular wasting or skeletal muscle reduction. Range of motion was completely intact across all joints, with no articular contractures identified.\n\nI would appreciate your expert assessment regarding his care and your advice on optimal long-term management.\n\nWarm regards,\n\nDr. Julian Vance"
+}

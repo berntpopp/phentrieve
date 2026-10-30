@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15523648_A_four_year_old_female",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 322,
+  "total_tokens": 2021,
+  "thoughts_tokens": 1324,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to evaluate Emma, a 4-year-old girl with a complex clinical presentation that first became apparent in early infancy. \n\nEmma initially presented during her first months of life with marked central low tone and feeding difficulties. Her milestones have been subject to pervasive developmental delay across all functional domains; she remains entirely non-verbal without communicative vocalizations and demonstrates significant cognitive impairment. When supported in a standing position, she exhibits prominent truncal unsteadiness and poor coordination consistent with an ataxic pattern. Persistent oral drooling has also been a continuous management issue. \n\nOn physical examination, her linear growth is profoundly restricted, plotting far below the 3rd percentile. She has noticeable coarsening of her facial features. A slit-lamp examination by ophthalmology revealed bilateral corneal clouding. Her cardiovascular, respiratory, and abdominal examinations are entirely unremarkable, with no organomegaly appreciated. \n\nNeuroimaging obtained earlier this year revealed attenuation of the corpus callosum along with abnormal, defective cerebral myelination. Subsequent laboratory investigations demonstrated that serum gastrin was significantly elevated, while her circulating ferritin level was distinctly low. Routine metabolic screening, liver enzymes, and renal function panels were otherwise normal. \n\nEmma lives at home with her parents and older brother, who are all healthy. There is no family history of neurologic disorders, and Emma takes only supplemental vitamin D. \n\nI would greatly appreciate your assessment and recommendations regarding appropriate next steps for diagnostic clarification. \n\nSincerely,\n\nDr. Eleanor Vance, MD\nDepartment of Pediatrics, Riverdale Health Center"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9398836_Family_J2_20_III_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 315,
+  "total_tokens": 2129,
+  "thoughts_tokens": 1489,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 36-year-old woman for ongoing endocrine assessment. \n\nHer clinical history is notable for mild, non-ketotic elevated blood sugars that first manifested during childhood at ten years of age. Unlike classic presentations observed at that age, her glycemic state has remained remarkably stable over the past two and a half decades without an ongoing requirement for insulin therapy. In addition, recent routine urinalyses have repeatedly demonstrated marked urinary glucose excretion on dipstick evaluations, persisting even during periods of modest plasma levels.\n\nOn examination today, she is a well-nourished, active woman in no acute distress. Her blood pressure is 118/74 mmHg, pulse is 70 beats per minute, and her body mass index is 22.3 kg/m². Cardiopulmonary auscultation is completely unremarkable, with clear lung fields bilaterally and normal heart sounds without murmurs. Her abdomen is soft, non-tender, and non-distended without organomegaly. Lower-extremity evaluation demonstrates brisk, symmetric peripheral pulses, intact sensation to light touch and vibration, and normal monofilament testing. Basic metabolic laboratory testing from last week revealed normal serum electrolytes, blood urea nitrogen, and creatinine. \n\nSocially, she works full-time as an interior designer, lives with her partner, and does not use tobacco or alcohol. \n\nI would greatly appreciate your expert opinion regarding the long-term metabolic management and overall evaluation of her presentation.\n\nSincerely,\nDr. Rachel Vance"
+}

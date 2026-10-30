@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18412284_Patient_III_8",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 381,
+  "total_tokens": 2195,
+  "thoughts_tokens": 1462,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Frau Sabine Meier, 35 Jahre alt, zur weiteren fachärztlichen Beurteilung. \n\nDie Patientin berichtet über seit etwa ihrem zehnten Lebensjahr bestehende, schleichend progrediente Gesichtsfeldausfälle, die beidseits zu einer spürbaren Einschränkung des peripheren Sehens geführt haben. Des Weiteren bestehen ausgeprägte visuelle Orientierungsschwierigkeiten bei Dämmerung sowie in Dunkelheit. In den letzten Jahren kam es zudem zu einer Minderung der zentralen Sehschärfe; der bestkorrigierte Visus betrug bei der heutigen Vorstellung rechts 0,5 und links 0,4.\n\nDer vordere Augenabschnitt stellt sich reizfrei und altersentsprechend dar, die Hornhaut ist glatt und die Linse beidseits klar. Der intraokulare Druck lag seitengleich bei normwertigen 15 mmHg. Ophthalmoskopisch zeigen sich auffallend verdünnte, fadenförmig verengte retinale Gefäße sowie disseminierte knochenkörperchenartige Pigmentauflagerungen in der mittleren Netzhautperipherie. Ein kürzlich veranlasstes Elektroretinogramm war nicht erloschen; es ließen sich trotz Amplitudenminderung beidseits noch reproduzierbare Potenziale nachweisen.\n\nFrau Meier ist als Buchhalterin tätig, verneint Allgemeinerkrankungen und nimmt keine Dauermedikation ein. Die ophthalmologische Familienanamnese ist unauffällig.\n\nIch bedanke mich für Ihre kollegiale Mitbeurteilung und Ihre Empfehlungen zum weiteren therapeutischen Vorgehen.\n\nMit freundlichen Grüßen\n\nDr. med. Christian Brandner"
+}

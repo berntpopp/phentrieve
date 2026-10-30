@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Kinship_2_Patient_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 350,
+  "completion_tokens": 358,
+  "total_tokens": 1989,
+  "thoughts_tokens": 1281,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 27-jährige Patientin zur neurologischen Mitbeurteilung. Erste Auffälligkeiten traten anamnestisch bereits im 7. Lebensjahr auf und nahmen im Verlauf sehr schleichend zu.\n\nAktuell imponiert bei der Patientin eine beidseitig reduzierte manuelle Griff- und Haltekraft, wobei sich inspektorisch ein deutlicher Substanzverlust der Thenarmuskulatur zeigt. Im Alltag klagt sie über eine ausgeprägte rasche Ermüdbarkeit bei repetitiven Handlungen. In der Untersuchung der unteren Extremitäten fällt eine beidseitige Parese der Fußdorsalextensoren auf. Der Fersengang gelingt der Patientin beidseits kaum, und auch die Durchführung des Zehenganges ist motorisch hochgradig beeinträchtigt.\n\nDie Hirnnervenfunktionen stellen sich durchgehend regelrecht dar. Die Muskeleigenreflexe sind an den oberen und unteren Extremitäten seitengleich mittellebhaft auslösbar, Pyramidenbahnzeichen ließen sich nicht nachweisen. Die Sensibilitätsprüfung für Berührung, Schmerz und Vibration erbrachte unauffällige Befunde. Die Patientin ist beruflich im kaufmännischen Bereich tätig, eine Dauermedikation besteht nicht. Die Familienanamnese bezüglich relevanter neurologischer Vorerkrankungen ist leer. Das Basislabor und die Vitalparameter zeigten sich im Normbereich.\n\nIch bedanke mich für Ihre geschätzte fachärztliche Einschätzung und Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

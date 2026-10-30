@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17056636_Patient_No_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 487,
+  "completion_tokens": 489,
+  "total_tokens": 3348,
+  "thoughts_tokens": 2372,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich stelle Ihnen den heute zweijährigen Jungen Julian zur konsiliarischen Beurteilung vor. Er lebt bei den gesunden Eltern, die Familienanamnese ist unauffällig und eine Dauermedikation besteht nicht. \n\nSchon seit der Neugeborenenperiode besteht eine ausgeprägte Gedeihstörung mit persistierender Trinkschwäche. Die Körperlänge entwickelt sich jedoch normgerecht, ein Kleinwuchs liegt nicht vor. Es zeigt sich eine globale Entwicklungsverzögerung mit Zeichen einer mittelgradigen kognitiven Einschränkung. Zerebrale Krampfanfälle traten nie auf. \n\nKraniofazial imponiert ein weiter Augenabstand mit schräg nach außen-unten verlaufenden Lidspalten sowie ein beidseitiges Herabhängen der Oberlider. Ein Strabismus oder Nystagmus ist nicht vorhanden. Das Haupthaar ist ebenso wie die Augenbrauen auffallend schütter. Die Nasenlöcher sind nach ventral-oben gerichtet, während der Nasenrücken regulär und nicht eingesunken imponiert. Die Gesichtszüge wirken keineswegs vergröbert. Die Ohren sind tief ansetzend, zeigen jedoch keine Rotation nach posterior. Der Nacken ist auffällig kurz mit beidseitigen zervikalen Hautfalten; der Nackenhaaransatz ist nicht tiefstehend. Der Schädelumfang ist proportional zur Körpergröße, eine relative Makrozephalie besteht nicht. Im zerebralen MRT ergab sich kein Nachweis einer Dandy-Walker-Malformation.\n\nDer Thorax ist unauffällig geformt, ohne Trichterbrust, Kielbrust oder Zeichen eines Schildthorax. Echokardiographisch wurde eine Verengung der Pulmonalklappe nachgewiesen; ein Vorhofseptumdefekt sowie eine hypertrophe Kardiomyopathie wurden definitiv ausgeschlossen. Auffällig sind tief eingegrabene Furchen an den Handflächen sowie an den Fußsohlen. Überschüssige, redundante Hautfalten bestehen am übrigen Körper nicht. Das Genitale ist männlich, ohne Kryptorchismus.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung des Patienten.\n\nMit kollegialen Grüßen"
+}

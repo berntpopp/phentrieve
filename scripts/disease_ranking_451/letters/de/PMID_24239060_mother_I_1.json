@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24239060_mother_I_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 391,
+  "total_tokens": 2551,
+  "thoughts_tokens": 1783,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 68-jährige Rentnerin Frau Renate Lindner zur konsiliarischen Beurteilung. Erste motorische Auffälligkeiten bestanden nach Angaben der Patientin bereits im frühen Kindesalter. Die Familienanamnese ist unauffällig, die Patientin lebt mit ihrem Ehemann und nimmt als Dauermedikation lediglich Pantoprazol ein.\n\nBei der aktuellen Untersuchung zeigt sich ein ausgeprägt asthenischer Gesamtzustand mit einer generalisierten Schwäche sämtlicher Extremitäten sowie einer deutlichen Parese der Nackenbeugemuskulatur. Inspektorisch fällt eine erhebliche, diffuse Atrophie der Skelettmuskulatur auf. Das Gangbild präsentiert sich klassisch watschelnd bei beidseits insuffizienter Beckenstabilisierung. Die tiefen Sehnenreflexe lassen sich an den Armen und Beinen nicht auslösen, es besteht eine Areflexie. Des Weiteren imponiert eine deutliche thorakale Skoliose. Elektromyographisch dokumentierten die Vorbefunde bereits ein myopathisches Muster.\n\nIm Bereich der Hirnnerven fand sich kein pathologischer Befund. Eine Ptosis liegt nicht vor, ebenso wenig eine Ophthalmoplegie; die Bulbusmotorik ist in alle Richtungen uneingeschränkt intakt.\n\nAnamnestisch erlitt die Patientin in der Vergangenheit rezidivierende Pneumonien. Vor einigen Wochen führte die muskulär bedingte respiratorische Insuffizienz schließlich zu einem akuten respiratorischen Versagen, welches eine vorübergehende intensivmedizinische Behandlung notwendig machte.\n\nIch wäre Ihnen für eine fachneurologische Einschätzung dieses langjährigen Prozesses und Empfehlungen zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen\nDr. med. Thomas Hauser"
+}

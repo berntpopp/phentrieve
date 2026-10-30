@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23726037_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 350,
+  "completion_tokens": 367,
+  "total_tokens": 2140,
+  "thoughts_tokens": 1423,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die sechsjährige Patientin Mia zur weiteren pädiatrischen Einschätzung. \n\nDie Eltern berichten über eine bereits seit dem Säuglingsalter bestehende, ausgeprägte Verzögerung der gesamten Meilensteine. Bei unserer aktuellen Untersuchung zeigt sich die Körperlänge mit 104 cm deutlich unter der dritten Perzentile, und auch der Kopfumfang fällt mit einem Z-Score von -3,1 extrem klein aus. \n\nIn der praktischen Testung imponieren deutliche Defizite im Bereich der manuellen Geschicklichkeit; das Hantieren mit feinen Gegenständen, Stiften oder Besteck gelingt nur sehr ungelenk und altersunreif. Die expressive und rezeptive Sprachkompetenz ist ebenfalls massiv limitiert, sie äußert lediglich einige wenige isolierte Worte.\n\nIm kürzlich durchgeführten Schädel-MRT fand sich eine normale kortikale Furchung ohne Anhalt für ein vereinfachtes Gyrierungsmuster. Ein Hervortreten der Augäpfel bzw. ein Exophthalmus liegt nicht vor. Epileptische Anfälle oder sonstige paroxysmale Geschehnisse wurden anamnestisch zu keinem Zeitpunkt beobachtet.\n\nKardiopulmonal und abdominell ergab die körperliche Untersuchung regelrechte Verhältnisse. Das Tonschwellenaudiogramm war altersgemäß ohne pathologischen Befund. Mia nimmt keine Medikamente ein, besucht einen heilpädagogischen Kindergarten und wächst mit einem gesunden älteren Bruder auf. \n\nÜber Ihre geschätzte konsiliarische Beurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

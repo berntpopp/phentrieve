@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17056636_Patient_No_8",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 437,
+  "completion_tokens": 435,
+  "total_tokens": 2470,
+  "thoughts_tokens": 1598,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 5-jährige Mia zur konsiliarischen Beurteilung. \n\nDie Eltern berichten über eine seit dem Kleinkindalter persistierende Gedeihstörung bei anhaltenden Fütter- und Trinkschwierigkeiten; die Körperlänge verharrt konstant weit unterhalb der dritten Perzentile. In der Entwicklung zeigt sich eine globale Retardierung der motorischen und sprachlichen Meilensteine mit aktuell mittelgradiger kognitiver Beeinträchtigung. Kardiologisch wurde bei Mia eine progrediente asymmetrische linksventrikuläre Hypertrophie im Sinne einer hypertrophen Kardiomyopathie objektiviert.\n\nKörperlich imponieren ein auffallend kurzer Hals sowie vergröberte Gesichtszüge mit Hypertelorismus, nach unten außen geneigten Lidachsen und tief inserierenden Ohrmuscheln. Das Kopfhaar ist sehr licht und spärlich ausgebildet. \n\nEin Pterygium colli ist nicht nachweisbar. Der Kopfumfang liegt harmonisch auf den Längenperzentilen, eine relative Makrozephalie besteht nicht. Die Augenmotilität ist unauffällig, ohne Strabismus oder Nystagmus, auch eine Ptosis liegt nicht vor. Die Ohren sind nicht nach dorsal rotiert. Der Thorax ist symmetrisch ohne Trichter- oder Kielbrust und ohne Schildbrustaspekt. An Händen und Füßen zeigen sich altersentsprechende Linienmuster, ausgeprägte oder vertiefte Palmar- bzw. Plantarfurchen fehlen. Die Haut ist straff und ohne Redundanz. \n\nMia besucht einen Förderkindergarten. Die Familienanamnese ist bezüglich kardialer oder neuromuskulärer Erkrankungen leer, die Eltern sind gesund und nicht blutsverwandt. Eine Dauermedikation besteht derzeit nicht.\n\nIch bitte Sie um Ihre geschätzte Mitbeurteilung und um Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11333380_P4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 342,
+  "completion_tokens": 295,
+  "total_tokens": 1954,
+  "thoughts_tokens": 1317,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Mr. Arthur Pendelton, a 45-year-old gentleman referred for further evaluation of progressive physical limitations.\n\nMr. Pendelton’s symptoms reportedly began around age two. His mother noted that he was a markedly hypotonic infant who struggled with head control and early motor milestones. Over the decades, he has developed pronounced weakness in the proximal musculature of both the upper and lower extremities. During his recent visit, he demonstrated significant difficulty standing from a seated position without assistance and raising his arms above shoulder level, whereas his distal strength remains relatively preserved.\n\nHe has also experienced recurrent lower respiratory infections over the past several years, requiring frequent courses of antibiotics for bronchopneumonia, and he continues to report a persistent, bothersome cough.\n\nReassuringly, his intellectual development has been completely normal; he holds a degree in finance and exhibits no cognitive impairment. Additionally, a recent transthoracic echocardiogram demonstrated entirely normal ventricular function, with preserved biventricular dimensions and ejection fraction.\n\nOn physical examination, his cranial nerves were intact, and light touch and pinprick sensation were fully preserved across all dermatomes. He is a non-smoker, takes only an over-the-counter vitamin D supplement, and reports no family history of neuromuscular complaints.\n\nI would be very grateful for your comprehensive neurological assessment and recommendations for his ongoing care.\n\nKind regards,\nDr. Eleanor Vance"
+}

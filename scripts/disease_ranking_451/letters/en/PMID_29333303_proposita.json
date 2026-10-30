@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29333303_proposita",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 474,
+  "completion_tokens": 335,
+  "total_tokens": 2522,
+  "thoughts_tokens": 1713,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this 11-month-old girl whom I follow in our pediatric clinic. She was delivered at 39 weeks following a pregnancy complicated by polyhydramnios and antenatal ultrasound findings of fetal pyelectasis. Initial echocardiography revealed a patent foramen ovale alongside a persistent patent ductus arteriosus, and post-delivery abdominal imaging confirmed ongoing hydronephrosis.\n\nHer clinical course has been complicated by severe postnatal growth failure, feeding difficulties requiring nasogastric tube support, and seizures which are currently stabilized on levetiracetam. She shows severe global developmental delay with minimal milestone acquisition. Neuroimaging demonstrated marked enlargement of both lateral ventricles and the third ventricle. Formal sensory testing revealed profound hearing impairment as well as severely reduced visual acuity; notably, detailed funduscopic examination was normal.\n\nOn physical examination, her anterior fontanelle is widely open. Craniofacial features include a coarse appearance with a narrowed forehead, prominent frontal bossing, ocular hypertelorism, midface hypoplasia, a flattened nasal bridge, and low-set ears. Her abdomen is visibly distended with a pronounced diastasis recti. Skeletal examination reveals broad ribs, pronounced bowing of her long bones, and bilateral talipes equinovarus. \n\nHer basic metabolic panel, thyroid studies, and complete blood count have all returned within normal limits. She lives at home with both parents, who are healthy and non-consanguineous. Given her constellation of congenital features and multisystem involvement, I would greatly appreciate your expert clinical assessment. \n\nWarm regards,\n\nDr. Julian Vance"
+}

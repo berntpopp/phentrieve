@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41810194_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 317,
+  "total_tokens": 1867,
+  "thoughts_tokens": 1204,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing this four-year-old girl in your clinic for further evaluation. Her early development was initially reassuring, but around two years of age her parents noted a marked backward trajectory with the loss of previously acquired milestones. \n\nOver the ensuing months, she experienced a total cessation of verbal communication, losing the several single words she had consistently used. Alongside this, she developed a pronounced inability to carry out purposeful manual actions, losing the capacity to hold a cup or manipulate toys deliberately. In their place, she exhibits frequent, stereotypic flapping motions involving both hands, which were readily apparent during our office visit. Her gait is notable for a distinctly wide-based, uncoordinated stance while walking. \n\nDespite these issues, she has had no overt seizures, and her family has witnessed no episodes suggestive of epileptic activity. Her physical examination is otherwise unremarkable; cranial nerves are intact, deep tendon reflexes are symmetric, and cardiovascular and abdominal examinations were normal. A recent 24-hour electroencephalogram showed baseline background slowing and paroxysmal sharp wave discharges outside of any clinical event, though no electrographic seizures were recorded. Routine laboratory evaluations, including basic metabolic panels and thyroid function tests, were normal.\n\nShe resides with her parents and a healthy older brother. Family history is negative for any developmental or neurological concerns, and she is not taking any prescription medications. \n\nGiven the progressive nature of her presentation, I would value your subspecialty assessment and recommendations for her continued evaluation and management. \n\nSincerely,\nDr. Julian Vance"
+}

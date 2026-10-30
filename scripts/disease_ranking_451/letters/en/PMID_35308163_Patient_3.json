@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35308163_Patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 413,
+  "completion_tokens": 345,
+  "total_tokens": 2811,
+  "thoughts_tokens": 2053,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nI am referring Maya, a 3-year-2-month-old girl, for your expert evaluation following her recent acute decompensation. Her family reports that similar episodic concerns first became apparent around 9 months of age. She was born at term to non-consanguineous parents, and her vaccinations remain up to date.\n\nShe presented to our unit acutely with a high fever of 39.2°C and pronounced shortness of breath, appearing tachypneic with marked work of breathing. Her parents noted no accompanying vomiting or loose stools, and there has been no history of seizure activity. Physical examination was notable for an enlarged liver palpated 4 cm below the right costal margin. Her cardiac sounds and peripheral pulses were completely normal.\n\nInitial investigations revealed a metabolic acidosis with an elevated anion gap and a serum bicarbonate of 13 mEq/L. Liver function testing demonstrated clear hepatic injury, with aspartate aminotransferase raised at 520 U/L and alanine aminotransferase at 585 U/L. Her coagulation profile was marked by distinctly low fibrinogen levels. Specialized metabolic screening demonstrated an excess of urinary dicarboxylic acids, while her acylcarnitine profile showed a significant accumulation of acetylcarnitine in circulation.\n\nConversely, serial blood glucose measurements were stable without any episodes of low blood sugar. Serum lactate was normal, as were her plasma ammonia and serum triglyceride levels. Her serum calcium concentration was entirely unremarkable, and basic renal function testing was normal.\n\nGiven the complex nature of these clinical and biochemical findings, I would greatly value your comprehensive assessment and guidance on further diagnostic direction.\n\nSincerely,\nDr. Karen Davies"
+}

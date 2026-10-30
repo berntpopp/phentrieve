@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23566664_Case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 408,
+  "total_tokens": 2054,
+  "thoughts_tokens": 1279,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute eine 57-jährige Patientin zur konsiliarischen Mitbeurteilung. Sie stellte sich in meiner Sprechstunde wegen seit etwa einem Jahr zunehmender, bewegungsabhängiger Beschwerden im tiefen Rückenbereich vor. \n\nIn der klinischen Untersuchung fiel eine mit 146 cm auffallend geringe Körpergröße auf. Die Familienanamnese ist diesbezüglich leer, die Patientin arbeitet halbtags im Archiv und nimmt bis auf Bedarfsanalgetika keine Dauermedikation ein. Kardiopulmonal fand sich ein regelrechter Auskultationsbefund, der Blutdruck lag bei 125/80 mmHg, und das Basislabor inklusive Entzündungsmarkern war unauffällig. \n\nPhänotypisch imponieren eine abgeflachte Mittelgesichtskontur, ein deutlich zurückweichender Unterkiefer sowie auffallend prominente, voluminöse Ohrläppchen. Zudem zeigt sich eine ungewöhnlich dichte, breite Brauenbehaarung. Ein Hördefizit liegt nicht vor; die orientierende Hörprüfung war seitengleich unauffällig. \n\nDie eingeleitete radiologische Abklärung der Lendenwirbelsäule erbrachte den Nachweis einer fortgeschrittenen Knochendichteminderung der Wirbelkörper mit einer Deckplattenimpression im Bereich des dritten Lendenwirbels, passend zu den beklagten Kreuzschmerzen. Im Rahmen der weiterführenden Bildgebung zeigten sich in den Röntgenaufnahmen beider Hände zudem umschriebene osteolytische Läsionen an den Phalangen, die sich anamnestisch keinem Trauma zuordnen lassen.\n\nAufgrund dieser Befundkonstellation bitte ich um Ihre geschätzte Expertise zur weiteren differentialdiagnostischen Einordnung und Therapieempfehlung. \n\nMit freundlichen kollegialen Grüßen"
+}

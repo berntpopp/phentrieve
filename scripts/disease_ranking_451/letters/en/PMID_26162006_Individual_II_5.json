@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26162006_Individual_II_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 253,
+  "total_tokens": 2341,
+  "thoughts_tokens": 1763,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing this male patient who presented to my clinic for a comprehensive ophthalmic assessment. His ocular concerns first began during his adult years, but he reports no prior ocular surgeries and currently takes only an over-the-counter multivitamin. He works as an accountant and has an unremarkable general medical history.\n\nOn examination, the anterior chambers are quiet bilaterally, and both corneas are clear. Notably, his crystalline lenses demonstrate no central lenticular opacification or nuclear sclerosis. Gonioscopy shows widely patent, unobstructed drainage angles bilaterally. However, Goldmann applanation tonometry reveals persistently elevated intraocular tension, measuring 27 mmHg in the right eye and 28 mmHg in the left eye. \n\nEvaluation of the posterior pole shows prominent neural rim thinning with marked excavation of both optic nerve heads, reflecting progressive optic neuropathy in the setting of clear, unblocked angles. Humphrey automated perimetry corroborates these structural findings, demonstrating bilateral arcuate visual field loss. The maculae remain flat, the retinal vasculature is normal, and peripheral sweeps are completely intact. \n\nI would be very grateful for your specialized assessment and recommendations regarding the next steps in his care.\n\nSincerely,\nDr. Julian Sterling"
+}

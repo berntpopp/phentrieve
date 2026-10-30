@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28830446_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 302,
+  "total_tokens": 2083,
+  "thoughts_tokens": 1378,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing this 3-year-old boy in urgent consultation. His symptoms began approximately six months ago with periodic spiking fevers, frequent crops of aphthous mouth ulcers, and complaints of crampy abdominal pain. His parents also report pronounced generalized morning stiffness that persists for well over an hour upon waking.\n\nHis cutaneous examination is remarkable for widespread livedo racemosa across his trunk and extremities, as well as distinct ring-shaped erythematous plaques scattered over his back. In cold ambient temperatures, he exhibits classic Raynaud's changes with blanching and duskiness of his fingertips. Tragically, two months ago he experienced an acute ischemic stroke that has left him with residual right-sided hemiplegia.\n\nOur laboratory workup has shown marked hypergammaglobulinemia, a positive antinuclear antibody screen, and strikingly elevated circulating concentrations of interleukin-6 and soluble CD25. His stool calprotectin level was also significantly increased during his recent GI evaluation.\n\nFamily history is non-contributory, and he lives at home with his healthy parents and sister. On examination today, his cardiopulmonary exam is entirely normal, his abdomen is soft without organomegaly, and he is currently taking low-dose aspirin and occasional paracetamol.\n\nGiven the multisystem nature of his presentation, I would be most grateful for your comprehensive assessment and recommendations regarding his ongoing diagnostic workup and management.\n\nSincerely,\nDr. Julian Vance"
+}

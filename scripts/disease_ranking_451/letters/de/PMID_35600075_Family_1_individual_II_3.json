@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35600075_Family_1_individual_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 440,
+  "total_tokens": 3050,
+  "thoughts_tokens": 2178,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den heute 5-jährigen Paul zur pädiatrisch-neurologischen Konsultation. \n\nKlinisch begann die Symptomatik im 8. Lebensmonat mit einem ersten temperaturbedingten Krampfereignis. Seither kam es im Rahmen fieberhafter Infekte zu weiteren Anfällen. Zuletzt beobachtete die Familie zudem gehäuft kurze, blitzartige Myoklonien der Extremitäten. Die durchgeführte EEG-Untersuchung erbrachte einen auffälligen Befund mit Nachweis epilepsietypischer Potenziale. \n\nBislang traten keine bilateralen tonisch-klonischen Anfälle, rein tonischen Versteifungen oder atonischen Phänomene auf. Ebenso wenig fanden sich Hinweise auf Absencen. Fokale Anfallsformen – seien es einfach-fokale Episoden bei vollem Erleben, umschriebene fokal-motorische Entäußerungen oder komplex-fokale Anfälle mit Bewusstseinsminderung – wurden nie beobachtet. \n\nDie kognitive und psychomotorische Entwicklung verläuft zeitgerecht; Paul besucht einen Regelkindergarten, Anhaltspunkte für eine globale Entwicklungsverzögerung oder eine Intelligenzminderung bestehen nicht. Die körperliche Untersuchung und der Reflexstatus boten keine Auffälligkeiten. Die Familienanamnese ist bezüglich Anfallsleiden leer, eine Dauermedikation wird nicht eingenommen.\n\nIm kürzlich erfolgten kranialen MRT zeigte sich eine altersentsprechende Myelinisierung bei regulärem Volumen des zerebralen Marklagers. Eine diffuse Hirnatrophie wurde ausgeschlossen. Das Corpus callosum war kräftig und nicht verschmälert, der Kleinhirnwurm zeigte keine Hypoplasie und die Hippocampi stellten sich ohne Anzeichen einer Sklerose dar.\n\nZur weiteren diagnostischen Einordnung und Beratung bezüglich des therapeutischen Vorgehens bitte ich um Ihre geschätzte Mitbeurteilung.\n\nMit freundlichen Grüßen"
+}

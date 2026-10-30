@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28830446_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 338,
+  "total_tokens": 3667,
+  "thoughts_tokens": 2909,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Ethan, a 10-year-old male who has had an unexplained, progressive illness since he was approximately 22 months old. His early course was characterized by periodic fevers and painful, recurrent aphthous mouth ulcers. Over the past year, he has reported frequent crampy abdominal pain, throbbing cephalalgia, and distressing rotational vertigo spells. He also experiences diffuse joint aches alongside marked generalized stiffness upon waking each morning.\n\nDuring his recent admission, he suffered an acute ischemic cerebral infarction that resulted in dense left-sided unilateral paralysis. Cranial nerve assessment demonstrated an ipsilateral third cranial nerve palsy in addition to a clear supranuclear gaze paresis affecting vertical pursuit. On dermatologic examination, his extremities displayed a prominent violaceous, lace-like livedoid vascular mottling. His chest examination was clear, cardiovascular exam was normal, and his family history is entirely negative for early stroke or rheumatologic conditions.\n\nLaboratory investigations revealed significant systemic inflammation, including a raised C-reactive protein of 62 mg/L, an elevated serum IL-6 titer, and a marked increase in circulating soluble CD25 levels. Immunologic evaluation was notable for positive antinuclear antibodies (speckled pattern, 1:320), and a circulating lupus anticoagulant was repeatedly confirmed on coagulation assays. Complete blood count and renal function panels have remained unremarkable. He is currently maintained on supportive therapy and low-dose aspirin.\n\nGiven his devastating neurovascular complications in the setting of chronic systemic inflammatory disease, I would appreciate your urgent assessment and recommendations for further diagnostic evaluation and therapy.\n\nSincerely,\nDr. Laura Jenkins"
+}

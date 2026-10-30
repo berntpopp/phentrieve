@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17056636_Patient_No_8",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 437,
+  "completion_tokens": 362,
+  "total_tokens": 3834,
+  "thoughts_tokens": 3035,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing Maya Lin, a five-year-old girl whom I am referring for clinical evaluation. She lives at home with her parents and attends a developmental preschool program. Her family history is non-contributory; both parents are healthy and non-consanguineous, with an unaffected older brother. Her only current daily intake is a pediatric multivitamin.\n\nFrom early infancy, Maya experienced significant oral feeding challenges that contributed to persistent poor weight gain and growth failure, alongside profoundly stunted linear stature. She has exhibited ongoing delays across motor, speech, and adaptive milestones, with recent assessments confirming a moderate degree of intellectual deficit. In addition, prior cardiac imaging demonstrated asymmetric ventricular wall thickening consistent with a hypertrophic myocardium.\n\nOn physical examination, she exhibits noticeably scant, fine scalp hair and coarsened facial contours. Her interpupillary distance is increased, and her palpebral apertures slant distinctly downward. The pinnae are implanted low on the cranium, though they are normally aligned without posterior rotation. Her eyes demonstrate no blepharoptosis, ocular misalignment, or rhythmic nystagmoid movements. Her neck appears shortened, though there is no lateral cutaneous webbing. Cranial sizing is well proportioned to her small frame, without relative macrocephaly. Her thorax displays a typical contour, showing no sternal depression, carinatum deformity, or broad shield appearance. Her skin demonstrates normal turgor without excessive folds or redundancy, and both palmar and plantar surfaces lack deep, prominent creasing. Auscultation of the lungs was clear, and the abdomen was soft and non-tender.\n\nGiven this constellation of physical, developmental, and cardiac findings, I would greatly appreciate your evaluation and guidance on further clinical management.\n\nWarm regards,\n\nDr. Arthur Vance"
+}

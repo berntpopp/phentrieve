@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_EG0169P",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 361,
+  "completion_tokens": 396,
+  "total_tokens": 2974,
+  "thoughts_tokens": 2217,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen einen männlichen Säugling zur Zweitmeinung bezüglich eines therapierefraktären Anfallsleidens. Das Kind entstammt einer unauffälligen Schwangerschaft, die Familienanamnese ist leer, und das Neugeborenenscreening verlief unauffällig.\n\nDie Symptomatik begann bereits in den ersten Lebenstagen. Anfänglich imponierten halbseitig betonte, umschriebene rhythmische Zuckungen. Im Verlauf traten wiederholt Episoden mit starrem Blick, Inappetenz und deutlicher Bewusstseinsminderung auf, zuletzt begleitet von serienartig einschießenden Beugungen des Rumpfes und der Extremitäten.\n\nIn der neurologischen Untersuchung imponiert ein schwerer Rückstand in sämtlichen Entwicklungsbereichen; Fixation und Nachverfolgen gelingen nicht zuverlässig. Auffällig ist eine ausgeprägte generalisierte Schlaffheit des Achsenskeletts bei gleichzeitig spastischer Tonuserhöhung der Arme und Beine mit lebhaften Sehnenreflexen. Die internistische Untersuchung, Labor-Basisparameter sowie das kranielle MRT boten Normalbefunde.\n\nElektroenzephalographisch zeigte sich neonatal zunächst ein Bild mit hochamplitudigen Ausbrüchen im Wechsel mit Perioden zerebraler Inaktivität. In den aktuellen Ableitungen dominieren nun abnorm verlangsamte Frequenzen des Grundrhythmus, überlagert von gehäuften Gruppen multipler steiler Spitzen mit nachfolgenden langsamen Wellenkomplexen. \n\nUnter der bisherigen Medikation mit Phenobarbital und Levetiracetam konnte keine Anfallsfreiheit erzielt werden. Ich wäre Ihnen für eine konsiliarische Einschätzung und Empfehlungen bezüglich der weiteren syndromalen Abklärung sehr dankbar.\n\nMit besten kollegialen Grüßen"
+}

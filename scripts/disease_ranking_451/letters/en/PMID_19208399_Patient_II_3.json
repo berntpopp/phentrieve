@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19208399_Patient_II_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 352,
+  "total_tokens": 3148,
+  "thoughts_tokens": 2404,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing Mr. Arthur Vance, a 44-year-old accountant referred for further assessment. Over the past three years, beginning around age 41, he has experienced progressive functional decline.\n\nOn physical examination, there is marked proximal muscle wasting affecting both the shoulder and pelvic girdles. Strength testing demonstrated symmetrical weakness of the proximal upper extremities, rating 4/5 in deltoids and biceps, with preserved distal strength. When elevating his arms, there is prominent medial flaring and protrusion of both scapulae away from the ribcage. His ambulation shows a broad-based, rolling pelvic heave. Collateral history from his partner highlights a pervasive loss of motivation and emotional indifference, which was corroborated in clinic by his blunted affect and general disinterest.\n\nRecent audiometry confirmed bilateral sensorineural hearing reduction. Laboratory workup showed hyperCKemia with serum creatine kinase at 540 U/L. Fractionated bone-specific alkaline phosphatase was significantly elevated. Pelvic radiographs demonstrated localized cortical thickening with coarsened trabeculae characteristic of a focal pagetic remodeling lesion in the right ilium.\n\nA subsequent biopsy of the left quadriceps revealed widespread myofiber atrophy with scattered, sharply angulated fibers. In addition, dense sarcoplasmic inclusion bodies were visible within the muscle fibers. Importantly, no rimmed vacuoles were detected on trichrome staining.\n\nMr. Vance has no significant past medical history, takes only over-the-counter multivitamin tablets, and does not use tobacco. Routine electrolytes, renal indices, and a resting electrocardiogram were all completely normal.\n\nI would be very grateful for your comprehensive evaluation and expert management recommendations.\n\nSincerely,\nDr. Elena Rostova"
+}

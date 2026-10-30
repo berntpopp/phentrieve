@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30113454_index",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 304,
+  "total_tokens": 2801,
+  "thoughts_tokens": 2066,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this four-year-old girl with complex multisystem involvement that was initially suspected during second-trimester antenatal scans. She lives at home with her parents and healthy older brother; family history is otherwise non-contributory.\n\nFollowing birth, she exhibited pronounced failure to thrive with ongoing postnatal growth failure, leaving her with severe short stature and head circumferences tracking far below the third percentile. She has severe developmental cognitive delays, requires complete enteral feeding through a gastrostomy tube, and has confirmed bilateral sensorineural auditory deficits. Brain imaging previously demonstrated an underdeveloped cerebellum, widespread bilateral cerebral calcifications, and notable thickening of the cranial vault.\n\nCraniofacial evaluation reveals deeply recessed eyes with bilaterally diminutive globes, a high, narrow palatal vault, micrognathic jaw, a convex nasal bridge, and prominently enlarged ears. An updated dilated fundus examination revealed no pigmentary retinopathy and no mottling of the retinal pigment epithelium. There is also no history of sun-induced skin reactions or cutaneous photosensitivity. \n\nMusculoskeletal exam shows both thoracic kyphosis and lateral spinal curvature, as well as multiple restricted joint contractures. Her hands are notably large and elongated relative to her diminutive body size. Her cardiopulmonary and abdominal examinations remain entirely unremarkable. \n\nGiven these extensive features, I would be grateful for your comprehensive clinical assessment and guidance regarding appropriate diagnostic follow-up.\n\nSincerely,\nDr. Rachel Miller\nPediatric Care Clinic"
+}

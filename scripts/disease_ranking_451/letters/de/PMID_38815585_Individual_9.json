@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 544,
+  "completion_tokens": 558,
+  "total_tokens": 4749,
+  "thoughts_tokens": 3647,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um die konsiliarische Mitbeurteilung des fünf Monate alten Säuglings Lukas. \n\nAnamnestisch imponiert ein deutlicher Rückstand der motorischen Meilensteine: Lukas zeigt erhebliche Koordinationsdefizite sowie eine ausgeprägte motorische Hyperaktivität. Mehrmals täglich fallen wiederholtes Händeflattern sowie ein auffälliges Drehen um die eigene Körperachse auf. Nachts kommt es gehäuft zu Episoden plötzlichen Hochschreckens mit Panikreaktionen im Sinne eines Pavor nocturnus. Zuletzt traten generalisierte bilateral tonisch-klonische Krampfanfälle auf. Das daraufhin abgeleitete EEG zeigte sich pathologisch verändert mit epilepsietypischen Entladungen.\n\nIm somatischen Befund ist der Knabe altersentsprechend gewachsen, ohne Kleinwuchs. Der Kopfumfang liegt im Median, ohne Mikro- oder Makrozephalus. Die Kalotte ist unauffällig geformt, die große Fontanelle tastet sich weich und morphologisch regelrecht. Die Stirn ist nicht verschmälert, das Mittelgesicht zeigt keine Retrusion, die Gesichtsform ist weder verlängert noch dreieckig. Im Bereich der Augen finden sich weder Epikanthusfalten, Schielen noch Enophthalmie, auch keine Mikrophthalmie; der Augenabstand ist normal ohne Hypotelorismus, die Lidachsen verlaufen horizontal ohne auf- oder abwärts gerichtete Lidspalten und die Fundoskopie ergab keinen Anhalt für eine Makulahypoplasie. Die Ohrmuscheln sind normotop, weder tief sitzend, antevertiert noch nach hinten rotiert. Die Mundmorphologie ist unauffällig: normales Lippenrot, keine herabgezogenen Mundwinkel, kein hoher Gaumen, die Uvula ist ungespalten, kein verkürztes Zungenband und keine Retrognathie.\n\nAm symmetrischen Thorax imponiert weder eine Trichterbrust noch ein weiter Mamillenabstand, die Brustwarzen sind nicht invertiert. Leistenhernien oder ein Sakralgrübchen bestehen nicht. Die Haut zeigt keine abnorme Transparenz. Die Finger sind nicht ungewöhnlich schlank; an den Füßen finden sich keine Knick-Senk- oder Plattfüße. \n\nKardiopulmonal ist Lukas stabil, das Trinkverhalten ist gut. \n\nFür Ihre weiterführende neuropädiatrische Einschätzung und diagnostische Einordnung danke ich Ihnen herzlich.\n\nMit kollegialen Grüßen"
+}

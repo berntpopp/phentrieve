@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 369,
+  "total_tokens": 2084,
+  "thoughts_tokens": 1378,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen die heute 8-jährige Patientin Mia Becker zur konsiliarischen Mitbeurteilung.\n\nErste Auffälligkeiten traten anamnestisch bereits im frühen Neugeborenenalter um den achten Lebenstag auf. Aktuell stellte sich das Mädchen mit wiederkehrenden, diffusen Schmerzen im Bereich des Abdomens in unserer Ambulanz vor. Neben den gastrointestinalen Beschwerden imponierte eine ausgeprägte Apathie; das Kind wirkte auf die Eltern und das Pflegepersonal hochgradig lethargisch und schläfrig. Vor wenigen Tagen war es häuslich zudem zu einem zerebralen Krampfanfall gekommen.\n\nKörperlich ist die Patientin afebril und kardiopulmonal stabil. Die Vitalparameter zeigten sich normwertig, das Abdomen war palpatorisch weich mit lebhaften Darmgeräuschen. Die Familienanamnese ist unauffällig, die Eltern sind gesund und es liegt keine bekannte Konsanguinität vor. Das Routine-Blutbild sowie die Entzündungsparameter waren regelrecht.\n\nIn der erweiterten labormedizinischen Abklärung zeigte sich jedoch ein deutlicher Anstieg des Ammoniaks im Blut. Das zeitgleich angeforderte Aminosäurenprofil im Plasma wies eine ausgeprägte Erhöhung der Citrullinkonzentration auf. \n\nAufgrund dieser Befundkonstellation möchte ich die Patientin gerne an Ihr Zentrum anbinden und bitte um Ihre fachärztliche Einschätzung bezüglich der weiteren diagnostischen Schritte und des therapeutischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nKlinik für Kinder- und Jugendmedizin"
+}

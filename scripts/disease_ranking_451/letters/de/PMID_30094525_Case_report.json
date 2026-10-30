@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30094525_Case_report",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 440,
+  "total_tokens": 2500,
+  "thoughts_tokens": 1706,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die kleine Mia, derzeit 12 Monate alt, zur weiteren Abklärung und neuropädiatrischen Mitbeurteilung.\n\nDie Eltern bemerkten erstmals im Alter von etwa zwei Monaten rezidivierende, serienartig einschießende Beugekrämpfe. Eine daraufhin abgeleitete Hirnstromkurve zeigte deutliche epilepsietypische Auffälligkeiten mit multifokalen Entladungen.\n\nIm Entwicklungsverlauf zeigt sich ein schwerer Rückstand in allen Bereichen; Mia zeigt bislang keine zielgerichtete Kontaktaufnahme und hat keine Meilensteine wie freies Sitzen oder Greifen erreicht. Auffällig ist zudem das Schädelwachstum: Bei unauffälligen Geburtsmaßen kam es postpartal zu einer deutlichen Abflachung der Wachstumskurve, sodass der Kopfumfang nun deutlich unter der dritten Perzentile liegt. \n\nIm neurostatus imponiert ein schlaffer Haltungstonus des Rumpfes bei gleichzeitig spastisch erhöhter Muskelspannung an Armen und Beinen mit gesteigerten Sehnenreflexen. Eine Ataxie ließ sich bei der Patientin nicht feststellen. Bei einer vorangegangenen Funduskopie imponierten beidseits blasse Papillen im Sinne einer Sehnervenschrumpfung. Zudem wurde per BERA eine signifikante beidseitige Schallempfindungsschwerhörigkeit diagnostiziert.\n\nSchwangerschaft und Spontangeburt bei 39+2 SSW verliefen unkompliziert. Die Familienanamnese ist bezüglich neurologischer Erkrankungen unauffällig, die Eltern sind nicht blutsverwandt. Das Routinelabor inklusive Blutbild, Elektrolyten und Nierenwerten war stets normwertig. Aktuell besteht eine antikonvulsive Medikation mit Levetiracetam sowie eine Substitution mit Vitamin D3. \n\nIch bitte Sie um Ihre geschätzte Einschätzung zum weiteren diagnostischen Vorgehen bei diesem komplexen Krankheitsbild.\n\nMit freundlichen Grüßen"
+}

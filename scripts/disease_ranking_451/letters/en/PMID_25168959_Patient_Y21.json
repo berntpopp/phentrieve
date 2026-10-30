@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25168959_Patient_Y21",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 616,
+  "completion_tokens": 408,
+  "total_tokens": 3508,
+  "thoughts_tokens": 2484,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for evaluating this 9-year-old girl who was born small for gestational age and continues to demonstrate severe short stature, with height and head circumference both tracking well below the first percentile. \n\nFrom infancy, she has had global developmental delay and significant axial hypotonia. Her cognitive deficit is severe, rather than mild or moderate, and she remains completely non-verbal. Behaviorally, she is calm and cooperative, showing no hyperactivity, impulsiveness, frequent temper tantrums, or self-injurious behaviors. Her past history includes seizures managed with levetiracetam, recurrent respiratory infections, and persistent feeding difficulties with marked gastroesophageal reflux. An infantile inguinal hernia was surgically repaired; there has been no history of umbilical, hiatus, or congenital diaphragmatic hernias, nor pyloric stenosis.\n\nOn examination, she presents with sparse hair over the scalp alongside generalized hypertrichosis. Facial evaluation reveals dense, thick eyebrows, strikingly long eyelashes, a broad nasal bridge that is neither narrow nor depressed, a lengthened philtrum that is not broad or shortened, an exceptionally thin upper lip margin (never thick), a full, thickened lower lip, and a high-arched palate with no cleft. She has an established hearing impairment, but visual function is preserved and she has no ptosis. \n\nSkeletal review shows mild scoliosis alongside shortened fifth fingers and shortened fifth toes, without prominence of the interphalangeal joints. Cranial MRI noted an abnormally shaped corpus callosum, but no Dandy-Walker malformation. Baseline echocardiography confirmed levocardia without dextrocardia, atrial or ventricular septal defects, or pulmonic stenosis. Abdominal and pelvic imaging revealed no hydronephrosis, hydroureter, vesicoureteral reflux, horseshoe kidney, urethral diverticula, or neoplasm. \n\nHer parents are healthy and non-consanguineous. I would welcome your evaluation and recommendations regarding next steps.\n\nSincerely,\nDr. Julian Vance"
+}

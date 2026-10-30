@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30094525_Case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 331,
+  "total_tokens": 1935,
+  "thoughts_tokens": 1250,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to see this twelve-month-old girl, whom I have followed since symptoms first emerged at two months of age when her parents noted recurrent clusters of sudden flexor jerks. She was born at 39 weeks following an uncomplicated pregnancy, with birth weight, length, and head circumference all around the 50th percentile. \n\nOver the past ten months, her developmental progress has demonstrated profound global stagnation; she currently does not track consistently, roll, or sit, and verbal expression is absent. Her head circumference percentile has continually decelerated since early infancy and has now fallen well below the 2nd percentile. On physical examination, there is striking central floppiness with poor head and trunk control, contrasting with prominent hypertonicity and spasticity in all four limbs. Notably, she exhibits no signs of cerebellar ataxia. \n\nSpecialist sensory assessments have confirmed marked bilateral pallor of the optic discs on funduscopy, as well as an established bilateral sensorineural auditory deficit on brainstem testing. Her recent awake and sleep electroencephalogram was distinctly abnormal, capturing diffuse background slowing with high-amplitude multifocal sharp-wave discharges. Her vital signs, cardiac auscultation, and abdominal examinations are entirely normal. Basic chemistry, thyroid studies, and lactate levels were within reference ranges. She lives at home with her parents and healthy older sibling, and currently receives levetiracetam with partial control of her episodes.\n\nI would be grateful for your comprehensive neurological assessment and advice on the next steps in her management.\n\nSincerely,\nDr. Clara Bennett\nDepartment of Pediatrics"
+}

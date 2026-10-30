@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_A_III_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 477,
+  "completion_tokens": 361,
+  "total_tokens": 2763,
+  "thoughts_tokens": 1925,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating this 15-year-old young man for comprehensive diagnostic re-assessment.\n\nHis prenatal history was notable for excessive amniotic fluid volume. At birth, he underwent urgent repair of an interrupted esophagus and an abnormal communication between the trachea and esophagus. Despite these early challenges, his neonatal suck was vigorous, and he remarkably never suffered from gastroesophageal reflux. Bilateral undescended testicles were also surgically corrected in early infancy. Subsequent childhood airway evaluations documented dynamic collapse of the bronchial walls. \n\nCardiology follow-up has managed a defect in his ventricular septum alongside an aorta straddling the ventricular crest; however, his interatrial septum remains intact, tricuspid valve positioning shows no downward displacement, and he has had no supraventricular tachyarrhythmias or episodes of cardiac failure. Magnetic resonance angiography additionally revealed an underdeveloped internal carotid artery. \n\nENT records show frequent middle ear infections. Temporal CT demonstrated hypoplastic semicircular canals, though cochlear architecture was fully intact without type II incomplete partitioning. On examination, he exhibits an elongated facial contour, a high nasal bridge, and a notably small oral aperture alongside scars from repaired clefting of both the upper lip and palate; chin alignment is neutral with no retrognathia. Genital examination confirms normal phallic dimensions.\n\nDevelopmentally, he resides with his parents and attends a supported learning curriculum due to significant cognitive impairment. On exam, he displays persistent postural unsteadiness and balance difficulties when standing and walking. His routine laboratory workup is non-contributory, and family history is entirely negative for congenital anomalies.\n\nGiven his complex multisystem picture, I would greatly appreciate your evaluation and guidance on further clinical management.\n\nSincerely,\n\nDr. Katherine Vance"
+}

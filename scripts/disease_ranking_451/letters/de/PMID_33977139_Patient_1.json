@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 482,
+  "completion_tokens": 473,
+  "total_tokens": 2993,
+  "thoughts_tokens": 2038,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre konsiliarische Beurteilung der 19-jährigen Patientin Lisa Berger, die sich in Begleitung ihrer Mutter in unserer Sprechstunde vorstellte. Die Familienanamnese ist unauffällig, die junge Frau lebt zu Hause. \n\nIn der Vorgeschichte zeigten sich bereits im Kindesalter deutliche Verzögerungen beim Erlernen des freien Gehens sowie eine verlangsamte Sprachentwicklung. Im weiteren Verlauf kam es zu Entwicklungsrückschritten. Auffällig war zudem eine bereits im Kleinkindalter festgestellte vorzeitige Brustdrüsenentwicklung. Aktuell leidet die Patientin unter chronischer Obstipation und rezidivierenden epileptischen Anfällen; im EEG dokumentierten sich multifokale epilepsietypische Potenziale. Das cMRT zeigte eine Dysplasie des Corpus callosum, während das kortikale Gyrierungsmuster regulär erschien und keine Polymikrogyrie vorlag.\n\nKraniofazial imponiert ein rundliches Gesicht mit verringertem Augenabstand, tief liegenden Bulbi und einem Strabismus. Ein Hypertelorismus besteht nicht. Die Stirn ist nicht verschmälert, das Philtrum normal lang und eine Mikrognathie liegt nicht vor. Die Uvula ist ungeteilt. Die Brauen sind weder auffallend dicht noch zusammengewachsen, ein Epikanthus fehlt. Die Nase weist weder eine eingezogene Wurzel, noch antevertierte Nares oder eine knollige Form auf. Der Kopfumfang ist altersentsprechend unauffällig.\n\nHautärztlich fallen eine ausgeprägte generalisierte Schuppung sowie Verhornungen an Handflächen und Fußsohlen auf. Neurologisch besteht eine Rumpfhypotonie bei gleichzeitig spastisch erhöhtem Tonus der Beine mit auslösbarem Fußklonus. Die Sprache wirkt dysarthrisch. Orthopädisch zeigt sich eine Skoliose der Wirbelsäule. Das Routinelabor, kardiopulmonale Befunde und Vitalwerte waren regelrecht. \n\nÜber Ihre geschätzte Einschätzung zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

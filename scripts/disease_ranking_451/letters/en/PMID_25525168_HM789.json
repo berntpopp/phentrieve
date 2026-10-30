@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25525168_HM789",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 373,
+  "completion_tokens": 344,
+  "total_tokens": 3823,
+  "thoughts_tokens": 3106,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Chloe Jenkins, a 6-year-old female referred for ongoing ocular concerns. Her parents first noted marked difficulty seeing distant objects earlier this year, prompting her initial visit.\n\nOn current examination, she has severe nearsightedness (-8.25 D OD, -8.75 D OS). Even with corrective lenses, her best visual clarity remains markedly blunted at 20/70 in each eye. A-scan biometry documented excessive elongation of both ocular globes, with anterior-posterior dimensions measuring well above expected limits for her age. Dilated ophthalmoscopy revealed an atypical appearance of the posterior poles bilaterally, notable for tilted optic discs, diffuse tessellation, and chorioretinal attenuation.\n\nSystemically, Chloe is doing well. Her height and weight plot stably along the 50th percentiles, with no history of faltering growth. Cardiopulmonary examination is normal; she shows no signs of circulatory pump decompensation and has had no episodes of acute pulmonary compromise. She has never experienced convulsions or paroxysmal staring spells. Audiometry was unremarkable, demonstrating no auditory deficits. Neurological screening showed full 5/5 motor strength with no focal deficits, completely preserved muscular bulk without wasting, and a smooth, balanced gait free of unsteadiness or incoordination. She is meeting all academic milestones in the first grade, showing age-appropriate development without cognitive impairment.\n\nChloe takes only a daily multivitamin, and family history is non-contributory with healthy parents. I would greatly appreciate your specialized assessment and advice regarding ongoing monitoring and management for this young girl.\n\nSincerely,\nDr. Evelyn Reed"
+}

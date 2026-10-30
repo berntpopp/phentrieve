@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_SATB2_23_from_Zarate_et_al_2018a",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 306,
+  "total_tokens": 2174,
+  "thoughts_tokens": 1517,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mitchell,\n\nThank you for evaluating Noah, a 3-year-old boy who presented to my clinic for a comprehensive developmental review. \n\nNoah has demonstrated marked delays across multiple developmental domains from early life, notably with expressive language and motor coordination. With physical therapy, he finally achieved independent ambulation at 28 months of age. In addition to these delays, he recently experienced two unprovoked generalized convulsive episodes, for which he was initiated on maintenance levetiracetam. A subsequent brain MRI demonstrated atypical structural alterations within the cerebral parenchyma, prompting this referral.\n\nReview of his infancy confirms he had no early feeding troubles or nursing problems as a newborn. Furthermore, his linear growth has remained entirely on track, with both height and weight plotting consistently along the 50th percentile. On physical examination, his palate is completely intact with no clefting. However, oral inspection reveals several atypical primary teeth with prominent enamel hypoplasia and conical shaping. \n\nThe remainder of his general examination is unremarkable: he is alert and interactive, heart sounds are regular without murmurs, and his chest is clear. Vision and hearing screenings are normal bilaterally. Family history is non-contributory, with no known neurological disorders in first-degree relatives. He lives with both parents and attends a specialized preschool program.\n\nGiven his clinical picture, I would appreciate your formal assessment and recommendations regarding further evaluation. \n\nSincerely,\nDr. Arthur Pendelton\nGeneral Pediatrics, Oakridge Medical Center"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36777730_Proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 290,
+  "total_tokens": 2343,
+  "thoughts_tokens": 1674,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Leo Campbell, a 5-year-7-month-old boy referred for developmental assessment. His parents first noted generalized developmental lagging in late infancy, with slow progress across early motor and cognitive milestones. Speech and language production remains particularly delayed, as he currently communicates predominantly with isolated single words and simple gestures. A recent brain MRI demonstrated an unusually slender, attenuated corpus callosum.\n\nOn physical examination, his occipitofrontal circumference is pronounced, plotting well above the 98th percentile. His facial contours appear typical, without dysmorphic features. Axial and appendicular muscle tone is normal, with no signs of floppiness or reduced tone. Neurologically, he has experienced no suspected seizure events. Formal audiologic evaluations have been normal, confirming intact hearing, and his pediatric history is free of recurrent middle ear infections or gastroesophageal reflux. \n\nSocially, Leo is interactive and maintains consistent, warm eye contact. There are no repetitive motor stereotypies, such as hand-flapping, and he demonstrates no behaviors on the autism spectrum. He lives at home with his parents and older sister, attends a specialized developmental preschool, and takes only an over-the-counter multivitamin. His height, weight, and general cardiopulmonary examination were entirely unremarkable.\n\nI would be very grateful for your comprehensive evaluation and guidance regarding further management.\n\nSincerely,\nDr. Evelyn Vance"
+}

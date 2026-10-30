@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28742248_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 424,
+  "completion_tokens": 422,
+  "total_tokens": 2971,
+  "thoughts_tokens": 2125,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nwir überweisen Ihnen die 5 Jahre und 10 Monate alte Patientin zur weiteren differenzialdiagnostischen Beurteilung. Erste Auffälligkeiten zeigten sich im Alter von 6 Monaten. \n\nEs imponiert eine ausgeprägte globale Entwicklungsverzögerung. Neben einem deutlichen motorischen Rückstand ist auch die Sprachentwicklung gravierend verlangsamt; die Patientin kommuniziert bisher nur über vereinzelte Wörter und Gesten. Seit dem ersten Lebensjahr traten wiederholt zerebrale Krampfanfälle auf. Neuroophthalmologisch zeigt sich eine Parese des Nervus oculomotorius mit Ptosis und reduzierter Bulbusmotilität. Orthopädisch wurde initial ein angeborener Klumpfuß versorgt. Die zerebrale Bildgebung zeigte ein Muster vermehrter, abnorm kleiner Rindenwindungen sowie eine zystische Läsion im Bereich des Zerebellums.\n\nKraniofazial besteht kein auffallend langes Gesicht. Die Augen stehen nicht auffällig tief in den Orbitae, und ophthalmologisch liegt keine Weitsichtigkeit vor. Der Nasenrücken ist nicht verschmälert. Das Philtrum zeigt ein normales Relief und ist weder verstrichen noch verkürzt. Ein reduziertes Unterkieferwachstum oder eine Rückverlagerung des Unterkiefers fehlen ebenso wie ein Zahnengstand; das Lippenrot ist unauffällig breit und nicht verschmälert. Die Haut ist nicht ungewöhnlich durchscheinend. An den kleinen Finger- und Zehengelenken besteht keine Überstreckbarkeit.\n\nDas Gehör ist intakt, Auskultationsbefunde von Herz und Lunge sind normal. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer. Das Kind besucht derzeit einen Förderkindergarten.\n\nWir bitten um Ihre fundierte klinische Einschätzung des Gesamtbildes und danken für die Zusammenarbeit.\n\nMit freundlichen Grüßen"
+}

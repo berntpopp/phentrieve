@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 432,
+  "total_tokens": 3451,
+  "thoughts_tokens": 2631,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Einschätzung bei unserem mittlerweile 15-jährigen Patienten Jonas, der sich in Begleitung seiner Eltern zur Verlaufskontrolle vorstellte. \n\nDie Krankheitsmanifestation reicht bis in das frühe Säuglingsalter zurück: Im Alter von vier Monaten traten initial fokal eingeleitete zerebrale Anfälle auf, zu denen sich im Verlauf rezidivierende bilaterale Konvulsionen mit tonisch-klonischem Ablauf gesellten. Episoden eines epileptischen Status waren in der Vorgeschichte nicht zu verzeichnen. Ebenso traten im Säuglingsalter keine Blitz-Nick-Salaam-Spasmen auf, und auch myoklonische Entladungen, isoliert klonische Abläufe oder generalisierte nicht-motorische Anfälle im Sinne von Absencen konnten nie festgestellt werden.\n\nSämtliche motorische und sprachliche Meilensteine wurden von Beginn an stark zeitverzögert erreicht, entsprechend einer umfassenden Entwicklungsretardierung in allen Bereichen. Unter der anhaltenden Anfallsaktivität bildete sich eine epilepsieassoziierte Enzephalopathie aus, die zu einer dauerhaften, schweren kognitiven Minderbegabung führte. Im Umgang zeigt sich Jonas jedoch aufgeschlossen; Merkmale eines autistischen Verhaltensmusters oder Symptome einer Aufmerksamkeitsdefizit- und Hyperaktivitätsstörung bestehen nicht.\n\nDer internistische Untersuchungsbefund war unauffällig, die Vitalparameter lagen im Normbereich. Die Familienanamnese bezüglich neurologischer Erkrankungen ist bland. Die Hirnstrommessung zeigt weiterhin ausgeprägte epilepsietypische Veränderungen mit polymorphen Verlangsamungen und eingestreuten multifokalen Sharp-Wave-Komplexen. Jonas erhält aktuell eine Kombinationstherapie aus Valproat und Clobazam.\n\nIch danke Ihnen für Ihre geschätzte Zweitmeinung bezüglich des weiteren Prozedere.\n\nMit kollegialen Grüßen"
+}

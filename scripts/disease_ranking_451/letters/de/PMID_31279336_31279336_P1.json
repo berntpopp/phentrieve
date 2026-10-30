@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31279336_31279336_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 412,
+  "total_tokens": 2479,
+  "thoughts_tokens": 1723,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen den sieben Monate alten Jungen Liam zur weiteren neuropädiatrischen Evaluation. \n\nDie Eltern stellen das Kind aufgrund einer seit kurzem bestehenden, deutlichen Wesensveränderung vor. Seit Erreichen des siebten Lebensmonats fällt ein zunehmend reduzierter Allgemeinzustand mit anhaltendem Unwohlsein auf. Der Säugling zeigt eine ausgeprägte Reizbarkeit, weint untröstlich und leidet unter massiven Schlafstörungen mit vollständigem Verlust eines geregelten Schlaf-Wach-Rhythmus. \n\nBei der körperlichen Untersuchung imponiert ein auffälliges Tonusmuster: Einerseits zeigt sich eine ausgeprägte axiale Schlaffheit mit schwacher Kopf- und Rumpfkontrolle, andererseits fällt eine deutliche muskuläre Steifigkeit der Extremitäten mit fixiert wirkendem Bewegungsmuster auf. Ein extern veranlasstes Schädel-MRT zeigte strukturelle Auffälligkeiten der periventrikulären weißen Substanz sowie eine veränderte Morphologie des Zerebellums.\n\nDie bisherige Entwicklung verlief bis vor kurzem unauffällig, die Spontangeburt bei 39+2 SSW war vollkommen komplikationslos. Die internistische Untersuchung ergab einen regelrechten Befund: Herztöne rein und rhythmisch, Vesikuläratmen seitengleich, Abdomen weich und indolent, keine Resistenzen tastbar. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, Medikamente werden derzeit nicht eingenommen.\n\nAufgrund der Kombination aus zerebralen Strukturveränderungen, Tonusdysregulation und ausgeprägter Verhaltensauffälligkeit bitte ich um Ihre geschätzte Mitbeurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen\nDr. med. Stefan Berger"
+}

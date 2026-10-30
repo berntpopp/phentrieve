@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30681580_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 406,
+  "total_tokens": 2172,
+  "thoughts_tokens": 1385,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 7 Jahre und 8 Monate alte Patientin Maya zur Abklärung und Zweitmeinung. Das Mädchen besucht regulär die zweite Klasse einer Grundschule, zeigt ein reges Sozialverhalten und eine altersgerechte kognitive Entwicklung; anamnestisch wie klinisch ergab sich kein Hinweis auf eine Intelligenzminderung. Auch die Familienanamnese ist bezüglich Wachstumsstörungen leer, beide Eltern sind durchschnittlich groß. Eine Dauermedikation besteht nicht.\n\nAuffällig ist ein ausgeprägter disproportionierter Kleinwuchs, bei dem vor allem eine erhebliche Verkürzung der Extremitäten im Verhältnis zum Rumpf ins Auge sticht. Der Kopfumfang liegt mit 55 cm deutlich oberhalb der 97. Perzentile im Sinne einer Makrozephalie. An den Händen finden sich auffällig kurze Fingerglieder, das typische Bild einer Dreizackhand zeigt sich dabei jedoch nicht. An den unteren Extremitäten besteht eine beidseitige O-Bein-Fehlstellung. Die allgemeine pädiatrische Untersuchung von Herz, Lunge und Abdomen verlief unauffällig.\n\nRadiologisch kamen im Bereich des Beckens auffallend verkürzte Darmbeinschaufeln sowie bds. verkürzte Schenkelhälse zur Darstellung. An der Lendenwirbelsäule imponiert eine Verengung der Interpedikularabstände nach kaudal hin. \n\nIn der laborchemischen Diagnostik erwiesen sich die Schilddrüsenhormone als unauffällig, eine Funktionsstörung liegt hier nicht vor. Auch die alkalische Phosphatase zeigte sich im Serum vollkommen normwertig.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung der Patientin und Ihre geschätzte Beurteilung der Gesamtsituation sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

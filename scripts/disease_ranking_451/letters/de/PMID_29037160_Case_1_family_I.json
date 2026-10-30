@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29037160_Case_1_family_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 401,
+  "total_tokens": 2256,
+  "thoughts_tokens": 1517,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Dr. Becker,\n\nich überweise Ihnen heute die dreieinhalbjährige Patientin Mia zur stationären kardiologischen Mitbeurteilung und weiteren Abklärung. \n\nBereits seit ihrer Geburt ist bei dem Mädchen eine schwere, beidseitige Schallempfindungsschwerhörigkeit bekannt, weswegen sie aktuell pädaudiologisch angebunden und versorgt ist. Die bisherige motorische Entwicklung verlief ansonsten zeitgerecht.\n\nAnlass der aktuellen Vorstellung war ein erstmaliges, unprovoziertes zerebrales Krampfgeschehen im Kindergarten, welches mit einer kurzen Bewusstlosigkeit und Myoklonien einherging. Ein primär neurologischer Fokus konnte in der Akutdiagnostik nicht gesichert werden; die kranielle Bildgebung sowie die Routine-Laborparameter einschließlich der Serumelektrolyte zeigten sich vollkommen unauffällig. \n\nIn der daraufhin durchgeführten kardialen Überwachung imponierte im 12-Kanal-EKG jedoch eine ausgeprägte Streckung der frequenzkorrigierten Repolarisationsdauer mit QTc-Werten von knapp 530 ms. Zudem dokumentierten wir im Telemetrie-Monitoring mehrfach kurze, selbstlimitierende Episoden polymorpher ventrikulärer Tachyarrhythmien.\n\nKörperlich bietet das Mädchen abgesehen von den genannten Befunden einen altersentsprechenden, vitalen Allgemeinzustand. Die kardiopulmonale Auskultation ist bland, periphere Pulse sind allseits gut tastbar und der Blutdruck liegt im Normbereich. In der Familie gibt es keine bekannten Vorerkrankungen.\n\nIch bitte Sie um Ihre geschätzte konsiliarische Beurteilung und Empfehlungen bezüglich der weiteren Diagnostik und des therapeutischen Managements.\n\nMit kollegialen Grüßen,\n\nDr. med. Thomas Hoffmann"
+}

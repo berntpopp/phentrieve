@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29058101_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 316,
+  "total_tokens": 2396,
+  "thoughts_tokens": 1705,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Maya Henderson, a 4-year-old girl who has presented with complex issues since infancy. Her parents describe a history of persistent, troublesome symptoms that began around four months of age.\n\nHer primary complaints include extensive eczema-like skin eruptions involving her face, trunk, and flexures, which have responded poorly to standard topical emollients. She has also experienced repeated bouts of acute middle ear infections over the past three years, requiring multiple courses of antibiotics. Additionally, she suffers from longstanding, chronic diarrhea characterized by loose, unformed stools for several consecutive months. Laboratory evaluation demonstrated a notably elevated total serum IgE. \n\nImportantly, her absolute eosinophil count was not elevated, and her hemoglobin was completely normal with no evidence of anemia. Her chest is clear on auscultation, and she has never developed pneumonia or acute respiratory distress syndrome. Physical examination reveals an alert child with normal vital signs. Abdominal palpation shows no hepatosplenomegaly, and there is no generalized lymphadenopathy. Despite her protracted gastrointestinal symptoms, she has shown no failure to thrive, consistently tracking along the 50th percentile for both height and weight. Family history is non-contributory, and her only regular home therapy consists of oral cetirizine and plain petroleum-based ointments.\n\nGiven the chronicity of these findings dating back to early life, I would be grateful for your formal assessment and guidance regarding further evaluation.\n\nWarm regards,\n\nDr. Julian Ward\nGreenwood Pediatric Clinic"
+}

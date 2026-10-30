@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40210679_I1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 492,
+  "completion_tokens": 354,
+  "total_tokens": 4904,
+  "thoughts_tokens": 4058,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Arthur, a 10-year-old boy whose neurodevelopmental difficulties began at three months of age. He lives at home with his parents and currently takes levetiracetam.\n\nArthur demonstrated significant delays across all early developmental domains, including late acquisition of unassisted ambulation, complete lack of spoken language, and profound intellectual impairment. Behavioral concerns include continual motor restlessness, impaired reciprocal social interaction, autistic-like behavioral patterns, repetitive stereotypic hand posturing, and frequent sleep disruptions. Neurologically, he exhibits diffusely reduced muscle tone, parkinsonian rigidity and slowing, resting and postural tremor, and a wide-based stride accompanied by ataxic unsteadiness when walking.\n\nBetween six months and five years of age, he experienced temperature-triggered convulsions, though these fever-related episodes never evolved into prolonged status. He subsequently manifested partial-onset seizures secondarily generalizing into bilateral convulsions, as well as episodes of prolonged, unremitting convulsive activity. There is no history of epileptic spasms, tonic paroxysms, or primarily generalized seizure onsets.\n\nOn exam, Arthur is well-nourished with normal weight and average height, showing no short stature or low body weight. His head circumference is at the 50th percentile with no microcephalic measurements, though flattening of the occipital calvarium is evident. Facial assessment reveals scanty eyebrows, a masked facies, chronic sialorrhea, a broad oral aperture, a habitually open oral posture, broad interdental spacing, and an outward-turned lower vermilion border. His cardiopulmonary and abdominal examinations were entirely normal.\n\nI would appreciate your evaluation and guidance regarding his ongoing management.\n\nSincerely,\nDr. Julian Wright"
+}

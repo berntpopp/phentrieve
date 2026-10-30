@@ -1,0 +1,18 @@
+{
+ "case": "PMID_32758583_Patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 302,
+  "total_tokens": 2603,
+  "thoughts_tokens": 1879,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Ethan Davis, a 5-month-old boy who was delivered preterm at 34 weeks gestation. His birth weight fell well below the 3rd percentile for his dates, and he has continued to display severe growth faltering alongside persistent feeding intolerance that requires supplemental tube feeds.\n\nEthan’s family history is unremarkable, and his cardiopulmonary examination today is completely normal. However, physical assessment is notable for a disproportionately small head circumference, strikingly dense eyebrows, and unusually elongated eyelashes. Urologic exam reveals a diminutive stretched penile length along with non-palpable testes bilaterally. \n\nDuring the early neonatal period, Ethan developed recurrent focal seizures, which are currently managed with levetiracetam. A cerebral MRI demonstrated periventricular white matter injury, significantly delayed myelination for his chronological age, and a markedly slender corpus callosum. Subsequent ophthalmology review with electroretinography identified a diffuse photoreceptor degeneration involving both rods and cones.\n\nEndocrine evaluation showed underactive thyroid function, for which he is receiving levothyroxine. Furthermore, pituitary-gonadal axis testing demonstrated subnormal circulating testosterone with blunted LH and markedly low FSH concentrations. In contrast, adrenal testing was reassuring, and his serum cortisol values have consistently remained within normal limits. \n\nGiven this complex multiorgan presentation, I would appreciate your comprehensive clinical assessment to help guide our diagnostic approach.\n\nSincerely,\nDr. Laura Bennett\nValley Pediatric Care Clinic"
+}

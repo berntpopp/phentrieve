@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27330822_proband_II_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 310,
+  "total_tokens": 2270,
+  "thoughts_tokens": 1585,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this three-year-old boy who presents for a comprehensive skeletal assessment. His mother brought him to my clinic after noticing progressive changes in his mobility. He currently ambulates with a pronounced rolling, side-to-side waddle and regularly complains of bilateral discomfort and aching in his legs, particularly after modest physical exertion.\n\nOn physical examination, he is alert, interactive, and tracking well socially. His head circumference is on the 50th percentile, and cardiovascular and respiratory examinations were entirely normal. Inspection of his upper extremities reveals that his hands are notably diminutive overall, with strikingly shortened, stubby fingers. Cranial nerves are intact, and deep tendon reflexes are symmetric throughout.\n\nRecent radiographic imaging reveals several notable osseous variations. Plain films of the spine demonstrate generalized flattening of the vertebral bodies, along with prominent anterior beak-like projections in the thoracolumbar region. A radiograph of the pelvis demonstrates a widened separation across the pubic symphysis, diminutive and poorly developed capital femoral epiphyses, and distinctly roughened, uneven acetabular roofs. Long-bone films show marked widening and trumpeting at the metaphyseal regions. \n\nThe child is currently taking only occasional over-the-counter paracetamol for leg aches. He lives with his parents and older sister, and the family history is negative for any developmental or skeletal complaints. \n\nI would appreciate your clinical impression and advice on further diagnostic steps and orthopedic management.\n\nSincerely,\nDr. Eleanor Vance"
+}

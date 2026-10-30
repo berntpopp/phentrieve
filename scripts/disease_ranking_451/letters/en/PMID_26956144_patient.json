@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26956144_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 287,
+  "total_tokens": 2034,
+  "thoughts_tokens": 1364,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this four-year-old boy regarding progressive gait instability. Over the past several months, his parents note that he has become increasingly unsteady, suffering frequent falls both at home and at preschool. \n\nOn physical examination, he is alert, interactive, and tracking well. Cranial nerve assessment is normal, and upper extremity strength and tone are preserved at 5/5 bilaterally. In the lower extremities, there is generalized motor weakness, which is most pronounced during foot dorsiflexion. Inspection of the lower extremities also reveals pronounced high arches bilaterally. Deep tendon reflexes are notably hypoactive in the legs, with significantly diminished patellar reflexes and depressed Achilles responses. Pathologic reflexes were thoroughly evaluated and absent: plantar responses were flexor bilaterally, with no Babinski sign, and negative Chaddock, Oppenheim, and Gordon testing. \n\nHe currently takes only a daily pediatric multivitamin, and the family history is negative for any neuromuscular or developmental issues. Previous cranial magnetic resonance imaging demonstrated changes consistent with injury to the periventricular white matter. Recent nerve conduction studies revealed slowed sensory conduction velocities in the extremities. A subsequent lumbar puncture was unremarkable, with microscopic cytological evaluation showing completely normal cerebrospinal fluid cellular morphology.\n\nGiven his mixed picture of central and peripheral features, I would greatly value your neurological assessment and guidance on next steps.\n\nSincerely,\n\nDr. Marcus Vance"
+}

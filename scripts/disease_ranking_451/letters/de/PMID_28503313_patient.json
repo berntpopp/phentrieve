@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28503313_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 437,
+  "total_tokens": 3100,
+  "thoughts_tokens": 2252,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen den heute zweijährigen Noah zur konsiliarischen Mitbeurteilung und weiteren diagnostischen Einordnung.\n\nNoah wurde termingerecht und spontan aus Schädellage geboren; eine Beckenendlage lag während der Schwangerschaft und unter der Geburt nicht vor. Die Familienanamnese bezüglich angeborener Fehlbildungen ist leer, die Eltern sind nicht konsanguin.\n\nBereits perinatal fiel ein morphologisch uneindeutiges äußeres Genitale mit einem auffallend kleinen Phallus, einer Spaltung des Skrotums sowie einer ventralen Verlagerung der Harnröhrenmündung auf. Es bestehen beidseits leere Skrotalfächer infolge eines Hodenhochstands; die sonographisch im Leistenkanal darstellbaren Testikel weisen ein deutlich reduziertes Gonadenvolumen auf. Die endokrinologische Diagnostik erbrachte diesbezüglich einen regelrechten, keineswegs pathologischen Serum-Testosteronwert. \n\nKörperlich zeigen sich überdies tief angesetzte Ohrmuscheln, ein verkürzter Nasenrücken sowie eine bindegewebige Verwachsung zwischen der zweiten und dritten Zehe an beiden Füßen. Die Haut zeigt rezidivierende ekzematöse Veränderungen im Sinne einer atopischen Dermatitis, die auf milde Basispflege gut anspricht. Kardiopulmonal und neurologisch fand sich der Junge bisher unauffällig.\n\nLaborchemisch imponierte im Routineprofil ein stark erniedrigter Gesamtcholesterinspiegel. Die daraufhin veranlasste Plasmadiagnostik wies massiv über die Norm gesteigerte Konzentrationen von 7-Dehydrocholesterin sowie ein ebenfalls deutlich vermehrt nachweisbares 8-Dehydrocholesterin nach. \n\nIch wäre Ihnen für eine kindermedizinische Beurteilung dieser Befundkonstellation und Empfehlungen zum weiteren therapeutischen Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen\nDr. med. Martin Sommer"
+}

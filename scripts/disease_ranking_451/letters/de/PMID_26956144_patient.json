@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26956144_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 401,
+  "total_tokens": 3346,
+  "thoughts_tokens": 2562,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute den 4-jährigen Felix zur weiteren pädiatrischen Beurteilung. \n\nDie Eltern berichten über eine zunehmende motorische Unsicherheit im Alltag. Felix stolpert auffallend oft und zieht sich durch wiederholte Stürze immer wieder Schürfwunden an den Knien zu. In der Familie sind keine neuromuskulären Erkrankungen bekannt, die bisherige Entwicklung verlief unauffällig und Medikamente werden nicht eingenommen.\n\nKörperlich zeigt sich eine generalisierte motorische Schwäche der Beine. Insbesondere die Fußheber weisen beidseits ein deutliches Kraftdefizit auf. Die oberen Extremitäten sind kräftig und die Hirnnerven unauffällig. An beiden Füßen imponiert eine ausgeprägte Hohlfußbildung. Die Muskeleigenreflexe der unteren Extremitäten sind beidseits hyporeflektorisch; sowohl der Patellarsehnenreflex als auch der Achillessehnenreflex lassen sich nur stark abgeschwächt auslösen. Pyramidenbahnzeichen fehlen vollständig: Das Babinski-Zeichen war negativ, ebenso ließen sich Chaddock-, Oppenheim- und Gordon-Reflexe nicht provozieren.\n\nDie extern durchgeführte Neurographie ergab eine verringerte Leitgeschwindigkeit der sensiblen Nerven an den unteren Extremitäten. Im kranialen MRT zeigten sich periventrikulär gelegene Signalveränderungen im Sinne einer fleckförmigen Erweichung des tiefen Marklagers. Eine diagnostische Lumbalpunktion erbrachte ein normales Resultat, insbesondere die zytologische Beurteilung des Liquors zeigte keinerlei morphologische Besonderheiten.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung des Jungen sowie Ihre Empfehlungen bezüglich des weiteren Vorgehens sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

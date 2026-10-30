@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30083032_individual",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 402,
+  "completion_tokens": 471,
+  "total_tokens": 4281,
+  "thoughts_tokens": 3408,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den 9-jährigen Maximilian zur konsiliarischen Beurteilung. \n\nAnamnestisch besteht bei dem Jungen ein laborchemisch gesicherter Ausfall der Epithelkörperchenfunktion mit therapiebedürftiger Hypokalzämie und inadäquat niedrigem Parathormon, worunter Maximilian aktuell mit Calcitriol und Kalzium substituiert wird. Sonographisch ließ sich im vorderen oberen Mediastinum kein reguläres Organparenchym abgrenzen, was einer rudimentären Anlage bzw. Agenesie des Thymus entspricht. An der rechten Hand bestand zudem von Geburt an ein zusätzlicher ulnarer Fingerstrahl, der im Kleinkindalter operativ abgetragen wurde.\n\nKraniofazial zeigen sich harmonische Proportionen. Der Augenabstand ist unauffällig, die Lidspalten sind normal weit geöffnet und die äußeren Ohren anatomisch regelrecht geformt. Der Nasenrücken ist nicht verschmälert, und das Kinnprofil stellt sich orthognath dar, ohne Anhalt für eine Unterkieferhypoplasie. Der harte und weiche Gaumen sind vollständig intakt; Hinweise auf einen inkompletten Gaumensegelschluss oder eine nasale Sprache fanden sich nicht. \n\nMaximilian besucht erfolgreich die dritte Klasse einer Regelschule. Er hat alle kognitiven und motorischen Meilensteine zeitgerecht erworben, sodass keine allgemeine Entwicklungsverzögerung vorliegt. Mit einer Körpergröße auf der 45. Perzentile zeigt er ein stabiles Längenwachstum ohne Minderwuchs. In der Reintonaudiometrie fand sich kein Nachweis einer Innenohrschwerhörigkeit. An Händen und Füßen zeigen sich abgesehen von dem resezierten überzähligen Finger keine Hautbrücken oder fusionierten Digiti. Die Schilddrüsenfunktion ist klinisch wie laborchemisch euthyreot bei negativen TRAK, eine Basedow-Erkrankung ist ausgeschlossen.\n\nWir bitten um Ihre differentialdiagnostische Einschätzung der Befundkonstellation und danken Ihnen für die Mitbetreuung.\n\nMit freundlichen Grüßen"
+}

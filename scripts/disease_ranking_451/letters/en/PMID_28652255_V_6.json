@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 292,
+  "total_tokens": 2154,
+  "thoughts_tokens": 1511,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Ms. Claire Jenkins, a 24-year-old woman whom I am referring for a comprehensive neurological evaluation. Her difficulties originally manifested during early childhood, around six years of age, and have shown slow progression over time.\n\nOn examination, Claire demonstrates pronounced unsteadiness, walking with a broad-based, poorly coordinated gait, alongside evident limb incoordination. Her speech is markedly slurred and scanned. I also observed continuous, slow, writhing involuntary movements affecting her distal upper extremities, particularly evident in the fingers and wrists. Deep tendon reflexes are universally depressed, with only trace responses elicited at the patellae and biceps, and absent Achilles jerks. Notably, she has marked restriction of voluntary saccadic eye movements in both vertical and horizontal planes; however, full conjugate excursion was readily elicited with the oculocephalic maneuver.\n\nMotor power is preserved at 5/5 in all extremities, and sensation to light touch and vibration is completely intact. Routine blood work was largely unremarkable; her serum albumin was well within the reference range, and her lipid profile showed normal total cholesterol without elevation. She takes no regular prescription medications aside from daily vitamin D, and her family history is negative for any similar neurological problems. She lives with her parents and works part-time from home.\n\nI would appreciate your expert clinical assessment regarding the nature of her progressive condition.\n\nSincerely,\nDr. Laura Higgins"
+}

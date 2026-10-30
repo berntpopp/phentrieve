@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27974811_individual",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 474,
+  "total_tokens": 2396,
+  "thoughts_tokens": 1519,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 18 1/2-jährigen Lukas zur weiteren differenzialdiagnostischen Abklärung. \n\nDie Symptomatik bestand bereits unmittelbar nach der Geburt, wo eine ausgeprägte muskuläre Hypotonie sowie deutliche Trink- und Fütterprobleme auffielen. Im Verlauf zeigte sich eine motorische Entwicklungsverzögerung; das freie Laufen erlernte er erst im Alter von drei Jahren. Zudem wurde im Säuglingsalter eine Hüftdysplasie konservativ behandelt. \n\nAktuell präsentiert sich der Patient mit einem auffallend breitbasigen, unsicheren Gangbild. Die Propriozeption an den unteren Extremitäten ist deutlich reduziert, der Lagesinn der Zehen unsicher. Bei der Untersuchung der Motorik imponiert eine Ungeschicklichkeit der Hände mit schlechter feinmotorischer Koordination. Während an den Fingern und Handgelenken eine auffällige Überbeweglichkeit vorliegt, bestehen an beiden Kniegelenken mäßiggradige Beugekontrakturen. Wirbelsäulenseitig zeigt sich eine fixierte thorakale Skoliose. Bei der orofazialen Inspektion fällt ein hoch gewölbtes Gaumendach auf, die Artikulation wirkt deutlich hypernasal. \n\nApparativ erbrachte die Neurographie den Befund einer axonalen sensorischen Neuropathie. In einer auswärts veranlassten Muskelbiopsie zeigte sich histologisch eine gesteigerte Variabilität der Myofaserkaliber sowie ein deutliches Überwiegen von Typ-1-Fasern. Laborchemisch zeigte sich die Serum-Kreatinkinase stets vollkommen unauffällig, eine Erhöhung der CK-Aktivität ließ sich zu keinem Zeitpunkt nachweisen. Auch das Routinelabor, die Schilddrüsenparameter sowie das Ruhe-EKG waren im Normbereich. \n\nDer Patient besucht derzeit die gymnasiale Oberstufe, kognitiv bestehen keine Einschränkungen. Die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen leer. \n\nIch wäre Ihnen für eine neurologische Beurteilung und konsiliarische Mitbetreuung des Patienten sehr dankbar.\n\nMit freundlichen Grüßen"
+}

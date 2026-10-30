@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27374306_Case_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 369,
+  "completion_tokens": 455,
+  "total_tokens": 2840,
+  "thoughts_tokens": 2016,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den dreijährigen Felix zur dringenden intensivmedizinischen Übernahme und weiteren kardiologischen Beurteilung. Bei dem Jungen trat gestern ganz akut ein schweres kardiogenes Schockgeschehen auf, welches eine unverzügliche Inotropikagabe und Beatmung erforderlich machte. \n\nIm Aufnahme-EKG zeigte sich ein für das Alter extrem verlangsamter Sinusrhythmus mit einer Herzfrequenz um 45/min sowie eine begleitende 2:1-Überleitung der Vorhofaktionen auf die Kammern. Auffällig war darüber hinaus eine deutlich über die Norm verlängerte frequenzkorrigierte QT-Dauer von 550 ms. Ein T-Wellen-Alternans konnte in den kontinuierlichen Rhythmusstreifen nicht festgestellt werden. Episoden von polymorphen Kammertachykardien traten bisher erfreulicherweise nicht auf, ebenso wenig kam es zu Kammerflimmern oder einem Herz-Kreislauf-Stillstand.\n\nIn der transthorakalen Echokardiographie imponiert neben einer hochgradig reduzierten Pumpfunktion eine ausgeprägte Hypertrabekularisierung der linksventrikulären Wandabschnitte mit tiefen intratrabekulären Buchten und einem veränderten Verhältnis von kompakter zu nicht-kompakter Myokardschicht. \n\nDer Junge war bis zum gestrigen Tag gesund, altersgerecht entwickelt und nahm keinerlei Vormedikation ein. Die Familienanamnese ist bezüglich frühzeitiger kardialer Erkrankungen vollkommen unauffällig; beide Eltern sowie die ältere Schwester sind herzgesund. Die abdominelle Sonographie und das Routinelabor zeigten abgesehen von den schockbedingten Perfusionsparametern reguläre Befunde. \n\nAufgrund der komplexen elektrokardiographischen und myokardialen Auffälligkeiten bitte ich um Ihre geschätzte Mitbeurteilung und Beratung bezüglich des weiteren invasiven und konservativen Vorgehens.\n\nMit freundlichen Grüßen\nDr. med. Thomas Lindner\nKlinik für Pädiatrie"
+}

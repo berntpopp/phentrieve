@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30053862_Case_II_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 428,
+  "total_tokens": 2523,
+  "thoughts_tokens": 1703,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den kleinen Felix, aktuell am 21. Lebenstag, zur dringenden Mitbeurteilung und stationären Übernahme. Der Junge wurde reif nach unauffälliger Schwangerschaft als erstes Kind gesunder Eltern geboren, die Familienanamnese ist leer. \n\nBereits unmittelbar nach der Geburt imponierte eine ausgeprägte, stamm- und extremitätenbetonte Schwellungsneigung im Sinne eines Anasarkas. Laborchemisch verzeichneten wir eine drastische Eiweißausscheidung im Urin sowie einen schweren Mangel an Serumalbumin. Zudem verschlechterte sich die Nierenfunktion rasch bis in das Stadium eines terminalen Nierenversagens mit progredientem Anstieg der harnpflichtigen Substanzen. Sonografisch stellte sich das Nierenparenchym diffus verändert dar, mit einer weitgehend aufgehobenen Abgrenzbarkeit zwischen Rinde und Mark. Ein Herzecho erbrachte keinen pathologischen Befund.\n\nKlinisch zeigt sich ein Schädelumfang deutlich unterhalb der dritten Perzentile. Das durchgeführte MRT des Schädels demonstrierte eine extreme zerebrale Volumenminderung bei nahezu vollständig verstrichenem kortikalen Relief ohne adäquate Furchenbildung. Phänotypisch fallen darüber hinaus eine betonte Verschmälerung der Stirnpartie, ein vergrößerter Augenabstand sowie eine flach einsinkende Nasenwurzel auf. Das Gesichtsprofil wird durch einen auffällig hypoplastischen, zurückweichenden Unterkiefer geprägt, inspektorisch liegt eine Spaltbildung des Gaumens vor. Die Ohrmuscheln stellen sich beidseits ungewöhnlich groß dar und weisen einen deutlichen Tiefstand auf.\n\nAufgrund dieses schweren, angeborenen syndromalen Bildes bitten wir um Ihre differenzialdiagnostische Expertise und die Planung des weiteren intensivmedizinischen und diagnostischen Vorgehens. \n\nMit kollegialen Grüßen"
+}

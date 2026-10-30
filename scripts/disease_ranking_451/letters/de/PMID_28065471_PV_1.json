@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28065471_PV_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 464,
+  "completion_tokens": 519,
+  "total_tokens": 3968,
+  "thoughts_tokens": 2985,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nzur weiteren differenzialdiagnostischen Abklärung überweise ich Ihnen den jungen Patienten Felix, der sich aktuell in unserer pädiatrischen Betreuung befindet. Die Eltern sind gesund und nicht konsanguin, die Schwangerschaft verlief unauffällig.\n\nKlinisch besteht seit Geburt eine ausgeprägte muskuläre Schlaffheit sowie ein redundanter, auffallend wenig elastischer Hautturgor am gesamten Integument. Das Gesicht imponiert durch eine dreieckige Konfiguration mit stark reduzierter, maskenhafter Mimik. Die Augen stehen weit auseinander bei gleichzeitig horizontal verkürzten Lidspalten und einer Einwärtsrollung der Lidränder. Die Nasenbasis zeigt sich deutlich verbreitert, während die Nasenlöcher auffällig stenotisch imponieren. Die Ohren setzen tief an, weisen jedoch ein reguläres Knorpelrelief auf und sind morphologisch nicht vereinfacht. \n\nKardiologisch diagnostizierten wir einen Defekt im Bereich des Kammerseptums. Ein Scheidewanddefekt auf Vorhofebene, eine Hypertrophie des Myokards, ein Aneurysma der tubulären Aorta ascendens oder eine pathologische Elongation und Schlängelung der thorakalen Aorta wurden echokardiographisch sicher ausgeschlossen. \n\nOrthopädisch zeigte die Sonographie eine Auskuglung des linken Hüftgelenks; Bewegungseinschränkungen durch Kontrakturen der großen oder kleinen Gelenke sowie ein Klumpfuß liegen nicht vor. Die Wirbelsäule ist gerade ohne Anhalt für eine kyphoskoliotische Fehlhaltung. Das Längenwachstum ist völlig proportional ohne Merkmale eines übermäßigen Hochwuchses.\n\nSpaltlampenmikroskopisch stellten sich die Augenlinsen trübungsfrei dar. Zerebralsonographisch zeigte sich das Corpus callosum von normaler Dicke und unauffälliger Form. Das äußere Genitale ist unauffällig, die Hoden befinden sich beidseits regelrecht im Skrotum, die Penislänge ist altersentsprechend normwertig. Es bestehen keine Leistenhernien, und an beiden Hohlhänden zeigt sich ein physiologisches Furchenrelief ohne Vierfingerfurche.\n\nIch danke Ihnen herzlich für Ihre konsiliarische Einschätzung und verbleibe mit freundlichen Grüßen."
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29801479_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 410,
+  "total_tokens": 2530,
+  "thoughts_tokens": 1757,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre geschätzte Mitbeurteilung des 8-jährigen Max, der sich bei uns nach einem Sturz beim Spielen mit einer frischen Fraktur des linken Ellenbogens vorstellte.\n\nBereits seit der Geburt fiel den Eltern eine erhöhte Vulnerabilität auf. In der Vorgeschichte kam es immer wieder zu Frakturen der Extremitäten nach minimalen Traumata. Eine orientierende osteodensitometrische Untersuchung ergab eine pathologisch reduzierte Knochendichte. Zudem besteht ein ausgeprägter Kleinwuchs; seine Körperlänge verläuft seit jeher unterhalb der dritten Perzentile. Bei der Inspektion fielen uns darüber hinaus beidseits auffällig bläuliche Skleren auf. \n\nIm Übrigen zeigt sich der Junge in gutem Allgemeinzustand. Sämtliche Gelenke weisen einen vollen Bewegungsumfang auf, es finden sich keinerlei Gelenkkontrakturen. Das Abdomen ist weich und indolent, eine Hepatosplenomegalie ließ sich weder palpatorisch noch sonographisch nachweisen. Pädoaudiometrisch zeigte sich das Hörvermögen vollkommen intakt, eine Hörminderung liegt nicht vor. Kognitiv ist Max altersgerecht entwickelt und besucht ohne Einschränkungen die dritte Klasse der örtlichen Grundschule; eine Intelligenzminderung ist sicher auszuschließen. \n\nLaborchemisch waren Elektrolyte, Schilddrüsen- und Entzündungsparameter regulär. Insbesondere zeigte sich keine Erhöhung der alkalischen Phosphatase im Serum. Außer einer prophylaktischen Gabe von Vitamin D nimmt der Patient derzeit keine Dauermedikation ein. Die Familienanamnese bezüglich muskuloskelettaler Auffälligkeiten ist leer.\n\nÜber eine konsiliarische Vorstellung des Patienten an Ihrem Zentrum zur weiterführenden ätiologischen Einordnung würden wir uns sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28742248_Patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 429,
+  "total_tokens": 2776,
+  "thoughts_tokens": 1944,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin,\n\nich bitte um deine konsiliarische Einschätzung bei dem viereinhalbjährigen Jonas, der sich zur weiteren Abklärung bei mir vorstellt. Die Eltern schildern erste Krankheitsanzeichen ab dem achten Lebensmonat; damals manifestierten sich erstmals zerebrale Anfälle, die gegenwärtig medikamentös behandelt werden.\n\nIn der Verlaufsbeobachtung imponiert eine erhebliche globale Entwicklungsverzögerung. Jonas zeigt sowohl einen deutlichen motorischen Entwicklungsrückstand – das freie Laufen gelang erst jenseits des zweiten Lebensjahres – als auch eine ausgeprägte Verzögerung des Spracherwerbs; er artikuliert bislang lediglich vereinzelte Silben. Im cMRT fand sich neben einer umschriebenen Polymikrogyrie eine zystische Formation im Bereich des Kleinhirns.\n\nPhänotypisch präsentiert sich der Junge unauffällig. Die Fazies ist harmonisch, ein auffallend langes Gesicht besteht nicht. Die Augen liegen nicht abnorm tief in den Höhlen, und eine Weitsichtigkeit wurde augenärztlich ausgeschlossen. Der Nasenrücken ist regelrecht geformt und nicht verschmälert. Das Philtrum zeigt sich normal lang sowie gut konturiert, ohne verstrichen zu wirken. Das Lippenrot ist seitengleich und nicht verschmälert. Das Milchgebiss weist keinen Engstand der Zähne auf. Eine Retrognathie oder Mikrognathie lässt sich am Unterkiefer nicht feststellen. Das Hautkolorit ist unauffällig, ohne Zeichen einer pathologischen Dermaltransparenz.\n\nKörperlicher Allgemeinstatus, Abdomen und Herztöne waren völlig unauffällig. Die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer. Jonas besucht seit Kurzem eine integrative Fördergruppe.\n\nÜber deine geschätzte neuropädiatrische Beurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit kollegialen Grüßen"
+}

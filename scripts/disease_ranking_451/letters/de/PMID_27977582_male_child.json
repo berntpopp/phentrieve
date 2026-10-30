@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27977582_male_child",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 350,
+  "total_tokens": 2642,
+  "thoughts_tokens": 1926,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin Dr. Keller,\n\nich überweise Ihnen den heute zweieinhalbjährigen Felix zur Mitbeurteilung der multiplen skelettalen Auffälligkeiten.\n\nFelix wurde nach unkomplizierter Gestation termingerecht spontan aus Schädellage entbunden; eine Beckenendlage lag nicht vor. Direkt nach der Geburt zeigte sich eine Gaumenspalte, welche im Verlauf operativ versorgt wurde. Orthopädisch bestehen seit der Geburt beidseits luxierte Hüftgelenke sowie eine angeborene Dislokation der Kniegelenke. Zudem fielen post partum bilaterale Klumpfußdeformitäten auf. \n\nBei den rezenten Röntgenverlaufsaufnahmen imponierten an den Füßen auffallend verkürzte Ossa metatarsalia, während an beiden Händen überzählige Verknöcherungszentren der Handwurzel zu erkennen waren. Eine weiterführende Bildgebung der Wirbelsäule zeigte hypoplastisch konfigurierte Halswirbelkörper. Eine Skoliose liegt hingegen nicht vor, und auch eine pathologische Kyphosierung der Halswirbelsäule konnte ausgeschlossen werden.\n\nDer Junge ist kognitiv altersentsprechend entwickelt und internistisch stabil. Cor und Pulmo sind auskultatorisch bland, das Abdomen ist weich. Die Familienanamnese ist bezüglich orthopädischer Erkrankungen leer, eine Dauermedikation besteht nicht.\n\nIch danke Ihnen für eine konsiliarische Einschätzung des Jungen bezüglich der Ätiologie und der weiteren Behandlungsstrategie.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30225196_Patient_1_V_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 385,
+  "completion_tokens": 292,
+  "total_tokens": 3340,
+  "thoughts_tokens": 2663,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for evaluating this 15-year-old young man who has demonstrated progressive neurological deterioration since early childhood.\n\nFrom his toddler years, his parents noted substantial delays in acquiring verbal milestones, and he continues to exhibit pronounced cognitive deficits alongside slow, slurred articulatory output. He had initially achieved independent walking, but his mobility subsequently regressed, culminating in an inability to walk; he is now entirely wheelchair-bound. Neurological assessment reveals prominent motor incoordination and involuntary rhythmic oscillatory movements of both hands, alongside marked spasticity and hyperreflexic weakness involving all four limbs. At no point has he demonstrated reduced muscle tone. Over the past two years, he has suffered several generalized convulsive events with loss of consciousness and whole-body jerking, currently managed on levetiracetam. He has never experienced any sudden, stroke-mimicking presentations.\n\nPrior neuroimaging demonstrated an intracranial glial tumor, which remains stable on conservative management. Importantly, the scans showed intact cerebral parenchymal bulk without supratentorial volume loss, no cerebellar shrinkage, and a corpus callosum of normal thickness throughout. General physical examination is unremarkable, with normal vital signs, clear lung fields, regular heart rhythm, and no cutaneous lesions. His family history is negative for early neurological disease.\n\nI would be very grateful for your comprehensive evaluation and advice on next steps for his care.\n\nSincerely,\nDr. Katherine Vance"
+}

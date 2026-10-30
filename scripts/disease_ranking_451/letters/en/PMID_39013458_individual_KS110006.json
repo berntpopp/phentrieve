@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_KS110006",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 575,
+  "completion_tokens": 402,
+  "total_tokens": 3007,
+  "thoughts_tokens": 2030,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 41-year-old gentleman whom I follow in our adult comprehensive clinic. He was born small for gestational age, not LGA. Early milestones were delayed across all sectors, and his family noted a distinct loss of previously acquired cognitive skills in later childhood. He has substantial lifelong intellectual disability, an autism diagnosis, and severe anxiety. Reassuringly, there is no history of seizures, ADHD, compulsive rituals, motor stereotypies, depression, bipolar disorder, psychosis, aggression, or self-injurious behavior. His adult head circumference is normal.\n\nHe requires glasses for farsightedness, without strabismus, and has bilateral hearing impairment. Medically, he suffers from recurrent systemic infections, long-standing acid reflux managed with daily omeprazole, and chronic constipation. He tolerates oral intake well, with no need for enteral tube feedings. \n\nOn examination, his height and weight are entirely average, with no short stature, tall stature, overweight, or obesity. Musculoskeletal evaluation shows a prominent sunken chest, but spinal alignment is straight with no kyphosis. Muscle tone and joints are normal, without hypotonia or joint hyperlaxity. His extremities show no fifth-finger clinodactyly, bunions, pes planus, or clubfoot. \n\nHis abdomen is soft without umbilical or inguinal herniation. Genitourinary examination reveals normally descended testes and no hypospadias. Past renal imaging showed no hydronephrosis, ureteropelvic junction obstruction, or renal cysts, and he has had no recurrent urinary tract infections. An echocardiogram performed several years ago confirmed the absence of any atrial or ventricular septal defects, atrioventricular canal defects, patent ductus arteriosus, or coronary fistulae.\n\nHe lives with his parents and attends a daytime community program. I would value your assessment and recommendations regarding his ongoing management.\n\nSincerely,\nDr. Arthur Vance"
+}

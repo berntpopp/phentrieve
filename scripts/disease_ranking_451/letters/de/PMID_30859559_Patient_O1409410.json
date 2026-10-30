@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30859559_Patient_O1409410",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 702,
+  "completion_tokens": 713,
+  "total_tokens": 4738,
+  "thoughts_tokens": 3323,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen Herrn B., 20 Jahre alt, zur konsiliarischen Beurteilung.\n\nPränatal imponierten sonographisch ein zystisches Hygrom im Nackenbereich, eine gesteigerte Nackentransparenz sowie ein nicht-immunologischer Hydrops fetalis. Postnatal bestanden frühkindlich eine deutliche muskuläre Hypotonie und ein verzögerter Erwerb des freien Laufens; Fütterstörungen traten hingegen nicht auf. Die Sprachentwicklung verlief unauffällig, und es bestehen weder eine globale Entwicklungsverzögerung noch eine Intelligenzminderung oder autistische Verhaltensweisen. Anamnestisch sind keine zerebralen Krampfanfälle und kein Hinweis auf eine akute lymphatische Leukämie bekannt.\n\nKardiologisch führen wir den Patienten bei einer hypertrophen Kardiomyopathie; echokardiographisch zeigten sich kein Vorhof- oder Ventrikelseptumdefekt und kein Mitralklappenprolaps bei regelrechter Klappenfunktion ohne Insuffizienz. \n\nKörperlich finden sich eine normale Körperlänge ohne Kleinwuchs und ein normozephel konfigurierter Schädel ohne Mikrozephalie. Das Gesicht ist nicht verlängert und die Züge sind fein, ohne vergröberte Konturen. Die Stirn ist normal proportioniert, weder verschmälert noch übermäßig hoch oder breit, und eine prominente Metopikanaht fehlt. Das Kopfhaar ist glatt, ohne Locken oder Hirsutismus; der vordere Haaransatz liegt hoch, während der Nackenhaaransatz tief ansetzt. Auffällig sind nach außen unten abfallende sowie elongierte Lidspalten, ein Hypertelorismus, eine beidseitige Ptosis, Epikanthusfalten und auffallend blaue Irides bei regelrechtem Bulbusstand ohne Strabismus. Ein flaches Mittelgesicht liegt nicht vor, der Nasenrücken ist nicht eingesunken, die Nasenlöcher sind normal ausgerichtet, und die Nasolabialfalten präsentieren sich unauffällig. Es bestehen weder Mikro- noch Retrognathie, kein spitzes Kinn, kein hoher Gaumen, keine Makrodontie und keine Zahnfehlstellung.\n\nDer Hals wirkt kurz mit beidseitigem Flügelfell, jedoch ohne redundante Nackenhautfalten. Die Ohrmuscheln inserieren tief und sind nach hinten rotiert; ein Tonschwellenaudiogramm ergab keinen Anhalt für eine Schallempfindungsschwerhörigkeit. Der Thorax ist seitengleich ohne Trichter- oder Kielbrust bei normalem Mamillenabstand. Die Wirbelsäule ist frei von einer Skoliose, und ein Cubitus valgus besteht nicht. An den Händen fallen prominente Fingerbeerenpolster auf, Vierfingerfurchen fehlen. An den Füßen zeigen sich Senk-Plattfüße ohne Syndaktylie der Zehen zwei und drei. Die Genitalien sind regelrecht männlich ohne Kryptorchismus entwickelt. Die Haut zeigt normale Dehnbarkeit ohne palmoplantare Cutis laxa, Hyperpigmentierungen, Hyperkeratosen oder ekzematöse Läsionen.\n\nWir bitten um Ihre geschätzte Einschätzung des Patienten."
+}

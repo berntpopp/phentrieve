@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33875846_individual_row_22",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 380,
+  "total_tokens": 2732,
+  "thoughts_tokens": 2012,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen das Kind Sascha Meier zur weiteren konsiliarischen Einordnung.\n\nAnamnestisch war bereits im ersten Trimenon der Schwangerschaft sonografisch ein ungewöhnlich breites dorsonuchales Ödem aufgefallen. Die Entbindung erfolgte schließlich vorzeitig in der 33. Gestationswoche per Sectio. Schon unmittelbar in der Neonatalphase traten erste klinische Auffälligkeiten zutage.\n\nIm bisherigen Verlauf zeigt sich eine gravierende Verlangsamung sämtlicher Entwicklungsbereiche, wobei sowohl die statomotorischen als auch die rezeptiv-sprachlichen Fähigkeiten weit hinter dem Altersdurchschnitt zurückbleiben. Ergänzend fallen deutliche Defizite der kognitiven Leistungsfähigkeit auf. Bei den somatometrischen Messungen imponiert ein persistierender Rückstand des Längenwachstums mit Messwerten weit unterhalb der dritten Perzentile. Phänotypisch sticht zudem eine ungewöhnlich modellierte Gesichtskonfiguration mit auffälligen Proportionen hervor.\n\nOrganbezogen ergab die bisherige pädiatrische Untersuchung einen unauffälligen Status: Das Neugeborenen-Hörscreening zeigte beidseits regelrechte otoakustische Emissionen, kardiopulmonal besteht ein stabiler Befund ohne pathologische Geräusche, und das Abdomen ist weich ohne tastbare Organomegalie. Das erweiterte Stoffwechselscreening erbrachte keine pathologischen Hinweise. Die Eltern sind gesund und nicht konsanguin, Medikamente werden aktuell nicht verabreicht.\n\nIch bedanke mich herzlich für Ihre geschätzte Mitbeurteilung und Ihre Vorschläge zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Brand"
+}

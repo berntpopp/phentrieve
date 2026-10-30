@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_44",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 301,
+  "total_tokens": 1969,
+  "thoughts_tokens": 1322,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for agreeing to evaluate this adult female patient who initially presented to my clinic with gastrointestinal complaints that began three months ago. She reports ongoing loose, watery stools, averaging four to five unformed bowel movements daily without visible blood or melena. \n\nOn physical examination today, she is hemodynamically stable with a blood pressure of 122/74 mmHg and a regular heart rate of 70 beats per minute. Her abdomen is soft, non-distended, and non-tender, with normal bowel sounds throughout. She currently takes only an over-the-counter multivitamin, works as an accountant, and has no significant past medical or family history.\n\nInitial laboratory workup revealed some biochemical irregularities that warrant your subspecialty expertise. Her plasma adrenocorticotropic hormone came back significantly elevated. In addition, her total serum testosterone was clearly above the upper limit of the reference range. Conversely, her morning cortisol concentration was completely normal, with repeat testing confirming physiologic circulating cortisol. Her serum estradiol was also entirely unremarkable, and her prolactin was not elevated. A routine complete blood count, kidney function panel, and thyroid-stimulating hormone level were all within expected limits.\n\nGiven the combination of persistent loose motions alongside high plasma ACTH and hyperandrogenemia in the setting of otherwise normal hypothalamic-pituitary-adrenal parameters, I would greatly appreciate your assessment and recommendations for further diagnostic workup.\n\nSincerely,\n\nDr. Arthur Vance"
+}

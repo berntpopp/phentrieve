@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_first_family_patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 359,
+  "completion_tokens": 384,
+  "total_tokens": 2847,
+  "thoughts_tokens": 2104,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich überweise Ihnen heute Frau Sarah Lindner, 24 Jahre alt, zur differentialdiagnostischen Beurteilung. Die Patientin wird von ihrer Mutter begleitet, welche berichtet, dass die auffällige Entwicklung bereits im frühesten Säuglingsalter einsetzte.\n\nIn der Untersuchung imponiert ein deutlicher Minderwuchs mit einer Körpergröße weit unterhalb der Normperzentilen. Der gemessene Schädelumfang ist ebenfalls extrem klein und liegt weit unter dem Durchschnittsalterswert. Im kognitiven Bereich besteht eine tiefgreifende Beeinträchtigung; eine aktive Lautsprache hat sich nie entwickelt, gesprochene Worte fehlen vollständig. Ein vorliegendes Schädel-MRT dokumentierte neben einer ausgeprägten Verschmächtigung des Balkens eine Rindenarchitektur mit umschrieben stark vermehrten, abnorm kleinen Windungen.\n\nIm Verhalten wirkt die junge Frau ruhig und freundlich distanziert. Es bestehen weder aggressive Verhaltensweisen noch ein inadäquat enthemmtes, übermäßig zutrauliches Kontaktmuster. Das Gemüt ist stabil, ohne Hinweise auf eine ausgeprägte emotionale Sprunghaftigkeit. Der weitere somatische Status ist unauffällig: Cor und Pulmo sind auskultatorisch bland, der Blutdruck beträgt 115/70 mmHg. An den unteren Extremitäten finden sich regelrechte Verhältnisse, insbesondere keine übereinandergelagerten Zehen. Die Familienanamnese ist bezüglich neurologischer Auffälligkeiten unergiebig, eine Dauermedikation wird aktuell nicht eingenommen.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung des Gesamtbildes sowie für Empfehlungen zur weiteren Einordnung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Bergner"
+}

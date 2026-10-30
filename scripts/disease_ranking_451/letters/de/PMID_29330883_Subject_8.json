@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29330883_Subject_8",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 565,
+  "completion_tokens": 573,
+  "total_tokens": 4766,
+  "thoughts_tokens": 3628,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich überweise Ihnen die heute 8-jährige Patientin zur pädiatrischen Mitbeurteilung. \n\nDie Schwangerschaft war durch ein ausgeprägtes Polyhydramnion kompliziert. Das Mädchen kam als Mangelgeburt mit deutlicher intrauteriner Wachstumsretardierung zur Welt. Bereits in der Neonatalperiode erfolgten die operative Korrektur eines Truncus arteriosus Typ I sowie die Versorgung einer knöchernen Choanalatresie. \n\nIm weiteren Verlauf zeigte sich eine erhebliche globale Entwicklungsverzögerung mit mittlerweile manifester kognitiver Beeinträchtigung. Ein Muskelhypotonus bestand jedoch zu keinem Zeitpunkt, der Tonus ist seit jeher regelrecht. Des Weiteren bestehen eine Innenohrschwerhörigkeit, ein okuläres Kolobom sowie eine thorakolumbale Skoliose. Das Längenwachstum verläuft weit unterhalb der dritten Perzentile. \n\nKraniofazial ist der Kopf normozephal, ohne Makrozephalie oder Plagiozephalie. Es zeigen sich keine Stirnhöcker, keine fliehende oder schmale Stirn und keine prominente Stirn bei normalem, nicht tiefem Haaransatz. Das Gesicht ist nicht dreieckig konfiguriert; eine Mittelgesichtsretraktion oder Mikrognathie liegen nicht vor. Auffallend ist ein deutlich vergrößerter Augenabstand ohne Anhalt für Hypotelorismus. Die Lidachsen stehen horizontal, weder nach oben noch nach unten außen geneigt; Ptosis, Blepharophimose, Epikanthusfalten oder tief liegende Augen fehlen. Die Brauen sind unauffällig, weder breit noch besteht eine Synophrys. Die Nase zeigt keinen eingesunkenen Nasenrücken, keine knollige Spitze und keine antevertierten Nares. Das Philtrum ist gut ausgebildet, nicht verstrichen. Eine Lippenspalte, ein breiter Mund, verbreiterte Alveolarkämme oder ein hoher Gaumen finden sich nicht. \n\nAn den Ohren imponiert beidseits ein auffällig hervortretender Hauptstamm der Anthelix. Die Helices sind regulär angelegt, nicht hypoplastisch oder überfaltet, ohne Becherohren, vereinfachte Ohrmuscheln, präaurikuläre Grübchen oder Ohrläppcheneinkerbungen.\n\nEin vesikoureteraler Reflux wurde sonographisch und funktionell ausgeschlossen. Familienanamnese und Routineparameter sind bland. \n\nIch danke Ihnen für Ihre geschätzte differentialdiagnostische Einschätzung und Empfehlungen zum weiteren Prozedere."
+}

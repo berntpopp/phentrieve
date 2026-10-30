@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27146836_No_11_Family_TAAD048",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 445,
+  "completion_tokens": 368,
+  "total_tokens": 2520,
+  "thoughts_tokens": 1707,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing Ms. Elena Vance, a 42-year-old woman who recently relocated to our region. She works as an accountant, denies tobacco use, and her family medical history is entirely unremarkable. Her current medications are amlodipine and bisoprolol.\n\nHer history is notable for an acute type A ascending aortic dissection that required surgical interposition graft repair two years ago. Follow-up intracranial MRA highlighted marked tortuosity and looping of the cerebral arteries, though the carotid arteries demonstrated normal caliber and course without abnormal tortuosity. She also struggles with extensive lower-extremity varicose veins, and physical examination confirms a reducible right-sided inguinal hernia. Interestingly, her childhood surgical records document orchidopexy for cryptorchidism. Orthopedic workup for persistent neck pain recently revealed marked cervical spine instability on flexion-extension radiographs. \n\nOn physical exam, she presents with bilateral epicanthic folds. Her cranial shape is normal, showing neither frontal bossing nor dolichocephaly. Her globes are not deeply set, ocular spacing is within normal limits without hypertelorism, and the palpebral fissures are horizontal rather than downslanting. An ophthalmology check confirmed in situ lenses without ectopia lentis. Midfacial structure is preserved without malar flattening or a depressed nasal bridge. Her philtrum is of normal length, her upper lip vermilion displays normal thickness, and the oral commissures are not downturned. The uvula is intact and non-bifid. Her ears are normally positioned without low-set implantation, and the helices lack any overfolding.\n\nGiven this complex constellation of structural and vascular findings, I would appreciate your comprehensive assessment and recommendations for her surveillance.\n\nSincerely,  \nDr. Julian Scott, MD"
+}

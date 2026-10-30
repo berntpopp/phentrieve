@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24239060_index_patient_II_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 499,
+  "completion_tokens": 359,
+  "total_tokens": 2916,
+  "thoughts_tokens": 2058,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for seeing this 45-year-old woman for a neuromuscular assessment. She has noted very slowly progressive weakness dating back to early childhood, when her gross motor developmental milestones were noticeably delayed. She recalls a lifelong inability to run, recurrent falls, and escalating difficulty ascending stairs. \n\nOn physical examination, she demonstrates a long, narrow facies with a recessed lower jaw and a vaulted, high palate. Cranial nerve testing was otherwise unremarkable, with no ptosis, diplopia, or limitation of ocular excursions, and her facial expression muscles remain strong. Her speech is clear without dysarthria. Musculoskeletal evaluation reveals prominent scapular winging bilaterally and a mild thoracolumbar scoliosis. Power testing shows bilateral symmetric weakness affecting the neck flexors, shoulder abductors, hip flexors, and ankle dorsiflexors. Deep tendon reflexes are globally reduced. She ambulates independently with a waddling pattern; she is capable of walking on her tiptoes, though she cannot walk on her heels. She does not demonstrate a Gowers maneuver when rising from the floor. Sensory testing to light touch and vibration is completely intact. \n\nShe denies any muscle pain, and there is no history of pigmenturia. Routine bloodwork demonstrated a normal serum creatine kinase level. Motor nerve conduction velocities were within the normal reference range. A previous lower extremity muscle biopsy revealed a marked preponderance of type 1 fibers without excess endomysial connective tissue, and recent skeletal muscle imaging confirmed diffuse fatty substitution. She works as an archivist, takes over-the-counter vitamin D, and her family history is non-contributory.\n\nI would appreciate your expert clinical evaluation and diagnostic recommendations for her.\n\nSincerely,\n\nDr. Evelyn Vance"
+}

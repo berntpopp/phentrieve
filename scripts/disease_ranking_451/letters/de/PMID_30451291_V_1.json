@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_V_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 375,
+  "total_tokens": 2915,
+  "thoughts_tokens": 2184,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Becker,\n\nich überweise Ihnen heute die sechsjährige Mia zur neuropädiatrischen Beurteilung.\n\nDie Beschwerden begannen im Alter von einem Jahr und sieben Monaten. Seither traten wiederholt Episoden mit beidseitigen tonischen Muskelversteifungen und darauffolgenden klonischen Zuckungen sämtlicher Extremitäten auf. Ein anhaltender Anfallsstatus trat glücklicherweise zu keinem Zeitpunkt auf; die Ereignisse sistierten stets spontan nach wenigen Minuten.\n\nIn der bisherigen entwicklungsneurologischen Beobachtung imponiert eine leichtgradige kognitive Einschränkung im Lernbereich. Eine mittelgradige Beeinträchtigung liegt keinesfalls vor, und auch eine schwere mentale Retardierung lässt sich sicher ausschließen. Der Spracherwerb zeigte sich frei von Verzögerungen und ist aktuell vollkommen altersentsprechend ausgeprägt. Mia zeigt ein aufgeschlossenes Wesen; Verhaltensauffälligkeiten aus dem autistischen Spektrum sind nicht vorhanden. Ebenso fanden sich zu keinem Zeitpunkt Hinweise auf floride psychotische Symptome, Halluzinationen oder Denkstörungen.\n\nDie körperliche Untersuchung war regelrecht: kardiopulmonal stabil, Hirnnerven unauffällig, Muskeleigenreflexe seitengleich mittellebhaft auslösbar, unauffälliges Gangbild. Die Familienanamnese bezüglich neurologischer Erkrankungen ist leer. Das Mädchen lebt mit den Eltern und einem gesunden Bruder zusammen und besucht die Vorschule. Zurzeit besteht keine medikamentöse Dauertherapie.\n\nIch bedanke mich für Ihre geschätzte Einschätzung und Empfehlungen bezüglich des weiteren diagnostischen Prozedere.\n\nMit kollegialen Grüßen\nDr. med. Martin Keller"
+}

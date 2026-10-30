@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27374306_Case_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 369,
+  "completion_tokens": 319,
+  "total_tokens": 2338,
+  "thoughts_tokens": 1650,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nI am transferring Lucas, an acutely ill three-year-old boy who presented yesterday with sudden lethargy and profound circulatory collapse. He was previously thriving, fully vaccinated, and living at home with healthy parents who report no familial history of early cardiac events. \n\nOver the past twenty-four hours, he entered severe pump failure with profound systemic hypoperfusion, consistent with cardiogenic shock, requiring urgent initiation of epinephrine and milrinone infusions. His initial 12-lead electrocardiograms demonstrate an underlying slow sinus pacemaker rate well below expected norms for his age, combined with a fixed 2:1 atrioventricular nodal conduction pattern. Furthermore, ventricular repolarization is markedly delayed, with a rate-corrected QT interval exceeding 560 ms. Continuous telemetry has been scrutinized closely; importantly, we have witnessed no polymorphic ventricular tachycardia, no ventricular fibrillation, and no beat-to-beat T-wave alternans. Fortunately, he has not experienced a cardiac arrest event. \n\nAn urgent bedside echocardiogram revealed moderately depressed systolic performance alongside marked hypertrabeculation of the left ventricular apex and lateral wall with prominent intertrabecular recesses, consistent with a non-compacted myocardium. His serum electrolytes, including potassium, ionized calcium, and magnesium, have been verified as strictly within normal physiological ranges.\n\nGiven his critical instability and complex combination of electrical and structural findings, I would appreciate your urgent assessment and guidance regarding ongoing electrophysiologic and intensive care management.\n\nSincerely,\nDr. Karen Davies\nPediatric Critical Care Medicine"
+}

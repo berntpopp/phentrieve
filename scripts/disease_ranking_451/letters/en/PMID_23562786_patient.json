@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23562786_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 318,
+  "total_tokens": 2411,
+  "thoughts_tokens": 1661,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Fletcher,\n\nThank you for seeing Leo, a 2-year-9-month-old boy presenting for skeletal evaluation. His developmental history was unremarkable until approximately 18 months of age, when his parents noted frequent bilateral leg pain and a distinct, broad-based waddling gait. He lives with both parents, who are non-consanguineous, and there is no family history of bone disorders. \n\nOn examination, Leo is alert and cooperative. Heart sounds are normal, chest is clear, and his facial shape is entirely normal, showing no craniofacial anomalies. Growth parameters show pronounced disproportionate short stature characterized by markedly shortened limbs. Musculoskeletal examination demonstrates a bilateral knock-knee deformity, noticeably short digits on both hands, and restricted terminal extension of both elbows. He occasionally takes pediatric paracetamol for lower extremity discomfort.\n\nA comprehensive skeletal survey shows diffuse shortening of the long tubular bones. Epiphyseal centers appear mottled and irregular, while wrist radiographs show delayed carpal ossification relative to his age. The femoral metaphyses exhibit prominent flaring, alongside widespread ragged metaphyseal irregularity. Pelvic imaging reveals flat, poorly contoured acetabular roofs with irregular margins, as well as significantly underdeveloped capital femoral epiphyses. Lateral spine films demonstrate anterior beaking of the vertebral bodies in the lumbar region. \n\nInitial metabolic investigations were unrevealing, and a urinary screen was negative for mucopolysaccharides. \n\nI would be grateful for your expert opinion and further guidance regarding this presentation.\n\nSincerely,\n\nDr. Katherine Vance, MD"
+}

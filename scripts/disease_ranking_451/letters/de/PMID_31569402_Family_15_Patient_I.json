@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_15_Patient_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 522,
+  "completion_tokens": 489,
+  "total_tokens": 3306,
+  "thoughts_tokens": 2295,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um konsiliarische Mitbeurteilung der 36-jährigen Patientin. Sie arbeitet als Architektin, ist Nichtraucherin und nimmt bis auf Bedarfsantihistaminika keine Dauermedikation ein; das Routinelabor war unauffällig.\n\nPhänotypisch fällt ein auffällig disproportionierter Hochwuchs mit elongierten Röhrenknochen und betont langen, schmalen Fingern auf. Wir sehen eine deutliche skoliotische Fehlhaltung der Wirbelsäule sowie eine Instabilität im zervikalen Übergang. Die peripheren Gelenke zeigen eine ausgeprägte Überbeweglichkeit ohne bisherige Luxationen oder arthrotische Veränderungen. Im Gesichtsbereich zeigen sich nach außen abfallende Lidspalten; Wangenhypoplasien, ein fliehendes Kinn, eine prominente Nase, tief sitzende Ohren, ein Epikanthus oder ein Strabismus bestehen nicht. Die Sklären sind weiß, eine Hornhautektasie liegt nicht vor. Intraoral imponiert ein gespaltenes Gaumenzäpfchen bei ansonsten intaktem Gaumensegel ohne hohe Gaumenwölbung. \n\nKardiologisch zeigt sich ein Mitralklappenprolaps mit begleitender Klappeninsuffizienz. Ein persistierender Ductus arteriosus ließ sich ausschließen. In der Angiographie fielen ein auffallend geschlängelter Gefäßverlauf mehrerer Arterienabschnitte sowie Kalibersprünge im Sinne umschriebener arterieller Ektasien zerebral auf. \n\nHaut und Bindegewebe sind weitgehend unauffällig: Das Integument ist weder samtig noch transparent, Milien, atrophe Narbenareale oder eine Neigung zu Hämatomen fehlen gänzlich. Es gibt keine Leistenhernien oder Varizen. Der Thorax ist symmetrisch, ohne Trichter- oder Kielbrust. An den unteren Extremitäten finden sich regelrechte Beinachsen ohne Genu valgum, ebenso wenig Klump- oder Plattfüße. Anamnestisch bestehen bekannte Nahrungsmittelallergien.\n\nIch danke Ihnen für die fachärztliche Einschätzung des klinischen Gesamtbildes und verbleibe\n\nmit freundlichen Grüßen"
+}

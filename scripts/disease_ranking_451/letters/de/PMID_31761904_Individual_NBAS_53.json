@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31761904_Individual_NBAS_53",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 472,
+  "completion_tokens": 450,
+  "total_tokens": 4263,
+  "thoughts_tokens": 3341,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nwir überweisen Ihnen die Patientin bzw. den Patienten zur konsiliarischen Beurteilung bei einem akut aufgetretenen Versagen der Leberfunktion unklarer Ätiologie. Begleitend bestehen eine deutliche Gerinnungsstörung sowie ein Transaminasenanstieg. Vorbestehende Erkrankungen oder eine relevante Dauermedikation sind nicht bekannt, die Familienanamnese ist leer.\n\nIn der differenzialdiagnostischen Abklärung zeigte sich die Knochenreifung zeitgerecht bei unauffälliger Knochendichte; pathologische Knochenbrüche traten bislang nie auf. Die Körperlänge liegt im Normbereich, ein Kleinwuchs liegt nicht vor. Der Schädel ist normozephal ohne Brachyzephalie oder persistierende Schädelnahtweiten, radiologisch fanden sich keine Schaltknochen. Das Gesicht zeigt keine Mittelgesichts- oder Wangenabflachung. Ein Pectus excavatum, eine Skoliose sowie Plattfüße konnten ausgeschlossen werden. Die Gelenke weisen keine Überbeweglichkeit auf, die Haut ist ohne Anzeichen einer Cutis laxa. An den Händen finden sich weder überlange Finger noch eine Klinodaktylie oder verkürzte Metakarpalia.\n\nNeurologisch imponieren eine altersentsprechende Kognition sowie eine unbeeinträchtigte motorische Entwicklung ohne muskuläre Hypotonie. Fundoskopisch liegt keine Optikusatrophie vor. Die Phonation ist normal, eine abnorm hohe Stimmlage wird verneint. \n\nLaborchemisch ergab sich kein Nachweis einer 3-Methylglutakonazidurie. Die Serumspiegel für Immunglobulin A und Immunglobulin G liegen im Normbereich, ebenso die Gesamtzahl der natürlichen Killerzellen. Das Blutbild zeigt regelrecht segmentierte neutrophile Granulozyten ohne Kernhyposegmentierung. Der Glukosestoffwechsel ist normal, ein Typ-1-Diabetes besteht nicht.\n\nWir bitten um Ihre geschätzte Einschätzung und Empfehlungen bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen Grüßen"
+}

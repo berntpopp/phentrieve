@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31944623_Patient_C",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 374,
+  "completion_tokens": 425,
+  "total_tokens": 2405,
+  "thoughts_tokens": 1606,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den heute 32-jährigen Herrn Jansen zur weiteren differenzialdiagnostischen Beurteilung. Erste Auffälligkeiten im Bewegungsablauf zeigten sich anamnestisch bereits im Alter von etwa 6 Jahren. Der Patient lebt im häuslichen Umfeld seiner Eltern; die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, und die Routine-Laborparameter zeigten sich zuletzt unauffällig.\n\nAktuell berichtet der Patient über eine progrediente Gangunsicherheit mit gehäuften Stürzen sowie über neu hinzugekommene, erhebliche Schluckbeschwerden. Bei der Vorstellung fiel zudem eine ausgeprägte, verwaschene Sprechstörung auf. Psychiatrisch imponierten in der jüngeren Vorgeschichte wiederholt floride psychotische Episoden mit wahnhaften Verkennungen.\n\nIm neurologischen Befund imponiert an den unteren Extremitäten eine schwere spastische Tonuserhöhung im Sinne einer spastischen Paraparese. Die Muskeleigenreflexe der Beine sind lebhaft gesteigert, an beiden Füßen lässt sich ein mehrschlägiger, unerschöpflicher Klonus auslösen, und das Plantarzeichen nach Babinski ist beidseits positiv. Demgegenüber sind die schnellen Pronations- und Supinationsbewegungen der Hände intakt, eine Dysdiadochokinese besteht nicht. Klinische Zeichen für einen Parkinsonismus ließen sich nicht objektivieren, insbesondere fand sich keine Bradykinese der Willkürmotorik. Das Berührungsempfinden sowie die übrigen Hirnnervenfunktionen waren intakt.\n\nIm kürzlich durchgeführten Schädel-MRT zur Abklärung des Verlaufs zeigte sich neben einer diffusen Atrophie des zerebralen Kortex auch eine deutliche Kleinhirnatrophie.\n\nIch danke Ihnen für die konsiliarische Mitbeurteilung dieses langwierigen Verlaufs und verbleibe\n\nmit kollegialen Grüßen"
+}

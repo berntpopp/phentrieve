@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30473892_index_patient_IV_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 397,
+  "completion_tokens": 277,
+  "total_tokens": 2192,
+  "thoughts_tokens": 1518,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for evaluating Chloe Miller, who is now six years and nine months of age. Her complex clinical picture first emerged in early infancy at approximately four months old.\n\nChloe has experienced recurrent lower chest infections, requiring multiple hospital admissions for severe bronchitis. Prior airway endoscopy demonstrated significant dynamic collapse of the bronchial tree. A known secundum interatrial communication is monitored conservatively by cardiology and currently does not require surgical closure. \n\nOn examination, she displays distinctly coarsened facial contours, widely set eyes, pronounced inner canthal skin folds, and a flattened bridge of the nose. Her forehead shows standard breadth without narrowing. Neurologically, she exhibits prominent generalized low muscle tone along with persistent, involuntary oscillating ocular movements. Notably, recent cranial magnetic resonance imaging documented marked volume loss involving the cerebellum. She has never suffered from seizures. Formal audiological assessments remain entirely normal, with no evidence of sensorineural hearing deficits. Her abdomen is soft and non-tender, and neither the liver nor the spleen is enlarged.\n\nChloe lives at home with her parents and older brother, attends an adaptive primary school class, and takes daily pediatric multivitamins. The family history is non-contributory, and both parents are healthy.\n\nI would be very grateful for your comprehensive evaluation and specialized diagnostic guidance regarding her case.\n\nWarm regards,\n\nDr. Eleanor Vance"
+}

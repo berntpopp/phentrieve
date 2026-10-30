@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_SATB2_23_from_Zarate_et_al_2018a",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 431,
+  "total_tokens": 2261,
+  "thoughts_tokens": 1479,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung bei dem nun dreijährigen Julian, den ich Ihnen zur differenzialdiagnostischen Abklärung vorstelle.\n\nDer Junge präsentiert sich mit einer ausgeprägten Verlangsamung der psychomotorischen Meilensteine; sowohl die Sprachfertigkeiten als auch die kognitiven Fähigkeiten liegen deutlich hinter dem Altersdurchschnitt. Auch motorisch zeigte sich ein verzögerter Werdegang, das freie Laufen erlernte er erst im Alter von fast zweieinhalb Jahren. Vor einigen Monaten ereignete sich zudem erstmalig ein unprovoziertes tonisch-klonisches Krampferlebnis. Ein daraufhin stationär veranlasstes zerebrales MRT zeigte strukturelle Auffälligkeiten des Hirngewebes.\n\nBei der Inspektion der Mundhöhle zeigt sich ein irreguläres Milchgebiss mit ausgeprägten Schmelzhypoplasien und deutlichen Zahnstellungsanomalien. Eine Spaltbildung des Gaumens liegt nicht vor, die Schleimhäute sind reizlos. Die frühkindliche Vorgeschichte ist unauffällig: Trinkschwierigkeiten oder Fütterprobleme im Säuglingsalter traten nie auf. Das Längenwachstum verläuft kontinuierlich entlang der 45. Perzentile, eine Gedeihstörung oder ein Wachstumsrückstand besteht nicht. \n\nIn der pädiatrischen Basisuntersuchung bieten sich Herz und Lunge auskultatorisch unauffällig, das Abdomen ist weich und ohne Resistenzen. Die Familienanamnese erbringt keine Hinweise auf erbliche Vorerkrankungen. Julian lebt mit seinen Eltern und einer älteren Schwester zusammen, eine Dauermedikation besteht derzeit nicht.\n\nÜber eine Vorstellung in Ihrer Sprechstunde zur weiteren diagnostischen Einordnung dieses Beschwerdebildes würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

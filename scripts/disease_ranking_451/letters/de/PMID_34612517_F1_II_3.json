@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34612517_F1_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 423,
+  "total_tokens": 3185,
+  "thoughts_tokens": 2351,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen die 4 Monate alte Mia zur konsiliarischen Einschätzung. Bereits ab dem zweiten Schwangerschaftsdrittel fiel fetal eine kardiale Fehlbildung auf. Pränatal waren drei Nabelschnurgefäße ohne Aplasie einer Nabelschnurarterie beschrieben worden. \n\nAktuell imponiert echokardiographisch ein großer Defekt des interventrikulären Septums unterhalb eines gemeinsamen arteriellen Hauptstammes. An den pulmonalen Abgängen besteht eine deutliche Flussbeschleunigung entsprechend einer stenosierenden Komponente. Der Aortenbogen ist vollständig erhalten, zeigt keine Unterbrechung und zieht regelrecht nach links. Es finden sich weder morphologische Kriterien einer Fallot-Konstellation noch ein Verschluss der Trikuspidalklappe; die Pulmonalvenen drainieren unauffällig und vollständig in den linken Vorhof.\n\nDer Säugling trinkt gut an der Brust und erhält lediglich Vitamin D. Klinisch und laborchemisch gibt es keinerlei Anhalt für einen enteralen Eiweißverlust. Das Gedeihen ist stabil, das Gewicht liegt bei 5850 g und das Schädelwachstum verläuft mit einem Kopfumfang von 41,5 cm auf der 50. Perzentile zeitgerecht. Neurosonographisch ist der Balken unauffällig und vollständig angelegt. Das Abdomen ist palpatorisch weich; sonographisch stellen sich beide Nieren separat und orthotop dar, ohne Brückenbildung der Unterpole und frei von Parenchymzysten. An beiden Händen zeigen sich jeweils fünf reguläre Strahlen ohne ulnare Überzählighaftigkeit; die Zehen sind unauffällig formiert und weisen keine Überreitung auf. Die Eltern sind gesund und nicht blutsverwandt.\n\nIch bedanke mich herzlich für die Beurteilung der Befunde und Ihre Empfehlungen zum weiteren therapeutischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

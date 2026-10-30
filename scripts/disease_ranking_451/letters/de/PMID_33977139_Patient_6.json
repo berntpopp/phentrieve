@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 487,
+  "total_tokens": 3902,
+  "thoughts_tokens": 2983,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Beurteilung des zweijährigen Leon, der sich mit einem komplexen Bild vorstellt, dessen erste Auffälligkeiten bereits in der Neugeborenenperiode bemerkt wurden.\n\nIn der motorischen Entwicklung besteht ein deutlicher Rückstand mit ausgeprägter Schlaffheit der Rumpfmuskulatur; das freie Sitzen konnte er bislang noch nicht erlernen. Die Eltern berichten zudem über ausgeprägte Ein- und Durchschlafprobleme sowie eine seit langem bestehende, hartnäckige Stuhlverstopfung. Eine pädaudiologische Untersuchung sicherte eine beidseitige Schallempfindungsschwerhörigkeit, augenärztlich fanden sich hypoplastisch angelegte Sehnerven. Im Schädel-MRT zeigte sich eine strukturelle Fehlbildung des Balkens, während eine kortikale Furchungsstörung wie eine Polymikrogyrie ausgeschlossen werden konnte.\n\nDermatologisch imponieren verhornte Plaques an den Handflächen und Fußsohlen sowie eine generalisierte, trocken-schuppende Hautbeschaffenheit. Kraniofazial zeigen sich breite, dichte Augenbrauen mit Überbrückung über der Nasenwurzel, betonte mediale Lidfalten sowie eine tief eingesunkene, auffallend breite Nasenwurzel. Eine knollige Nasenspitze oder nach ventral gekippte Nasenlöcher liegen nicht vor. Das Gesicht ist nicht rundlich geformt, die Stirnpartie erscheint nicht verschmälert und das Philtrum ist von regulärer Länge. Die Mundhöhleninspektion ergab ein intaktes Zäpfchen ohne Spaltbildung, der Unterkiefer ist regelrecht ausgebildet. Der Kopfumfang liegt mit 49 cm auf der 50. Perzentile, eine Mikrozephalie besteht somit nicht. \n\nDie Familienanamnese ist blande, die Eltern sind nicht miteinander verwandt. Die bisherige Labordiagnostik inklusive Basislabor erbrachte keine richtungsweisenden Befunde.\n\nFür Ihre fachliche Einschätzung und Empfehlungen zum weiteren differentialdiagnostischen Vorgehen wäre ich Ihnen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28132690_Family_E_II_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 315,
+  "total_tokens": 2904,
+  "thoughts_tokens": 2200,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this six-month-old boy for further evaluation. He was born at full term following an uncomplicated pregnancy to healthy, non-consanguineous parents. He has no known family history of chronic illness and had been thriving until five months of age, when he experienced several generalized convulsions. He was stabilized and currently takes maintenance levetiracetam.\n\nOn physical examination, he demonstrates a distinct coarsening of his facial appearance. However, his ocular spacing is entirely normal, and his nasal tip is not widened. His chest is symmetrical with no inward depression of the sternum. Examination of his extremities revealed normal hand proportions without any shortening of the digits. He is feeding well and tracking appropriately.\n\nA radiographic skeletal survey revealed marked flattening throughout his vertebral bodies, as well as remarkably small, underdeveloped femoral head ossification centers bilaterally. An abdominal ultrasound performed during his initial admission showed normal parenchymal echotexture with no cysts identified within the liver. \n\nInitial laboratory investigations were notable for marked peripheral eosinophilia, with absolute eosinophil levels substantially above reference limits. Because of this, an immunological workup was initiated; however, lymphocyte subset quantification showed robust cellular counts, effectively excluding any profound deficiency in T-cell immunity, and further testing showed no indication of a combined immunodeficiency disorder. Routine electrolytes and renal panels were unremarkable.\n\nGiven this complex constellation of skeletal, neurological, and hematological findings, I would greatly value your comprehensive diagnostic assessment and recommendations for management.\n\nSincerely,\nDr. Evelyn Reed"
+}

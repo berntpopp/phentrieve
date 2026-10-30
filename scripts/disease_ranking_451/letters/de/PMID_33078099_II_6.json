@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33078099_II_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 423,
+  "total_tokens": 2214,
+  "thoughts_tokens": 1453,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 49-jährige Patientin Frau Marion Winter zur konsiliarischen Mitbeurteilung und weiteren Betreuung. \n\nLaut den vorliegenden Unterlagen sowie den Schilderungen der Patientin bestehen die visuellen Einschränkungen bereits seit dem Säuglingsalter. In unserer heutigen Untersuchung fand sich eine ausgeprägte Sehschärfenminderung; der bestkorrigierte Visus lag rechts bei 0,1 und links bei 0,08.\n\nSpaltlampenbiomikroskopisch zeigt sich beidseits das Bild einer bindegewebig-membranösen Linsenumbildung mit flächenhaften, dichten weißlichen Trübungsstrukturen. Feinstkörnige staub- oder pulverförmige Linsentrübungen waren bei der Inspektion der Medien hingegen explizit nicht abgrenzbar. Des Weiteren fällt eine manifeste Divergenzstellung beider Bulbi im Sinne einer dauerhaften Auswärtsschielen-Komponente auf, begleitet von einem rhythmischen, unwillkürlichen okulären Pendelzittern, das sich vor allem in Primärposition manifestiert.\n\nDie übrigen okulären Befunde stellen sich regelrecht dar: Die Hornhaut ist beidseits glatt und transparent, die vorderen Augenabschnitte sind reizfrei, und der intraokulare Druck liegt beidseits mit jeweils 15 mmHg im Normbereich. Die hinteren Abschnitte zeigten sich, soweit durch die veränderten Linsenstrukturen einsehbar, ohne Anhalt für floride retinale Pathologien.\n\nSystemische Begleiterkrankungen werden verneint, die Patientin nimmt keine Dauermedikation ein. Auch die Familienanamnese ergab keinerlei ophthalmologische Vorbelastungen.\n\nIch wäre Ihnen für eine ausführliche Beurteilung der Befunde und Ihre Einschätzung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

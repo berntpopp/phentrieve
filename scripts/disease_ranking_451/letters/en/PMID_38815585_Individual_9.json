@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_9",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 544,
+  "completion_tokens": 400,
+  "total_tokens": 4156,
+  "thoughts_tokens": 3212,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating this five-month-old male infant, Lucas, whom I am referring for diagnostic review. He is formula-fed, thriving socially, and living with both parents.\n\nOver the past month, Lucas has developed primary generalized convulsive episodes featuring bilateral stiffening and synchronous clonic jerking. A baseline electroencephalogram was distinctly abnormal with diffuse epileptiform features. We have also identified significant motor delay, as he struggles with head control and cannot roll. He demonstrates notable incoordination and marked motor hyperactivity during wakefulness. Furthermore, his parents describe repetitive body spinning, frequent episodes of stereotypic hand flapping, and distressing night awakenings characteristic of sleep terrors.\n\nOn physical examination, his length and head circumference are at the 50th percentile, with no microcephaly, macrocephaly, or short stature. Cranial morphology and fontanelles are normal. His forehead is not narrow, and his facial shape is neither elongated nor triangular, with no midface retrusion. Palpebral fissures are horizontal, showing no upslant, downslant, epicanthus, strabismus, hypotelorism, deeply set eyes, or microphthalmia, and fundoscopy reveals no macular hypoplasia. His ears are normally placed, without low placement, anteversion, or posterior rotation. Examination of the mouth reveals no thin vermilion border, downturned oral commissures, high palate, bifid uvula, or ankyloglossia. The mandible shows no retrognathia.\n\nHis torso demonstrates no pectus excavatum, inverted nipples, or wide intermamillary distance. There is no inguinal hernia, and the sacral area has no dimple. The skin lacks dermal translucency. His extremities are unremarkable, lacking slender fingers or pes planus. Cardiovascular, pulmonary, and abdominal exams were completely normal.\n\nI would appreciate your expert opinion on Lucas's presentation.\n\nSincerely,\nDr. Elena Rostova"
+}

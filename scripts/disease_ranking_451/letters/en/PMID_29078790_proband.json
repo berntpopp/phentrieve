@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29078790_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 265,
+  "total_tokens": 1816,
+  "thoughts_tokens": 1191,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating Maya Lin, an otherwise healthy four-year-old girl who recently presented to my clinic with subacute hand clumsiness noted by her preschool teachers. \n\nOn examination, Maya is bright, engaging, and in no distress. Cranial nerve assessment is entirely normal, and proximal muscle strength in both upper and lower limbs is well preserved. However, manual testing revealed distinct bilateral weakness isolated to her long finger extensors, as she struggled to extend her digits against mild resistance. Sensory testing demonstrated blunted light touch appreciation over her distal fingers and toes. Notably, her deep tendon reflexes were completely normal, present, and symmetric throughout, with no pathological spread. Her foot inspection showed neutral arches, with no signs of high arches or related foot deformities.\n\nPreliminary neurophysiological testing demonstrated marked slowing across both motor and sensory conduction velocities in multiple peripheral nerves. An autoimmune evaluation including a serum anti-ganglioside antibody panel was negative. Routine blood counts, comprehensive metabolic panel, and thyroid studies were all within normal parameters. Maya takes no regular medications, and her family history is negative for any hereditary or neuromuscular disorders.\n\nGiven these neurophysiological and focal exam findings, I would appreciate your subspecialty assessment and recommendations for further diagnostic evaluation.\n\nSincerely,\nDr. Rachel Bennett"
+}

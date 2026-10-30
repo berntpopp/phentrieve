@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34655521_Patient_11",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 370,
+  "total_tokens": 1921,
+  "thoughts_tokens": 1221,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Frau Martina Baumgärtner, eine 45-jährige kaufmännische Angestellte, zur weiteren endokrinologischen Abklärung.\n\nDie Patientin stellte sich initial zur allgemeinmedizinischen Vorsorge vor. Die körperliche Untersuchung war vollkommen unauffällig, der Blutdruck lag bei 120/75 mmHg, die Herzfrequenz bei 68/min, der BMI ist mit 22,8 kg/m² normwertig. In der Anamnese finden sich keine relevanten Vorerkrankungen, Voroperationen oder eine regelmäßige Medikamenteneinnahme. Auch die Familienanamnese ist bezüglich metabolischer oder endokriner Störungen leer. \n\nIm Rahmen einer erweiterten laborchemischen Abklärung zeigte sich ein wiederholt deutlich reduziertes Serumcortisol bei der morgendlichen Nüchternblutentnahme. Korrespondierend hierzu bestimmte sich auch die zirkulierende ACTH-Konzentration im Plasma als substanziell vermindert, weit unterhalb des laborspezifischen Referenzintervalls. Die übrigen Routineparameter, insbesondere die Serumelektrolyte, Nierenretentionswerte und das Blutbild, stellten sich unauffällig dar.\n\nEine zur Klärung veranlasste abdominelle Computertomographie zeigte eine ausgeprägte bilaterale Nebennierenvergrößerung mit multiplen, konfluierenden Makroknoten auf beiden Seiten, die das Bild einer knotigen Parenchymhyperplasie bieten.\n\nAufgrund dieser Befundkonstellation bitte ich um Ihre geschätzte konsiliarische Beurteilung und das weitere diagnostische Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

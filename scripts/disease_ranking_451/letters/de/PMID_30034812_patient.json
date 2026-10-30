@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30034812_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 394,
+  "completion_tokens": 394,
+  "total_tokens": 2067,
+  "thoughts_tokens": 1279,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, \n\nich überweise Ihnen heute die 35-jährige Patientin Frau Sabine Lindner zur weiteren konsiliarischen Einschätzung. Erste Beschwerden begannen bei der als Buchhalterin tätigen Patientin bereits im Alter von etwa 20 Jahren. \n\nAktuell klagt Frau Lindner über zunehmende, dumpfe Knochenschmerzen in den Extremitäten sowie therapieresistente Schulterschmerzen. Bei der klinischen Untersuchung fiel uns ein auffällig watschelndes Gangbild auf. Im Gesichtsbereich zeigt sich eine betont prominente Stirn sowie eine bilaterale Ptose bei gleichzeitig leichtem Vortreten beider Bulbi. Geistig ist die Patientin vollkommen regsam; kognitive Defizite bestehen nicht. \n\nIn den veranlassten Röntgenaufnahmen der Extremitäten imponieren ausgeprägte Hyperostosen mit einer deutlichen diaphysären Kortikalisverdickung der langen Röhrenknochen. Auch am Humerus zeigt sich beidseits eine deutliche Verbreiterung der Kompakta, die mit einer sichtbaren Einengung der Markhöhle einhergeht. \n\nIm Routinelabor zeigte sich eine signifikant erhöhte alkalische Phosphatase sowie ein erniedrigter Kalziumspiegel im Serum. Die Nierenfunktion war unbeeinträchtigt, das Serumkreatinin lag im Normbereich. Das abgeleitete 12-Kanal-EKG zeigte einen unauffälligen Befund. Anamnestisch sind keine relevanten Vorerkrankungen bekannt, eine Dauermedikation besteht nicht, und die Familienanamnese ist bezüglich skelettaler Auffälligkeiten leer.\n\nIch wäre Ihnen für eine differenzialdiagnostische Beurteilung dieses Krankheitsbildes und Vorschläge zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

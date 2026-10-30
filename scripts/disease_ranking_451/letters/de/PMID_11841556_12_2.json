@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11841556_12_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 410,
+  "completion_tokens": 442,
+  "total_tokens": 2487,
+  "thoughts_tokens": 1635,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen den 15-jährigen Sascha Becker zur differenzialdiagnostischen Beurteilung eines seit der Geburt bestehenden dermatologischen Beschwerdebildes. Sascha besucht derzeit die 9. Klasse einer Realschule; die Familienanamnese ist unauffällig.\n\nUnmittelbar postnatal präsentierte sich Sascha mit einer generalisierten Rötung und ausgeprägten Schuppung des gesamten Integuments. Im weiteren Verlauf persistierten chronische, neurodermitisartige Ekzemherde mit ständigem, quälendem Juckreiz. Immer wieder traten kutane bakterielle Superinfektionen auf. Das Haupthaar imponiert seit jeher brüchig; in der mikroskopischen Haaranalyse zeigten sich typische Invaginationen des Haarschafts nach Art von Bambushaaren. Das Serum-IgE ist stark erhöht.\n\nIn den übrigen Untersuchungen bot sich ein bland-stabiles Bild: Das Differenzialblutbild zeigte regelrechte Eosinophilenzahlen, und das Serumnatrium war stets im Referenzbereich, ohne Phasen einer hypernatriämischen Dehydratation. Sascha entwickelte weder ein Asthma bronchiale noch saisonale Allergiesymptome. Wiederkehrende Quaddeln im Sinne einer Urtikaria oder Angioödeme traten nie auf. Gastrointestinal ist der Verlauf ruhig, chronische Durchfälle wurden verneint. Das Körperwachstum verlief kontinuierlich entlang der Normperzentilen, ohne Gedeihstörung oder Wachstumsverzögerung. Hautmorphologisch fehlen die typischen polyzyklischen, doppelrandig geschuppten Erytheme einer Ichthyosis linearis circumflexa. Cor, Pulmo und Abdomen waren bei der heutigen Untersuchung unauffällig. \n\nAktuell erfolgt eine symptomorientierte topische Therapie mit rückfettenden Externa sowie zeitweise antiseptischen Umschlägen. \n\nIch bedanke mich für Ihre kollegiale konsiliarische Ersteinschätzung und verbleibe\n\nmit freundlichen Grüßen"
+}

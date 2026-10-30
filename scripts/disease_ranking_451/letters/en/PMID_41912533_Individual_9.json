@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41912533_Individual_9",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 786,
+  "completion_tokens": 475,
+  "total_tokens": 6918,
+  "thoughts_tokens": 5657,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for evaluating Leo Davis, a 7-year-old boy referred for dysmorphic evaluation. He lives with his parents, has a non-contributory family history, and takes daily methylphenidate.\n\nLeo was born appropriate for gestational age without primary microcephaly, but developed postnatal microcephaly without brachycephaly. Stature is normal. Motor milestones were timely, with normal sitting and walking, and no developmental regression. He exhibits mild intellectual disability (neither moderate nor severe), speech and language delays, and attention-deficit/hyperactivity disorder. Motor testing shows dysdiadochokinesis. Brain MRI was normal, excluding ventriculomegaly, callosal thinning, periventricular cysts, syringomyelia, an empty sella, and posterior pituitary agenesis. He has no seizures.\n\nHe displays highly arched eyebrows, anteverted nares, an elongated philtrum, and protruding ears. The face is not small, coarse, flat, round, oval, or triangular, lacking frontal bossing, low hairline, sparse scalp hair, or hypertrichosis. The nasal bridge is not depressed, and alae and tip are not broad or thick. The philtrum is not smooth, the mouth is not wide, corners are not downturned, and lips lack upper thinning or lower thickening. There is no cleft lip or cleft palate (median or bilateral). Dentition shows no microdontia, central incisor macrodontia, or wide spacing. Eyes show no upslanting fissures, long lashes, thick brows, hypertelorism, ptosis, strabismus, oculomotor apraxia, myopia, hypermetropia, microphthalmos, colobomas, retinal dysplasia, optic nerve aplasia, or septo-optic dysplasia. Ears are neither low-set nor posteriorly rotated; hearing is intact. He has no feeding difficulties, reflux, or recurrent infections.\n\nHis hands are small and feet are short, without generalized brachydactyly, joint hypermobility, short nails, toe syndactyly, proximal thumbs, prominent interphalangeal joints, or fifth-finger abnormalities (clinodactyly, shortening, or distal phalanx aplasia).\n\nI appreciate your expert assessment.\n\nSincerely,\nDr. Karen White"
+}

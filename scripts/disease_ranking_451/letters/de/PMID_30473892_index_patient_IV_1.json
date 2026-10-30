@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30473892_index_patient_IV_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 397,
+  "completion_tokens": 372,
+  "total_tokens": 2654,
+  "thoughts_tokens": 1885,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die heute 6 Jahre und 9 Monate alte Emily zur weiteren differentialdiagnostischen Beurteilung. Erste Auffälligkeiten wurden von den Eltern bereits im Alter von etwa vier Monaten bemerkt. Emily wächst wohlbehütet bei ihren gesunden, nicht konsanguinen Eltern auf; ein älterer Bruder ist gesund. Außer intermittierenden Inhalationen besteht keine Dauermedikation.\n\nKraniofazial imponieren deutlich vergröberte Gesichtszüge mit auffallend weitem Augenabstand, beidseitig ausgeprägten Epikanthusfalten sowie einer tief eingesunkenen Nasenwurzel. Die Stirnregion ist normal proportioniert und zeigt keine Verschmälerung. Neurologisch besteht von Beginn an eine ausgeprägte muskuläre Hypotonie, zudem fällt ein Blickrichtungsnystagmus auf. Im aktuellen zerebralen MRT zeigte sich eine deutliche Atrophie des Kleinhirns. Krampfanfälle traten bislang nicht auf. Die pädaudiologische Untersuchung mittels BERA war unauffällig, eine sensorineurale Hörstörung konnte ausgeschlossen werden.\n\nInternistisch bestehen seit dem Säuglingsalter rezidivierende Infektionen der unteren Atemwege; bronchoskopisch wurde eine Bronchomalazie gesichert. Kardiologisch ist ein Vorhofseptumdefekt vom Sekundum-Typ bekannt. Das Abdomen präsentiert sich klinisch unauffällig und weich; sonographisch fanden sich Normalbefunde ohne Nachweis einer Hepatomegalie oder Splenomegalie.\n\nIch bedanke mich herzlich für Ihre konsiliarische Mitbeurteilung der Patientin und Ihre geschätzten diagnostischen Empfehlungen.\n\nMit freundlichen kollegialen Grüßen"
+}

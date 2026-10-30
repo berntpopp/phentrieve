@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_44",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 390,
+  "total_tokens": 2061,
+  "thoughts_tokens": 1325,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen heute eine erwachsene Patientin zur weiterführenden endokrinologischen Abklärung.\n\nDie Patientin berichtet über seit etwa drei Monaten bestehende, rezidivierende und teils wässrige Durchfälle, die ohne erkennbaren diätetischen Auslöser aufgetreten sind. Eine infektiöse Genese der Diarrhö ließ sich stuhldiagnostisch nicht nachweisen. \n\nKörperlich präsentiert sich die Patientin in einem unbeeinträchtigten Allgemeinzustand. Das Abdomen ist weich, indolent, und die Darmgeräusche sind über allen Quadranten unauffällig. Die Vitalparameter lagen stabil im Normbereich bei einem Blutdruck von 125/80 mmHg und einer Herzfrequenz von 72 Schlägen pro Minute. Eine Dauermedikation besteht nicht, und die vegetative sowie die Familienanamnese bieten keine Besonderheiten.\n\nIn der laborchemischen Diagnostik fiel ein deutlich über die Referenzspanne angehobenes zirkulierendes adrenokortikotropes Hormon auf. Zudem zeigte sich die Testosteronkonzentration im Serum signifikant gesteigert. Demgegenüber bewegte sich das zirkulierende Kortisol vollkommen im normalen Bereich. Auch hinsichtlich des Prolaktinspiegels lag keine Erhöhung vor, dieser zeigte sich regelrecht. Das Serumöstradiol wies ebenfalls keinerlei pathologische Veränderungen auf und war unauffällig. Elektrolyte, Nierenretentionswerte und Transaminasen waren kompensiert und im Normbereich.\n\nAufgrund dieser Konstellation mit gesteigerten Laborwerten bitte ich um Ihre geschätzte differentialdiagnostische Beurteilung sowie um Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22353940_cousin_V_9",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 457,
+  "completion_tokens": 333,
+  "total_tokens": 2544,
+  "thoughts_tokens": 1754,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Alvarez,\n\nThank you for evaluating Lucas, an 11-year-old boy whom I have followed since early infancy. His parents first noted motor delays around four months of age, and he has ongoing intellectual disability. His speech is not absent, and he communicates using three- to four-word phrases. He lives at home with his parents and attends a supported special education program.\n\nOn physical examination, his head circumference is well above the 97th percentile, reflecting macrocephaly rather than microcephaly, and he exhibits marked frontal bossing. Dysmorphic features include downslanting palpebral fissures and prominent epicanthal folds. Ear placement is normal without low-set ears. Ophthalmologic review revealed orthophoria with no esotropia, and fundoscopy was negative for rod-cone dystrophy. Examination of the mouth revealed normal lip vermilion thickness, no cleft lip or cleft palate, and normal oral frenula. His limbs are unremarkable, showing no postaxial polydactyly on the hands or feet. \n\nCranial MRI demonstrates bilateral frontal polymicrogyria, an enlarged cisterna magna, and a distinct molar tooth appearance of the midbrain; cerebellar vermis hypoplasia was notably absent. A renal ultrasound showed diffuse bilateral renal hyperechogenicity, but no polycystic kidney changes or discrete cysts were visualized. Routine laboratory testing including metabolic panels have been unremarkable. Lucas is on no scheduled medications, and his family history is non-contributory.\n\nI would appreciate your expert assessment regarding his neurodevelopmental picture and recommendations for further diagnostic evaluation.\n\nSincerely,\n\nDr. Catherine Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_SATB2_27_from_Zarate_et_al_2018a_Bengani_et_al",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 293,
+  "total_tokens": 2224,
+  "thoughts_tokens": 1567,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to see Sarah Jenkins, a nine-year-old girl referred for a comprehensive neurodevelopmental assessment.\n\nHer mother reports that concerns began during the neonatal period, characterized by a weak suck and marked feeding difficulties in early infancy. Sarah subsequently exhibited extensive global developmental delays across all sectors. Motor milestones were substantially postponed, with the child achieving independent walking only around age four. Her expressive and receptive language abilities remain profoundly affected, and she currently communicates primarily through gestures alongside a few isolated vocalizations. Recent psychometric testing confirmed significant intellectual disability requiring extensive educational support. On oral examination, she demonstrates notable abnormalities of her teeth, displaying severe crowding, ectopic eruption, and malformed crowns. \n\nImportantly, a non-contrast brain MRI performed last year was entirely normal with no structural lesions. She has remained completely seizure-free to date. Examination of the oral cavity confirms the palate is fully intact with no evidence of a cleft. Her linear growth and weight have tracked steadily along the 50th percentile throughout childhood, with no indication of growth deceleration. \n\nSarah lives at home with both parents and a healthy older brother. Family history is negative for neurological or developmental disorders, and she takes no scheduled medications. Routine physical examination is otherwise unremarkable, including normal heart sounds and clear lung fields bilaterally. \n\nI would appreciate your specialist evaluation and recommendations for ongoing management.\n\nWarm regards,\n\nDr. Arthur Vance"
+}

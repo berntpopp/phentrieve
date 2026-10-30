@@ -1,0 +1,18 @@
+{
+ "case": "PMID_1907800_TS",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 425,
+  "total_tokens": 2472,
+  "thoughts_tokens": 1684,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute die 25-jährige Patientin Sophia Hoffmann zur konsiliarischen Mitbeurteilung.\n\nErste Auffälligkeiten zeigten sich bereits im Alter von sechs Jahren, als im Rahmen der Einschulung eine leichte kognitive Minderbegabung dokumentiert wurde. Sie meistert ihren Alltag stabil im häuslichen Umfeld und arbeitet in einer betreuten Werkstatt. Die Familienanamnese ist bezüglich neuromuskulärer Vorerkrankungen unauffällig, die Eltern sind nicht blutsverwandt. Vitalparameter und Allgemeinzustand sind gut, eine Dauermedikation wird nicht eingenommen.\n\nIm weiteren Verlauf bildete sich eine extrapyramidale Bewegungsstörung heraus, die sich gegenwärtig klinisch vor allem durch generalisierte dystone Fehlhaltungen und wechselnden Rigor darstellt. Bei einer aktuellen ophthalmologischen Kontrolle imponierte bei der Fundoskopie beidseits ein deutlicher kirschroter Fleck im Bereich der Fovea centralis. Radiologisch fielen in den Röntgenaufnahmen der Wirbelsäule generalisierte Flachwirbel mit einer deutlichen Höhenminderung der Corpora vertebrae auf.\n\nIn der laborchemischen Spezialdiagnostik zeigte sich eine markant verminderte enzymatische Aktivität der sauren Beta-Galaktosidase in den Leukozyten. Das Basislabor erbrachte unauffällige Entzündungs- und Stoffwechselparameter. Sonographisch fand sich ein unauffälliger abdomineller Status: Weder eine Vergrößerung der Leber noch eine Splenomegalie ließ sich nachweisen, beide Organe stellten sich mit homogener Textur und regelrechten Parenchymmaßen dar.\n\nIch wäre Ihnen für eine differenzialdiagnostische Beurteilung dieses komplexen Bildes und eine Empfehlung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Innere Medizin"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12203992_Patient_D59",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 430,
+  "completion_tokens": 457,
+  "total_tokens": 3437,
+  "thoughts_tokens": 2550,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 16-jährige Schülerin Anna zur konsiliarischen Beurteilung ihres klinischen Bildes.\n\nBei der aktuellen Untersuchung imponiert ein deutlicher Hochwuchs mit einer Körpergröße von 184 cm (> 97. Perzentile). Das Skelettwachstum wirkt dabei harmonisch; ein disproportioniertes Längenwachstum oder gar ein Minderwuchs liegt keinesfalls vor. Auffallend sind ferner sehr grazile, überlange Finger und Zehen sowie eine generalisierte Hyperlaxizität der Gelenke. Die Extension im Ellenbogengelenk ist beidseits frei und ohne Bewegungseinschränkung. An der Wirbelsäule fällt eine thorakolumbale Skoliose auf. Der Thorax ist regulär geformt, eine Trichterbrust oder Kielbrust besteht nicht. Die Fußstatik ist regelrecht, es findet sich kein Plattfuß.\n\nKraniofazial ist der Schädel seitengleich geformt, ohne Hinweise auf eine Dolichozephalie. Die Augen stehen unauffällig, weder tief liegend noch prominent, und das Mittelgesicht ist normal entwickelt ohne Malarabflachung. Bei der Inspektion der Mundhöhle fallen ein hoher, schmaler Gaumen sowie ein ausgeprägter Zahnengstand auf. Augenärztlich sind eine Myopie sowie eine beidseitige Linsenektopie dokumentiert; ein Linsenkolobom oder eine Netzhautablösung wurden fachärztlich ausgeschlossen.\n\nDas Hautbild ist intakt und weich, ohne jede Gewebeverhärtung und ohne Striae distensae. Die Leistenregionen sind beidseits frei von Hernien. Auskultatorisch sind Herz und Lunge unauffällig, der Blutdruck ist normoton. Die Jugendliche nimmt keine Medikamente ein, die Familienanamnese ergab keine Vorerkrankungen.\n\nIch danke Ihnen für eine differenzialdiagnostische Einordnung der Befundkonstellation und verbleibe\n\nmit freundlichen kollegialen Grüßen"
+}

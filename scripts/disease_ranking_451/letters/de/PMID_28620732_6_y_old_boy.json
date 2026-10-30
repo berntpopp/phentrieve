@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28620732_6_y_old_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 379,
+  "total_tokens": 2718,
+  "thoughts_tokens": 1968,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den nun sechsjährigen Felix zur neuropädiatrischen Mitbeurteilung. \n\nFelix fiel bereits im Säuglingsalter durch einen deutlichen Rückstand beim Erreichen motorischer und kognitiver Meilensteine auf. Nach einer anfänglich zögerlichen Entwicklung kam es über die letzten Jahre leider zu einem kontinuierlichen Verlust bereits erworbener Fertigkeiten mit einem progredienten neurologischen Abbau. Bei der körperlichen Untersuchung imponiert ein Schädeldurchmesser weit unterhalb der dritten Perzentile. \n\nOphthalmologisch fallen bds. ungewöhnlich große Hornhäute auf, zudem besteht ein unruhiger Nystagmus. Die funduskopische Untersuchung zeigte beidseits blasse Sehnervenscheiben. Das kranielle MRT demonstriert eine deutliche Rarefizierung der supratentoriellen weißen Substanz mit flächigen T2-Signalsteigerungen des Marklagers. Der Balken stellt sich extrem bandförmig verschmälert dar, und auch im Bereich der Kleinhirnhemisphären und des Vermis zeigt sich eine ausgeprägte Volumenminderung.\n\nKardiopulmonal ist Felix stabil, die abdominelle Sonographie zeigte unauffällige Organverhältnisse. Das Routinelabor bezüglich Blutbild, Entzündungsmarkern, Elektrolyten sowie Leber- und Nierenwerten ergab stets Normalbefunde. In der Familie sind keine neurologischen Erkrankungen bekannt, die Eltern sind gesund und nicht blutsverwandt. Felix erhält aktuell außer Physiotherapie keine spezifische Medikation.\n\nZur weiteren diagnostischen Einordnung dieses schweren Zustandsbildes und zur Beratung der betroffenen Familie bitte ich um Ihre geschätzte Expertise.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24932600_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 412,
+  "completion_tokens": 406,
+  "total_tokens": 3061,
+  "thoughts_tokens": 2243,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich stelle Ihnen heute den mittlerweile 21 1/2 Jahre alten Herrn M. vor, bei dem bereits intrauterin erhebliche Auffälligkeiten des Skelettsystems dokumentiert worden waren. Der Patient stellt sich nun zur syndromologischen Re-Evaluation in unserer Sprechstunde vor.\n\nKörperlich imponiert ein schwerer Minderwuchs. An den Extremitäten zeigt sich eine ausgeprägte mesomele Verkürzung; in den vorliegenden Röntgenaufnahmen der oberen Extremität imponieren beidseits rudimentäre bzw. deutlich hypoplastische Radien sowie eine ausgeprägte Hypoplasie der Ulnaknochen. Die Handflächen präsentieren sich verkürzt. Am Achsenskelett besteht eine rigide thorakale Skoliose, radiologisch bedingt durch mehrere Halbwirbel.\n\nKraniofazial fallen eine kräftig vorgewölbte Stirnpartie, ein weiter Augenabstand sowie eine deutliche Proptosis ins Auge. Die Nasenwurzel wirkt eingesunken bei nach vorne-oben weisenden Nares. Des Weiteren zeigen sich tief ansetzende Ohren, eine betonte Makrostomie mit breiter Mundspalte, ein zeltförmig verzogenes Oberlippenrot sowie eine massive Gingivahyperplasie. Im Genitalbereich imponiert ein ausgeprägter Mikropenis bei deszendierten Hoden. \n\nKardiopulmonal und abdominell zeigten sich in der apparativen Diagnostik unauffällige Normalbefunde. Der Patient absolviert derzeit eine berufliche Fördermaßnahme, nimmt keine Medikamente ein und ist im Alltag gut integriert. Die Eltern sind normal groß, die Familienanamnese ist unauffällig.\n\nIch wäre Ihnen für eine konsiliarische Begutachtung und eine Einschätzung bezüglich des weiteren Vorgehens sehr verbunden.\n\nMit kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37907725_Patient_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 459,
+  "completion_tokens": 495,
+  "total_tokens": 2947,
+  "thoughts_tokens": 1993,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Frau Renate Keller, eine 57-jährige Patientin, zur konsiliarischen Beurteilung.\n\nDie Patientin berichtet über seit unbestimmter Zeit bestehende, rezidivierende und schmerzhafte Muskelspasmen. Im Alltag ist sie als Bibliothekarin tätig; die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen leer, als Dauermedikation nimmt sie lediglich Vitamin D3 ein.\n\nKlinisch präsentiert sich Frau Keller in gutem Allgemeinzustand und ist uneingeschränkt mobil, ein Verlust der Gehfähigkeit liegt nicht vor. Die orientierende neurologische Untersuchung zeigt an der oberen wie unteren Extremität seitengleich eine regelrechte Muskelkraft (Grad 5/5) sowohl proximal als auch distal, ohne Anhalt für eine Fußheberschwäche. Umschriebene Muskelatrophien, insbesondere im Bereich der Unterschenkel, fehlen, ebenso wie Faszikulationen. Die Exterozeption beziehungsweise Oberflächensensibilität ist an allen vier Extremitäten vollständig intakt. Bei der Reflexprüfung ließen sich die Patellarsehnenreflexe seitengleich mittellebhaft und keineswegs abgeschwächt oder erloschen auslösen. Die Achillessehnenreflexe zeigten sich beidseits deutlich vermindert, sind jedoch nicht vollständig ausgefallen.\n\nDie laborchemische Bestimmung der Serum-Kreatinkinase erbrachte einen normwertigen Befund. In der elektrophysiologischen Diagnostik waren die sensiblen Nervenleitgeschwindigkeiten unauffällig und die Amplituden der motorischen Summenaktionspotenziale nicht vermindert; im Nadel-EMG ließen sich keine neurogenen Veränderungen nachweisen. Eine kardiologische Abklärung mittels Echokardiographie zeigte keine linksventrikuläre Hypertrophie.\n\nEine kürzlich veranlasste Muskelbiopsie zeigte lichtmikroskopisch keine Muskelfaseratrophie, keine angulierten Einzelfasern und keinen Nachweis von Rimmed Vacuoles. Bemerkenswert war hierbei jedoch eine ausgeprägte Fasertypengruppierung. \n\nIch wäre Ihnen für eine fachneurologische Einschätzung der Befundkonstellation und Empfehlungen zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

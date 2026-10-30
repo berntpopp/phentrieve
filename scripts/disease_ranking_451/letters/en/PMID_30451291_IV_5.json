@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_IV_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 355,
+  "completion_tokens": 300,
+  "total_tokens": 1986,
+  "thoughts_tokens": 1331,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nI am referring Sophia Martinez, a 10-year-old girl, for your expert neurologic and developmental evaluation. Her parents first noted developmental concerns when she was approximately eight months old.\n\nSophia presents with a severe degree of cognitive impairment. Formal psychometric testing confirms her intellectual deficits are quite profound, clearly not falling into the mild or moderate intellectual disability categories. She has shown an enduring delay in speech and language acquisition, currently communicating with only a few non-specific vocalizations and simple gestures. In addition, she demonstrates prominent autistic mannerisms, characterized by repetitive hand-wringing, avoidance of direct eye contact, and marked difficulties with social reciprocal interaction. There have been no signs of psychosis, perceptual disturbances, or disordered thought.\n\nIn terms of her neurologic history, she experiences recurrent generalized convulsive episodes characterized by bilateral tonic stiffening followed by clonic activity. These episodes generally resolve within two minutes, and she has never suffered status epilepticus. She is currently maintained on levetiracetam.\n\nOn physical examination today, vital signs were within normal limits. Cranial nerves appeared grossly intact, and her motor tone and deep tendon reflexes were symmetric and unremarkable throughout. Cardiovascular, respiratory, and abdominal examinations were completely normal. Her family history is non-contributory, and she resides at home with her supportive parents.\n\nThank you for offering your opinion on Sophia's presentation and advising on optimal ongoing care.\n\nSincerely,\nDr. Arthur Vance"
+}

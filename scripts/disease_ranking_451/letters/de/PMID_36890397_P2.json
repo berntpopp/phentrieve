@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36890397_P2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 420,
+  "total_tokens": 2599,
+  "thoughts_tokens": 1835,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 5 Jahre und 1 Monat alten Patienten zur konsiliarischen Beurteilung. Die Symptomatik begann retrospektiv bereits im Säuglingsalter im Alter von circa 5 Monaten.\n\nIm Vordergrund stehen seither rezidivierende febrile Episoden ohne fassbaren Infektfokus. Begleitend zeigt der Junge chronisch-schubweise auftretende, teils schuppende und juckende ekzemartige Hautveränderungen mit Betonung der Beugeseiten und des Rumpfes. \n\nIm Rahmen der aktuellen Statuserhebung fallen generalisierte Lymphknotenvergrößerungen auf, tastbar vor allem zervikal und inguinal. Bei der abdominellen Untersuchung sowie sonographisch zeigen sich eine Lebervergrößerung von etwa 3 cm unter dem rechten Rippenbogen sowie ein deutlich vergrößertes Milzvolumen mit tief stehendem Milzpol. \n\nLaborchemisch persistiert eine deutliche Transaminasenerhöhung im Sinne einer Leberentzündung. Die weiterführende Blutdiagnostik erbrachte zudem klare Zeichen einer serologischen Autoimmunität mit Nachweis verschiedener Autoantikörper. \n\nDie kardiopulmonale Untersuchung ergab vollkommen unauffällige Befunde, Herz- und Lungengeräusche sind normal. Das Abdomen ist weich und indolent. Die motorische und kognitive Entwicklung verläuft bisher regelrecht. Die Familienanamnese ist bezüglich schwerer chronischer Erkrankungen leer. Der Junge lebt mit seinen Eltern, die Ernährung ist altersgemäß, und aktuell erfolgt lediglich eine Basispflege der Haut sowie bedarfsweise Antipyrese.\n\nAufgrund dieses komplexen Verlaufs bitte ich um Ihre geschätzte fachärztliche Einschätzung sowie um Empfehlungen für das weitere diagnostische Prozedere.\n\nMit freundlichen kollegialen Grüßen,\nDr. med. Thomas Weber"
+}

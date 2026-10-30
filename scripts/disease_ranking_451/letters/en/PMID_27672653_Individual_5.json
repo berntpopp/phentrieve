@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27672653_Individual_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 312,
+  "total_tokens": 2261,
+  "thoughts_tokens": 1550,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 14-year-old young lady whom I have followed longitudinally since early infancy, when initial concerns were noted at approximately 3 months of age. She lives at home with her parents and is currently attending the eighth grade. \n\nOn physical examination, she demonstrates macrocrania with an occipitofrontal circumference well above the 97th percentile. Cranial nerve assessment is normal. Neurologically, she exhibits twisting, involuntary posturing indicative of dystonic movement predominantly affecting her upper extremities and trunk. Despite these motor difficulties, she is fully ambulatory, able to walk independently, and converses with clear, fluent speech. Notably, she has shown no loss of acquired skills or developmental regression. She has never suffered from seizures, acute encephalopathic crises, or unexplained irritability, presenting instead with a calm and cooperative demeanor.\n\nHer cranial MRI demonstrated marked widening of both Sylvian fissures alongside bilateral chronic subdural collections. Importantly, there was no generalized cerebral volume loss or hydrocephalus. Review of her biochemical investigations highlights elevated serum C5-DC acylcarnitine alongside pronounced glutarate excretion and markedly high 3-hydroxyglutarate on urinary organic acid profiling. Routine serum electrolytes, renal indices, and liver panels have consistently remained within normal limits. Her family history is non-contributory.\n\nGiven these biochemical and neuroimaging features in the context of her chronic movement disorder, I would greatly appreciate your comprehensive assessment and recommendations regarding ongoing management.\n\nSincerely,\nDr. Arthur Vance"
+}

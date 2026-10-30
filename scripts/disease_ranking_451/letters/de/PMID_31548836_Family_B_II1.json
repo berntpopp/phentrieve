@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_B_II1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 429,
+  "completion_tokens": 452,
+  "total_tokens": 2670,
+  "thoughts_tokens": 1789,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nzur weiteren Abklärung stelle ich Ihnen das 21 Monate alte Mädchen Mia vor. Die Eltern berichten über ein bislang unauffälliges familiäres Umfeld, auch das Neugeborenenscreening sowie das Hörvermögen waren unauffällig.\n\nAktuell imponiert bei dem Mädchen ein deutlicher Kleinwuchs mit einer Körperlänge weit unterhalb der dritten Perzentile. Am Schädel tasten sich noch weit offene Fontanellen und breite Suturen; zudem fallen eine markante Vorwölbung der Stirn sowie prominente Scheitelhöcker auf. In der Bildgebung des Schädels ließen sich multiple akzessorische Knochenkerne im Bereich der Schädelnähte nachweisen. Das Gesicht zeigt einen auffallend weiten Augenabstand, ein flaches Mittelgesicht, eine eingesunkene Nasenwurzel sowie ein deutlich zurückweichendes, kleines Kinn. Der Durchtritt der ersten Milchzähne ist stark verzögert, die wenigen sichtbaren Zähne weisen strukturelle Schmelzdefekte auf. Überzählige Zähne konnten wir radiologisch ausschließen.\n\nOrthopädisch fällt ein auffallend schmal gebauter Thorax auf, an der Wirbelsäule zeigt sich eine Verkrümmung zur Seite. Das Neurokranium- und Wirbelsäulen-MRT zeigte begleitend eine zystische Höhlenbildung im Rückenmark. Die Schultern sind erstaunlich weit nach vorne approximierbar; im Röntgen finden sich beidseits deutlich verkürzte Schlüsselbeine. Die Extremitäten sind seitengleich, der zweite Mittelhandknochen zeigt keine pathologische Überlänge. Im Beckenröntgen fallen hypoplastische Darmbeinschaufeln und eine fehlende bzw. stark verzögerte Verknöcherung der Schambeine auf. \n\nDie internistische Basisdiagnostik, einschließlich Blutbild, Elektrolyten und Nierenwerten, ergab regelrechte Befunde.\n\nIch bitte um Ihre geschätzte Mitbeurteilung und Einordnung dieses komplexen Bildes.\n\nMit freundlichen Grüßen"
+}

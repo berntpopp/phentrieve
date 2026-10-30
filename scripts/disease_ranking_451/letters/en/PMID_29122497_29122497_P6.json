@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29122497_29122497_P6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 369,
+  "completion_tokens": 320,
+  "total_tokens": 1944,
+  "thoughts_tokens": 1255,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 11-month-old girl who presented to my clinic for progressive neurological deterioration. She was born at 39 weeks via an uncomplicated spontaneous vaginal delivery to non-consanguineous parents. Her newborn metabolic screening was unremarkable, and the family history is non-contributory. \n\nHer parents first noted concerns around 3 months of age, when she began losing previously achieved developmental milestones, demonstrating clear developmental regression. She can no longer maintain head control or reach for objects. On examination, cardiovascular and respiratory systems are completely normal, and her abdomen is soft and non-tender. \n\nNeurological evaluation reveals prominent roving, multi-directional nystagmus, and formal ophthalmologic review demonstrated pale optic discs bilaterally. When pulled to sit, she has profound head lag and a floppy trunk consistent with marked axial hypotonia. In direct contrast to her trunk, her limbs exhibit significant stiffness, with pronounced spastic catch and hyperreflexia evident across both upper extremities and severe spasticity, scissoring posturing, and clonus throughout her lower extremities. \n\nHer recent neuroimaging demonstrated striking abnormalities. Cranial MRI showed confluent, prominent T2 hyperintensity throughout the cerebral white matter bilaterally. Furthermore, the cord sequences showed abnormal, diffuse high T2 signal extending along the spinal cord. \n\nShe currently takes no regular medications aside from daily infant vitamin D. Given the progressive nature of her clinical picture, I would greatly appreciate your assessment and recommendations for further investigation.\n\nSincerely,\nDr. Julian Vance"
+}

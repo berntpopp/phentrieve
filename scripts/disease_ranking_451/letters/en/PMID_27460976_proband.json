@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27460976_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 407,
+  "completion_tokens": 317,
+  "total_tokens": 2887,
+  "thoughts_tokens": 2163,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 43-year-old woman who presents for neurological consultation regarding a complex, multi-system presentation dating back to her school-age childhood. She works in accounting, lives with her partner, does not smoke, and maintains normal renal and hepatic laboratory panels.\n\nHer early history is notable for bilateral high-arched feet and severe hammertoe deformities, followed by progressive wasting of her distal musculature, most prominent in the intrinsic hand muscles and calves. On motor testing, she exhibits marked weakness in distal limb muscle groups. Concurrently, she has developed a prominent parkinsonian complex comprising generalized slowness of movement, impassive facial features with markedly reduced blinks, lead-pipe resistance to passive movement in all four limbs, and an action tremor of the outstretched upper extremities. Her walking is severely impaired by an unsteady, shuffling gait. Over the past year, she has also reported new difficulties with swallowing liquids and solid foods.\n\nSensory evaluation reveals an established bilateral sensorineural hearing loss, and her ophthalmologic records confirm bilateral lens opacities that required cataract extraction during her twenties. Somatosensory evoked potentials were recently performed, revealing prolonged central conduction times. Of note, an open muscle biopsy performed previously showed preserved fascicular architecture with no ragged-red myofibers, and staining confirmed an absence of cytochrome C oxidase-negative fibers.\n\nGiven the chronological progression and constellation of findings, I would greatly value your comprehensive diagnostic assessment and guidance regarding appropriate next steps.\n\nSincerely,\nDr. Julian Sterling"
+}
