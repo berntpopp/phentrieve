@@ -1,6 +1,8 @@
 # Acceptance checklist: issue batch of 2026-10-27 (PRs #437-#444)
 
-Status: open. Tick items as you go; record results inline.
+Status: partly done. Results of the UI acceptance on 2026-10-30 are under
+"Results 2026-10-30". Sections 1-5 and 7 were not repeated; the release PR #457
+records what ran for 0.30.0. Tick items as you go; record results inline.
 
 ## Why this exists
 
@@ -234,6 +236,57 @@ Batching must not change results.
   and `--chunk-confidence`.
 - [ ] `phentrieve text process` with a semantic chunking strategy still loads
   the semantic model; with a simple strategy it does not (#429).
+
+## Results 2026-10-30
+
+Tested in a real browser on v0.30.0 plus the #458 fix, with the local dev API and
+frontend. The LLM ran through OpenRouter with `google/gemini-3.1-flash-lite`, set by a
+throwaway launcher outside the repo. LLM results are single samples.
+
+Section 6 and highlights:
+
+| Check | Result |
+|---|---|
+| #458 "Auto" in full text, German note | Pass: detected as `de`, the seizure shows as Negated |
+| #404 normal finding to Phenopacket | Pass with lowered thresholds: Negated in the list and collection, `excluded: true` in the file. With the UI defaults (0.7 / 0.75) the checklist text produces no normal term at all |
+| #430 auto-submit, mode switch, advanced panel, PII dialog, history | Pass |
+| #426 threshold default | Pass: 0.30 |
+| #431 health poll | Pass: no call during 34 s hidden, polling resumes at the next tick |
+| #394 highlight with extra whitespace | API pass: offsets 13-27 are "hypothyroidism". UI not testable: the finding is in `other_person_findings`, so the UI shows 0 findings and no highlight |
+| #411 `İnfant with seizures` | Pass: highlight is exactly "seizures" |
+| #397 paraphrase | Pass: three exact spans, no whole-chunk highlight |
+| #397 PDF text | Fail: `Hämo-\nglobin` finds the term but has no highlight, and `sei­zures` was not extracted |
+
+Regression of the 2026-10-27 UI review (`ui-ux-review/C-test-protocol.md`):
+
+- Pass: N05, L05, S05, D05, D06, C09, I01, T01, K03, A01, M01, NW06 (cancel is available).
+  C07 also looks fixed: one click does not clear the collection.
+- Still failing:
+  - N04 (P2): "seizures were ruled out" is reported as Affirmed, with an absence seizure as
+    top term. This is a clinical error.
+  - C10 (P2): the drawer's scrim blocks adding a second term.
+  - D07 (P3): reloading `/?text=...` submits the query again.
+  - K04 (P3): Esc does not close the reset dialog.
+  - K06 (P3): Esc does not close the tutorial.
+- Not repeated: D03, K01, S06.
+
+New findings:
+
+- The REST LLM path returns 500 when `PHENTRIEVE_LLM_BASE_URL` is set: `run_llm_backend`
+  passes the environment value as an explicit argument, and the resolver rejects it for
+  the fixed `gemini` target.
+- `other_person_findings`, `temporality` and `family_history_findings` are not shown in
+  the frontend. A note that only names findings of other people reports "0 findings".
+- `Normal ...` chunks and German standard-backend results can show findings without any
+  highlight. Confirmed for normal findings: `text_attributions` is empty.
+- "Low Hämo-\nglobin ..." triggers the PII dialog with Name (1), probably a false positive.
+- "Recurrent seizures." ranks Seizure cluster and Status epilepticus first in the standard
+  backend, not Seizure.
+- `FullTextResponseReceipt.vue` hardcodes "findings across ... document sections" in
+  English, which also shows in the German UI.
+- In `make test` on Windows with a local `data/`, four tests in
+  `tests/unit/cli/test_similarity_commands.py` fail because they assume no `hpo_data.db`
+  exists. `make frontend-i18n-check` fails on Windows with "vueFiles glob has no files".
 
 ## Sign-off
 
