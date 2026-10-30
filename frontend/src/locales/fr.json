@@ -256,7 +256,8 @@
     "fullTextReceipt": {
       "title": "Analyse du texte intégral prête",
       "addAll": "Tout ajouter ({count})",
-      "addAllConfirm": "Cliquez à nouveau pour tout ajouter ({count})"
+      "addAllConfirm": "Cliquez à nouveau pour tout ajouter ({count})",
+      "incomplete": "Une partie de ce texte n'a pas pu être analysée. Des observations peuvent manquer : vérifiez-le manuellement ou relancez l'analyse."
     }
   },
   "annotatedDocumentPane": {

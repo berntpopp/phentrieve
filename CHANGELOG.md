@@ -23,6 +23,11 @@ together:
 - **Full-text "Auto" language is detected again (#458).** The frontend dropped
   `language: null` from the request, so the API fell back to `en` and German text lost its
   negations in the standard backend. It now sends `language: "auto"`.
+### Added
+
+- **Full-text results warn when the LLM extraction is partial.** The API already flagged
+  `meta.incomplete` when a chunk group failed after all retries, but the result looked
+  complete in the UI. It now shows a warning that findings may be missing.
 
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 

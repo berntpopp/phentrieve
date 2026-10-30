@@ -66,6 +66,24 @@ function mountReceipt(props = {}) {
 }
 
 describe('FullTextResponseReceipt', () => {
+  it('warns only when the API flags a partial extraction', () => {
+    const warning = '[data-testid="full-text-incomplete-warning"]';
+    expect(mountReceipt().find(warning).exists()).toBe(false);
+
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-partial',
+        response: {
+          meta: { incomplete: true, incomplete_reason: 'failed for 1 chunk group(s)' },
+          aggregated_hpo_terms: [{ hpo_id: 'HP:0001250', name: 'Seizure', status: 'present' }],
+          processed_chunks: [{ chunk_id: 1, text: 'Patient had recurrent seizures.' }],
+        },
+      },
+    });
+
+    expect(wrapper.get(warning).text()).toContain('Findings may be missing');
+  });
+
   it('emits add-all-to-collection for normalized full-text phenotypes', async () => {
     const wrapper = mountReceipt({
       item: {

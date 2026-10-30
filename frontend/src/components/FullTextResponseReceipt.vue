@@ -4,6 +4,16 @@
     <div class="text-caption text-medium-emphasis">
       {{ receiptMeta }}
     </div>
+    <v-alert
+      v-if="item?.response?.meta?.incomplete"
+      data-testid="full-text-incomplete-warning"
+      type="warning"
+      variant="tonal"
+      density="compact"
+      class="mt-2"
+    >
+      {{ $t('queryInterface.fullTextReceipt.incomplete') }}
+    </v-alert>
     <div v-if="phenotypes.length > 0" class="d-flex justify-end mt-3">
       <v-btn
         data-testid="full-text-response-add-all"
