@@ -143,6 +143,30 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "context-pseudo", "language": "es", "note": "Double negative"}
+    },
+    {
+      "literal": "no se puede descartar",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "es", "note": "Finding stays open"}
+    },
+    {
+      "literal": "no se descarta",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "es", "note": "Finding stays open"}
+    },
+    {
+      "literal": "no descartado",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "es", "note": "Finding stays open"}
+    },
+    {
+      "literal": "no pudo descartarse",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "es", "note": "Finding stays open"}
     }
   ]
 }

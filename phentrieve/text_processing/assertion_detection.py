@@ -196,6 +196,16 @@ def retrieval_text_for_assertion(
     return text.strip()
 
 
+def _find_cue_span(text_lower: str, cue_lower: str) -> tuple[int, int] | None:
+    """Return the span of the first word-bounded match of a cue, if any."""
+    index = text_lower.find(cue_lower)
+    while index >= 0:
+        if _is_cue_match(text_lower, cue_lower, index):
+            return index, index + len(cue_lower)
+        index = text_lower.find(cue_lower, index + 1)
+    return None
+
+
 def _is_cue_match(text_lower: str, cue_lower: str, index: int) -> bool:
     """
     Check if a cue matches at the given position with word boundary awareness.
@@ -808,9 +818,11 @@ class DependencyAssertionDetector(AssertionDetector):
         # Cache negation and normality cues per language
         self._negation_cues_cache: dict[str, list[str]] = {}
         self._normality_cues_cache: dict[str, list[str]] = {}
+        self._pseudo_cues_cache: dict[str, list[str]] = {}
         # Pre-load cues for the default language
         self._negation_cues_cache[language] = self._load_negation_cues(language)
         self._normality_cues_cache[language] = self._load_normality_cues(language)
+        self._pseudo_cues_cache[language] = self._load_context_cues(language, "PSEUDO")
 
     def _load_negation_cues(self, lang: str) -> list[str]:
         """
@@ -822,62 +834,43 @@ class DependencyAssertionDetector(AssertionDetector):
         Returns:
             List of negation cue strings (lowercase)
         """
+        return self._load_context_cues(lang, "NEGATED_EXISTENCE")
+
+    def _load_context_cues(self, lang: str, category: str) -> list[str]:
+        """Load the literals of one ConText category, falling back to English."""
         import importlib.resources
         import json
 
         resources_package = "phentrieve.text_processing.default_lang_resources"
-        context_filename = f"context_rules_{lang}.json"
 
-        try:
-            resource_path = importlib.resources.files(resources_package).joinpath(
-                context_filename
-            )
-            with resource_path.open("r", encoding="utf-8") as f:
-                context_data = json.load(f)
-
-            # Extract negation cue literals from NEGATED_EXISTENCE rules
-            negation_cues = [
-                rule["literal"].strip().lower()
-                for rule in context_data.get("context_rules", [])
-                if rule.get("category") == "NEGATED_EXISTENCE"
-                and rule.get("direction") != "PSEUDO"
-            ]
+        for rule_lang in dict.fromkeys((lang, "en")):
+            try:
+                resource_path = importlib.resources.files(resources_package).joinpath(
+                    f"context_rules_{rule_lang}.json"
+                )
+                with resource_path.open("r", encoding="utf-8") as f:
+                    context_data = json.load(f)
+                cues = [
+                    rule["literal"].strip().lower()
+                    for rule in context_data.get("context_rules", [])
+                    if rule.get("category") == category
+                ]
+            except (FileNotFoundError, AttributeError, KeyError):
+                continue
             logger.info(
-                "Loaded %s negation cues from ConText rules for '%s'",
-                len(negation_cues),
+                "Loaded %s %s cues from ConText rules (%s) for '%s'",
+                len(cues),
+                category,
+                rule_lang,
                 _sanitize(lang),
             )
-            return negation_cues
-        except (FileNotFoundError, AttributeError, KeyError):
-            # Fall back to English if language not found
-            if lang != "en":
-                try:
-                    resource_path = importlib.resources.files(
-                        resources_package
-                    ).joinpath("context_rules_en.json")
-                    with resource_path.open("r", encoding="utf-8") as f:
-                        context_data = json.load(f)
+            return cues
 
-                    negation_cues = [
-                        rule["literal"].strip().lower()
-                        for rule in context_data.get("context_rules", [])
-                        if rule.get("category") == "NEGATED_EXISTENCE"
-                        and rule.get("direction") != "PSEUDO"
-                    ]
-                    logger.info(
-                        "Loaded %s English negation cues as fallback for '%s'",
-                        len(negation_cues),
-                        _sanitize(lang),
-                    )
-                    return negation_cues
-                except (FileNotFoundError, AttributeError, KeyError):
-                    pass
-
-            logger.warning(
-                "No ConText rules found for lang '%s', returning empty negation cues",
-                _sanitize(lang),
-            )
-            return []
+        logger.warning(
+            "No ConText rules found for lang '%s', returning empty cues",
+            _sanitize(lang),
+        )
+        return []
 
     def _load_normality_cues(self, lang: str) -> list[str]:
         """
@@ -1008,6 +1001,7 @@ class DependencyAssertionDetector(AssertionDetector):
             # Load and cache cues for this language
             self._negation_cues_cache[lang] = self._load_negation_cues(lang)
             self._normality_cues_cache[lang] = self._load_normality_cues(lang)
+            self._pseudo_cues_cache[lang] = self._load_context_cues(lang, "PSEUDO")
 
         lang_negation_cues = self._negation_cues_cache[lang]
         lang_normality_cues = self._normality_cues_cache[lang]
@@ -1025,10 +1019,21 @@ class DependencyAssertionDetector(AssertionDetector):
 
         # Handle German negation directly with a text check first (more reliable for short phrases)
         chunk_lower = chunk.lower()
+        # "not ruled out" keeps a finding open, so nothing inside it counts as a cue
+        pseudo_spans = [
+            span
+            for cue in self._pseudo_cues_cache[lang]
+            if (span := _find_cue_span(chunk_lower, cue))
+        ]
+        searchable_text = chunk_lower
+        for start, end in pseudo_spans:
+            searchable_text = (
+                searchable_text[:start] + " " * (end - start) + searchable_text[end:]
+            )
         # Use most common negation cues (first 5) for quick check - data-driven from ConText rules
         quick_check_cues = lang_negation_cues[:5]
         if lang == "de" and any(
-            neg_term in chunk_lower for neg_term in quick_check_cues
+            neg_term in searchable_text for neg_term in quick_check_cues
         ):
             is_negated = True
             negated_concepts.append(
@@ -1038,6 +1043,9 @@ class DependencyAssertionDetector(AssertionDetector):
         # Also check with spaCy's dependency parsing
         for token in doc:
             token_text = token.text.lower()
+
+            if any(start <= token.idx < end for start, end in pseudo_spans):
+                continue
 
             # "no-reflow" / "non-ambulatory": a cue glued to a hyphen is a compound
             # prefix, not a negation (same rule as _is_cue_match)
@@ -1071,6 +1079,12 @@ class DependencyAssertionDetector(AssertionDetector):
                 if scope:
                     negated_concepts.append(scope)
                     is_negated = True
+
+        # The token loop cannot see phrases such as "ruled out" or "negative for"
+        for neg_cue in lang_negation_cues:
+            if " " in neg_cue and _find_cue_span(searchable_text, neg_cue):
+                negated_concepts.append(neg_cue)
+                is_negated = True
 
         # Check for normality
         normal_concepts = []
