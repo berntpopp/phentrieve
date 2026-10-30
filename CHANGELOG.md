@@ -18,6 +18,12 @@ together:
 
 ## [Unreleased]
 
+### Fixed
+
+- **Full-text "Auto" language is detected again (#458).** The frontend dropped
+  `language: null` from the request, so the API fell back to `en` and German text lost its
+  negations in the standard backend. It now sends `language: "auto"`.
+
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
 LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
