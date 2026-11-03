@@ -14,8 +14,8 @@ from phentrieve.llm.pipeline_phase2 import phenotype_from_candidate
 from phentrieve.llm.types import LLMPhenotype
 
 DOCUMENT = (
-    "Es lagen weder Meläna noch Bauchschmerzen vor. Biopsieproben zeigten "
-    "nekrotisches Material sowie Nekrosen der Schleimhaut\nund Submukosa."
+    "Es lagen weder Hautausschläge noch Ohrenschmerzen vor. Abstriche zeigten "
+    "entzündliches Sekret sowie Rötungen der Bindehaut\nund Lidränder."
 )
 
 
@@ -25,58 +25,56 @@ def _span(text: str) -> tuple[int, int]:
 
 
 CHUNKS = {
-    1: _span("Es lagen weder Meläna noch Bauchschmerzen vor"),
-    2: _span(
-        "Biopsieproben zeigten nekrotisches Material sowie Nekrosen der Schleimhaut"
-    ),
-    3: _span("und Submukosa"),
+    1: _span("Es lagen weder Hautausschläge noch Ohrenschmerzen vor"),
+    2: _span("Abstriche zeigten entzündliches Sekret sowie Rötungen der Bindehaut"),
+    3: _span("und Lidränder"),
 }
 
 
 def test_evidence_inside_a_cited_chunk_gets_its_document_span():
-    located = locate_evidence(DOCUMENT, "Bauchschmerzen", [1], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Ohrenschmerzen", [1], CHUNKS)
 
-    assert (located.start, located.end) == _span("Bauchschmerzen")
+    assert (located.start, located.end) == _span("Ohrenschmerzen")
     assert located.basis == "evidence_in_chunk"
 
 
 def test_evidence_across_cited_chunks_is_found_in_their_hull():
     located = locate_evidence(
-        DOCUMENT, "Nekrosen der Schleimhaut und Submukosa", [2, 3], CHUNKS
+        DOCUMENT, "Rötungen der Bindehaut und Lidränder", [2, 3], CHUNKS
     )
 
     assert DOCUMENT[located.start : located.end] == (
-        "Nekrosen der Schleimhaut\nund Submukosa"
+        "Rötungen der Bindehaut\nund Lidränder"
     )
     assert located.basis == "evidence_in_chunk_hull"
 
 
 def test_typography_and_whitespace_do_not_prevent_a_match():
-    located = locate_evidence(DOCUMENT, "weder  Meläna", [1], CHUNKS)
+    located = locate_evidence(DOCUMENT, "weder  Hautausschläge", [1], CHUNKS)
 
-    assert DOCUMENT[located.start : located.end] == "weder Meläna"
+    assert DOCUMENT[located.start : located.end] == "weder Hautausschläge"
 
 
 def test_letter_case_does_not_prevent_a_match():
-    located = locate_evidence(DOCUMENT, "bauchschmerzen", [1], CHUNKS)
+    located = locate_evidence(DOCUMENT, "ohrenschmerzen", [1], CHUNKS)
 
-    assert (located.start, located.end) == _span("Bauchschmerzen")
+    assert (located.start, located.end) == _span("Ohrenschmerzen")
     assert located.basis == "evidence_in_chunk"
 
 
 def test_decomposed_document_text_matches_composed_evidence():
-    document = "Es lagen weder Meläna noch Bauchschmerzen vor."
+    document = "Es lagen weder Hautausschläge noch Ohrenschmerzen vor."
     chunks = {1: (0, len(document) - 1)}
 
-    located = locate_evidence(document, "Meläna", [1], chunks)
+    located = locate_evidence(document, "Hautausschläge", [1], chunks)
 
-    assert document[located.start : located.end] == "Meläna"
+    assert document[located.start : located.end] == "Hautausschläge"
     assert located.basis == "evidence_in_chunk"
 
 
 def test_hull_search_does_not_match_inside_an_uncited_chunk():
     # Chunks 1 and 3 are cited, chunk 2 lies between them but is not cited.
-    located = locate_evidence(DOCUMENT, "Biopsieproben zeigten", [1, 3], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Abstriche zeigten", [1, 3], CHUNKS)
 
     assert (located.start, located.end) == CHUNKS[1]
     assert located.basis == "chunk_span"
@@ -91,7 +89,7 @@ def test_chunks_without_a_located_position_are_ignored():
 
 
 def test_paraphrased_evidence_falls_back_to_the_cited_chunks():
-    located = locate_evidence(DOCUMENT, "Nekrosen der... Submukosa", [2, 3], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Rötungen der... Lidränder", [2, 3], CHUNKS)
 
     assert (located.start, located.end) == (CHUNKS[2][0], CHUNKS[3][1])
     assert located.basis == "chunk_span"
@@ -100,7 +98,7 @@ def test_paraphrased_evidence_falls_back_to_the_cited_chunks():
 def test_fallback_covers_only_the_first_run_of_adjacent_cited_chunks():
     # Chunks 1 and 3 are not adjacent; a hull over both would also cover
     # chunk 2, which the model did not cite.
-    located = locate_evidence(DOCUMENT, "Meläna ... Submukosa", [1, 3], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Hautausschläge ... Lidränder", [1, 3], CHUNKS)
 
     assert (located.start, located.end) == CHUNKS[1]
     assert located.basis == "chunk_span"
@@ -118,14 +116,14 @@ def test_fallback_uses_the_chunk_positions_not_the_search_region():
 
 
 def test_evidence_outside_the_cited_chunks_is_not_taken():
-    located = locate_evidence(DOCUMENT, "Bauchschmerzen", [2], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Ohrenschmerzen", [2], CHUNKS)
 
     assert (located.start, located.end) == CHUNKS[2]
     assert located.basis == "chunk_span"
 
 
 def test_without_chunk_positions_the_span_stays_unknown():
-    located = locate_evidence(DOCUMENT, "Bauchschmerzen", [9], CHUNKS)
+    located = locate_evidence(DOCUMENT, "Ohrenschmerzen", [9], CHUNKS)
 
     assert (located.start, located.end) == (None, None)
     assert located.basis == "unresolved"
@@ -134,8 +132,8 @@ def test_without_chunk_positions_the_span_stays_unknown():
 def test_pipeline_replaces_model_counted_offsets_with_document_offsets():
     extracted = [
         {
-            "phrase": "Bauchschmerzen",
-            "evidence_text": "Bauchschmerzen",
+            "phrase": "Ohrenschmerzen",
+            "evidence_text": "Ohrenschmerzen",
             "chunk_ids": [1],
             "start_char": 27,  # model-counted, relative to the chunk
             "end_char": 41,
@@ -151,7 +149,7 @@ def test_pipeline_replaces_model_counted_offsets_with_document_offsets():
     )
 
     item = extracted[0]
-    assert DOCUMENT[item["start_char"] : item["end_char"]] == "Bauchschmerzen"
+    assert DOCUMENT[item["start_char"] : item["end_char"]] == "Ohrenschmerzen"
     assert item["offset_basis"] == "evidence_in_chunk"
 
 
@@ -218,9 +216,9 @@ def test_evidence_may_quote_the_text_cleanup_dropped_before_a_chunk():
 
 def test_evidence_record_carries_the_offset_basis():
     item = {
-        "phrase": "Bauchschmerzen",
+        "phrase": "Ohrenschmerzen",
         "category": "normal",
-        "evidence_text": "Bauchschmerzen",
+        "evidence_text": "Ohrenschmerzen",
         "chunk_ids": [1],
         "start_char": 27,
         "end_char": 41,
@@ -335,9 +333,9 @@ def test_each_search_region_is_normalized_once_per_document(monkeypatch):
     monkeypatch.setattr(offsets_module, "_normalized", counting)
     locator = offsets_module.EvidenceLocator(DOCUMENT, CHUNKS)
     for _ in range(5):
-        locator.locate("Submukosa", [1, 2, 3])
+        locator.locate("Lidränder", [1, 2, 3])
 
-    regions = [text for text in normalized if text != "Submukosa"]
+    regions = [text for text in normalized if text != "Lidränder"]
     # Chunks 1 and 2 are searched before chunk 3 matches, each normalized once.
     assert len(regions) == 3
 
