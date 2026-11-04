@@ -37,7 +37,7 @@
     </div>
 
     <!-- Reset Confirmation Dialog -->
-    <v-dialog v-model="showResetDialog" max-width="400" persistent>
+    <v-dialog v-model="showResetDialog" max-width="400">
       <v-card>
         <v-card-title class="d-flex align-center">
           <v-icon color="warning" class="mr-2">mdi-restart</v-icon>
