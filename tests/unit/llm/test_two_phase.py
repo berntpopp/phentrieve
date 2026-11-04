@@ -259,3 +259,29 @@ def test_expand_combined_phase1_extractions_leaves_non_combined_phrases_unchange
     ]
 
     assert expand_combined_phase1_extractions(original) == original
+
+
+def test_expand_combined_phase1_extractions_keeps_units_and_connectives_whole():
+    # Only "word/word" is split; units, values, single letters and "and/or" stay.
+    original = [
+        {"phrase": phrase, "category": "abnormal", "chunk_ids": [1]}
+        for phrase in ("term-a 1 mg/dL", "terma and/or termb", "a/b ratio")
+    ]
+
+    assert expand_combined_phase1_extractions(original) == original
+
+
+def test_expand_combined_phase1_extractions_keeps_the_verbatim_evidence():
+    expanded = expand_combined_phase1_extractions(
+        [
+            {
+                "phrase": "terma/termb",
+                "category": "abnormal",
+                "chunk_ids": [1],
+                "evidence_text": "Terma/Termb",
+            }
+        ]
+    )
+
+    assert [item["phrase"] for item in expanded] == ["terma", "termb"]
+    assert {item["evidence_text"] for item in expanded} == {"Terma/Termb"}
