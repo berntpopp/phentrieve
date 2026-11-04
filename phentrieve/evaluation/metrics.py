@@ -295,6 +295,9 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     Returns:
         Similarity score (0-1)
     """
+    if term1 == term2:
+        return 1.0
+
     # Get the LCA and its depth
     lca, lca_depth = find_lowest_common_ancestor(term1, term2)
 
@@ -320,24 +323,25 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
         )
         return 0.0
 
-    # Calculate Resnik-like similarity based on LCA depth
-    # Calculate path length from each term to LCA
-    path_length1 = depth1 - lca_depth
-    path_length2 = depth2 - lca_depth
+    # Local import: ontology_credit imports this module.
+    from phentrieve.evaluation.ontology_credit import _ancestor_distances
+
+    # Path lengths are graph distances to the LCA, not depth differences:
+    # in a DAG an ancestor can have a larger shortest-path depth than its
+    # descendant, which made distinct terms score 1.0 (#475).
+    ancestors_dict, _ = load_hpo_graph_data()
+    parents_cache: dict[str, set[str]] = {}
+    path_length1 = _ancestor_distances(
+        term1, ancestors_dict, depths_dict, parents_cache
+    ).get(lca)
+    path_length2 = _ancestor_distances(
+        term2, ancestors_dict, depths_dict, parents_cache
+    ).get(lca)
+    if path_length1 is None or path_length2 is None:
+        return 0.0
     total_path_length = path_length1 + path_length2
 
-    # Check if path lengths are valid
-    if total_path_length < 0:
-        logging.warning(
-            "Invalid path lengths: term1=%s, term2=%s, LCA=%s",
-            _sanitize(depth1),
-            _sanitize(depth2),
-            _sanitize(lca_depth),
-        )
-        total_path_length = 0
-
-    # Calculate Resnik similarity based on path length and depth
-    if total_path_length == 0:  # Identical or very closely related terms
+    if total_path_length == 0:  # unreachable for distinct terms; kept as a guard
         similarity = 1.0
     else:
         # Two factors contribute to similarity:
@@ -356,7 +360,7 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
         # Distance factor (shorter total path = more similarity)
         # Normalize by the sum of depths to get a relative distance
         max_possible_distance = depth1 + depth2 if (depth1 + depth2) > 0 else 1
-        distance_factor = 1 - (total_path_length / max_possible_distance)
+        distance_factor = max(0.0, 1 - (total_path_length / max_possible_distance))
 
         # Combine factors with more weight on depth
         similarity = (0.7 * depth_factor) + (0.3 * distance_factor)

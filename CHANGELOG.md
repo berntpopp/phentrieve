@@ -18,6 +18,12 @@ together:
 
 ## [Unreleased]
 
+### Fixed
+
+- Hybrid semantic similarity measures each term's distance to the lowest common
+  ancestor in the graph instead of subtracting shortest-path depths, so distinct terms
+  with multiple inheritance no longer score 1.0 (#475).
+
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
 LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
