@@ -256,7 +256,9 @@
     "fullTextReceipt": {
       "title": "Analyse du texte intégral prête",
       "addAll": "Tout ajouter ({count})",
-      "addAllConfirm": "Cliquez à nouveau pour tout ajouter ({count})"
+      "addAllConfirm": "Cliquez à nouveau pour tout ajouter ({count})",
+      "metaSections": "{count} observation dans {sections} section(s) du document | {count} observations dans {sections} section(s) du document",
+      "metaNoteReview": "{count} observation dans la note soumise | {count} observations dans la note soumise"
     }
   },
   "annotatedDocumentPane": {
@@ -278,7 +280,8 @@
       "auto": "Auto",
       "manual": "Manuel"
     },
-    "spanAriaLabel": "Modifier l'annotation : {label}"
+    "spanAriaLabel": "Modifier l'annotation : {label}",
+    "wordCount": "{count} mot | {count} mots"
   },
   "hpoTermPicker": {
     "changeTitle": "Modifier le terme HPO",

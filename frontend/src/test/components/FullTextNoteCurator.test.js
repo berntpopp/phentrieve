@@ -6,6 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import de from '../../locales/de.json';
 
 vi.mock('../../services/PhentrieveService', () => ({
   default: {
@@ -89,6 +90,17 @@ beforeEach(() => {
 });
 
 describe('FullTextNoteCurator', () => {
+  it('translates the note word count (#469)', () => {
+    expect(mountCurator().text()).toContain('3 words');
+    i18n.global.setLocaleMessage('de', de);
+    i18n.global.locale.value = 'de';
+    try {
+      expect(mountCurator().text()).toContain('3 Wörter');
+    } finally {
+      i18n.global.locale.value = 'en';
+    }
+  });
+
   it('seeds the turn and renders the auto annotation as a highlighted span', () => {
     const wrapper = mountCurator();
     expect(wrapper.findAll('[data-testid="annotated-note-span"]')).toHaveLength(1);
