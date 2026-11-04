@@ -408,6 +408,27 @@ def select_candidate_ids(
     return selected
 
 
+def explicit_null_item_ids(
+    *,
+    mapping_response: LLMMappingSelection | LLMBatchMappingSelections,
+    batch: list[dict[str, Any]],
+) -> set[str]:
+    """Item ids the mapping model explicitly answered with ``hpo_id: null``.
+
+    An explicit null is a decision that no candidate fits; unlike a missing
+    item or an id outside the candidates it must not trigger the local
+    fallback (#490).
+    """
+    if isinstance(mapping_response, LLMMappingSelection):
+        return {mapping_batch_item_id(0)} if not mapping_response.hpo_id else set()
+    batch_ids = {mapping_batch_item_id(index) for index in range(len(batch))}
+    return {
+        mapping.item_id
+        for mapping in mapping_response.mappings
+        if not mapping.hpo_id and mapping.item_id in batch_ids
+    }
+
+
 def _merge_term_evidence(target: LLMPhenotype, term: LLMPhenotype) -> None:
     target.evidence_records.extend(term.evidence_records)
     if not target.evidence and term.evidence:

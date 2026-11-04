@@ -3763,7 +3763,8 @@ def test_two_phase_pipeline_separates_llm_mappings_from_local_fallbacks(
             {
                 "parsed": {
                     "phrase": "frequent falls",
-                    "hpo_id": None,
+                    # Not a candidate: the local fallback applies (#490).
+                    "hpo_id": "HP:9999999",
                 },
                 "request_count": 1,
             },
@@ -4248,7 +4249,9 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
                         }
                     ]
                 },
-            }
+            },
+            # Y is mapped through the regular mapping path (#490).
+            {"parsed": {"phrase": "regression", "hpo_id": "HP:0010864"}},
         ]
     )
     tool_executor = FakeToolExecutor(
@@ -4288,7 +4291,7 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
     assert term.assertion == "present"
     assert term.negated_qualifier == "regression"
 
-    # B3 (Task 10): the qualifier Y ("regression") is now retrieved and, when it
+    # B3 (Task 10): the qualifier Y ("regression") is now resolved and, when it
     # maps at or above the similarity floor, a GENERATED excluded finding is
     # emitted. This stub's retriever returns the same fixed candidate for every
     # query, so the generated term resolves to the same HPO id under the negated
@@ -4356,3 +4359,26 @@ def test_grounded_item_without_chunk_ids_does_not_invalidate_the_response():
 
     assert result.meta.phase_counts["extracted_phrases"] == 2
     assert result.meta.phase_counts["phase1_unanchored_phrases"] == 1
+
+
+def test_explicit_null_mapping_skips_the_local_fallback() -> None:
+    # routing deferred the local match; an explicit null must not revive it (#490).
+    provider = FakeProvider(
+        [
+            {"phenotypes": [grounded_phenotype("term-a", "Abnormal")]},
+            {"parsed": {"phrase": "term-a", "hpo_id": None}},
+        ]
+    )
+    tool_executor = PhraseKeyedToolExecutor(
+        {"term-a": [{"hpo_id": "HP:9000001", "term_name": "term-a", "score": 0.5}]}
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="term-a",
+        grounded_chunks=[{"chunk_id": 1, "text": "term-a"}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.terms == []
+    assert result.meta.phase_counts["local_fallbacks"] == 0
