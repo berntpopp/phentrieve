@@ -189,15 +189,9 @@ def test_phase1_prompt_mentions_normalized_clinical_phrase_for_lab_or_event_evid
     assert "context" in system.lower()
 
 
-def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mentions():
+def test_expand_combined_phase1_extractions_splits_shared_head_mentions():
     expanded = expand_combined_phase1_extractions(
         [
-            {
-                "phrase": "hypertonia/spasticity of the extremities",
-                "category": "abnormal",
-                "chunk_ids": [15],
-                "evidence_text": "hypertonia/spasticity of the extremities",
-            },
             {
                 "phrase": "pontine cerebellar hypoplasia",
                 "category": "abnormal",
@@ -209,15 +203,9 @@ def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mention
 
     phrases = [item["phrase"] for item in expanded]
 
-    assert phrases == [
-        "hypertonia",
-        "spasticity of the extremities",
-        "pontine hypoplasia",
-        "cerebellar hypoplasia",
-    ]
+    assert phrases == ["pontine hypoplasia", "cerebellar hypoplasia"]
     assert all(item["category"] == "abnormal" for item in expanded)
-    assert expanded[0]["chunk_ids"] == [15]
-    assert expanded[2]["chunk_ids"] == [44, 45]
+    assert expanded[0]["chunk_ids"] == [44, 45]
 
 
 def test_expand_combined_phase1_extractions_expands_common_phenotype_abbreviations():
@@ -261,30 +249,14 @@ def test_expand_combined_phase1_extractions_leaves_non_combined_phrases_unchange
     assert expand_combined_phase1_extractions(original) == original
 
 
-def test_expand_combined_phase1_extractions_keeps_units_and_connectives_whole():
-    # Only "word/word" is split; units, values, single letters and "and/or" stay.
+def test_expand_combined_phase1_extractions_never_splits_slash_forms():
+    # Slash forms stay whole: units, connectives and "a/b" alike (#488).
     original = [
         {"phrase": phrase, "category": "abnormal", "chunk_ids": [1]}
-        for phrase in ("term-a 1 mg/dL", "terma and/or termb", "a/b ratio")
+        for phrase in ("term-a 1 mg/dL", "terma and/or termb", "terma/termb")
     ]
 
     assert expand_combined_phase1_extractions(original) == original
-
-
-def test_expand_combined_phase1_extractions_keeps_the_verbatim_evidence():
-    expanded = expand_combined_phase1_extractions(
-        [
-            {
-                "phrase": "terma/termb",
-                "category": "abnormal",
-                "chunk_ids": [1],
-                "evidence_text": "Terma/Termb",
-            }
-        ]
-    )
-
-    assert [item["phrase"] for item in expanded] == ["terma", "termb"]
-    assert {item["evidence_text"] for item in expanded} == {"Terma/Termb"}
 
 
 def test_prepare_retrieval_queries_adds_a_cue_stripped_variant():

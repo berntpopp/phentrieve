@@ -33,8 +33,6 @@ SHARED_HEAD_NOUNS = frozenset(
         "malformation",
     }
 )
-SLASH_COMBINED_PHRASE_PATTERN = re.compile(r"^([^/\s][^/]*)/([^/\s][^/]*)$")
-_SLASH_CONNECTIVES = frozenset({"and/or", "und/oder"})
 SHARED_HEAD_PHRASE_PATTERN = re.compile(
     r"^(?P<first>[a-z][a-z-]*)\s+(?P<second>[a-z][a-z-]*)\s+(?P<head>[a-z][a-z-]*)$",
     re.IGNORECASE,
@@ -256,27 +254,6 @@ def _clone_split_phase1_item(item: dict[str, Any], phrase: str) -> dict[str, Any
     return split_item
 
 
-def _split_slash_combined_phrase(phrase: str) -> list[str]:
-    match = SLASH_COMBINED_PHRASE_PATTERN.match(phrase.strip())
-    if not match:
-        return []
-    left = match.group(1).strip()
-    right = match.group(2).strip()
-    if not left or not right:
-        return []
-    # Only "word/word": no measurements, units, single letters or "and/or" (#488).
-    left_word = left.split()[-1]
-    right_word = right.split()[0]
-    if (
-        any(character.isdigit() for character in phrase)
-        or UNIT_TOKEN_PATTERN.search(phrase)
-        or not all(word.isalpha() and len(word) > 1 for word in (left_word, right_word))
-        or f"{left_word}/{right_word}".lower() in _SLASH_CONNECTIVES
-    ):
-        return []
-    return [left, right]
-
-
 def _split_shared_head_phrase(phrase: str) -> list[str]:
     match = SHARED_HEAD_PHRASE_PATTERN.match(clean_text(phrase))
     if not match:
@@ -294,13 +271,15 @@ def _split_shared_head_phrase(phrase: str) -> list[str]:
 
 
 def split_combined_phase1_phrase(phrase: str) -> list[str]:
-    """Split clear combined phenotype mentions into standalone source phrases."""
+    """Split clear combined phenotype mentions into standalone source phrases.
+
+    Slash forms ("a/b") are not split: the phase-1 prompt already asks for one
+    phrase per finding, and a code split also broke units, "and/or" in every
+    language and prefix forms (#488).
+    """
     expanded_abbreviation = PHENOTYPE_ABBREVIATIONS.get(phrase.strip().lower())
     if expanded_abbreviation:
         return [expanded_abbreviation]
-    slash_split = _split_slash_combined_phrase(phrase)
-    if slash_split:
-        return slash_split
     return _split_shared_head_phrase(phrase)
 
 
