@@ -111,7 +111,7 @@ describe('useQueryInterfaceController', () => {
   });
 
   it('applies URL parameters and auto-submits once after models load', async () => {
-    const { controller, state, service } = createController({
+    const { controller, state, service, router } = createController({
       routeQuery: { text: 'Seizures', model: 'org/model-a', threshold: '0.8' },
     });
 
@@ -130,6 +130,10 @@ describe('useQueryInterfaceController', () => {
     );
     // Auto-submit keeps the query text in the input.
     expect(state.queryText.value).toBe('Seizures');
+    // The deep link text is consumed, so a reload does not submit again (#465).
+    expect(router.replace).toHaveBeenCalledWith({
+      query: { model: 'org/model-a', threshold: '0.8' },
+    });
   });
 
   it('submits a query payload from the refs and clears the input', async () => {
