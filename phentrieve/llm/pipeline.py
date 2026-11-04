@@ -1677,7 +1677,15 @@ class TwoPhaseLLMPipeline:
         expanded_query_keys: list[tuple[str, str, tuple[str, ...]]] = []
         for item in unique_actionable:
             dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            query_variants = prepare_retrieval_queries(str(item["phrase"]))
+            query_variants = prepare_retrieval_queries(
+                str(item["phrase"]),
+                strip_cue=(
+                    _normalize_category(str(item.get("category", ""))) == "normal"
+                    or str(item.get("assertion") or "").strip().lower()
+                    in {"absent", NEGATED_ASSERTION}
+                ),
+                language=language,
+            )
             if not query_variants:
                 query_variants = [str(item["phrase"])]
             for query in query_variants:

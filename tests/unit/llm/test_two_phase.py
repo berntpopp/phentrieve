@@ -285,3 +285,43 @@ def test_expand_combined_phase1_extractions_keeps_the_verbatim_evidence():
 
     assert [item["phrase"] for item in expanded] == ["terma", "termb"]
     assert {item["evidence_text"] for item in expanded} == {"Terma/Termb"}
+
+
+def test_prepare_retrieval_queries_adds_a_cue_stripped_variant():
+    # Normal and negated phrases are also retrieved without the cue (#491).
+    assert prepare_retrieval_queries("no term-a", strip_cue=True, language="en") == [
+        "no term-a",
+        "term-a",
+    ]
+    assert prepare_retrieval_queries(
+        "term-a normal", strip_cue=True, language="en"
+    ) == [
+        "term-a normal",
+        "term-a",
+    ]
+    assert prepare_retrieval_queries("term-a", strip_cue=True, language="en") == [
+        "term-a"
+    ]
+    assert prepare_retrieval_queries("no term-a") == ["no term-a"]
+
+
+def test_negated_phrase_is_also_retrieved_without_the_cue():
+    class _Recorder:
+        def __init__(self):
+            self.phrases = []
+
+        def query_batch_hpo_terms(self, *, phrases, language, n_results):
+            self.phrases.extend(phrases)
+            return [{"candidates": []} for _ in phrases]
+
+    recorder = _Recorder()
+    pipeline = TwoPhaseLLMPipeline(provider=None, tool_executor=recorder)
+    pipeline._retrieve_candidates(
+        actionable=[
+            {"phrase": "no term-a", "category": "Abnormal", "assertion": "absent"}
+        ],
+        grounded_chunks=[],
+        language="en",
+    )
+
+    assert recorder.phrases == ["no term-a", "term-a"]

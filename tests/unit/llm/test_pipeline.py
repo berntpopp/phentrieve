@@ -876,7 +876,7 @@ def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
 
     assert tool_executor.queries == [
         {
-            "phrases": ["recurrent seizures", "normal cognition"],
+            "phrases": ["recurrent seizures", "normal cognition", "cognition"],
             "language": "en",
             "n_results": 50,
         }
