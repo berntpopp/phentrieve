@@ -4,7 +4,7 @@ import {
   buildSegmentsFromAnnotations,
   computeSelectionOffsets,
   deriveFindingsFromAnnotations,
-  formatDocumentSummaryMeta,
+  countDocumentWords,
   resolveChunkOffsetsInNote,
   resolveMatchedTextRange,
   seedAnnotationsFromResponse,
@@ -116,8 +116,10 @@ describe('useUserNoteAnnotations', () => {
     });
   });
 
-  it('formats document summary metadata from word count', () => {
-    expect(formatDocumentSummaryMeta('Patient had recurrent seizures.')).toBe('4 words');
+  it('counts the words of the document summary', () => {
+    expect(countDocumentWords('Patient had recurrent seizures.')).toBe(4);
+    expect(countDocumentWords('   ')).toBe(0);
+    expect(countDocumentWords(null)).toBe(0);
   });
 
   it('summarizes long document text for the collapsed preview', () => {
