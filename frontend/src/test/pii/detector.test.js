@@ -150,6 +150,18 @@ describe('scanPii', () => {
     expect(result.summary.review.person_name).toBe(1);
   });
 
+  it.each([
+    ['Patient: Jan van der Berg, geboren 2010.', 'Jan van der Berg'],
+    ['Patientin Karla von der Heide hat Fieber', 'Karla von der Heide'],
+  ])('covers surnames with the particle "der": %s', (text, name) => {
+    const result = scanPii(text, { locale: 'de' });
+    const covered = result.findings
+      .filter((f) => f.category === 'person_name')
+      .some((f) => f.start <= text.indexOf(name) && f.end >= text.indexOf(name) + name.length);
+
+    expect(covered).toBe(true);
+  });
+
   it('detects French NIR labels', () => {
     const result = scanPii('NIR 1900675123456 pour le patient.', { locale: 'fr' });
     expect(result.summary.high.national_identifier).toBe(1);
