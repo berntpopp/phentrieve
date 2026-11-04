@@ -62,11 +62,10 @@ class ToolExecutor:
         if retriever is None:
             return []
 
-        capped_results = min(int(num_results), self.max_num_results)
         if self.multi_vector and hasattr(retriever, "query_multi_vector"):
             multi_vector_results = retriever.query_multi_vector(
                 query,
-                n_results=capped_results,
+                n_results=int(num_results),
                 aggregation_strategy=self.multi_vector_aggregation_strategy,
             )
             return [
@@ -78,7 +77,7 @@ class ToolExecutor:
                 for result in multi_vector_results
             ]
 
-        raw = retriever.query(query, n_results=capped_results)
+        raw = retriever.query(query, n_results=int(num_results))
         raw_metadatas = raw.get("metadatas") or []
         raw_similarities = raw.get("similarities") or []
         metadatas = raw_metadatas[0] if raw_metadatas else []
@@ -110,11 +109,10 @@ class ToolExecutor:
             return []
         if self.multi_vector and hasattr(retriever, "query_multi_vector"):
             results: list[dict[str, Any]] = []
-            capped_results = min(int(n_results), self.max_num_results)
             for phrase in phrases:
                 multi_vector_results = retriever.query_multi_vector(
                     phrase,
-                    n_results=capped_results,
+                    n_results=int(n_results),
                     aggregation_strategy=self.multi_vector_aggregation_strategy,
                 )
                 results.append(
@@ -164,10 +162,13 @@ class ToolExecutor:
 
     def execute(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         if tool_name == "query_hpo_terms":
+            # The cap bounds model-requested tool calls only; the pipeline's
+            # batch retrieval uses its configured count (#492).
             return self.query_hpo_terms(
                 query=str(arguments.get("query", "")),
-                num_results=int(
-                    arguments.get("num_results", DEFAULT_TOOL_QUERY_RESULTS)
+                num_results=min(
+                    int(arguments.get("num_results", DEFAULT_TOOL_QUERY_RESULTS)),
+                    self.max_num_results,
                 ),
             )
         if tool_name == "process_clinical_text":
