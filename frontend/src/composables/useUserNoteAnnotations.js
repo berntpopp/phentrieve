@@ -11,19 +11,12 @@ export function summarizeDocumentQuery(query) {
   return `${compact.slice(0, 117)}...`;
 }
 
-export function formatDocumentSummaryMeta(query) {
+export function countDocumentWords(query) {
   if (typeof query !== 'string') {
-    return '';
+    return 0;
   }
 
-  const charCount = query.trim().length;
-  if (charCount === 0) {
-    return '';
-  }
-
-  const wordCount = query.trim().split(/\s+/).filter(Boolean).length;
-
-  return `${wordCount} words`;
+  return query.trim().split(/\s+/).filter(Boolean).length;
 }
 
 export function resolveChunkOffsetsInNote(noteText, chunks) {
