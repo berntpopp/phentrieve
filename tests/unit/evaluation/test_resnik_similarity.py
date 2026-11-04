@@ -34,6 +34,26 @@ def test_cancelling_depth_differences_are_not_identical(tiny_dag):
     assert calculate_resnik_similarity("Y", "X") < 1.0
 
 
+def test_tied_lca_candidates_pick_the_closest(monkeypatch):
+    # C1 and C2 are both depth-1 common ancestors of T1 and T2;
+    # distance sums are 2 via C1 and 3 via C2.
+    ancestors = {
+        "R": {"R"},
+        "C1": {"C1", "R"},
+        "C2": {"C2", "R"},
+        "Q": {"Q", "C2", "R"},
+        "T1": {"T1", "Q", "C2", "C1", "R"},
+        "T2": {"T2", "C1", "C2", "R"},
+    }
+    depths = {"R": 0, "C1": 1, "C2": 1, "Q": 2, "T1": 2, "T2": 2}
+    monkeypatch.setattr(metrics, "load_hpo_graph_data", lambda: (ancestors, depths))
+
+    # 0.7 * lca_depth / max_depth + 0.3 * (1 - path / (depth1 + depth2))
+    assert calculate_resnik_similarity("T1", "T2") == pytest.approx(
+        0.7 * 1 / 2 + 0.3 * (1 - 2 / 4)
+    )
+
+
 def test_identical_terms_are_one(tiny_dag):
     assert calculate_resnik_similarity("X", "X") == 1.0
 
