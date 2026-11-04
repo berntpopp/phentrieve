@@ -507,6 +507,9 @@ class TwoPhaseLLMPipeline:
             "local_fallbacks": 0,
             "phase1_fallbacks": phase1_fallback_count,
         }
+        unanchored = sum(1 for item in extracted if not item.get("chunk_ids"))
+        if grounded_chunks and unanchored:
+            phase_counts["phase1_unanchored_phrases"] = unanchored
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,
             "phase2b_llm_requests": 0,

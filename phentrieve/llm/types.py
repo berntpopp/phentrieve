@@ -179,7 +179,10 @@ class LLMGroundedExtractedPhenotype(BaseModel):
     category: Literal["Abnormal", "Normal", "Suspected", "Family_History", "Other"]
     # maxItems goes to the provider schema only (not validated): constrained
     # decoding then cannot loop forever in "chunk_ids": [11, 11, 11, ...].
-    chunk_ids: list[int] = Field(min_length=1, json_schema_extra={"maxItems": 8})
+    # No minimum: provider schemas drop minItems, and one item without
+    # chunk_ids must not invalidate the whole response; such items are kept
+    # unanchored and counted as ``phase1_unanchored_phrases`` (#489).
+    chunk_ids: list[int] = Field(json_schema_extra={"maxItems": 8})
     # No character offsets: the pipeline locates evidence_text in the cited
     # chunks (phentrieve.llm.evidence_offsets).
 

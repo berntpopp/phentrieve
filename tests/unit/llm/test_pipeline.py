@@ -4330,3 +4330,29 @@ def test_two_phase_pipeline_rejects_unsupported_mode():
             text="Patient had recurrent seizures.",
             config=LLMPipelineConfig(model="gemini-2.5-flash", mode="tool_text"),
         )
+
+
+def test_grounded_item_without_chunk_ids_does_not_invalidate_the_response():
+    # Provider schemas drop minItems, so "chunk_ids": [] can be decoded (#489).
+    provider = FakeProvider(
+        [
+            {
+                "phenotypes": [
+                    grounded_phenotype("term-a", "Abnormal"),
+                    {"phrase": "term-b", "category": "Abnormal", "chunk_ids": []},
+                ]
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=PhraseKeyedToolExecutor({})
+    )
+
+    result = pipeline.run(
+        text="term-a term-b",
+        grounded_chunks=[{"chunk_id": 1, "text": "term-a term-b"}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.phase_counts["phase1_unanchored_phrases"] == 1
