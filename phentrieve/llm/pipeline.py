@@ -675,14 +675,13 @@ class TwoPhaseLLMPipeline:
             )
 
         proband_terms = resolved_terms + qualifier_exclusions
-        guarded_terms = self._drop_non_phenotypic(proband_terms)
-        guarded_family = self._drop_non_phenotypic(resolved_family)
-        guarded_other_person = self._drop_non_phenotypic(resolved_other_person)
         all_terms = (
             len(proband_terms) + len(resolved_family) + len(resolved_other_person)
         )
-        dropped_terms = all_terms - (
-            len(guarded_terms) + len(guarded_family) + len(guarded_other_person)
+        guarded_terms, guarded_family, guarded_other_person, dropped_terms = (
+            self._apply_ontology_guard(
+                proband_terms, resolved_family, resolved_other_person
+            )
         )
         # Counted and traced, so lost findings and an inactive guard show (#493).
         if dropped_terms:
@@ -2408,6 +2407,13 @@ class TwoPhaseLLMPipeline:
     @staticmethod
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         return deduplicate_terms(terms)
+
+    @classmethod
+    def _apply_ontology_guard(cls, *term_lists: list[LLMPhenotype]) -> tuple[Any, ...]:
+        """Guard every list and return them plus the number of dropped terms."""
+        guarded = [cls._drop_non_phenotypic(terms) for terms in term_lists]
+        dropped = sum(len(t) for t in term_lists) - sum(len(g) for g in guarded)
+        return (*guarded, dropped)
 
     @staticmethod
     def _drop_non_phenotypic(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:

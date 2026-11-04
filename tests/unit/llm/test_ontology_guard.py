@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import phentrieve.llm.ontology_guard as ontology_guard
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
-from phentrieve.llm.types import LLMPhenotype, LLMPipelineConfig
+from phentrieve.llm.types import LLMPhenotype
 
 
 def _guard_with_map(monkeypatch, ancestors: dict[str, set[str]]) -> None:
@@ -83,36 +83,23 @@ def test_pipeline_drops_non_phenotypic_terms(monkeypatch):
     assert [t.term_id for t in kept] == ["HP:0001250"]
 
 
-def test_pipeline_counts_guard_drops_and_traces_availability(monkeypatch):
-    # Drops are counted and the guard state is traced, not only logged (#493).
-    _guard_with_map(monkeypatch, {"HP:9000001": {"HP:0000001", "HP:0012823"}})
+def test_guard_counts_drops_across_proband_family_and_other(monkeypatch):
+    # Drops are counted, not only logged (#493). Tested on the guard step itself,
+    # so a candidate filter before mapping does not change what is checked.
+    _guard_with_map(
+        monkeypatch,
+        {"HP:9000001": {"HP:0000001", "HP:0012823"}, "HP:9000002": {"HP:0000118"}},
+    )
+    keep = LLMPhenotype(term_id="HP:9000002", label="term-b")
+    drop = LLMPhenotype(term_id="HP:9000001", label="term-a")
 
-    class _Provider:
-        last_usage: dict = {}
-        last_request_count = 1
-
-        def run_structured_prompt(self, *, response_model, **_kwargs):
-            return response_model.model_validate(
-                {"phenotypes": [{"phrase": "term-a", "category": "Abnormal"}]}
-            )
-
-    class _Retriever:
-        def query_batch_hpo_terms(self, *, phrases, language, n_results):
-            candidate = {"hpo_id": "HP:9000001", "term_name": "term-a", "score": 0.99}
-            return [{"phrase": phrase, "candidates": [candidate]} for phrase in phrases]
-
-    pipeline = TwoPhaseLLMPipeline(provider=_Provider(), tool_executor=_Retriever())
-    result = pipeline.run(
-        text="term-a",
-        config=LLMPipelineConfig(model="fake", mode="two_phase", language="en"),
+    proband, family, other, dropped = TwoPhaseLLMPipeline._apply_ontology_guard(
+        [keep, drop], [drop], []
     )
 
-    assert result.terms == []
-    assert result.meta.phase_counts["ontology_guard_dropped_terms"] == 1
-    assert result.meta.trace["ontology_guard"] == {
-        "available": True,
-        "dropped_terms": 1,
-    }
+    assert [t.term_id for t in proband] == ["HP:9000002"]
+    assert family == [] and other == []
+    assert dropped == 2
 
 
 def test_guard_reports_unavailable_graph(monkeypatch):
