@@ -63,10 +63,7 @@ import FullTextWorkspace from './query/FullTextWorkspace.vue';
 import AnnotationActionPopover from './AnnotationActionPopover.vue';
 import HpoTermPickerDialog from './HpoTermPickerDialog.vue';
 import { useFullTextCuration } from '../composables/useFullTextCuration';
-import {
-  summarizeDocumentQuery,
-  formatDocumentSummaryMeta,
-} from '../composables/useUserNoteAnnotations';
+import { summarizeDocumentQuery, countDocumentWords } from '../composables/useUserNoteAnnotations';
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -84,8 +81,12 @@ try {
 } catch {
   i18n = null;
 }
-function translate(key, fallback) {
-  return i18n ? i18n.t(key) : fallback;
+function translate(key, fallback, params) {
+  if (!i18n) return fallback;
+  // A numeric `count` selects the plural form ("1 word | {count} words").
+  return typeof params?.count === 'number'
+    ? i18n.t(key, params, params.count)
+    : i18n.t(key, params ?? {});
 }
 
 const curation = useFullTextCuration(props.item.id);
@@ -103,7 +104,12 @@ watch(
 );
 
 const summary = computed(() => summarizeDocumentQuery(props.noteText));
-const meta = computed(() => formatDocumentSummaryMeta(props.noteText));
+const meta = computed(() => {
+  const words = countDocumentWords(props.noteText);
+  return words
+    ? translate('annotatedDocumentPane.wordCount', `${words} words`, { count: words })
+    : '';
+});
 
 // Popover state
 const popoverVisible = ref(false);

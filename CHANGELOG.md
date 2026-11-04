@@ -18,6 +18,14 @@ together:
 
 ## [Unreleased]
 
+### Changed
+
+- **Phase-1 prompt v3.3.1: constructed examples.** The temporality and duplicate
+  examples in `two_phase/en.yaml` are replaced by invented ones (eczema, warts,
+  urticaria), and several test fixtures use invented sentences instead of sentences
+  quoted from published case reports. Rules are unchanged. `PROMPT_BEHAVIOR_VERSION`
+  is `6`, so earlier LLM benchmark checkpoints do not match.
+
 ### Fixed
 
 - Hybrid semantic similarity measures each term's distance to the lowest common
@@ -223,8 +231,8 @@ Chroma query failures raise instead of returning empty results;
   context and API output are unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to
   `3` so earlier LLM benchmark checkpoints do not match new runs. Limitation: a
   cue that scopes over a coordinated list is restored only for the chunk it
-  directly precedes ("no plantar or palmar pits, facial abnormalities or
-  macrocephaly" restores `no` for `plantar` but not for the later items).
+  directly precedes ("no axillary or inguinal nodes, skin lesions or clubbing"
+  restores `no` for `axillary` but not for the later items).
 
 - **Runaway phase-1 generations no longer burn the full output budget repeatedly**
   ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate
