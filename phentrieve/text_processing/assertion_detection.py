@@ -209,7 +209,8 @@ def _find_cue_span(text_lower: str, cue_lower: str) -> tuple[int, int] | None:
 
 def pseudo_cue_spans(text: str, language: str) -> list[tuple[int, int]]:
     """Spans of phrases like "cannot be ruled out", which leave a finding open."""
-    text_lower = text.lower()
+    # Typographic apostrophes ("can’t") must match the rule literals; same length.
+    text_lower = text.lower().replace("’", "'")
     spans: list[tuple[int, int]] = []
     for cue in load_context_cues(language, "PSEUDO"):
         index = text_lower.find(cue)
