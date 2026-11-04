@@ -233,84 +233,95 @@ export function seedAnnotationsFromResponse({ note, response }) {
       return { start, end };
     }
     const offset = chunkOffsets.get(String(chunkId));
-    return offset != null && chunk.text ? { start: offset, end: offset + chunk.text.length } : null;
+    const chunkText = typeof chunk.text === 'string' ? chunk.text : chunk.chunk_text;
+    return offset != null && chunkText ? { start: offset, end: offset + chunkText.length } : null;
   }
 
-  return terms
-    .filter((term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string')
-    .map((term, index) => {
-      const spans = (Array.isArray(term.text_attributions) ? term.text_attributions : [])
-        .map((attr) => {
-          const base =
-            chunkOffsets.get(attr?.chunk_id) ??
-            chunkOffsets.get(String(attr?.chunk_id)) ??
-            chunkOffsets.get(Number(attr?.chunk_id));
+  const validTerms = terms.filter(
+    (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
+  );
+  const seeded = validTerms.map((term) => ({ term, spans: exactSpans(term) }));
+  const exact = seeded.flatMap(({ spans }) => spans);
 
-          if (base != null) {
-            const start = Math.max(
-              0,
-              Math.min(base + Math.max(0, attr.start_char ?? 0), noteText.length)
-            );
-            const end = Math.max(
-              0,
-              Math.min(base + Math.max(0, attr.end_char ?? 0), noteText.length)
-            );
-            if (end > start) return { start, end, text: noteText.slice(start, end) };
-          }
-
-          const resolved = resolveMatchedTextRange(noteText, attr?.matched_text_in_chunk);
-          return resolved
-            ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) }
-            : null;
-        })
+  return seeded.map(({ term, spans }, index) => {
+    // Fallback (#463): label matching finds no span for e.g. normal findings or
+    // non-English notes, but the API names the evidence chunk; highlight it. A chunk
+    // that already holds another term's exact span is skipped, because merging would
+    // swallow that span and its negation styling.
+    if (spans.length === 0) {
+      const evidenceIds =
+        term.top_evidence_chunk_id != null
+          ? [term.top_evidence_chunk_id]
+          : Array.isArray(term.source_chunk_ids)
+            ? term.source_chunk_ids
+            : [];
+      evidenceIds
+        .map(chunkRange)
         .filter(Boolean)
-        .sort((a, b) => a.start - b.start);
+        .filter(({ start, end }) => !exact.some((s) => s.start < end && s.end > start))
+        .forEach(({ start, end }) => spans.push({ start, end, text: noteText.slice(start, end) }));
+    }
 
-      // Fallback: some backends (notably the grounded LLM extractor) return
-      // terms with no usable text attributions. If the term's own label appears
-      // verbatim in the note, locate it so the term is still highlighted.
-      if (spans.length === 0) {
-        const byLabel = resolveMatchedTextRange(noteText, term.name);
-        if (byLabel) {
-          spans.push({
-            start: byLabel.start,
-            end: byLabel.end,
-            text: noteText.slice(byLabel.start, byLabel.end),
-          });
-        }
-      }
+    // Keep terms even when no note span resolves: they still belong in the
+    // findings list (e.g. inferred terms without offsets). Such annotations
+    // simply produce no highlight in the note.
+    const confidence = parseConfidence(term.confidence);
+    return {
+      id: `auto-${term.hpo_id}-${index}`,
+      hpoId: term.hpo_id,
+      label: term.name,
+      status: normalizeAnnotationStatus(term.status, term.excluded),
+      spans,
+      origin: 'auto',
+      confidence,
+    };
+  });
 
-      // Fallback (#463): label matching finds no span for e.g. normal findings or
-      // non-English notes, but the API names the evidence chunk; highlight it.
-      if (spans.length === 0) {
-        const evidenceIds =
-          term.top_evidence_chunk_id != null
-            ? [term.top_evidence_chunk_id]
-            : Array.isArray(term.source_chunk_ids)
-              ? term.source_chunk_ids
-              : [];
-        evidenceIds
-          .map(chunkRange)
-          .filter(Boolean)
-          .forEach(({ start, end }) =>
-            spans.push({ start, end, text: noteText.slice(start, end) })
+  // Attributed spans, else the term label found verbatim in the note.
+  function exactSpans(term) {
+    const spans = (Array.isArray(term.text_attributions) ? term.text_attributions : [])
+      .map((attr) => {
+        const base =
+          chunkOffsets.get(attr?.chunk_id) ??
+          chunkOffsets.get(String(attr?.chunk_id)) ??
+          chunkOffsets.get(Number(attr?.chunk_id));
+
+        if (base != null) {
+          const start = Math.max(
+            0,
+            Math.min(base + Math.max(0, attr.start_char ?? 0), noteText.length)
           );
-      }
+          const end = Math.max(
+            0,
+            Math.min(base + Math.max(0, attr.end_char ?? 0), noteText.length)
+          );
+          if (end > start) return { start, end, text: noteText.slice(start, end) };
+        }
 
-      // Keep terms even when no note span resolves: they still belong in the
-      // findings list (e.g. inferred terms without offsets). Such annotations
-      // simply produce no highlight in the note.
-      const confidence = parseConfidence(term.confidence);
-      return {
-        id: `auto-${term.hpo_id}-${index}`,
-        hpoId: term.hpo_id,
-        label: term.name,
-        status: normalizeAnnotationStatus(term.status, term.excluded),
-        spans,
-        origin: 'auto',
-        confidence,
-      };
-    });
+        const resolved = resolveMatchedTextRange(noteText, attr?.matched_text_in_chunk);
+        return resolved
+          ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) }
+          : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.start - b.start);
+
+    // Fallback: some backends (notably the grounded LLM extractor) return
+    // terms with no usable text attributions. If the term's own label appears
+    // verbatim in the note, locate it so the term is still highlighted.
+    if (spans.length === 0) {
+      const byLabel = resolveMatchedTextRange(noteText, term.name);
+      if (byLabel) {
+        spans.push({
+          start: byLabel.start,
+          end: byLabel.end,
+          text: noteText.slice(byLabel.start, byLabel.end),
+        });
+      }
+    }
+
+    return spans;
+  }
 }
 
 /**

@@ -241,6 +241,33 @@ describe('seedAnnotationsFromResponse', () => {
     expect(r[1].spans).toEqual([{ start: 37, end: 56, text: 'Er hat eine Ataxie.' }]);
   });
 
+  it('does not let the chunk fallback swallow another term exact span (#463)', () => {
+    const shared = 'Keine Krampfanfälle, aber Ataxie.';
+    const r = seedAnnotationsFromResponse({
+      note: shared,
+      response: {
+        processed_chunks: [{ chunk_id: 1, text: shared }],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            status: 'negated',
+            top_evidence_chunk_id: 1,
+            text_attributions: [],
+          },
+          {
+            hpo_id: 'HP:0001251',
+            name: 'Ataxia',
+            status: 'present',
+            text_attributions: [{ chunk_id: 1, start_char: 26, end_char: 32 }],
+          },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([]);
+    expect(r[1].spans).toEqual([{ start: 26, end: 32, text: 'Ataxie' }]);
+  });
+
   it('keeps a term with no resolvable span (empty spans) so it still appears in findings', () => {
     const r = seedAnnotationsFromResponse({
       note,
