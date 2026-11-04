@@ -151,3 +151,16 @@ def test_derive_category_from_axes_projection() -> None:
         derive_category_from_axes("proband", "family_history", "family_history")
         == "family_history"
     )
+
+
+def test_axes_are_combined_by_one_symmetric_rule() -> None:
+    # A "present" assertion never overrides Normal or Suspected (#495).
+    from phentrieve.llm.pipeline_phase2 import axes_disagree, resolve_proband_assertion
+
+    assert resolve_proband_assertion("suspected", "present") == "uncertain"
+    assert resolve_proband_assertion("normal", "present") == "negated"
+    assert resolve_proband_assertion("abnormal", "negated") == "negated"
+    assert resolve_proband_assertion("suspected", None) == "uncertain"
+    assert axes_disagree({"category": "Suspected", "assertion": "present"})
+    assert not axes_disagree({"category": "Suspected", "assertion": "uncertain"})
+    assert not axes_disagree({"category": "Abnormal", "assertion": None})

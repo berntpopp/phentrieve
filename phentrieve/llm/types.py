@@ -84,9 +84,11 @@ class LLMPhenotype(BaseModel):
 
 # Orthogonal classification axes added to the Phase-1 extraction schemas (LLM-2),
 # declared before the legacy ``category`` label so Gemini -- which emits keys in
-# schema order -- reasons about experiencer and assertion first. ``category`` stays
-# authoritative downstream; these axes scaffold the model's reasoning and
-# ``negated_qualifier`` captures the negated portion of an "X without Y" phrase.
+# schema order -- reasons about experiencer and assertion first. Downstream the
+# axes are combined by one rule (``pipeline_phase2.resolve_proband_assertion``):
+# an explicit negated/uncertain assertion wins, a "present" assertion never
+# overrides a Normal or Suspected category, and without an assertion the category
+# decides. ``negated_qualifier`` captures the negated portion of "X without Y".
 _EXPERIENCER_DESCRIPTION = (
     "Decide FIRST, independently of presence: who the phenotype belongs to. "
     "'family_history' for a relative of the patient, 'other' for another person "

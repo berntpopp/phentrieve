@@ -89,6 +89,9 @@ from phentrieve.llm.pipeline_phase2 import (
     select_candidate_ids,
 )
 from phentrieve.llm.pipeline_phase2 import (
+    axes_disagree as _axes_disagree,
+)
+from phentrieve.llm.pipeline_phase2 import (
     candidate_match_text as _candidate_match_text,
 )
 from phentrieve.llm.pipeline_phase2 import (
@@ -513,6 +516,10 @@ class TwoPhaseLLMPipeline:
             "local_fallbacks": 0,
             "phase1_fallbacks": phase1_fallback_count,
         }
+        # Category/assertion contradictions, resolved by one rule (#495).
+        axis_disagreements = sum(1 for item in actionable if _axes_disagree(item))
+        if axis_disagreements:
+            phase_counts["phase1_axis_disagreements"] = axis_disagreements
         unanchored = sum(1 for item in extracted if not item.get("chunk_ids"))
         if grounded_chunks and unanchored:
             phase_counts["phase1_unanchored_phrases"] = unanchored

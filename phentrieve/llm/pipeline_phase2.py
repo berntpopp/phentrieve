@@ -338,6 +338,41 @@ def optional_float(value: Any) -> float | None:
     return float(value)
 
 
+# Categories that encode a polarity other than present.
+_POLARITY_CATEGORIES = frozenset({"normal", "suspected"})
+
+
+def resolve_proband_assertion(category: str, model_assertion: str | None) -> str:
+    """The single rule that combines the category and assertion axes.
+
+    An explicit ``negated`` or ``uncertain`` assertion wins over the category.
+    A ``present`` assertion never overrides a category that encodes another
+    polarity (Normal -> negated, Suspected -> uncertain), because ``present``
+    is also the schema default a model may leak (#495). Without an assertion
+    the category decides.
+    """
+    if model_assertion == PRESENT_ASSERTION and category in _POLARITY_CATEGORIES:
+        return CATEGORY_TO_ASSERTION[category]
+    if model_assertion is not None:
+        return model_assertion
+    return CATEGORY_TO_ASSERTION.get(category, PRESENT_ASSERTION)
+
+
+def axes_disagree(item: dict[str, Any]) -> bool:
+    """Whether the model's assertion contradicts the polarity of its category."""
+    category = normalize_category(str(item.get("category", "")))
+    if item.get("assertion") is None or category not in {
+        "abnormal",
+        "normal",
+        "suspected",
+    }:
+        return False
+    return (
+        str(parse_assertion(item["assertion"]).value)
+        != (CATEGORY_TO_ASSERTION[category])
+    )
+
+
 def phenotype_from_candidate(
     *,
     item: dict[str, Any],
@@ -359,24 +394,7 @@ def phenotype_from_candidate(
         if item.get("assertion") is not None
         else None
     )
-    # Model WINS on polarity (present | negated | uncertain), EXCEPT it may not
-    # promote an explicit ``normal`` category to ``present``. A "normal" category
-    # is a normalcy verdict (e.g. "normal intellectual abilities" is NOT
-    # Cognitive impairment); the phase-1 model sometimes co-emits a contradictory
-    # ``assertion="present"`` (or leaks the schema default), which B1's plain
-    # model-wins rule would flip a ruled-out finding to present. That specific
-    # contradiction resolves to the normalcy category's ``negated`` instead. A
-    # model ``negated``/``uncertain`` on a normal category is consistent and is
-    # still honored; every other category keeps model-wins / category-fallback
-    # (B1/D2).
-    if normalized_category == "normal" and model_assertion == PRESENT_ASSERTION:
-        resolved_assertion = CATEGORY_TO_ASSERTION["normal"]
-    elif model_assertion is not None:
-        resolved_assertion = model_assertion
-    else:
-        resolved_assertion = CATEGORY_TO_ASSERTION.get(
-            normalized_category, PRESENT_ASSERTION
-        )
+    resolved_assertion = resolve_proband_assertion(normalized_category, model_assertion)
     resolved_experiencer = (
         item["experiencer"]
         if item.get("experiencer")
