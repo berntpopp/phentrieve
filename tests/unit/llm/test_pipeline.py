@@ -4411,3 +4411,10 @@ def test_phase2_failures_raise_typed_phase_errors() -> None:
                 config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
             )
         assert raised.value.phase == phase
+
+
+def test_explicit_null_item_ids_ignores_an_unexpected_response_type():
+    # A response of neither mapping type yields no explicit nulls (#490).
+    from phentrieve.llm.pipeline_phase2 import explicit_null_item_ids
+
+    assert explicit_null_item_ids(mapping_response=object(), batch=[{}]) == set()

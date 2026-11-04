@@ -485,6 +485,8 @@ def explicit_null_item_ids(
     """
     if isinstance(mapping_response, LLMMappingSelection):
         return {mapping_batch_item_id(0)} if not mapping_response.hpo_id else set()
+    if not isinstance(mapping_response, LLMBatchMappingSelections):
+        return set()
     batch_ids = {mapping_batch_item_id(index) for index in range(len(batch))}
     return {
         mapping.item_id
