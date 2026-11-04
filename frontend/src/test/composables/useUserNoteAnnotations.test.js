@@ -314,6 +314,75 @@ describe('seedAnnotationsFromResponse', () => {
     expect(r[0].spans[0]).toMatchObject({ start: 8, end: 20 });
   });
 
+  it('finds attributed text inside its chunk when the chunk crosses a line break (#411)', () => {
+    const lineBreakNote = 'History: seizures in infancy.\nNow: recurrent\n  seizures since May.';
+    const start = lineBreakNote.indexOf('Now');
+    const r = seedAnnotationsFromResponse({
+      note: lineBreakNote,
+      response: {
+        processed_chunks: [
+          // Chunk text has its whitespace collapsed; positions point at the raw note.
+          {
+            chunk_id: 1,
+            text: 'Now: recurrent seizures since May.',
+            start_char: start,
+            end_char: lineBreakNote.length,
+          },
+        ],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            text_attributions: [
+              {
+                chunk_id: 1,
+                start_char: 5,
+                end_char: 23,
+                matched_text_in_chunk: 'recurrent seizures',
+              },
+            ],
+          },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([
+      { start: start + 5, end: start + 25, text: 'recurrent\n  seizures' },
+    ]);
+  });
+
+  it('keeps matched-text offsets exact after characters that lowercase to two (#411)', () => {
+    const r = seedAnnotationsFromResponse({
+      note: 'İİ Patient has seizures.',
+      response: {
+        processed_chunks: [],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            text_attributions: [{ chunk_id: 9, matched_text_in_chunk: 'Seizures' }],
+          },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([{ start: 15, end: 23, text: 'seizures' }]);
+  });
+
+  it('looks for the label in the source chunk, not the first mention in the note (#411)', () => {
+    const r = seedAnnotationsFromResponse({
+      note: 'No hypotonia at birth. Today marked hypotonia.',
+      response: {
+        processed_chunks: [
+          { chunk_id: 1, text: 'No hypotonia at birth.', start_char: 0, end_char: 22 },
+          { chunk_id: 2, text: 'Today marked hypotonia.', start_char: 23, end_char: 46 },
+        ],
+        aggregated_hpo_terms: [
+          { hpo_id: 'HP:0001252', name: 'Hypotonia', source_chunk_ids: [2], text_attributions: [] },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([{ start: 36, end: 45, text: 'hypotonia' }]);
+  });
+
   it('seeds ruled-out findings (normal, absent, excluded) as negated (#404)', () => {
     const r = seedAnnotationsFromResponse({
       note: 'Normal intellect. No seizures. Mild hypotonia.',
