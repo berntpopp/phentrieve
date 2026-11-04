@@ -822,11 +822,20 @@ class TwoPhaseLLMPipeline:
             len(items),
         )
         phase2a_start = time.perf_counter()
-        phrase_candidates = self._retrieve_candidates(
-            actionable=items,
-            grounded_chunks=grounded_chunks,
-            language=language,
-        )
+        try:
+            phrase_candidates = self._retrieve_candidates(
+                actionable=items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+        except LLMPipelinePhaseError:
+            raise
+        except Exception as exc:
+            # A typed phase error lets callers record the document as failed
+            # instead of aborting a whole batch run (#494).
+            raise LLMPipelinePhaseError(
+                "phase2a", "Candidate retrieval failed"
+            ) from exc
         phase2a_seconds = round(time.perf_counter() - phase2a_start, 6)
         candidate_sets = len(phrase_candidates)
         phase2a_trace = build_phase2a_trace(phrase_candidates)
@@ -884,18 +893,30 @@ class TwoPhaseLLMPipeline:
                 len(unresolved),
             )
             phase2b_llm_start = time.perf_counter()
-            (
-                mapped_terms,
-                mapping_prompt_tokens,
-                mapping_completion_tokens,
-                mapping_token_usage,
-                mapping_request_count,
-                local_fallback_count,
-                mapping_trace,
-            ) = self._resolve_with_mapping_prompt(
-                unresolved=unresolved,
-                mapping_prompt=mapping_prompt,
-            )
+            try:
+                (
+                    mapped_terms,
+                    mapping_prompt_tokens,
+                    mapping_completion_tokens,
+                    mapping_token_usage,
+                    mapping_request_count,
+                    local_fallback_count,
+                    mapping_trace,
+                ) = self._resolve_with_mapping_prompt(
+                    unresolved=unresolved,
+                    mapping_prompt=mapping_prompt,
+                )
+            except LLMPipelinePhaseError:
+                raise
+            except Exception as exc:
+                raise LLMPipelinePhaseError(
+                    "phase2b",
+                    "Phase 2 mapping failed",
+                    usage=dict(getattr(self.provider, "last_usage", {}) or {}),
+                    request_count=int(
+                        getattr(self.provider, "last_request_count", 0) or 0
+                    ),
+                ) from exc
             phase2b_llm_seconds = round(time.perf_counter() - phase2b_llm_start, 6)
             prompt_tokens = mapping_prompt_tokens
             completion_tokens = mapping_completion_tokens

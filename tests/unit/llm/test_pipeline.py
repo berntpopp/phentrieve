@@ -4382,3 +4382,32 @@ def test_explicit_null_mapping_skips_the_local_fallback() -> None:
 
     assert result.terms == []
     assert result.meta.phase_counts["local_fallbacks"] == 0
+
+
+def test_phase2_failures_raise_typed_phase_errors() -> None:
+    # A typed error lets the benchmark record the document as failed (#494).
+    from phentrieve.llm.pipeline_retry import LLMPipelinePhaseError
+
+    class _BrokenRetriever:
+        def query_batch_hpo_terms(self, *, phrases, language, n_results):
+            raise RuntimeError("retrieval down")
+
+    phase1 = {"phenotypes": [grounded_phenotype("term-a", "Abnormal")]}
+    candidates = {"term-a": [{"hpo_id": "HP:9000001", "term_name": "x", "score": 0.5}]}
+    cases = [
+        ("phase2a", FakeProvider([phase1]), _BrokenRetriever()),
+        (
+            "phase2b",
+            FakeProvider([phase1, {"exception": ValueError("invalid mapping")}]),
+            PhraseKeyedToolExecutor(candidates),
+        ),
+    ]
+    for phase, provider, tool_executor in cases:
+        pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+        with pytest.raises(LLMPipelinePhaseError) as raised:
+            pipeline.run(
+                text="term-a",
+                grounded_chunks=[{"chunk_id": 1, "text": "term-a"}],
+                config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+            )
+        assert raised.value.phase == phase

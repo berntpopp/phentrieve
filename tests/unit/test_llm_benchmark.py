@@ -3654,3 +3654,52 @@ def test_checkpoint_without_prompt_hash_stays_resumable(tmp_path) -> None:
         payload={"llm_model": "m", "prompt_templates_sha256": {"user": "stale"}},
         current_run={"llm_model": "m", "prompt_templates_sha256": current},
     )
+
+
+def test_run_llm_benchmark_marks_unrecovered_phase1_groups_incomplete(monkeypatch):
+    # A document with an unrecovered phase-1 group is not complete (#494).
+    def fake_load_benchmark_data(test_path: Path, dataset: str):
+        return {
+            "metadata": {"dataset_name": "phenobert_GeneReviews"},
+            "documents": [
+                {
+                    "id": "doc-1",
+                    "text": "<text a>",
+                    "gold_hpo_terms": [],
+                    "source_dataset": "GeneReviews",
+                }
+            ],
+        }
+
+    class _PartialPipeline:
+        def __init__(self, provider):
+            self.provider = provider
+
+        def run(self, *, text, grounded_chunks, config):
+            from phentrieve.llm.types import LLMExtractionResult, LLMMeta
+
+            return LLMExtractionResult(
+                terms=[],
+                meta=LLMMeta(
+                    llm_model=config.model,
+                    llm_mode=config.mode,
+                    phase_counts={"phase1_unrecovered_groups": 1},
+                ),
+            )
+
+    monkeypatch.setattr(llm_benchmark, "load_benchmark_data", fake_load_benchmark_data)
+    monkeypatch.setattr(llm_benchmark, "get_llm_provider", lambda llm_model: object())
+    monkeypatch.setattr(llm_benchmark, "TwoPhaseLLMPipeline", _PartialPipeline)
+
+    result = llm_benchmark.run_llm_benchmark(
+        test_file="tests/data/en/phenobert",
+        llm_model="gemini-2.5-flash",
+    )
+
+    record = result["results"][0]
+    assert record["status"] == "incomplete"
+    assert record["partial_failure_counts"]["phase1_unrecovered_groups"] == 1
+    assert result["prediction_records"][0]["status"] == "incomplete"
+    assert result["case_records"][0]["status"] == "incomplete"
+    assert result["incomplete_cases"] == 1
+    assert llm_benchmark._checkpoint_record_is_reusable(record) is False
