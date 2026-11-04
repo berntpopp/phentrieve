@@ -21,6 +21,12 @@ import typer
 pytestmark = pytest.mark.unit
 
 
+@pytest.fixture(autouse=True)
+def _no_local_hpo_db(tmp_path, monkeypatch):
+    """Hide a local data/hpo_data.db so the load_hpo_terms fallback is tested (#470)."""
+    monkeypatch.setattr("phentrieve.utils.get_default_data_dir", lambda: tmp_path)
+
+
 # =============================================================================
 # Tests for _ensure_cli_hpo_label_cache()
 # =============================================================================
