@@ -222,6 +222,19 @@ export function seedAnnotationsFromResponse({ note, response }) {
   if (terms.length === 0) return [];
 
   const chunkOffsets = resolveChunkOffsetsInNote(noteText, chunks);
+  const chunkById = new Map(chunks.map((chunk) => [String(chunk?.chunk_id), chunk]));
+
+  // Note range of a whole chunk: API offsets first, else where its text sits in the note.
+  function chunkRange(chunkId) {
+    const chunk = chunkById.get(String(chunkId));
+    if (!chunk) return null;
+    const { start_char: start, end_char: end } = chunk;
+    if (Number.isInteger(start) && Number.isInteger(end) && start < end && end <= noteText.length) {
+      return { start, end };
+    }
+    const offset = chunkOffsets.get(String(chunkId));
+    return offset != null && chunk.text ? { start: offset, end: offset + chunk.text.length } : null;
+  }
 
   return terms
     .filter((term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string')
@@ -265,6 +278,23 @@ export function seedAnnotationsFromResponse({ note, response }) {
             text: noteText.slice(byLabel.start, byLabel.end),
           });
         }
+      }
+
+      // Fallback (#463): label matching finds no span for e.g. normal findings or
+      // non-English notes, but the API names the evidence chunk; highlight it.
+      if (spans.length === 0) {
+        const evidenceIds =
+          term.top_evidence_chunk_id != null
+            ? [term.top_evidence_chunk_id]
+            : Array.isArray(term.source_chunk_ids)
+              ? term.source_chunk_ids
+              : [];
+        evidenceIds
+          .map(chunkRange)
+          .filter(Boolean)
+          .forEach(({ start, end }) =>
+            spans.push({ start, end, text: noteText.slice(start, end) })
+          );
       }
 
       // Keep terms even when no note span resolves: they still belong in the
