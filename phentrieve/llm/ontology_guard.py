@@ -9,7 +9,9 @@ under Phenotypic abnormality (HP:0000118), so a resolved term KNOWN to sit
 outside that subtree is not a valid standalone phenotype and is dropped.
 
 Fail open: a term whose ancestry is unknown (or when the HPO graph cannot be
-loaded) is kept, so incomplete data never silently drops a real finding.
+loaded) is kept, so incomplete data never silently drops a real finding. A
+missing graph is logged as an error and reported by ``guard_available`` so a
+run without the guard is visible in its trace (#493).
 """
 
 from __future__ import annotations
@@ -50,7 +52,7 @@ def _ancestors_map() -> dict[str, frozenset[str]]:
         db_path = data_dir / DEFAULT_HPO_DB_FILENAME
         cache_key = str(db_path)
     except Exception as exc:  # pragma: no cover - defensive
-        logger.warning(
+        logger.error(
             "Ontology guard could not resolve HPO db path (%s); disabled (fail open).",
             exc,
         )
@@ -62,7 +64,7 @@ def _ancestors_map() -> dict[str, frozenset[str]]:
 
     try:
         if not db_path.exists():
-            logger.warning(
+            logger.error(
                 "HPO database not found: %s; ontology guard disabled "
                 "(fail open, will retry).",
                 db_path,
@@ -70,7 +72,7 @@ def _ancestors_map() -> dict[str, frozenset[str]]:
             return {}
         loaded = _load_ancestors_map(db_path)
     except Exception as exc:  # pragma: no cover - defensive
-        logger.warning(
+        logger.error(
             "Ontology guard could not load HPO graph (%s); disabled "
             "(fail open, will retry).",
             exc,
@@ -81,6 +83,11 @@ def _ancestors_map() -> dict[str, frozenset[str]]:
     if loaded:
         _ANCESTORS_CACHE[cache_key] = loaded
     return loaded
+
+
+def guard_available() -> bool:
+    """Whether the HPO graph is loaded, i.e. the guard is active."""
+    return bool(_ancestors_map())
 
 
 def is_non_phenotypic_abnormality(term_id: str) -> bool:

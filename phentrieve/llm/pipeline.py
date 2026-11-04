@@ -31,7 +31,10 @@ from phentrieve.llm.config import (
     PRESENT_ASSERTION,
 )
 from phentrieve.llm.evidence_offsets import EvidenceLocator, rendered_regions
-from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
+from phentrieve.llm.ontology_guard import (
+    guard_available,
+    is_non_phenotypic_abnormality,
+)
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
 )
@@ -664,16 +667,29 @@ class TwoPhaseLLMPipeline:
                 phase_request_counts=phase_request_counts,
             )
 
+        proband_terms = resolved_terms + qualifier_exclusions
+        guarded_terms = self._drop_non_phenotypic(proband_terms)
+        guarded_family = self._drop_non_phenotypic(resolved_family)
+        guarded_other_person = self._drop_non_phenotypic(resolved_other_person)
+        all_terms = (
+            len(proband_terms) + len(resolved_family) + len(resolved_other_person)
+        )
+        dropped_terms = all_terms - (
+            len(guarded_terms) + len(guarded_family) + len(guarded_other_person)
+        )
+        # Counted and traced, so lost findings and an inactive guard show (#493).
+        if dropped_terms:
+            phase_counts["ontology_guard_dropped_terms"] = dropped_terms
+        if all_terms:
+            trace["ontology_guard"] = {
+                "available": guard_available(),
+                "dropped_terms": dropped_terms,
+            }
+
         return LLMExtractionResult(
-            terms=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_terms + qualifier_exclusions)
-            ),
-            family_history_findings=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_family)
-            ),
-            other_person_findings=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_other_person)
-            ),
+            terms=self._deduplicate_terms(guarded_terms),
+            family_history_findings=self._deduplicate_terms(guarded_family),
+            other_person_findings=self._deduplicate_terms(guarded_other_person),
             meta=LLMMeta(
                 llm_provider=config.provider,
                 llm_model=config.model,
@@ -2377,7 +2393,7 @@ class TwoPhaseLLMPipeline:
         kept: list[LLMPhenotype] = []
         for term in terms:
             if is_non_phenotypic_abnormality(term.term_id):
-                logger.debug(
+                logger.info(
                     "ontology guard dropped non-phenotype term %s (%s)",
                     term.term_id,
                     term.label,
