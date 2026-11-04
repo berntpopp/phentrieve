@@ -33,8 +33,9 @@ together:
 - **Phase-1 chunk index shows dropped trailing text after its chunk**
   (`<finding>: no`), including after the last chunk; `-`/`+` count as trailing
   separators (#487). `PROMPT_BEHAVIOR_VERSION` is bumped to `7`.
-- **Slash splitting only splits `word/word`** (no values, units, single
-  letters or `and/or`) and split items keep the verbatim evidence (#488).
+- **Phase 1 no longer splits slash phrases** (`a/b`); the prompt already asks
+  for one phrase per finding, and the split broke units, `and/or` and prefix
+  forms (#488, partial: shared-head splitting is unchanged).
 - **A phase-1 item without `chunk_ids` no longer invalidates the response**;
   it is kept unanchored and counted (`phase1_unanchored_phrases`) (#489).
 - **Negated qualifiers are mapped through the regular route-and-map path**,
@@ -47,8 +48,10 @@ together:
 - **LLM benchmark marks documents with unrecovered phase-1 groups
   `incomplete`** and retries them on resume; phase-2 failures raise
   `LLMPipelinePhaseError` so one document no longer aborts the run (#494).
-- **Category and assertion are combined by one rule**: `present` never
-  overrides Normal or Suspected; disagreements are counted (#495).
+- **Category and assertion are combined by one rule**: an explicit negated or
+  uncertain assertion wins, `present` never overrides Normal or Suspected;
+  disagreements are counted (#495, partial: proband findings with category
+  Other are still not actionable).
 
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
