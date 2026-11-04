@@ -204,6 +204,72 @@ describe('seedAnnotationsFromResponse', () => {
     );
   });
 
+  it('highlights the evidence chunk when neither attributions nor the label match (#463)', () => {
+    const germanNote = 'Der Patient hat keine Krampfanfälle. Er hat eine Ataxie.';
+    const r = seedAnnotationsFromResponse({
+      note: germanNote,
+      response: {
+        processed_chunks: [
+          {
+            chunk_id: 1,
+            text: 'Der Patient hat keine Krampfanfälle.',
+            start_char: 0,
+            end_char: 36,
+          },
+          { chunk_id: 2, text: 'Er hat eine Ataxie.' },
+        ],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            status: 'negated',
+            top_evidence_chunk_id: 1,
+            source_chunk_ids: [1],
+            text_attributions: [],
+          },
+          {
+            hpo_id: 'HP:0001251',
+            name: 'Ataxia',
+            status: 'present',
+            source_chunk_ids: [2],
+            text_attributions: [],
+          },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([
+      { start: 0, end: 36, text: 'Der Patient hat keine Krampfanfälle.' },
+    ]);
+    expect(r[1].spans).toEqual([{ start: 37, end: 56, text: 'Er hat eine Ataxie.' }]);
+  });
+
+  it('does not let the chunk fallback swallow another term exact span (#463)', () => {
+    const shared = 'Keine Krampfanfälle, aber Ataxie.';
+    const r = seedAnnotationsFromResponse({
+      note: shared,
+      response: {
+        processed_chunks: [{ chunk_id: 1, text: shared }],
+        aggregated_hpo_terms: [
+          {
+            hpo_id: 'HP:0001250',
+            name: 'Seizure',
+            status: 'negated',
+            top_evidence_chunk_id: 1,
+            text_attributions: [],
+          },
+          {
+            hpo_id: 'HP:0001251',
+            name: 'Ataxia',
+            status: 'present',
+            text_attributions: [{ chunk_id: 1, start_char: 26, end_char: 32 }],
+          },
+        ],
+      },
+    });
+    expect(r[0].spans).toEqual([]);
+    expect(r[1].spans).toEqual([{ start: 26, end: 32, text: 'Ataxie' }]);
+  });
+
   it('keeps a term with no resolvable span (empty spans) so it still appears in findings', () => {
     const r = seedAnnotationsFromResponse({
       note,
