@@ -226,7 +226,7 @@ def test_evidence_record_carries_the_offset_basis():
         "experiencer": "proband",
         "assertion": "absent",
     }
-    candidate = {"hpo_id": "HP:0002027", "term_name": "Abdominal pain", "score": 0.9}
+    candidate = {"hpo_id": "HP:0030766", "term_name": "Ear pain", "score": 0.9}
 
     term = phenotype_from_candidate(item=item, candidate=candidate)
 
@@ -236,7 +236,7 @@ def test_evidence_record_carries_the_offset_basis():
 
 
 def test_terms_have_a_temporality_defaulting_to_unknown():
-    term = LLMPhenotype(term_id="HP:0002027", label="Abdominal pain")
+    term = LLMPhenotype(term_id="HP:0030766", label="Ear pain")
 
     assert term.temporality == "unknown"
 
