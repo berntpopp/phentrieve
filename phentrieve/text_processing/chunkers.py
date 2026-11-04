@@ -586,12 +586,18 @@ class FineGrainedPunctuationChunker(TextChunker):
             ]
 
             # Temporarily replace abbreviations with placeholders
-            placeholders = {}
-            for i, abbr in enumerate(abbreviations):
-                placeholder = f"__ABBR{i}__"
-                pattern = re.compile(abbr)
-                segment_str = pattern.sub(placeholder, segment_str)
-                placeholders[placeholder] = abbr
+            placeholders: dict[str, str] = {}
+
+            def _protect(
+                match: re.Match[str], store: dict[str, str] = placeholders
+            ) -> str:
+                # Keep the matched text, not the pattern, for restoration (#486).
+                placeholder = f"__ABBR{len(store)}__"
+                store[placeholder] = match.group(0)
+                return placeholder
+
+            for abbr in abbreviations:
+                segment_str = re.sub(abbr, _protect, segment_str)
 
             # Also preserve decimal numbers
             decimal_pattern = re.compile(r"\d+[.,]\d+")
