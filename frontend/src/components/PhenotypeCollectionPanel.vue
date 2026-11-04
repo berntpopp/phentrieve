@@ -28,12 +28,13 @@
       </template>
     </v-tooltip>
 
-    <!-- Collection Panel -->
+    <!-- Collection Panel: modal with scrim below md, beside the results from md up (#464) -->
     <v-navigation-drawer
       :model-value="panelOpen"
       location="right"
       width="400"
-      temporary
+      mobile-breakpoint="md"
+      disable-resize-watcher
       style="z-index: 1500"
       :aria-label="$t('queryInterface.phenotypeCollection.aria.panel')"
       data-testid="case-workspace-drawer"

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
@@ -57,6 +57,46 @@ async function mountLegacyBridge({ locale = 'en', ...props } = {}) {
     },
   });
 }
+
+async function mountDrawerAtWidth(width) {
+  vi.stubGlobal('innerWidth', width);
+  const component = (await import('../../components/PhenotypeCollectionPanel.vue')).default;
+  const host = {
+    components: { PhenotypeCollectionPanel: component },
+    template: '<v-layout><PhenotypeCollectionPanel :panel-open="true" /><v-main /></v-layout>',
+  };
+  const wrapper = mount(host, {
+    attachTo: document.body,
+    global: {
+      plugins: [createVuetify({ components, directives })],
+      mocks: { $i18n: { locale: 'en' }, $t: (key) => key },
+    },
+  });
+  await flushPromises();
+  vi.unstubAllGlobals();
+  return wrapper;
+}
+
+describe('PhenotypeCollectionPanel drawer (#464)', () => {
+  it('keeps the results usable next to the open workspace on desktop', async () => {
+    const wrapper = await mountDrawerAtWidth(1280);
+    const drawer = wrapper.get('[data-testid="case-workspace-drawer"]');
+
+    expect(drawer.classes()).not.toContain('v-navigation-drawer--temporary');
+    expect(document.querySelector('.v-navigation-drawer__scrim')).toBeNull();
+    wrapper.unmount();
+  });
+
+  it('stays a modal drawer with a scrim on small screens', async () => {
+    const wrapper = await mountDrawerAtWidth(600);
+
+    expect(wrapper.get('[data-testid="case-workspace-drawer"]').classes()).toContain(
+      'v-navigation-drawer--temporary'
+    );
+    expect(document.querySelector('.v-navigation-drawer__scrim')).not.toBeNull();
+    wrapper.unmount();
+  });
+});
 
 describe('CaseWorkspacePanel', () => {
   it('renders the case workspace title and case summaries', async () => {
