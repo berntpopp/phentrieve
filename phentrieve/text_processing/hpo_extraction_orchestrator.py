@@ -5,6 +5,7 @@ pipeline-based approach with dense retrieval.
 """
 
 import logging
+from typing import Any
 
 from phentrieve.retrieval.dense_retriever import DenseRetriever
 from phentrieve.retrieval.utils import query_chunk_candidates
@@ -17,6 +18,70 @@ from phentrieve.text_processing._hpo_extraction_helpers import (
 from phentrieve.text_processing.orchestration_result import OrchestrationResult
 
 logger = logging.getLogger(__name__)
+
+_RESULT_KEYS = ("ids", "documents", "metadatas", "distances", "similarities")
+
+
+def _add_negated_scope_candidates(
+    retriever: Any,
+    all_query_results: list[dict[str, Any]],
+    assertion_statuses: list[str | None] | None,
+    chunk_negated_scope_texts: list[list[str]] | None,
+    n_results: int,
+) -> list[dict[str, Any]]:
+    """Also query each negated chunk's scope without its cue and merge (#472).
+
+    The chunk embedding includes the cue, which pulls retrieval toward unrelated
+    terms ("Seizures were ruled out" -> absence seizure). The chunk stays queried
+    because it can hold affirmed content outside the scope.
+    """
+    if not assertion_statuses or not chunk_negated_scope_texts:
+        return all_query_results
+    scopes = {
+        idx: " ".join(chunk_negated_scope_texts[idx]).strip()
+        for idx, status in enumerate(assertion_statuses)
+        if status == "negated" and idx < len(chunk_negated_scope_texts)
+    }
+    scopes = {idx: scope for idx, scope in scopes.items() if scope}
+    if not scopes:
+        return all_query_results
+
+    scope_results = query_chunk_candidates(
+        retriever=retriever,
+        text_chunks=list(scopes.values()),
+        n_results=n_results,
+        include_similarities=True,
+    )
+    merged = list(all_query_results)
+    for idx, scope_result in zip(scopes, scope_results, strict=True):
+        merged[idx] = _merge_query_results(merged[idx], scope_result, n_results)
+    return merged
+
+
+def _merge_query_results(
+    first: dict[str, Any], second: dict[str, Any], n_results: int
+) -> dict[str, Any]:
+    """Union of two single-query results; per HPO ID the higher similarity wins."""
+    keys = [key for key in _RESULT_KEYS if first.get(key) is not None]
+    best: dict[str, dict[str, Any]] = {}
+    for result in (first, second):
+        columns = {key: (result.get(key) or [[]])[0] for key in keys}
+        for i, metadata in enumerate(columns.get("metadatas") or []):
+            hpo_id = metadata.get("id") or metadata.get("hpo_id")
+            row = {
+                key: column[i] if i < len(column) else None
+                for key, column in columns.items()
+            }
+            similarity = row.get("similarities") or 0.0
+            if hpo_id and (
+                hpo_id not in best
+                or similarity > (best[hpo_id].get("similarities") or 0.0)
+            ):
+                best[hpo_id] = row
+    ranked = sorted(
+        best.values(), key=lambda row: row.get("similarities") or 0.0, reverse=True
+    )[:n_results]
+    return {key: [[row[key] for row in ranked]] for key in keys}
 
 
 def orchestrate_hpo_extraction(
@@ -82,6 +147,13 @@ def orchestrate_hpo_extraction(
             text_chunks=text_chunks,
             n_results=num_results_per_chunk,
             include_similarities=True,
+        )
+        all_query_results = _add_negated_scope_candidates(
+            retriever,
+            all_query_results,
+            assertion_statuses,
+            chunk_negated_scope_texts,
+            num_results_per_chunk,
         )
 
     chunk_results = process_chunk_matches(
