@@ -26,6 +26,30 @@ together:
   quoted from published case reports. Rules are unchanged. `PROMPT_BEHAVIOR_VERSION`
   is `6`, so earlier LLM benchmark checkpoints do not match.
 
+### Fixed
+
+- **Fine-grained chunker restores the matched abbreviation text**, not the
+  regex pattern (#486).
+- **Phase-1 chunk index shows dropped trailing text after its chunk**
+  (`<finding>: no`), including after the last chunk; `-`/`+` count as trailing
+  separators (#487). `PROMPT_BEHAVIOR_VERSION` is bumped to `7`.
+- **Slash splitting only splits `word/word`** (no values, units, single
+  letters or `and/or`) and split items keep the verbatim evidence (#488).
+- **A phase-1 item without `chunk_ids` no longer invalidates the response**;
+  it is kept unanchored and counted (`phase1_unanchored_phrases`) (#489).
+- **Negated qualifiers are mapped through the regular route-and-map path**,
+  and an explicit `hpo_id: null` no longer triggers the local fallback (#490).
+- **Normal and negated phrases are also retrieved without their cue** (#491).
+- **Batch retrieval returns the pipeline's requested candidate count**; the
+  tool cap applies to model tool calls only (#492).
+- **Ontology guard drops are counted** (`ontology_guard_dropped_terms`) and the
+  trace records whether the guard was active (#493, partial).
+- **LLM benchmark marks documents with unrecovered phase-1 groups
+  `incomplete`** and retries them on resume; phase-2 failures raise
+  `LLMPipelinePhaseError` so one document no longer aborts the run (#494).
+- **Category and assertion are combined by one rule**: `present` never
+  overrides Normal or Suspected; disagreements are counted (#495).
+
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
 LLM phase-1 axes contract (prompt v3.3.0: negation scope, uncertain, other-person
