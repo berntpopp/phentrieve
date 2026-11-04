@@ -167,36 +167,6 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Finding stays open"}
-    },
-    {
-      "literal": "non exclue",
-      "category": "PSEUDO",
-      "direction": "PSEUDO",
-      "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Feminine form; finding stays open"}
-    },
-    {
-      "literal": "pas exclue",
-      "category": "PSEUDO",
-      "direction": "PSEUDO",
-      "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Feminine form; finding stays open"}
-    },
-    {
-      "literal": "ne peut être exclue",
-      "category": "PSEUDO",
-      "direction": "PSEUDO",
-      "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Feminine form; finding stays open"}
-    },
-    {
-      "literal": "ne peut pas être exclue",
-      "category": "PSEUDO",
-      "direction": "PSEUDO",
-      "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Feminine form; finding stays open"}
-    },
-    {
-      "literal": "ne peut être écartée",
-      "category": "PSEUDO",
-      "direction": "PSEUDO",
-      "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Feminine form; finding stays open"}
     }
   ]
 }
