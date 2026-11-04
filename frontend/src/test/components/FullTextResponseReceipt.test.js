@@ -253,7 +253,7 @@ describe('FullTextResponseReceipt', () => {
     const deI18n = createI18n({ legacy: false, locale: 'de', messages: { de } });
 
     expect(mountReceipt({}, [vuetify, i18n]).text()).toContain(
-      '1 finding across 1 document sections'
+      '1 finding across 1 document section(s)'
     );
     expect(mountReceipt({}, [vuetify, deI18n]).text()).toContain(
       '1 Befund in 1 Dokumentabschnitt(en)'

@@ -257,7 +257,7 @@
       "title": "Full-text analysis ready",
       "addAll": "Add all ({count})",
       "addAllConfirm": "Click again to add all {count}",
-      "metaSections": "{count} finding across {sections} document sections | {count} findings across {sections} document sections",
+      "metaSections": "{count} finding across {sections} document section(s) | {count} findings across {sections} document section(s)",
       "metaNoteReview": "{count} finding in submitted note review | {count} findings in submitted note review"
     }
   },
