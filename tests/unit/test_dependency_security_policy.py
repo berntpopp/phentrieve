@@ -182,7 +182,7 @@ def test_transitive_security_floors_are_pinned_in_constraints() -> None:
         "pymdown-extensions": Version("11.0.1"),  # GHSA-gm37-52c6-37mw
         "anyio": Version("4.14.2"),  # CVE-2026-63374, CVE-2026-64847
         "pyjwt": Version("2.15.0"),  # GHSA-ffc3-869f-jxw9, GHSA-42vr-xj54-vc7v
-        "oauthlib": Version("4.0.0"),  # GHSA-xpv3-w29h-x7cv, GHSA-hj66-6f7g-4r5v
+        "oauthlib": Version("4.0.1"),  # CVE-2026-49272 and friends
         "virtualenv": Version("21.14.9"),  # GHSA-c978-59m8-c77v and friends
         "pillow": Version("13.0.0"),  # GHSA-5x8w-8jj5-q52h and friends
         "filelock": Version("4.2.1"),  # GHSA-v4x8-3wr5-3wq8 and friends
