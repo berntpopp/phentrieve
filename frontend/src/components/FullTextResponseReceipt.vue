@@ -143,8 +143,12 @@ try {
 } catch {
   i18n = null;
 }
-function translate(key, fallback) {
-  return i18n ? i18n.t(key) : fallback;
+function translate(key, fallback, params) {
+  if (!i18n) return fallback;
+  // A numeric `count` selects the plural form ("1 word | {count} words").
+  return typeof params?.count === 'number'
+    ? i18n.t(key, params, params.count)
+    : i18n.t(key, params ?? {});
 }
 
 const curation = useFullTextCuration(props.item.id);
@@ -182,10 +186,18 @@ const receiptMeta = computed(() => {
   const chunks = props.item?.response?.processed_chunks?.length ?? 0;
 
   if (chunks === 0 && typeof props.item?.query === 'string' && props.item.query.trim().length > 0) {
-    return `${terms} findings in submitted note review`;
+    return translate(
+      'queryInterface.fullTextReceipt.metaNoteReview',
+      `${terms} findings in submitted note review`,
+      { count: terms }
+    );
   }
 
-  return `${terms} findings across ${chunks} document sections`;
+  return translate(
+    'queryInterface.fullTextReceipt.metaSections',
+    `${terms} findings across ${chunks} document sections`,
+    { count: terms, sections: chunks }
+  );
 });
 
 // Findings about relatives and other people stay out of the patient's list and "Add all".

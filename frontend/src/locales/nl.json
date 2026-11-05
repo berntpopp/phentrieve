@@ -257,6 +257,8 @@
       "title": "Analyse van volledige tekst gereed",
       "addAll": "Alles toevoegen ({count})",
       "addAllConfirm": "Klik nogmaals om alle {count} toe te voegen",
+      "metaSections": "{count} bevinding in {sections} documentsectie(s) | {count} bevindingen in {sections} documentsectie(s)",
+      "metaNoteReview": "{count} bevinding in de ingediende notitie | {count} bevindingen in de ingediende notitie",
       "incomplete": "Een deel van deze tekst kon niet worden geanalyseerd. Er kunnen bevindingen ontbreken; controleer de tekst handmatig of voer de analyse opnieuw uit.",
       "familyFindings": "Familieanamnese",
       "otherFindings": "Andere personen",
@@ -283,7 +285,8 @@
       "auto": "Automatisch",
       "manual": "Handmatig"
     },
-    "spanAriaLabel": "Annotatie bewerken: {label}"
+    "spanAriaLabel": "Annotatie bewerken: {label}",
+    "wordCount": "{count} woord | {count} woorden"
   },
   "hpoTermPicker": {
     "changeTitle": "HPO-term wijzigen",

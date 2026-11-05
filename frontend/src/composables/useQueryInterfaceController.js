@@ -154,6 +154,13 @@ export function useQueryInterfaceController({
 
     if (performAutoSubmit && typeof currentQueryText === 'string' && currentQueryText.trim()) {
       logService.info('Auto-submitting query based on URL parameters.');
+      // Consume the deep link so a reload does not submit the query again (#465).
+      const remainingQuery = { ...queryParams };
+      delete remainingQuery.text;
+      delete remainingQuery.autoSubmit;
+      Promise.resolve(router.replace({ query: remainingQuery })).catch((error) => {
+        logService.warn('Error clearing the deep link text from URL:', error);
+      });
       nextTick(() => setTimeout(() => submitQuery(true), 300));
     }
   }

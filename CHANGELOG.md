@@ -30,6 +30,14 @@ together:
   503 while the model loads and 200 afterwards. `/api/v1/health` stays a liveness check,
   and the E2E suite now waits for readiness instead of failing on a cold start.
 
+### Changed
+
+- **Phase-1 prompt v3.3.1: constructed examples.** The temporality and duplicate
+  examples in `two_phase/en.yaml` are replaced by invented ones (eczema, warts,
+  urticaria), and several test fixtures use invented sentences instead of sentences
+  quoted from published case reports. Rules are unchanged. `PROMPT_BEHAVIOR_VERSION`
+  is `6`, so earlier LLM benchmark checkpoints do not match.
+
 ### Fixed
 
 - **Standard negation no longer inverts clinical meaning (#459).** Multi-word cues such as
@@ -45,6 +53,9 @@ together:
 - **REST LLM requests no longer return 500 when `PHENTRIEVE_LLM_BASE_URL` is set (#461).**
 - **LLM highlights work across line-break hyphens (#462).**
 - **German clinical sentences no longer open the PII dialog as possible names (#467).**
+- Hybrid semantic similarity measures each term's distance to the lowest common
+  ancestor in the graph instead of subtracting shortest-path depths, so distinct terms
+  with multiple inheritance no longer score 1.0 (#475).
 
 ## [0.30.0] — 2026-10-28 (CLI 0.30.0 / API 0.20.0 / Frontend 0.20.0)
 
@@ -245,8 +256,8 @@ Chroma query failures raise instead of returning empty results;
   context and API output are unchanged. `PROMPT_BEHAVIOR_VERSION` is bumped to
   `3` so earlier LLM benchmark checkpoints do not match new runs. Limitation: a
   cue that scopes over a coordinated list is restored only for the chunk it
-  directly precedes ("no plantar or palmar pits, facial abnormalities or
-  macrocephaly" restores `no` for `plantar` but not for the later items).
+  directly precedes ("no axillary or inguinal nodes, skin lesions or clubbing"
+  restores `no` for `axillary` but not for the later items).
 
 - **Runaway phase-1 generations no longer burn the full output budget repeatedly**
   ([#375](https://github.com/berntpopp/phentrieve/issues/375)). A degenerate

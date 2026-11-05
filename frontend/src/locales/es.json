@@ -257,6 +257,8 @@
       "title": "Análisis de texto completo listo",
       "addAll": "Añadir todos ({count})",
       "addAllConfirm": "Haga clic de nuevo para añadir los {count}",
+      "metaSections": "{count} hallazgo en {sections} sección(es) del documento | {count} hallazgos en {sections} sección(es) del documento",
+      "metaNoteReview": "{count} hallazgo en la nota enviada | {count} hallazgos en la nota enviada",
       "incomplete": "No se pudo analizar parte de este texto. Pueden faltar hallazgos; revíselo manualmente o ejecute el análisis de nuevo.",
       "familyFindings": "Antecedentes familiares",
       "otherFindings": "Otras personas",
@@ -283,7 +285,8 @@
       "auto": "Automático",
       "manual": "Manual"
     },
-    "spanAriaLabel": "Editar anotación: {label}"
+    "spanAriaLabel": "Editar anotación: {label}",
+    "wordCount": "{count} palabra | {count} palabras"
   },
   "hpoTermPicker": {
     "changeTitle": "Cambiar término HPO",

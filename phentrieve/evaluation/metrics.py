@@ -295,17 +295,30 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
     Returns:
         Similarity score (0-1)
     """
-    # Get the LCA and its depth
-    lca, lca_depth = find_lowest_common_ancestor(term1, term2)
+    if term1 == term2:
+        return 1.0
 
-    if lca is None:
+    # Local import: ontology_credit imports this module.
+    from phentrieve.evaluation.ontology_credit import _ancestor_distances
+
+    # Path lengths are graph distances to the LCA, not depth differences:
+    # in a DAG an ancestor can have a larger shortest-path depth than its
+    # descendant, which made distinct terms score 1.0 (#475).
+    ancestors_dict, depths_dict = load_hpo_graph_data()
+    parents_cache: dict[str, set[str]] = {}
+    distances1 = _ancestor_distances(term1, ancestors_dict, depths_dict, parents_cache)
+    distances2 = _ancestor_distances(term2, ancestors_dict, depths_dict, parents_cache)
+    common = [a for a in distances1.keys() & distances2.keys() if a in depths_dict]
+    if not common:
         logging.debug(
             "No LCA found between %s and %s", _sanitize(term1), _sanitize(term2)
         )
         return 0.0
 
-    # Get depth of the two terms
-    _, depths_dict = load_hpo_graph_data()
+    # Deepest common ancestor; ties go to the closest one, then the smallest ID,
+    # so the score does not depend on set iteration order.
+    lca = min(common, key=lambda a: (-depths_dict[a], distances1[a] + distances2[a], a))
+    lca_depth = depths_dict[lca]
 
     depth1 = depths_dict.get(term1, float("inf"))
     depth2 = depths_dict.get(term2, float("inf"))
@@ -320,24 +333,9 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
         )
         return 0.0
 
-    # Calculate Resnik-like similarity based on LCA depth
-    # Calculate path length from each term to LCA
-    path_length1 = depth1 - lca_depth
-    path_length2 = depth2 - lca_depth
-    total_path_length = path_length1 + path_length2
+    total_path_length = distances1[lca] + distances2[lca]
 
-    # Check if path lengths are valid
-    if total_path_length < 0:
-        logging.warning(
-            "Invalid path lengths: term1=%s, term2=%s, LCA=%s",
-            _sanitize(depth1),
-            _sanitize(depth2),
-            _sanitize(lca_depth),
-        )
-        total_path_length = 0
-
-    # Calculate Resnik similarity based on path length and depth
-    if total_path_length == 0:  # Identical or very closely related terms
+    if total_path_length == 0:  # unreachable for distinct terms; kept as a guard
         similarity = 1.0
     else:
         # Two factors contribute to similarity:
@@ -356,7 +354,7 @@ def calculate_resnik_similarity(term1: str, term2: str) -> float:
         # Distance factor (shorter total path = more similarity)
         # Normalize by the sum of depths to get a relative distance
         max_possible_distance = depth1 + depth2 if (depth1 + depth2) > 0 else 1
-        distance_factor = 1 - (total_path_length / max_possible_distance)
+        distance_factor = max(0.0, 1 - (total_path_length / max_possible_distance))
 
         # Combine factors with more weight on depth
         similarity = (0.7 * depth_factor) + (0.3 * distance_factor)
