@@ -83,7 +83,7 @@ def _temporal_note_parts(
         parts.append(f"Temporality: {record.temporality}")
     also = []
     for other in others:
-        note = other.assertion
+        note: str = other.assertion
         if other.temporality:
             note += f" ({other.temporality})"
         if (other.assertion, other.temporality) != (

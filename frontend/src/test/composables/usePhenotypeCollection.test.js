@@ -172,7 +172,11 @@ describe('usePhenotypeCollection', () => {
 
     it('leaves assertion_status "uncertain" out instead of exporting it as observed', () => {
       const store = useConversationStore();
-      store.addPhenotype({ hpo_id: 'HP:0001252', label: 'Hypotonia', assertion_status: 'uncertain' });
+      store.addPhenotype({
+        hpo_id: 'HP:0001252',
+        label: 'Hypotonia',
+        assertion_status: 'uncertain',
+      });
       store.addPhenotype({ hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'present' });
       const { exportAsPhenopacket } = usePhenotypeCollection();
       exportAsPhenopacket();

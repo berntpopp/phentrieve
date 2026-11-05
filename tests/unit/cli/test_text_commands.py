@@ -364,7 +364,11 @@ def test_text_process_phenopacket_exports_one_feature_per_term(monkeypatch):
             "processed_chunks": chunks,
             "aggregated_hpo_terms": [
                 {"id": "HP:0001250", "name": "Seizure", "status": "present"},
-                {"id": "HP:0001263", "name": "Developmental delay", "status": "present"},
+                {
+                    "id": "HP:0001263",
+                    "name": "Developmental delay",
+                    "status": "present",
+                },
             ],
         },
     )
