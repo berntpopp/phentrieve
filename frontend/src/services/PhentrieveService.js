@@ -172,7 +172,8 @@ class PhentrieveService {
       text: textProcessingData.text ?? textProcessingData.text_content ?? '',
       extraction_backend: extractionBackend,
       llm_mode: textProcessingData.llm_mode ?? textProcessingData.llmMode ?? null,
-      language: textProcessingData.language ?? null,
+      // Nulls are dropped below and the API would then default to 'en' (#458).
+      language: textProcessingData.language ?? 'auto',
       chunking_strategy:
         textProcessingData.chunking_strategy ?? textProcessingData.chunkingStrategy ?? null,
       window_size: textProcessingData.window_size ?? textProcessingData.windowSize ?? null,

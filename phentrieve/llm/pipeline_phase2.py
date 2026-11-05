@@ -562,6 +562,4 @@ def local_match(
 
 
 def re_search_word(needle: str, haystack: str) -> bool:
-    import re
-
     return bool(re.search(rf"\b{re.escape(needle)}\b", haystack))

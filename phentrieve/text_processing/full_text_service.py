@@ -827,7 +827,8 @@ def run_llm_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         or os.getenv("PHENTRIEVE_LLM_MODEL")
         or DEFAULT_LLM_MODEL
     )
-    llm_base_url = kwargs.get("llm_base_url") or os.getenv("PHENTRIEVE_LLM_BASE_URL")
+    # The provider resolver reads the environment itself and ignores it for Gemini.
+    llm_base_url = kwargs.get("llm_base_url")
 
     llm_mode = (kwargs.get("llm_mode") or "two_phase").strip()
     if llm_mode != DEFAULT_LLM_MODE:

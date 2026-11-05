@@ -15,7 +15,11 @@ import warnings
 import pytest
 
 from phentrieve.config import DEFAULT_ASSERTION_CONFIG
-from phentrieve.text_processing.pipeline import TextProcessingPipeline
+from phentrieve.text_processing.assertion_detection import pseudo_cue_spans
+from phentrieve.text_processing.pipeline import (
+    TextProcessingPipeline,
+    _splits_pseudo_cue,
+)
 
 # Model-free chunking config that still runs the final-chunk cleaner (which strips
 # leading cue words) and conjunction/punctuation splitting -- reproduces C1 without
@@ -42,6 +46,23 @@ def pipeline() -> TextProcessingPipeline:
 def _status(chunk: dict) -> str:
     s = chunk["status"]
     return s.value if hasattr(s, "value") else s
+
+
+@pytest.mark.parametrize(
+    ("chunk_span", "expected"),
+    [
+        ((0, 16), True),  # "Ataxia cannot be"
+        ((17, 26), True),  # "ruled out"
+        ((0, 26), False),  # whole phrase: the detector judged it correctly
+        ((28, 37), False),  # another sentence
+    ],
+)
+def test_chunk_holding_part_of_a_pseudo_cue_is_detected(chunk_span, expected) -> None:
+    """Semantic chunking can split "cannot be ruled out" (#459)."""
+    text = "Ataxia cannot be ruled out. No tremor."
+    spans = pseudo_cue_spans(text, "en")
+
+    assert _splits_pseudo_cue(chunk_span, spans) is expected
 
 
 def _status_for(pipeline: TextProcessingPipeline, text: str, needle: str) -> str:

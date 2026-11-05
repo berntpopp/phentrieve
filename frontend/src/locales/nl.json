@@ -258,7 +258,12 @@
       "addAll": "Alles toevoegen ({count})",
       "addAllConfirm": "Klik nogmaals om alle {count} toe te voegen",
       "metaSections": "{count} bevinding in {sections} documentsectie(s) | {count} bevindingen in {sections} documentsectie(s)",
-      "metaNoteReview": "{count} bevinding in de ingediende notitie | {count} bevindingen in de ingediende notitie"
+      "metaNoteReview": "{count} bevinding in de ingediende notitie | {count} bevindingen in de ingediende notitie",
+      "incomplete": "Een deel van deze tekst kon niet worden geanalyseerd. Er kunnen bevindingen ontbreken; controleer de tekst handmatig of voer de analyse opnieuw uit.",
+      "familyFindings": "Familieanamnese",
+      "otherFindings": "Andere personen",
+      "relatedFindingsHint": "Geen bevindingen van de patiënt en niet opgenomen in Alles toevoegen.",
+      "relatedFindingAbsent": "Afwezig"
     }
   },
   "annotatedDocumentPane": {
