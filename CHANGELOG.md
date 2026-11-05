@@ -40,6 +40,14 @@ together:
 
 ### Fixed
 
+- **Phenopacket export keeps assertion and temporality detail (#399).** Uncertain
+  findings were exported as observed; they are now left out of the packet (CLI, REST,
+  MCP and the frontend collection export), and the REST export accepts
+  `assertion_status: "uncertain"`. A term reported both as observed and as excluded
+  (e.g. a past episode, none now) becomes one observed feature whose evidence notes the
+  other report. Temporality is written to the evidence note and the sidecar
+  (`temporality`). `text process -o phenopacket_v2_json` exports one feature per term
+  instead of one per cited chunk.
 - **Standard negation no longer inverts clinical meaning (#459).** Multi-word cues such as
   "ruled out", "negative for" and "absence of" were affirmed, and "cannot be ruled out" was
   negated. This also holds when chunking splits such a phrase. Open findings are reported

@@ -61,6 +61,7 @@ def _map_phenotype_for_export(phenotype: ExportPhenotypeRequest) -> dict[str, An
             "evidence_text",
             "source_mode",
             "match_method",
+            "temporality",
         },
     )
     export_record.update(

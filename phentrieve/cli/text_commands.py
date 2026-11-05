@@ -1093,10 +1093,10 @@ def _format_and_output_results(
             )
             raise typer.Exit(code=1)
 
-        # chunk_level_results has chunk_idx, chunk_text, matches, start_char, end_char
+        # One feature per term: chunk results would repeat a term once per
+        # cited chunk (#399).
         bundle = export_phenopacket_bundle(
-            chunk_results=chunk_level_results if chunk_level_results else None,
-            aggregated_results=term_level_results if not chunk_level_results else None,
+            aggregated_results=term_level_results,
             embedding_model=embedding_model,
             input_text=input_text,
             include_annotation_sidecar=phenopacket_sidecar,

@@ -6,7 +6,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal, Self
 
-from phentrieve.assertion_vocab import is_excluded
+from phentrieve.assertion_vocab import UNCERTAIN, canonicalize_assertion, is_excluded
 
 AssertionValue = Literal[
     "affirmed",
@@ -40,6 +40,9 @@ def _normalize_assertion(value: str | None) -> AssertionValue:
     # rather than falling through to "unknown" (present) (#407).
     if is_excluded(normalized):
         return "negated"
+    # Hedged synonyms (possible / probable ...) must never export as present (#399).
+    if canonicalize_assertion(normalized) == UNCERTAIN:
+        return "uncertain"
     return "unknown"
 
 
@@ -167,6 +170,7 @@ class NormalizedPhenotypeExportRecord:
     chunk_refs: list[int] = field(default_factory=list)
     source_mode: str | None = None
     match_method: str | None = None
+    temporality: str | None = None
 
     def __init__(
         self,
@@ -182,6 +186,7 @@ class NormalizedPhenotypeExportRecord:
         chunk_ids: Sequence[int] | int | None = None,
         source_mode: str | None = None,
         match_method: str | None = None,
+        temporality: str | None = None,
     ) -> None:
         if not hpo_id or not label:
             raise ValueError(
@@ -221,6 +226,7 @@ class NormalizedPhenotypeExportRecord:
         object.__setattr__(self, "chunk_refs", resolved_chunk_refs)
         object.__setattr__(self, "source_mode", source_mode)
         object.__setattr__(self, "match_method", match_method)
+        object.__setattr__(self, "temporality", temporality)
 
     @property
     def chunk_ids(self) -> list[int]:
@@ -259,6 +265,8 @@ class NormalizedPhenotypeExportRecord:
             chunk_refs = legacy["chunk_idx"]
         if chunk_refs is None and "chunk_id" in legacy:
             chunk_refs = legacy["chunk_id"]
+        if chunk_refs is None and "source_chunk_ids" in legacy:
+            chunk_refs = legacy["source_chunk_ids"]
 
         source_mode = legacy.get("source_mode")
         if source_mode is None:
@@ -275,6 +283,7 @@ class NormalizedPhenotypeExportRecord:
             )
 
         match_method = legacy.get("match_method") or "legacy_dict"
+        temporality = legacy.get("temporality")
 
         return cls(
             hpo_id=str(hpo_id),
@@ -287,6 +296,7 @@ class NormalizedPhenotypeExportRecord:
             chunk_refs=_normalize_chunk_ids(chunk_refs),
             source_mode=str(source_mode) if source_mode is not None else None,
             match_method=str(match_method) if match_method is not None else None,
+            temporality=str(temporality) if temporality else None,
         )
 
 

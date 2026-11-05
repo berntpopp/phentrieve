@@ -355,3 +355,34 @@ def test_phenopacket_router_rejects_invalid_subject_metadata(
 
     assert response.status_code == 422
     assert expected_error_fragment in response.text
+
+
+def test_phenopacket_router_accepts_uncertain_and_leaves_it_out(client):
+    # #399: an uncertain finding is neither observed nor excluded.
+    response = client.post(
+        "/api/v1/phenopackets/export",
+        json={
+            "case_id": "case-uncertain",
+            "include_annotation_sidecar": True,
+            "phenotypes": [
+                {
+                    "hpo_id": "HP:0001252",
+                    "label": "Hypotonia",
+                    "assertion_status": "uncertain",
+                },
+                {
+                    "hpo_id": "HP:0002099",
+                    "label": "Asthma",
+                    "temporality": "historical",
+                },
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    features = json.loads(payload["phenopacket_json"])["phenotypicFeatures"]
+    assert [f["type"]["id"] for f in features] == ["HP:0002099"]
+    annotations = payload["annotation_sidecar"]["annotations"]
+    assert [a["hpo_id"] for a in annotations] == ["HP:0002099"]
+    assert annotations[0]["temporality"] == "historical"

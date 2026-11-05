@@ -79,6 +79,9 @@
           "evidence_text": {
             "type": "string"
           },
+          "temporality": {
+            "type": "string"
+          },
           "spans": {
             "type": "array",
             "items": {
