@@ -233,7 +233,8 @@ def _build_energy_cost(
 
 
 def _checkpoint_record_is_reusable(record: dict[str, Any]) -> bool:
-    return str(record.get("status", "")).lower() != "failed"
+    # Incomplete documents (unrecovered phase-1 groups) are retried on resume.
+    return str(record.get("status", "")).lower() not in {"failed", "incomplete"}
 
 
 def _build_grounded_chunks(
@@ -670,6 +671,10 @@ def run_llm_benchmark(
                 )
             )
 
+            unrecovered_groups = int(
+                pipeline_result.meta.phase_counts.get("phase1_unrecovered_groups", 0)
+                or 0
+            )
             result_record = {
                 "case_index": index,
                 "doc_id": document["id"],
@@ -698,9 +703,13 @@ def run_llm_benchmark(
                         )
                         or 0
                     ),
+                    "phase1_unrecovered_groups": unrecovered_groups,
                 },
                 "estimated_cost": estimated_cost,
             }
+            if unrecovered_groups:
+                # Findings of the unrecovered groups are missing (#494).
+                result_record["status"] = "incomplete"
             prediction_record = _build_prediction_record(
                 document=document,
                 config=config,
@@ -715,6 +724,8 @@ def run_llm_benchmark(
                 estimated_energy_cost=doc_estimated_energy_cost,
                 dataset=dataset,
             )
+            if unrecovered_groups:
+                prediction_record["status"] = "incomplete"
             results.append(result_record)
             prediction_records.append(prediction_record)
 
@@ -1075,8 +1086,8 @@ def _build_terms_and_cases(
                 "estimated_cost": record.get("estimated_cost"),
                 "partial_failure_counts": record.get("partial_failure_counts"),
                 "status": (
-                    "failed"
-                    if str(record.get("status", "")).lower() == "failed"
+                    str(record.get("status")).lower()
+                    if str(record.get("status", "")).lower() in {"failed", "incomplete"}
                     else "complete"
                 ),
             }
@@ -1154,6 +1165,11 @@ def _build_benchmark_payload(
         "estimated_energy_cost": estimated_energy_cost,
         "prediction_records": list(prediction_records),
         "results": list(results),
+        "incomplete_cases": sum(
+            1
+            for record in results
+            if str(record.get("status", "")).lower() == "incomplete"
+        ),
         # Corpus-level visibility into how much of the contract-v2 deliverable
         # (negated/absent/family findings) the present-only scoring drops.
         "assertion_distribution": _aggregate_assertion_distribution(

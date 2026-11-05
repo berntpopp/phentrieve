@@ -31,7 +31,10 @@ from phentrieve.llm.config import (
     PRESENT_ASSERTION,
 )
 from phentrieve.llm.evidence_offsets import EvidenceLocator, rendered_regions
-from phentrieve.llm.ontology_guard import is_non_phenotypic_abnormality
+from phentrieve.llm.ontology_guard import (
+    guard_available,
+    is_non_phenotypic_abnormality,
+)
 from phentrieve.llm.pipeline_phase1 import (
     ACTIONABLE_CATEGORIES,
 )
@@ -84,10 +87,16 @@ from phentrieve.llm.pipeline_phase2 import (
     select_candidate_ids,
 )
 from phentrieve.llm.pipeline_phase2 import (
+    axes_disagree as _axes_disagree,
+)
+from phentrieve.llm.pipeline_phase2 import (
     candidate_match_text as _candidate_match_text,
 )
 from phentrieve.llm.pipeline_phase2 import (
     downstream_dedupe_key as _downstream_dedupe_key,
+)
+from phentrieve.llm.pipeline_phase2 import (
+    explicit_null_item_ids as _explicit_null_item_ids,
 )
 from phentrieve.llm.pipeline_phase2 import (
     mapping_batch_item_id as _mapping_batch_item_id,
@@ -505,6 +514,13 @@ class TwoPhaseLLMPipeline:
             "local_fallbacks": 0,
             "phase1_fallbacks": phase1_fallback_count,
         }
+        # Category/assertion contradictions, resolved by one rule (#495).
+        axis_disagreements = sum(1 for item in actionable if _axes_disagree(item))
+        if axis_disagreements:
+            phase_counts["phase1_axis_disagreements"] = axis_disagreements
+        unanchored = sum(1 for item in extracted if not item.get("chunk_ids"))
+        if grounded_chunks and unanchored:
+            phase_counts["phase1_unanchored_phrases"] = unanchored
         phase_request_counts: dict[str, int] = {
             "phase1_requests": phase1_request_count,
             "phase2b_llm_requests": 0,
@@ -625,29 +641,59 @@ class TwoPhaseLLMPipeline:
 
         # B3: map each resolved proband finding's negated qualifier Y (the
         # absent portion of an "X without Y" phrase) to a GENERATED excluded
-        # finding. Y is retrieved through the SAME retrieval path as any phrase;
-        # when its top candidate scores at or above the confidence floor
+        # finding. Y is resolved through the SAME route -> map path as any
+        # phrase; when the chosen term scores at or above the confidence floor
         # (``self.similarity_threshold``) an excluded ``LLMPhenotype`` is emitted
-        # for Y. Below the floor (or when nothing is retrieved) no term is
+        # for Y. Below the floor (or when nothing is chosen) no term is
         # generated and the source finding's ``negated_qualifier`` metadata
         # string is retained. This runs AFTER proband resolution and BEFORE the
         # final dedup so the generated terms flow through the same dedup key.
-        qualifier_exclusions = self._build_qualifier_exclusions(
+        qualifier_exclusions, qualifier_outcome = self._build_qualifier_exclusions(
             resolved_terms=resolved_terms,
             grounded_chunks=grounded_chunks,
             language=language,
         )
+        if qualifier_outcome is not None:
+            prompt_tokens_total += qualifier_outcome.prompt_tokens
+            completion_tokens_total += qualifier_outcome.completion_tokens
+            token_usage_total = _sum_usage_dicts(
+                token_usage_total, qualifier_outcome.token_usage
+            )
+            request_count_total += qualifier_outcome.request_count
+            trace["negated_qualifier"] = _record_secondary_outcome(
+                prefix="negated_qualifier",
+                item_count=len(
+                    {(term.negated_qualifier or "").strip() for term in resolved_terms}
+                    - {""}
+                ),
+                outcome=qualifier_outcome,
+                phase_timings=phase_timings,
+                phase_counts=phase_counts,
+                phase_request_counts=phase_request_counts,
+            )
+
+        proband_terms = resolved_terms + qualifier_exclusions
+        all_terms = (
+            len(proband_terms) + len(resolved_family) + len(resolved_other_person)
+        )
+        guarded_terms, guarded_family, guarded_other_person, dropped_terms = (
+            self._apply_ontology_guard(
+                proband_terms, resolved_family, resolved_other_person
+            )
+        )
+        # Counted and traced, so lost findings and an inactive guard show (#493).
+        if dropped_terms:
+            phase_counts["ontology_guard_dropped_terms"] = dropped_terms
+        if all_terms:
+            trace["ontology_guard"] = {
+                "available": guard_available(),
+                "dropped_terms": dropped_terms,
+            }
 
         return LLMExtractionResult(
-            terms=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_terms + qualifier_exclusions)
-            ),
-            family_history_findings=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_family)
-            ),
-            other_person_findings=self._deduplicate_terms(
-                self._drop_non_phenotypic(resolved_other_person)
-            ),
+            terms=self._deduplicate_terms(guarded_terms),
+            family_history_findings=self._deduplicate_terms(guarded_family),
+            other_person_findings=self._deduplicate_terms(guarded_other_person),
             meta=LLMMeta(
                 llm_provider=config.provider,
                 llm_model=config.model,
@@ -675,79 +721,89 @@ class TwoPhaseLLMPipeline:
         resolved_terms: list[LLMPhenotype],
         grounded_chunks: list[dict[str, Any]],
         language: str,
-    ) -> list[LLMPhenotype]:
+    ) -> tuple[list[LLMPhenotype], _ItemResolutionOutcome | None]:
         """Generate an excluded finding for each proband finding's negated
         qualifier Y that maps at or above the confidence floor (B3).
 
         For every resolved proband finding carrying a truthy
-        ``negated_qualifier``, retrieve Y through the shared retrieval path and,
-        when the top candidate scores ``>= self.similarity_threshold``, emit a
-        generated excluded ``LLMPhenotype`` for Y. Below the floor (or when
-        nothing is retrieved) no term is generated and the source finding's
-        ``negated_qualifier`` metadata string is left untouched.
+        ``negated_qualifier``, resolve Y through the shared retrieve -> route ->
+        map path (#490) and, when the chosen term scores
+        ``>= self.similarity_threshold``, emit a generated excluded
+        ``LLMPhenotype`` for Y. When nothing is chosen (or below the floor) no
+        term is generated and the source finding's ``negated_qualifier``
+        metadata string is left untouched. Also returns the resolution outcome
+        so its cost is accounted, or ``None`` when there is no qualifier.
 
         F5: the generated term INHERITS the source finding's evidence records so
         it carries valid ``chunk_ids`` (the "X without Y" span lives in the same
         chunk as X). A generated term with empty/invalid chunk refs is silently
         dropped at the aggregation service boundary
         (``full_text_service.py``)."""
-        exclusions: list[LLMPhenotype] = []
+        sources_by_qualifier: dict[str, list[LLMPhenotype]] = {}
+        synthetic_items: list[dict[str, Any]] = []
         for finding in resolved_terms:
             qualifier = (finding.negated_qualifier or "").strip()
             if not qualifier:
                 continue
+            if qualifier not in sources_by_qualifier:
+                # Inherit the source finding's chunk ids so the retrieval item
+                # stays anchored to the source span (F5).
+                synthetic_items.append(
+                    {
+                        "phrase": qualifier,
+                        "category": "Abnormal",
+                        "chunk_ids": [
+                            chunk_id
+                            for record in finding.evidence_records
+                            for chunk_id in record.chunk_ids
+                        ],
+                        "evidence_text": qualifier,
+                        "negated_qualifier": None,
+                        "start_char": None,
+                        "end_char": None,
+                        "experiencer": "proband",
+                        "assertion": None,
+                    }
+                )
+            sources_by_qualifier.setdefault(qualifier, []).append(finding)
+        if not synthetic_items:
+            return [], None
 
-            # Inherit the source finding's chunk ids so the retrieval item and
-            # the generated term stay anchored to the source span (F5).
-            source_chunk_ids: list[int] = []
-            for record in finding.evidence_records:
-                source_chunk_ids.extend(record.chunk_ids)
-
-            synthetic_item: dict[str, Any] = {
-                "phrase": qualifier,
-                "category": "Abnormal",
-                "chunk_ids": list(source_chunk_ids),
-                "evidence_text": qualifier,
-                "negated_qualifier": None,
-                "start_char": None,
-                "end_char": None,
-                "experiencer": "proband",
-                "assertion": None,
-            }
-            retrieved = self._retrieve_candidates(
-                actionable=[synthetic_item],
-                grounded_chunks=grounded_chunks,
-                language=language,
-            )
-            candidates = retrieved[0].get("candidates", []) if retrieved else []
-            if not candidates:
-                continue
-            top = candidates[0]
-            top_score = float(top.get("score", 0.0) or 0.0)
+        # Y takes the same route -> map path as any phrase, so the local-match
+        # check and the mapping model decide, not the top-1 candidate (#490).
+        outcome = self._resolve_items(
+            synthetic_items,
+            grounded_chunks=grounded_chunks,
+            language=language,
+        )
+        exclusions: list[LLMPhenotype] = []
+        for mapped in outcome.resolved:
+            top_score = float(mapped.score or 0.0)
             if top_score < self.similarity_threshold:
                 continue
-
-            # F5: copy the source finding's evidence records so the generated
-            # term carries at least one valid chunk reference.
-            inherited_records = [
-                record.model_copy(deep=True) for record in finding.evidence_records
-            ]
-            exclusions.append(
-                LLMPhenotype(
-                    term_id=str(top["hpo_id"]),
-                    label=str(top.get("term_name", "") or ""),
-                    evidence=qualifier,
-                    assertion=NEGATED_ASSERTION,
-                    experiencer="proband",
-                    negated_qualifier=None,
-                    qualifier_surface_text=qualifier,
-                    match_method="negated_qualifier_derived",
-                    confidence=top_score,
-                    score=top_score,
-                    evidence_records=inherited_records,
+            qualifier = mapped.evidence_records[0].phrase
+            for finding in sources_by_qualifier.get(qualifier, []):
+                # F5: copy the source finding's evidence records so the
+                # generated term carries at least one valid chunk reference.
+                inherited_records = [
+                    record.model_copy(deep=True) for record in finding.evidence_records
+                ]
+                exclusions.append(
+                    LLMPhenotype(
+                        term_id=mapped.term_id,
+                        label=mapped.label,
+                        evidence=qualifier,
+                        assertion=NEGATED_ASSERTION,
+                        experiencer="proband",
+                        negated_qualifier=None,
+                        qualifier_surface_text=qualifier,
+                        match_method="negated_qualifier_derived",
+                        confidence=top_score,
+                        score=top_score,
+                        evidence_records=inherited_records,
+                    )
                 )
-            )
-        return exclusions
+        return exclusions, outcome
 
     def _resolve_items(
         self,
@@ -770,11 +826,20 @@ class TwoPhaseLLMPipeline:
             len(items),
         )
         phase2a_start = time.perf_counter()
-        phrase_candidates = self._retrieve_candidates(
-            actionable=items,
-            grounded_chunks=grounded_chunks,
-            language=language,
-        )
+        try:
+            phrase_candidates = self._retrieve_candidates(
+                actionable=items,
+                grounded_chunks=grounded_chunks,
+                language=language,
+            )
+        except LLMPipelinePhaseError:
+            raise
+        except Exception as exc:
+            # A typed phase error lets callers record the document as failed
+            # instead of aborting a whole batch run (#494).
+            raise LLMPipelinePhaseError(
+                "phase2a", "Candidate retrieval failed"
+            ) from exc
         phase2a_seconds = round(time.perf_counter() - phase2a_start, 6)
         candidate_sets = len(phrase_candidates)
         phase2a_trace = build_phase2a_trace(phrase_candidates)
@@ -832,18 +897,30 @@ class TwoPhaseLLMPipeline:
                 len(unresolved),
             )
             phase2b_llm_start = time.perf_counter()
-            (
-                mapped_terms,
-                mapping_prompt_tokens,
-                mapping_completion_tokens,
-                mapping_token_usage,
-                mapping_request_count,
-                local_fallback_count,
-                mapping_trace,
-            ) = self._resolve_with_mapping_prompt(
-                unresolved=unresolved,
-                mapping_prompt=mapping_prompt,
-            )
+            try:
+                (
+                    mapped_terms,
+                    mapping_prompt_tokens,
+                    mapping_completion_tokens,
+                    mapping_token_usage,
+                    mapping_request_count,
+                    local_fallback_count,
+                    mapping_trace,
+                ) = self._resolve_with_mapping_prompt(
+                    unresolved=unresolved,
+                    mapping_prompt=mapping_prompt,
+                )
+            except LLMPipelinePhaseError:
+                raise
+            except Exception as exc:
+                raise LLMPipelinePhaseError(
+                    "phase2b",
+                    "Phase 2 mapping failed",
+                    usage=dict(getattr(self.provider, "last_usage", {}) or {}),
+                    request_count=int(
+                        getattr(self.provider, "last_request_count", 0) or 0
+                    ),
+                ) from exc
             phase2b_llm_seconds = round(time.perf_counter() - phase2b_llm_start, 6)
             prompt_tokens = mapping_prompt_tokens
             completion_tokens = mapping_completion_tokens
@@ -1641,7 +1718,15 @@ class TwoPhaseLLMPipeline:
         expanded_query_keys: list[tuple[str, str, tuple[str, ...]]] = []
         for item in unique_actionable:
             dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=False)
-            query_variants = prepare_retrieval_queries(str(item["phrase"]))
+            query_variants = prepare_retrieval_queries(
+                str(item["phrase"]),
+                strip_cue=(
+                    _normalize_category(str(item.get("category", ""))) == "normal"
+                    or str(item.get("assertion") or "").strip().lower()
+                    in {"absent", NEGATED_ASSERTION}
+                ),
+                language=language,
+            )
             if not query_variants:
                 query_variants = [str(item["phrase"])]
             for query in query_variants:
@@ -2060,15 +2145,24 @@ class TwoPhaseLLMPipeline:
                 mapping_response=mapping_response,
                 batch=batch,
             )
+            explicit_nulls = _explicit_null_item_ids(
+                mapping_response=mapping_response, batch=batch
+            )
             for index, item in enumerate(batch):
                 dedupe_key = _downstream_dedupe_key(item, include_candidate_ids=True)
                 grouped_items = unresolved_groups[dedupe_key]
                 selected_id = selected_ids.get(_mapping_batch_item_id(index))
+                explicit_null = (
+                    selected_id is None
+                    and _mapping_batch_item_id(index) in explicit_nulls
+                )
                 (
                     item_resolved,
                     item_local_fallback_count,
                     item_trace,
-                ) = self._resolve_mapping_selection(item=item, selected_id=selected_id)
+                ) = self._resolve_mapping_selection(
+                    item=item, selected_id=selected_id, explicit_null=explicit_null
+                )
                 resolved.extend(item_resolved)
                 local_fallback_count += item_local_fallback_count
                 mapping_trace.append(item_trace)
@@ -2080,6 +2174,7 @@ class TwoPhaseLLMPipeline:
                     ) = self._resolve_mapping_selection(
                         item=grouped_item,
                         selected_id=selected_id,
+                        explicit_null=explicit_null,
                     )
                     resolved.extend(grouped_resolved)
                     local_fallback_count += grouped_local_fallback_count
@@ -2123,13 +2218,19 @@ class TwoPhaseLLMPipeline:
         *,
         item: dict[str, Any],
         selected_id: str | None,
+        explicit_null: bool = False,
     ) -> tuple[list[LLMPhenotype], int, dict[str, Any]]:
         if not selected_id:
-            logger.warning(
-                "Phase 2B-llm: phrase=%r produced no valid mapping; trying local fallback",
-                item["phrase"],
-            )
-            fallback = self._try_local_match(item["phrase"], item["candidates"])
+            # An explicit null rejects every candidate, including the local
+            # match routing already declined (#490).
+            if explicit_null:
+                fallback = None
+            else:
+                logger.warning(
+                    "Phase 2B-llm: phrase=%r produced no valid mapping; trying local fallback",
+                    item["phrase"],
+                )
+                fallback = self._try_local_match(item["phrase"], item["candidates"])
             if fallback is None:
                 return (
                     [],
@@ -2282,6 +2383,13 @@ class TwoPhaseLLMPipeline:
     def _deduplicate_terms(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         return deduplicate_terms(terms)
 
+    @classmethod
+    def _apply_ontology_guard(cls, *term_lists: list[LLMPhenotype]) -> tuple[Any, ...]:
+        """Guard every list and return them plus the number of dropped terms."""
+        guarded = [cls._drop_non_phenotypic(terms) for terms in term_lists]
+        dropped = sum(len(t) for t in term_lists) - sum(len(g) for g in guarded)
+        return (*guarded, dropped)
+
     @staticmethod
     def _drop_non_phenotypic(terms: list[LLMPhenotype]) -> list[LLMPhenotype]:
         """Drop resolved terms that are KNOWN to sit outside the Phenotypic
@@ -2294,7 +2402,7 @@ class TwoPhaseLLMPipeline:
         kept: list[LLMPhenotype] = []
         for term in terms:
             if is_non_phenotypic_abnormality(term.term_id):
-                logger.debug(
+                logger.info(
                     "ontology guard dropped non-phenotype term %s (%s)",
                     term.term_id,
                     term.label,

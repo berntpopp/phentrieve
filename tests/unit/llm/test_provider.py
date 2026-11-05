@@ -2443,3 +2443,13 @@ def test_transient_retry_delay_is_capped_after_jitter(monkeypatch) -> None:
     delay = provider._next_transient_retry_delay(attempt=3)
 
     assert delay == 8.0
+
+
+def test_tool_executor_batch_retrieval_uses_the_requested_count() -> None:
+    # The tool-call cap must not shrink the pipeline's batch retrieval (#492).
+    retriever = FakeRetriever()
+    executor = ToolExecutor(retriever=retriever, max_num_results=3)
+
+    executor.query_batch_hpo_terms(phrases=["term-a"], language="en", n_results=50)
+
+    assert [call[1] for call in retriever.multi_vector_calls] == [50]

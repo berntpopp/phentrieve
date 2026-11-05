@@ -127,3 +127,29 @@ def test_modifier_candidates_never_reach_mapping(monkeypatch):
     )
 
     assert [c["hpo_id"] for c in results[0]["candidates"]] == ["HP:0001250"]
+
+
+def test_guard_counts_drops_across_proband_family_and_other(monkeypatch):
+    # Drops are counted, not only logged (#493). Tested on the guard step itself,
+    # so a candidate filter before mapping does not change what is checked.
+    _guard_with_map(
+        monkeypatch,
+        {"HP:9000001": {"HP:0000001", "HP:0012823"}, "HP:9000002": {"HP:0000118"}},
+    )
+    keep = LLMPhenotype(term_id="HP:9000002", label="term-b")
+    drop = LLMPhenotype(term_id="HP:9000001", label="term-a")
+
+    *guarded, dropped = TwoPhaseLLMPipeline._apply_ontology_guard(
+        [keep, drop], [drop], []
+    )
+    proband, family, other = guarded
+
+    assert [t.term_id for t in proband] == ["HP:9000002"]
+    assert family == [] and other == []
+    assert dropped == 2
+
+
+def test_guard_reports_unavailable_graph(monkeypatch):
+    _guard_with_map(monkeypatch, {})
+
+    assert ontology_guard.guard_available() is False

@@ -876,7 +876,7 @@ def test_grouped_phase1_aggregates_mentions_before_retrieval() -> None:
 
     assert tool_executor.queries == [
         {
-            "phrases": ["recurrent seizures", "normal cognition"],
+            "phrases": ["recurrent seizures", "normal cognition", "cognition"],
             "language": "en",
             "n_results": 50,
         }
@@ -3763,7 +3763,8 @@ def test_two_phase_pipeline_separates_llm_mappings_from_local_fallbacks(
             {
                 "parsed": {
                     "phrase": "frequent falls",
-                    "hpo_id": None,
+                    # Not a candidate: the local fallback applies (#490).
+                    "hpo_id": "HP:9999999",
                 },
                 "request_count": 1,
             },
@@ -4248,7 +4249,9 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
                         }
                     ]
                 },
-            }
+            },
+            # Y is mapped through the regular mapping path (#490).
+            {"parsed": {"phrase": "regression", "hpo_id": "HP:0010864"}},
         ]
     )
     tool_executor = FakeToolExecutor(
@@ -4288,7 +4291,7 @@ def test_two_phase_pipeline_carries_negated_qualifier_through_to_term():
     assert term.assertion == "present"
     assert term.negated_qualifier == "regression"
 
-    # B3 (Task 10): the qualifier Y ("regression") is now retrieved and, when it
+    # B3 (Task 10): the qualifier Y ("regression") is now resolved and, when it
     # maps at or above the similarity floor, a GENERATED excluded finding is
     # emitted. This stub's retriever returns the same fixed candidate for every
     # query, so the generated term resolves to the same HPO id under the negated
@@ -4330,3 +4333,88 @@ def test_two_phase_pipeline_rejects_unsupported_mode():
             text="Patient had recurrent seizures.",
             config=LLMPipelineConfig(model="gemini-2.5-flash", mode="tool_text"),
         )
+
+
+def test_grounded_item_without_chunk_ids_does_not_invalidate_the_response():
+    # Provider schemas drop minItems, so "chunk_ids": [] can be decoded (#489).
+    provider = FakeProvider(
+        [
+            {
+                "phenotypes": [
+                    grounded_phenotype("term-a", "Abnormal"),
+                    {"phrase": "term-b", "category": "Abnormal", "chunk_ids": []},
+                ]
+            }
+        ]
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=PhraseKeyedToolExecutor({})
+    )
+
+    result = pipeline.run(
+        text="term-a term-b",
+        grounded_chunks=[{"chunk_id": 1, "text": "term-a term-b"}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.meta.phase_counts["extracted_phrases"] == 2
+    assert result.meta.phase_counts["phase1_unanchored_phrases"] == 1
+
+
+def test_explicit_null_mapping_skips_the_local_fallback() -> None:
+    # routing deferred the local match; an explicit null must not revive it (#490).
+    provider = FakeProvider(
+        [
+            {"phenotypes": [grounded_phenotype("term-a", "Abnormal")]},
+            {"parsed": {"phrase": "term-a", "hpo_id": None}},
+        ]
+    )
+    tool_executor = PhraseKeyedToolExecutor(
+        {"term-a": [{"hpo_id": "HP:9000001", "term_name": "term-a", "score": 0.5}]}
+    )
+    pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+
+    result = pipeline.run(
+        text="term-a",
+        grounded_chunks=[{"chunk_id": 1, "text": "term-a"}],
+        config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+    )
+
+    assert result.terms == []
+    assert result.meta.phase_counts["local_fallbacks"] == 0
+
+
+def test_phase2_failures_raise_typed_phase_errors() -> None:
+    # A typed error lets the benchmark record the document as failed (#494).
+    from phentrieve.llm.pipeline_retry import LLMPipelinePhaseError
+
+    class _BrokenRetriever:
+        def query_batch_hpo_terms(self, *, phrases, language, n_results):
+            raise RuntimeError("retrieval down")
+
+    phase1 = {"phenotypes": [grounded_phenotype("term-a", "Abnormal")]}
+    candidates = {"term-a": [{"hpo_id": "HP:9000001", "term_name": "x", "score": 0.5}]}
+    cases = [
+        ("phase2a", FakeProvider([phase1]), _BrokenRetriever()),
+        (
+            "phase2b",
+            FakeProvider([phase1, {"exception": ValueError("invalid mapping")}]),
+            PhraseKeyedToolExecutor(candidates),
+        ),
+    ]
+    for phase, provider, tool_executor in cases:
+        pipeline = TwoPhaseLLMPipeline(provider=provider, tool_executor=tool_executor)
+        with pytest.raises(LLMPipelinePhaseError) as raised:
+            pipeline.run(
+                text="term-a",
+                grounded_chunks=[{"chunk_id": 1, "text": "term-a"}],
+                config=LLMPipelineConfig(model="gemini-2.5-flash", mode="two_phase"),
+            )
+        assert raised.value.phase == phase
+
+
+def test_explicit_null_item_ids_ignores_an_unexpected_response_type():
+    # A response of neither mapping type yields no explicit nulls (#490).
+    from phentrieve.llm.pipeline_phase2 import explicit_null_item_ids
+
+    assert explicit_null_item_ids(mapping_response=object(), batch=[{}]) == set()

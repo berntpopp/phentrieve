@@ -861,6 +861,7 @@ def test_benchmark_trace_persists_group_failures(tmp_path, monkeypatch):
         "phase1_completed_groups": 1,
         "phase1_failed_groups": 1,
         "phase1_partial_failures": 1,
+        "phase1_unrecovered_groups": 0,
     }
 
 
@@ -1205,12 +1206,14 @@ def test_benchmark_record_includes_partial_failure_counts(tmp_path, monkeypatch)
         "phase1_completed_groups": 1,
         "phase1_failed_groups": 1,
         "phase1_partial_failures": 1,
+        "phase1_unrecovered_groups": 0,
     }
     assert persisted_observability["failed_groups"] == 1
     assert persisted_record["partial_failure_counts"] == {
         "phase1_completed_groups": 1,
         "phase1_failed_groups": 1,
         "phase1_partial_failures": 1,
+        "phase1_unrecovered_groups": 0,
     }
 
 

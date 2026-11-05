@@ -178,6 +178,14 @@ class TestFineGrainedPunctuationChunker:
         assert any("Mr" in part for part in result), "Mr abbreviation not preserved"
         assert any("St" in part for part in result), "St abbreviation not preserved"
 
+    @pytest.mark.parametrize(
+        "segment",
+        ["Dr. a b", "a p. b", "a vs. b", "a Ph.D. b", "a A.B. b", "a eg. b"],
+    )
+    def test_abbreviation_round_trips_verbatim(self, segment):
+        """Restored chunks contain the matched text, not the regex (#486)."""
+        assert self.chunker.chunk([segment]) == [segment]
+
 
 class TestConjunctionChunker:
     """Test cases for the ConjunctionChunker class."""

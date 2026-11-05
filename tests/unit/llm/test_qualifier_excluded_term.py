@@ -230,6 +230,10 @@ def test_qualifier_below_floor_keeps_metadata_and_emits_no_term() -> None:
     """Case B: when "fever" maps BELOW the floor, no term is generated and the
     source finding's ``negated_qualifier`` metadata string is retained."""
     provider = _phase1_only_provider()
+    # Below the local-accept score Y is deferred to the mapping model (#490).
+    provider.responses.append(
+        {"parsed": {"phrase": "fever", "hpo_id": FEVER_CANDIDATE_BELOW["hpo_id"]}}
+    )
     tool_executor = PhraseAwareToolExecutor(
         {
             "rash": [RASH_CANDIDATE],
@@ -281,3 +285,61 @@ def test_qualifier_unmappable_keeps_metadata_and_emits_no_term() -> None:
     assert {t.term_id for t in result.terms} == {"HP:0000988"}
     source = next(t for t in result.terms if t.term_id == "HP:0000988")
     assert source.negated_qualifier == "fever"
+
+
+def _qualifier_provider(mapping: dict[str, Any]) -> FakeProvider:
+    return FakeProvider(
+        responses=[
+            {
+                "parsed": {
+                    "phenotypes": [
+                        _grounded_phenotype(
+                            "term-x", "Abnormal", chunk_id=1, negated_qualifier="term-y"
+                        ),
+                    ]
+                },
+            },
+            {"parsed": mapping},
+        ]
+    )
+
+
+def _qualifier_run(provider: FakeProvider) -> LLMExtractionResult:
+    tool_executor = PhraseAwareToolExecutor(
+        {
+            "term-x": [{"hpo_id": "HP:9000001", "term_name": "term-x", "score": 0.95}],
+            # No local match: Y must go to the mapping model.
+            "term-y": [{"hpo_id": "HP:9000002", "term_name": "label-z", "score": 0.9}],
+        }
+    )
+    pipeline = TwoPhaseLLMPipeline(
+        provider=provider, tool_executor=tool_executor, mapping_batch_size=1
+    )
+    return pipeline.run(
+        text="term-x term-y",
+        grounded_chunks=[{"chunk_id": 1, "text": "term-x term-y"}],
+        config=_config(),
+    )
+
+
+def test_qualifier_is_mapped_not_taken_from_the_top_candidate() -> None:
+    # The mapping model rejects every candidate for Y, so no term is generated
+    # although the top candidate is above the floor (#490).
+    provider = _qualifier_provider({"phrase": "term-y", "hpo_id": None})
+
+    result = _qualifier_run(provider)
+
+    assert {t.term_id for t in result.terms} == {"HP:9000001"}
+    assert len(provider.structured_calls) == 2
+    assert result.meta.phase_counts["negated_qualifier_phrases"] == 1
+
+
+def test_qualifier_mapped_by_the_model_emits_an_excluded_term() -> None:
+    provider = _qualifier_provider({"phrase": "term-y", "hpo_id": "HP:9000002"})
+
+    result = _qualifier_run(provider)
+
+    generated = next(t for t in result.terms if t.term_id == "HP:9000002")
+    assert generated.assertion == "negated"
+    assert generated.match_method == "negated_qualifier_derived"
+    assert result.meta.request_count == 2

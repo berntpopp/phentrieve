@@ -47,7 +47,9 @@ _SOFT_HYPHEN = "\u00ad"
 _QUOTED_LINE_BREAK_HYPHEN = re.compile(r"(?<=\w)- (?=\w)")
 
 # Separators the phase-1 chunk index shows after the chunk they follow.
-_SEPARATORS = " \t\r\n.,;:!?)]"
+_SEPARATORS = " \t\r\n.,;:!?)]-+"
+# Dropped text up to here belongs to the chunk before it ("<finding>: no").
+_LINE_OR_SENTENCE_END = re.compile(r"[\r\n]|[.!?](?=\s|$)")
 
 
 @dataclass(frozen=True)
@@ -127,10 +129,12 @@ def rendered_regions(
 ) -> list[RenderedRegion]:
     """Walk the gaps between located chunks, given as ``(start, end)`` pairs.
 
-    The dropped text before a chunk is what lies after the previous located
-    chunk, without the separators that are shown after that chunk instead. A
-    chunk that follows an unlocated chunk gets no dropped text, because that
-    gap still holds the unlocated chunk's own text.
+    Dropped text after a chunk up to the first line break or sentence end is
+    shown after that chunk, as is the text after the last chunk (#487); the
+    rest of a gap is shown before the next chunk, without the separators that
+    are shown after the previous chunk instead. Next to an unlocated chunk only
+    separators are shown, because that gap still holds the unlocated chunk's
+    own text.
     """
     located: list[tuple[int, int, int]] = [
         (index, start, end)
@@ -152,8 +156,17 @@ def rendered_regions(
         )
         following = text[end : max(end, next_start)]
         region_end = end + len(following) - len(following.lstrip(_SEPARATORS))
+        if index + 1 == len(spans) or (
+            position + 1 < len(located) and located[position + 1][0] == index + 1
+        ):
+            boundary = _LINE_OR_SENTENCE_END.search(following)
+            if boundary is None:
+                cut = len(following) if index + 1 == len(spans) else 0
+            else:
+                cut = boundary.end() if boundary.group() in ".!?" else boundary.start()
+            region_end = max(region_end, end + len(following[:cut].rstrip()))
         regions.append(RenderedRegion(index, region_start, region_end, start, end))
-        previous_end = max(previous_end, end)
+        previous_end = max(previous_end, region_end)
     return regions
 
 

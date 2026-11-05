@@ -189,15 +189,9 @@ def test_phase1_prompt_mentions_normalized_clinical_phrase_for_lab_or_event_evid
     assert "context" in system.lower()
 
 
-def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mentions():
+def test_expand_combined_phase1_extractions_splits_shared_head_mentions():
     expanded = expand_combined_phase1_extractions(
         [
-            {
-                "phrase": "hypertonia/spasticity of the extremities",
-                "category": "abnormal",
-                "chunk_ids": [15],
-                "evidence_text": "hypertonia/spasticity of the extremities",
-            },
             {
                 "phrase": "pontine cerebellar hypoplasia",
                 "category": "abnormal",
@@ -209,15 +203,9 @@ def test_expand_combined_phase1_extractions_splits_slash_and_shared_head_mention
 
     phrases = [item["phrase"] for item in expanded]
 
-    assert phrases == [
-        "hypertonia",
-        "spasticity of the extremities",
-        "pontine hypoplasia",
-        "cerebellar hypoplasia",
-    ]
+    assert phrases == ["pontine hypoplasia", "cerebellar hypoplasia"]
     assert all(item["category"] == "abnormal" for item in expanded)
-    assert expanded[0]["chunk_ids"] == [15]
-    assert expanded[2]["chunk_ids"] == [44, 45]
+    assert expanded[0]["chunk_ids"] == [44, 45]
 
 
 def test_expand_combined_phase1_extractions_expands_common_phenotype_abbreviations():
@@ -259,3 +247,53 @@ def test_expand_combined_phase1_extractions_leaves_non_combined_phrases_unchange
     ]
 
     assert expand_combined_phase1_extractions(original) == original
+
+
+def test_expand_combined_phase1_extractions_never_splits_slash_forms():
+    # Slash forms stay whole: units, connectives and "a/b" alike (#488).
+    original = [
+        {"phrase": phrase, "category": "abnormal", "chunk_ids": [1]}
+        for phrase in ("term-a 1 mg/dL", "terma and/or termb", "terma/termb")
+    ]
+
+    assert expand_combined_phase1_extractions(original) == original
+
+
+def test_prepare_retrieval_queries_adds_a_cue_stripped_variant():
+    # Normal and negated phrases are also retrieved without the cue (#491).
+    assert prepare_retrieval_queries("no term-a", strip_cue=True, language="en") == [
+        "no term-a",
+        "term-a",
+    ]
+    assert prepare_retrieval_queries(
+        "term-a normal", strip_cue=True, language="en"
+    ) == [
+        "term-a normal",
+        "term-a",
+    ]
+    assert prepare_retrieval_queries("term-a", strip_cue=True, language="en") == [
+        "term-a"
+    ]
+    assert prepare_retrieval_queries("no term-a") == ["no term-a"]
+
+
+def test_negated_phrase_is_also_retrieved_without_the_cue():
+    class _Recorder:
+        def __init__(self):
+            self.phrases = []
+
+        def query_batch_hpo_terms(self, *, phrases, language, n_results):
+            self.phrases.extend(phrases)
+            return [{"candidates": []} for _ in phrases]
+
+    recorder = _Recorder()
+    pipeline = TwoPhaseLLMPipeline(provider=None, tool_executor=recorder)
+    pipeline._retrieve_candidates(
+        actionable=[
+            {"phrase": "no term-a", "category": "Abnormal", "assertion": "absent"}
+        ],
+        grounded_chunks=[],
+        language="en",
+    )
+
+    assert recorder.phrases == ["no term-a", "term-a"]

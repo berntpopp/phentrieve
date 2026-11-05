@@ -56,6 +56,30 @@ together:
 - Hybrid semantic similarity measures each term's distance to the lowest common
   ancestor in the graph instead of subtracting shortest-path depths, so distinct terms
   with multiple inheritance no longer score 1.0 (#475).
+- **Fine-grained chunker restores the matched abbreviation text**, not the
+  regex pattern (#486).
+- **Phase-1 chunk index shows dropped trailing text after its chunk**
+  (`<finding>: no`), including after the last chunk; `-`/`+` count as trailing
+  separators (#487). `PROMPT_BEHAVIOR_VERSION` is bumped to `7`.
+- **Phase 1 no longer splits slash phrases** (`a/b`); the prompt already asks
+  for one phrase per finding, and the split broke units, `and/or` and prefix
+  forms (#488, partial: shared-head splitting is unchanged).
+- **A phase-1 item without `chunk_ids` no longer invalidates the response**;
+  it is kept unanchored and counted (`phase1_unanchored_phrases`) (#489).
+- **Negated qualifiers are mapped through the regular route-and-map path**,
+  and an explicit `hpo_id: null` no longer triggers the local fallback (#490).
+- **Normal and negated phrases are also retrieved without their cue** (#491).
+- **Batch retrieval returns the pipeline's requested candidate count**; the
+  tool cap applies to model tool calls only (#492).
+- **Ontology guard drops are counted** (`ontology_guard_dropped_terms`) and the
+  trace records whether the guard was active (#493, partial).
+- **LLM benchmark marks documents with unrecovered phase-1 groups
+  `incomplete`** and retries them on resume; phase-2 failures raise
+  `LLMPipelinePhaseError` so one document no longer aborts the run (#494).
+- **Category and assertion are combined by one rule**: an explicit negated or
+  uncertain assertion wins, `present` never overrides Normal or Suspected;
+  disagreements are counted (#495, partial: proband findings with category
+  Other are still not actionable).
 
 ### Removed
 

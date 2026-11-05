@@ -135,7 +135,8 @@ def test_prompt_text_collapses_line_breaks_in_restored_context() -> None:
 
     prompt_texts = _prompt_texts(text, chunks)
 
-    assert prompt_texts == [None, "and no seizures were observed."]
+    # The word before the line break stays with the chunk it follows (#487).
+    assert prompt_texts == ["He had hypotonia and", "no seizures were observed."]
     rendered = render_group_chunk_index_text(
         group={},
         grounded_chunks=[
@@ -145,7 +146,35 @@ def test_prompt_text_collapses_line_breaks_in_restored_context() -> None:
             )
         ],
     )
-    assert "chunk_id=2: and no seizures were observed." in rendered.splitlines()
+    assert "chunk_id=2: no seizures were observed." in rendered.splitlines()
+
+
+def _located_chunks(text: str, pieces: list[str]) -> list[dict[str, object]]:
+    chunks, position = [], 0
+    for piece in pieces:
+        start = text.index(piece, position)
+        position = start + len(piece)
+        chunks.append({"text": piece, "start_char": start, "end_char": position})
+    return chunks
+
+
+def test_prompt_text_keeps_dropped_values_with_the_preceding_key() -> None:
+    # Cleanup dropped "no"/"yes"; each stays on its own line's chunk (#487).
+    text = "term-a: no\nterm-b: yes\nterm-c: no"
+    chunks = _located_chunks(text, ["term-a", "term-b", "term-c"])
+
+    assert _prompt_texts(text, chunks) == [
+        "term-a: no",
+        "term-b: yes",
+        "term-c: no",
+    ]
+
+
+def test_prompt_text_shows_plus_and_minus_after_the_chunk() -> None:
+    text = "term-a -, term-b +"
+    chunks = _located_chunks(text, ["term-a", "term-b"])
+
+    assert _prompt_texts(text, chunks) == ["term-a -,", "term-b +"]
 
 
 def test_prompt_text_skips_chunks_without_a_located_position() -> None:

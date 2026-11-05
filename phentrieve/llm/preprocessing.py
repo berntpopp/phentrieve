@@ -65,7 +65,9 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
     chunks; the extraction prompt must still show them. A chunk is prefixed with
     the words dropped since the previous chunk and followed by the punctuation
     that follows it in the source, so a coordinated list split into several
-    chunks ("no A," / "B," / "or C.") stays recognisable (#375). Separators
+    chunks ("no A," / "B," / "or C.") stays recognisable (#375). Words dropped
+    after a chunk up to the line or sentence end follow that chunk instead
+    ("A: no"), and so does the text after the last chunk (#487). Separators
     are shown once, after the chunk they follow, and whitespace runs in the
     prefix are collapsed so it stays on its chunk-index line. A chunk after an
     unlocated chunk gets no prefix, which would repeat that chunk's text
@@ -78,11 +80,10 @@ def _prompt_texts(text: str, chunks: list[dict[str, Any]]) -> list[str | None]:
         gap = text[region.start : region.chunk_start]
         if gap:
             gap = " ".join(gap.split()) + (" " if gap[-1].isspace() else "")
-        trailing = "".join(
-            character
-            for character in text[region.chunk_end : region.end]
-            if not character.isspace()
-        )
+        tail = text[region.chunk_end : region.end]
+        trailing = " ".join(tail.split())
+        if trailing and tail[0].isspace() and trailing[0] not in ".,;:!?)]":
+            trailing = f" {trailing}"
         if gap or trailing:
             prompt_texts[region.index] = (
                 f"{gap}{chunks[region.index].get('text', '')}{trailing}"

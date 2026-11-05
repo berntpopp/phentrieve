@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+from functools import cache
 from typing import Any
 
 from phentrieve.llm.config import (
@@ -63,7 +65,46 @@ def derive_category_from_axes(
     return ASSERTION_TO_CATEGORY.get(assertion or "", fallback_category)
 
 
-def prepare_retrieval_queries(phrase: str) -> list[str]:
+@cache
+def _assertion_cue_pattern(language: str) -> re.Pattern[str] | None:
+    """Leading or trailing negation/normality cue of the bundled resources."""
+    # Imported here: phentrieve.text_processing imports this package.
+    from phentrieve.text_processing.resource_loader import load_language_resource
+
+    cues: set[str] = set()
+    for filename, config_key in (
+        ("negation_prefixes.json", "negation_prefixes_file"),
+        ("normality_cues.json", "normality_cues_file"),
+    ):
+        resource = load_language_resource(filename, config_key)
+        cues.update(cue.strip() for cue in resource.get(language, []) if cue.strip())
+    if not cues:
+        return None
+    alternatives = "|".join(
+        re.escape(cue) for cue in sorted(cues, key=len, reverse=True)
+    )
+    return re.compile(
+        rf"^(?:{alternatives})(?!\w)\W*|\W*(?<!\w)(?:{alternatives})$",
+        re.IGNORECASE,
+    )
+
+
+def strip_assertion_cue(phrase: str, language: str) -> str:
+    """``phrase`` without a leading or trailing negation/normality cue."""
+    pattern = _assertion_cue_pattern((language or "").strip().lower())
+    if pattern is None:
+        return phrase
+    return " ".join(pattern.sub(" ", phrase).split())
+
+
+def prepare_retrieval_queries(
+    phrase: str, *, strip_cue: bool = False, language: str = ""
+) -> list[str]:
+    """Retrieval queries for one phrase.
+
+    With ``strip_cue`` (normal or negated phrases) a variant without the cue
+    is added, because the mapping looks for the abnormal concept (#491).
+    """
     original = " ".join(str(phrase or "").split()).strip()
     if not original:
         return []
@@ -72,6 +113,11 @@ def prepare_retrieval_queries(phrase: str) -> list[str]:
     stripped_units = " ".join(UNIT_TOKEN_PATTERN.sub(" ", original).split())
     if stripped_units and stripped_units != original:
         variants.append(stripped_units)
+    if strip_cue:
+        for variant in list(variants):
+            stripped_cue = strip_assertion_cue(variant, language)
+            if stripped_cue and stripped_cue not in variants:
+                variants.append(stripped_cue)
     return variants
 
 
@@ -292,6 +338,41 @@ def optional_float(value: Any) -> float | None:
     return float(value)
 
 
+# Categories that encode a polarity other than present.
+_POLARITY_CATEGORIES = frozenset({"normal", "suspected"})
+
+
+def resolve_proband_assertion(category: str, model_assertion: str | None) -> str:
+    """The single rule that combines the category and assertion axes.
+
+    An explicit ``negated`` or ``uncertain`` assertion wins over the category.
+    A ``present`` assertion never overrides a category that encodes another
+    polarity (Normal -> negated, Suspected -> uncertain), because ``present``
+    is also the schema default a model may leak (#495). Without an assertion
+    the category decides.
+    """
+    if model_assertion == PRESENT_ASSERTION and category in _POLARITY_CATEGORIES:
+        return CATEGORY_TO_ASSERTION[category]
+    if model_assertion is not None:
+        return model_assertion
+    return CATEGORY_TO_ASSERTION.get(category, PRESENT_ASSERTION)
+
+
+def axes_disagree(item: dict[str, Any]) -> bool:
+    """Whether the model's assertion contradicts the polarity of its category."""
+    category = normalize_category(str(item.get("category", "")))
+    if item.get("assertion") is None or category not in {
+        "abnormal",
+        "normal",
+        "suspected",
+    }:
+        return False
+    return (
+        str(parse_assertion(item["assertion"]).value)
+        != (CATEGORY_TO_ASSERTION[category])
+    )
+
+
 def phenotype_from_candidate(
     *,
     item: dict[str, Any],
@@ -313,24 +394,7 @@ def phenotype_from_candidate(
         if item.get("assertion") is not None
         else None
     )
-    # Model WINS on polarity (present | negated | uncertain), EXCEPT it may not
-    # promote an explicit ``normal`` category to ``present``. A "normal" category
-    # is a normalcy verdict (e.g. "normal intellectual abilities" is NOT
-    # Cognitive impairment); the phase-1 model sometimes co-emits a contradictory
-    # ``assertion="present"`` (or leaks the schema default), which B1's plain
-    # model-wins rule would flip a ruled-out finding to present. That specific
-    # contradiction resolves to the normalcy category's ``negated`` instead. A
-    # model ``negated``/``uncertain`` on a normal category is consistent and is
-    # still honored; every other category keeps model-wins / category-fallback
-    # (B1/D2).
-    if normalized_category == "normal" and model_assertion == PRESENT_ASSERTION:
-        resolved_assertion = CATEGORY_TO_ASSERTION["normal"]
-    elif model_assertion is not None:
-        resolved_assertion = model_assertion
-    else:
-        resolved_assertion = CATEGORY_TO_ASSERTION.get(
-            normalized_category, PRESENT_ASSERTION
-        )
+    resolved_assertion = resolve_proband_assertion(normalized_category, model_assertion)
     resolved_experiencer = (
         item["experiencer"]
         if item.get("experiencer")
@@ -408,6 +472,29 @@ def select_candidate_ids(
     return selected
 
 
+def explicit_null_item_ids(
+    *,
+    mapping_response: LLMMappingSelection | LLMBatchMappingSelections,
+    batch: list[dict[str, Any]],
+) -> set[str]:
+    """Item ids the mapping model explicitly answered with ``hpo_id: null``.
+
+    An explicit null is a decision that no candidate fits; unlike a missing
+    item or an id outside the candidates it must not trigger the local
+    fallback (#490).
+    """
+    if isinstance(mapping_response, LLMMappingSelection):
+        return {mapping_batch_item_id(0)} if not mapping_response.hpo_id else set()
+    if not isinstance(mapping_response, LLMBatchMappingSelections):
+        return set()
+    batch_ids = {mapping_batch_item_id(index) for index in range(len(batch))}
+    return {
+        mapping.item_id
+        for mapping in mapping_response.mappings
+        if not mapping.hpo_id and mapping.item_id in batch_ids
+    }
+
+
 def _merge_term_evidence(target: LLMPhenotype, term: LLMPhenotype) -> None:
     target.evidence_records.extend(term.evidence_records)
     if not target.evidence and term.evidence:
@@ -475,6 +562,4 @@ def local_match(
 
 
 def re_search_word(needle: str, haystack: str) -> bool:
-    import re
-
     return bool(re.search(rf"\b{re.escape(needle)}\b", haystack))
