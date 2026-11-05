@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24932600_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 392,
+  "total_tokens": 2756,
+  "thoughts_tokens": 1975,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen den heute genau zwei Jahre alten Jonas zur weiteren differenzialdiagnostischen Abklärung. Skelettäre Auffälligkeiten zeigten sich bereits intrauterin im pränatalen Ultraschall. \n\nKörperlich imponiert bei dem Jungen ein ausgeprägter Kleinwuchs deutlich unterhalb der dritten Perzentile, wobei insbesondere eine mesomele Verkürzung der Extremitäten im Vordergrund steht. Radiologisch sicherten wir neben einer beidseitigen Luxation der Ellenbogengelenke auch Halbwirbel im Bereich der thorakalen Wirbelsäule. Kardial zeigte sich echokardiographisch eine bikuspid angelegte Aortenklappe; das Abdomen stellte sich sonographisch unauffällig dar.\n\nKraniofazial fallen eine prominente Stirnwölbung, leicht hervortretende Augäpfel sowie eine tief eingesunkene Nasenwurzel mit antevertierten Nares auf. Ein verkürztes Philtrum findet sich keineswegs, vielmehr ist dieses auffallend lang ausgeprägt. Zudem bestehen ein fliehendes, kleines Kinn sowie eine deutliche Gingivahyperplasie. Im Genitalbereich imponiert ein Mikropenis bei beidseits palpablen, deszendierten Testes. \n\nDie Familienanamnese der nicht-blutsverwandten Eltern ist bezüglich angeborener Fehlbildungen leer. Jonas erhält derzeit keine Dauermedikation. Die Seh- und Hörprüfungen waren regelrecht, und auch die kognitive Entwicklung verläuft bisher unbeeinträchtigt.\n\nIch wäre Ihnen für eine fachärztliche Einschätzung und weitere Abklärung des Patienten sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

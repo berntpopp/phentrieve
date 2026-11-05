@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29122497_29122497_P2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 413,
+  "total_tokens": 2806,
+  "thoughts_tokens": 2023,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die heute 2 Jahre und 4 Monate alte Patientin zur weiterführenden neuropädiatrischen Abklärung.\n\nDie frühe Entwicklung verlief nach unkomplizierter Schwangerschaft und Spontangeburt zunächst zeitgerecht. Ab einem Alter von etwa sieben Monaten beobachteten die Eltern jedoch einen progredienten Verlust bereits gefestigter motorischer und kognitiver Meilensteine. \n\nIm aktuellen Untersuchungsbefund imponiert klinisch eine ausgeprägte axiale Hypotonie mit gänzlich fehlender Rumpfstabilität. Im deutlichen Kontrast zur schlaffen Rumpfmuskulatur besteht an der Peripherie eine ausgeprägte Spastik: Sowohl an den oberen Extremitäten als auch an beiden Beinen zeigt sich eine spastische Tonusüberhöhung mit gesteigerten Reflexen und beidseitig positivem Babinski-Reflex. Ophthalmologisch fällt ein persistierender Pendelnystagmus auf, und bei der funduskopischen Kontrolle stellten sich beidseits auffällig abgeblasste Sehnervenscheiben dar.\n\nIn der extern durchgeführten Kernspintomographie zeigten sich ausgedehnte, weitgehend konfluierende T2-Signalhyperintensitäten des zerebralen Marklagers. Begleitend wurden auch im Bereich des Myelons kräftige intramedulläre T2-Signalvermehrungen beschrieben.\n\nDie Familienanamnese ist bezüglich neurologischer Auffälligkeiten unergiebig, die Eltern sind nicht blutsverwandt. Das Neugeborenenscreening war seinerzeit normal, und eine Dauermedikation besteht aktuell nicht.\n\nIch bedanke mich für die Übernahme der kleinen Patientin und bitte um Ihre geschätzte fachärztliche Einschätzung zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

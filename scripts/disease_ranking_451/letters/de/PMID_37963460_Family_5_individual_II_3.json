@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37963460_Family_5_individual_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 633,
+  "completion_tokens": 573,
+  "total_tokens": 4492,
+  "thoughts_tokens": 3286,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die neunjährige Lisa zur weiteren Beurteilung. \n\nDie Schwangerschaft verlief ohne Auffälligkeiten der Fruchtwassermenge (weder Poly- noch Oligohydramnion); bei Geburt war das Mädchen nicht zu klein für das Gestationsalter. Frühkindlich bestanden ausgeprägte Fütterprobleme. Aktuell imponieren ein deutlicher Kleinwuchs und Untergewicht (beides unter P3) bei normalem Kopfumfang ohne Mikrozephalie. \n\nEntwicklungsneurologisch besteht eine globale Entwicklungsverzögerung mit motorischem Rückstand, muskulärer Hypotonie und mittelgradiger Intelligenzminderung; eine schwere geistige Behinderung liegt nicht vor. Die Sprachentwicklung ist merklich verzögert, eine eigene Sprachproduktion ist jedoch vorhanden und keineswegs gänzlich fehlend. Auffällig sind motorische Stereotypien, ausgeprägte Hyperaktivität, autistische Verhaltensmuster sowie eine erhebliche Schlaf-Wach-Rhythmusstörung. Aggressives Verhalten oder epileptische Anfälle traten nie auf. \n\nKraniofazial zeigen sich sehr feines Haar, ein Hypertelorismus, eine flache, keinesfalls prominente Nasenwurzel, ein kurzes, jedoch gut modelliertes (nicht verstrichenes) Philtrum sowie abstehende, tief sitzende Ohren. Die äußeren Gehörgänge sind frei von Stenosen; Mikrotie, Anteversion der Ohrmuscheln, Furchen der Ohrläppchen oder ein verbreitertes Crus inferius antihelicis fehlen. Die Lidspalten sind gerade (weder auf- noch abwärts gerichtet), ohne Epikanthusfalten oder Strabismus. Der Gaumen ist hoch gewölbt, jedoch ohne Spalte, ein Zahnengstand besteht nicht, und die Lippenränder sind unauffällig ohne zeltförmige Konfiguration.\n\nDas zerebrale MRT zeigte eine Hypoplasie des Corpus callosum ohne Agenesie; Gyrierung, Ventrikelweite (weder Ventrikulomegalie noch Kolpozephalie) und Kortex waren unauffällig. Das Abdomensonogramm schloss eine Hydronephrose aus, ein Analverschluss liegt nicht vor. Audiometrisch fand sich keine Schallempfindungsschwerhörigkeit. Echokardiographisch zeigten sich Normalbefunde ohne ASD, VSD, AV-Kanal, persistierenden Ductus arteriosus oder Mitralinsuffizienz. \n\nWir danken für Ihre geschätzte konsiliarische Einschätzung bezüglich des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29110636_proband_VMFS",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 436,
+  "total_tokens": 3229,
+  "thoughts_tokens": 2362,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre konsiliarische Mitbeurteilung des fünfjährigen Paul, der sich mit komplexen angeborenen Auffälligkeiten in unserer Sprechstunde vorstellt. Die Familienanamnese ist diesbezüglich leer, die Eltern sind gesund und nicht konsanguin.\n\nBereits perinatal imponierte ein ausgeprägter Minderwuchs mit Werten persistent weit unter der 3. Perzentile. Unmittelbar nach der Geburt erfolgte die operative Korrektur eines fehlenden Analverschlusses. Kardiologisch wird ein Septumdefekt auf Vorhofebene kontrolliert. Urologisch bestehen eine ventrale Meatusfehlmündung sowie ein Reflux von der Harnblase in den Ureter; eine Einschränkung der Nierenfunktion liegt labormedizinisch jedoch nicht vor. \n\nKraniofazial fallen ein tief in die Stirn reichender frontaler Haaransatz, eine verkürzte Halspartie, bilaterale Epikanthusfalten sowie betont lange Wimpern auf. Die Ohren inserieren tief; linksseitig imponieren eine hypoplastische Ohrmuschel sowie ein kleines akzessorisches Gewebeanhängsel präaurikulär. An den Extremitäten dokumentierten wir einen zusätzlichen Daumenstrahl bei röntgenologisch inkomplett gedoppelter Daumenphalanx sowie beidseits überlappende Zehen. \n\nNeurologisch besteht ein deutlicher allgemeiner Entwicklungsrückstand mit ausgeprägter Verzögerung des Spracherwerbs. Im Verhalten zeigen sich eine erhebliche hyperaktive Unruhe sowie wiederkehrende aggressive Episoden. Die cerebrale Bildgebung mittels MRT zeigte einen morphologisch regelrechten Befund, und das abgeleitete EEG war frei von pathologischen Potenzialen. Das Hörvermögen und die Schilddrüsenwerte waren unauffällig; Dauermedikation besteht nicht.\n\nÜber Ihre geschätzte differentialdiagnostische Einschätzung und Einleitung weiterer Schritte würde ich mich sehr freuen.\n\nMit kollegialen Grüßen"
+}

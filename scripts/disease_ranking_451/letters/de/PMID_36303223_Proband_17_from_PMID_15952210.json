@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_17_from_PMID_15952210",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 397,
+  "total_tokens": 2696,
+  "thoughts_tokens": 1912,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich überweise Ihnen einen männlichen Säugling zur differentialdiagnostischen Mitbeurteilung. Anamnestisch traten bereits am dritten Lebenstag erstmalig therapiebedürftige zerebrale Krampfanfälle auf.\n\nIm bisherigen Verlauf zeigt sich ein deutlicher Rückstand sämtlicher Entwicklungsbereiche; Meilensteine wurden praktisch nicht erreicht. Ein Verlust bereits erworbener Fähigkeiten war dabei nicht zu beobachten. Der Schädelumfang liegt weit unter der dritten Perzentile, passend zu einer ausgeprägten Mikrozephalie. Im neurologischen Status fällt eine ausgeprägte axiale Schlaffheit der Haltemuskulatur auf, während an den Extremitäten ein gesteigerter Muskeltonus vorherrscht. Auffälligkeiten der extrapyramidalen Motorik ließen sich nicht feststellen. Bei der augenärztlichen Untersuchung standen die Linsen beidseits orthotop, eine Ektopie oder Luxation konnte ausgeschlossen werden. Das Neugeborenen-Hörscreening war unauffällig, die Familienanamnese bietet keine Hinweise auf konsanguine Eltern oder erbliche Erkrankungen.\n\nIm Routinelabor fiel wiederholt eine ausgeprägte Hypourikämie im Serum auf. In der Urindiagnostik zeigte sich passend dazu eine stark reduzierte Uratausscheidung; eine Hyperurikosurie konnte damit sicher ausgeschlossen werden. Des Weiteren ließ sich im Spontanurin S-Sulfocystein in relevanten Mengen nachweisen. Die Konzentration von Hypoxanthin im Harn lag hingegen im Normbereich und war nicht gesteigert. Nierenretentionsparameter und Serumelektrolyte waren stets unauffällig.\n\nÜber eine fachliche Einschätzung dieses komplexen Krankheitsbildes und Vorschläge zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_B_II1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 429,
+  "completion_tokens": 309,
+  "total_tokens": 3097,
+  "thoughts_tokens": 2359,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Higgins,\n\nThank you for evaluating Maya Lin, a 21-month-old girl presenting for review of several structural concerns. She lives at home with her parents, attends daycare, and takes a daily pediatric multivitamin. Cardiovascular, pulmonary, and abdominal examinations are unremarkable, and her recent developmental screening was age-appropriate. \n\nHer linear growth remains well below standard percentiles for age. Physical examination is notable for an increased distance between her eyes, a low, flattened bridge of the nose, a recessed midfacial profile, and a small, retropositioned mandible. Cranial contours show a pronounced forehead and prominent parietal eminences, with calvarial seams that remain widely patent well past the expected timeframe. Skull films confirm numerous intrasutural ossicles. Dentition is significantly delayed; her few erupted baby teeth exhibit deficient, poorly formed enamel, though no additional or extra teeth are seen.\n\nThoracic inspection reveals a constricted, narrow-appearing ribcage alongside notably shortened collarbones. There is a striking hypermobility allowing her shoulders to touch in front of her chest. Spinal series and neuroaxis MRI show a lateral deviation of the spine as well as an asymptomatic cervical cord syrinx. Pelvic radiographs display underdeveloped, small iliac blades and unossified pubic rami. Radiographs of both hands showed second metacarpals of normal proportion and length.\n\nWe would greatly appreciate your evaluation regarding these combined skeletal and craniofacial anomalies and look forward to your recommendations.\n\nSincerely,\nDr. Arthur Vance"
+}

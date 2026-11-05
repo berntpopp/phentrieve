@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15523648_A_four_year_old_female",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 408,
+  "total_tokens": 2905,
+  "thoughts_tokens": 2122,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen die heute 4-jährige Mia zur pädiatrischen Mitbeurteilung. \n\nBereits im Säuglingsalter fiel den Eltern eine deutliche Verzögerung sämtlicher Entwicklungsmeilensteine auf. Bis heute spricht das Mädchen kein einziges Wort und kommuniziert ausschließlich über undifferenzierte Laute. Es besteht eine schwere kognitive Einschränkung.\n\nKörperlich imponiert Mia durch eine deutliche Wuchsminderung; mit ihrer Körperlänge liegt sie weit unterhalb der dritten Perzentile. Die Gesichtszüge wirken auffallend vergröbert, zudem besteht ein stetiger Speichelfluss aus den Mundwinkeln. Neurologisch zeigt sich ein allgemein schlaffer Muskeltonus bei gleichzeitig ausgeprägter ataktischer Gang- und Standunsicherheit. Spaltlampenmikroskopisch imponieren beidseitige Trübungen der Hornhäute. Das Hörvermögen erwies sich in der BERA als regelrecht, auch die sonographischen Kontrollen von Nieren und Herz zeigten Normalbefunde. \n\nIm kürzlich veranlassten Schädel-MRT kam eine fehlerhafte cerebrale Marklagerreifung zur Darstellung, kombiniert mit einer fadenförmig verschmälerten Balkenanlage. Laborchemisch fiel im Serum wiederholt ein massiv gesteigerter Gastrinwert auf. Zudem zeigte sich der Ferritingehalt im Blut stark erniedrigt, während das restliche Routinelabor einschließlich Elektrolyten und Nierenwerten blande blieb. \n\nMia lebt mit ihren gesunden Eltern zusammen; eine Konsanguinität liegt nicht vor. Eine Dauermedikation besteht derzeit nicht.\n\nIch danke Ihnen für Ihre geschätzte konsiliarische Beurteilung und die weitere diagnostische Einordnung dieses komplexen Bildes.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Weber"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_4_from_PMID_12112661",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 311,
+  "completion_tokens": 402,
+  "total_tokens": 2026,
+  "thoughts_tokens": 1313,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Dr. Weber,\n\nich überweise Ihnen den Patienten zur neurologischen Mitbeurteilung und weiteren diagnostischen Abklärung nach einem akut aufgetretenen Ereignis.\n\nAnlass der Konsultation ist ein kürzlich beobachtetes, erstmaliges zerebrales Krampfgeschehen, welches mit generalisierten tonisch-klonischen Muskelzuckungen und einem transienten Bewusstseinsverlust einherging. Im Anschluss zeigte sich eine kurze postiktale Verwirrtheitsphase, von der sich der Patient jedoch vollständig und ohne erkennbare Residuen erholte.\n\nDie unmittelbar danach erfolgte körperliche Untersuchung ergab einen unauffälligen internistischen sowie neurologischen Befund. Sämtliche Hirnnerven erwiesen sich als intakt, die Motorik war seitengleich kräftig und ohne Paresen, die Sensibilität unbeeinträchtigt. Die Muskeleigenreflexe ließen sich seitengleich mittellebhaft auslösen, und Pyramidenbahnzeichen waren nicht nachweisbar. Vitalparameter wie Blutdruck und Herzfrequenz lagen im Normbereich, die kardiopulmonale Auskultation war unauffällig. Eine orientierende Blutuntersuchung einschließlich Elektrolyten, Glukose und Entzündungsmarkern erbrachte regelrechte Werte.\n\nIn der Vorgeschichte sind keine chronischen Leiden bekannt, eine regelmäßige Medikamenteneinnahme besteht nicht. Die Familienanamnese ist bezüglich relevanter neurologischer Auffälligkeiten blande. Sozialanamnestisch bestehen geordnete Verhältnisse ohne besondere Belastungen.\n\nIch wäre Ihnen für eine fachneurologische Einschätzung des Zustandsbildes, die Durchführung einer elektroenzephalographischen Untersuchung sowie eventuelle Empfehlungen zur weiteren Diagnostik sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Keller\nFacharzt für Allgemeinmedizin"
+}

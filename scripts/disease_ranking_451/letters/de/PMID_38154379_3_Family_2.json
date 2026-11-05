@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38154379_3_Family_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 500,
+  "completion_tokens": 511,
+  "total_tokens": 3841,
+  "thoughts_tokens": 2830,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte Mitbeurteilung des nun 3 Monate alten Knaben Jonas.\n\nSchon pränatal fiel eine ausgeprägte intrauterine Wachstumsretardierung auf. Bei termingerechter Geburt fand sich neben einem deutlichen Längen- und Gewichtsminderwuchs ein primär mikrozephaler Schädel mit einem Kopfumfang weit unterhalb der 1. Perzentile. Postnatal persistiert dieser Wachstumsrückstand im Sinne einer deutlichen Gedeihstörung, vergesellschaftet mit einer ausgeprägten Trink- und Fütterungsproblematik. Frühpostnatal erfolgte die operative Korrektur einer tracheoösophagealen Fistel. Kardiologisch fand sich ein persistierender Ductus arteriosus, wohingegen ein Vorhofseptumdefekt vom Sekundum-Typ, ein offenes Foramen ovale sowie eine Pulmonalarterienstenose echokardiographisch ausgeschlossen wurden. Das kranielle MRT demonstrierte ein vereinfachtes Gyrierungsmuster; Zeichen einer Pachygyrie bestanden nicht.\n\nIm aktuellen Status zeigen sich eine fliehende Stirn, auffallend abstehende Ohren und hoch geschwungene Augenbrauen. Die Lidachsen verlaufen streng horizontal, ohne Auf- oder Abwärtsschrägung. Es imponieren ein betont hoher Nasenrücken, wobei die Columella keinen Tiefstand aufweist, sowie ein verstrichenes, verlängertes Philtrum und ein sehr schmales Oberlippenrot bei gut erhaltenem Amorbogen. Ein hoher Gaumen liegt nicht vor, ebenso fehlen eine Retro- oder Mikrognathie. Die Alveolarkämme bieten keinen Hinweis auf einen Engstand oder abnorm weite Abstände der Zahnkeime. An den Händen besteht eine Klinodaktylie der Kleinfinger. An den Füßen zeigen sich verbreiterte zweite Zehen; Syndaktylien sind an Händen und Füßen nicht nachweisbar. \n\nDas Neugeborenen-Hörscreening war beidseits unauffällig. Die abdominelle Sonographie zeigte reguläre Verhältnisse ohne Organomegalie. Jonas erhält derzeit Vitamin D3 und wird anteilig per Sonde ernährt. Die Eltern sind gesund und nicht blutsverwandt. \n\nWir danken für Ihre differenzialdiagnostische Einschätzung und kollegiale Beratung.\n\nMit freundlichen Grüßen"
+}

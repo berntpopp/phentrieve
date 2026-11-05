@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_B_III_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 442,
+  "completion_tokens": 521,
+  "total_tokens": 4032,
+  "thoughts_tokens": 3069,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Einschätzung bei einem männlichen Säugling. Die Schwangerschaft war unauffällig verlaufen, insbesondere ein Polyhydramnion lag pränatal nicht vor. Die Familienanamnese ist unauffällig, die Eltern sind jung und nicht blutsverwandt.\n\nDirekt post partum trat eine ausgeprägte respiratorische Anpassungsstörung mit Tachydyspnoe auf. Zudem zeigte das Neugeborene von Beginn an ein mangelhaftes Saugverhalten, sodass die enterale Zufuhr zunächst per Sonde erfolgen musste; im weiteren Verlauf kam es zu rezidivierendem saurem Reflux von Mageninhalt in die Speiseröhre.\n\nKlinisch fielen kraniofaziale Besonderheiten mit mandibulärer Retrognathie, tassenförmig deformierten Ohrmuscheln sowie einer linksseitigen Parese der mimischen Muskulatur auf. Urologisch imponieren eine beidseitige Hodenfehllage sowie ein mikropeniler Befund bei ansonsten unauffälligem Abdomen.\n\nKardial manifestierten sich rezidivierende supraventrikuläre Tachyarrhythmien sowie das Bild einer manifesten Herzinsuffizienz mit peripherer Ödemneigung und Lebervergrößerung. Echokardiographisch bestätigte sich eine Ebstein-Fehlbildung der Trikuspidalklappe mit ausgeprägter ventrikulärer Segeldislokation. Ein Kammerscheidewanddefekt oder eine Öffnung im Vorhofseptum ließen sich ausschließen; auch eine über der Ventrikelebene reitende Aorta lag nicht vor. In den Gefäßdarstellungen zeigte sich keine Kaliberminderung der Arteria carotis interna.\n\nBei der augenärztlichen Untersuchung fand sich eine kolobomatöse Spaltbildung der Retina. Bildmorphologisch fiel am Felsenbein eine inkomplette Partitionierungsstörung der Hörschnecke vom Typ II auf; die Halbzirkelkanäle zeigten hingegen keine Hypoplasie. In den engmaschigen Kontrollen gab es bisher glücklicherweise keine wiederkehrenden Episoden einer Otitis media, die Gehörgänge sind frei.\n\nÜber Ihre geschätzte differentialdiagnostische Einordnung und Empfehlungen zum weiteren Prozedere würden wir uns sehr freuen.\n\nMit freundlichen Grüßen"
+}

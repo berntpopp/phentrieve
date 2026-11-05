@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35388608_Case_1_Proband_family_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 420,
+  "completion_tokens": 317,
+  "total_tokens": 2102,
+  "thoughts_tokens": 1365,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Mr. Arthur Collins, a 57-year-old gentleman who has recently transferred to our clinic, for a comprehensive diagnostic assessment. He has a history of lifelong mild intellectual disability but manages well in an assisted-living facility. He takes only an over-the-counter multivitamin, and his family history is unremarkable.\n\nOn examination, his vital signs are stable, and cardiovascular, respiratory, and abdominal examinations are entirely normal. He demonstrates significant short stature, with his height measuring well below the third percentile at 147 cm. Craniofacial evaluation reveals marked blepharoptosis, widely spaced eyes, a widened nasal bridge, and low-set auricles. The philtrum is notably broad, though normal in vertical dimension, being neither unusually elongated nor short. His oral exam is unremarkable; his palate has a standard vault height without being high-arched, and there is no cleft lip or cleft palate.\n\nHis hands display wide palms with noticeably stubby, shortened digits. There is radial curving of both fifth fingers, and the interphalangeal joints demonstrate prominent hypermobility. Genitourinary examination reveals a normally placed urethral meatus with no hypospadias; however, past surgical records indicate a history of childhood bilateral cryptorchidism requiring orchiopexy. \n\nGiven these congenital dysmorphic and skeletal features, I would be very grateful for your specialized evaluation and recommendations regarding any indicated genetic investigations.\n\nSincerely,\n\nDr. Evelyn Reed, MD\nDepartment of Internal Medicine"
+}

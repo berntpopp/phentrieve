@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28403827_IV_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 394,
+  "total_tokens": 2343,
+  "thoughts_tokens": 1592,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute Herrn Stefan Meier, 37 Jahre alt, zur weiteren konsiliarischen Mitbeurteilung.\n\nDer Patient stellt sich aufgrund von Auffälligkeiten der ektodermalen Anhangsgebilde vor, welche laut eigener Auskunft und Angaben der Eltern bereits seit der Geburt bestehen. Im Bereich des Integuments imponiert ein vollständiges Fehlen des Kopfhaares sowie der gesamten Körperbehaarung. Im Gesichtsbereich sind beidseits weder Augenbrauen noch Wimpern angelegt. An sämtlichen Finger- und Zehennägeln fallen deutliche Verformungen mit verdickten, aufgerauten und dystrophischen Nagelplatten auf. Eine Onycholyse an den Fingernägeln liegt hierbei jedoch nicht vor. \n\nDie Inspektion der Mundhöhle zeigt ein unauffälliges, intaktes Dauergebiss ohne Formanomalien oder Schmelzdefekte. Die Leisten sind beidseits palpatorisch stabil, eine Hernie lässt sich nicht nachweisen. Das äußere Genitale ist altersentsprechend regelrecht entwickelt, beide Testes liegen orthotop im Skrotum, und es fand sich kein Anhalt für einen Kryptorchismus.\n\nDer Patient ist im Alltag voll leistungsfähig und arbeitet als Buchhalter. Er nimmt derzeit keine Medikamente ein. Die Vitalparameter lagen im Normbereich (Blutdruck 120/75 mmHg, Puls 68/min), die orientierende Laboruntersuchung des Blutes erbrachte unauffällige Werte. Eine familiäre Häufung ähnlicher Befunde ist nicht bekannt.\n\nIch wäre Ihnen für eine fachärztliche Einschätzung des vorliegenden Bildes und Empfehlungen zum weiteren diagnostischen Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Brandner"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_E_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 443,
+  "total_tokens": 2786,
+  "thoughts_tokens": 1980,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen den 22-jährigen Patienten Herrn Jonas Meyer zur konsiliarischen Mitbeurteilung.\n\nHerr Meyer stellte sich primär zur Anpassung seiner Sehhilfe vor. Hierbei fiel eine ausgeprägte Fehlsichtigkeit im Sinne einer hochgradigen Kurzsichtigkeit von beidseits -11,5 dpt auf. Bemerkenswerterweise ist die sonographisch bestimmte axiale Bulbuslänge mit 22,3 mm keineswegs verlängert, sondern liegt absolut im Normbereich. Bei der Spaltlampenuntersuchung zeigte sich eine extrem flache Vorderkammer, wobei Synechien im vorderen Augenabschnitt nicht vorlagen und der Kammerwinkel frei von Verwachsungen war. Die Tensiometrie ergab beidseits einen erhöhten Augeninnendruck von 26 mmHg. Der Sehnervenkopf zeigte sich vital und randscharf; eine vergrößerte Papillenexkavation beziehungsweise eine erhöhte Cup-to-Disc-Ratio war nicht festzustellen.\n\nIm Rahmen der Ganzkörperuntersuchung imponiert zudem eine mit 152 cm deutlich verminderte Körpergröße. An den Extremitäten fallen auffallend verkürzte Finger und Zehen auf. Des Weiteren berichtet der Patient über eine generalisierte Steifigkeit der Gelenke, vor allem im Bereich der Hände, was sich in einer eingeschränkten Gelenkbeweglichkeit manifestiert. \n\nLaborchemisch zeigten sich die Entzündungsparameter sowie das Routinelabor blande. Die Familienanamnese hinsichtlich okulärer oder muskuloskelettaler Auffälligkeiten ist leer. Der Patient studiert derzeit Informatik, ist Nichtraucher und nimmt keine Dauermedikation ein.\n\nAufgrund des Zusammentreffens der okulären Veränderungen mit den skelettalen Befunden bitte ich um Ihre geschätzte differentialdiagnostische Einschätzung sowie um einen Vorschlag für das weitere Procedere.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Brandt"
+}

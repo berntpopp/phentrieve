@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_3301",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 429,
+  "completion_tokens": 436,
+  "total_tokens": 3291,
+  "thoughts_tokens": 2426,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Mertens,\n\nich überweise Ihnen den jungen Patienten zur Mitbeurteilung und weiteren Abklärung. Der Junge lebt mit seinen gesunden Eltern in stabilen Verhältnissen, die Familienanamnese hinsichtlich angeborener Besonderheiten ist leer. Bislang verläuft das Gedeihen völlig adäquat, und seine motorischen wie kognitiven Meilensteine wurden bisher zeitgerecht erreicht; eine globale Entwicklungsverzögerung liegt nicht vor. \n\nKörperlich imponiert bereits seit Geburt eine Nahtobliteration im Bereich der Sutura coronalis. Im Gesichtsprofil zeigen sich lateral abwärts verlaufende Lidspalten, ein auffallend weiter Augenabstand sowie kaudal inserierende Ohrmuscheln. Eine Ptosis ist nicht nachweisbar, die Pupillen reagieren seitengleich. Die Mundinspektion erbrachte vollständig geschlossene Lippen- und Gaumenverhältnisse ohne Spaltbildung, auch ein hoher Gaumenbogen besteht nicht.\n\nHals und Schultergürtel präsentieren sich unauffällig, ohne Ausbildung eines Pterygium colli oder Flügelfalten im Bereich der Axillen. Die Schulterblätter stehen seitengleich und bieten keinen Anhalt für eine Sprengel-Deformität. Die Wirbelsäulenachse ist klinisch gerade ohne Zeichen einer Skoliose. Der Thorax imponiert seitensymmetrisch, eine Trichterbrust ist nicht tastbar. Die Bauchdecken sind reizlos und weich, ohne Nabel- oder Inguinalhernie.\n\nAn den Händen fällt eine beidseitige Radialabweichung der Endglieder der fünften Finger auf. Die Fingerlängen sind regelrecht ohne Brachydaktylie, und es zeigen sich weder an den Händen noch an den Füßen Syndaktylien.\n\nIch danke Ihnen für Ihre konsiliarische Begutachtung bezüglich des Befundkomplexes und Ihre Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Tobias Sander"
+}

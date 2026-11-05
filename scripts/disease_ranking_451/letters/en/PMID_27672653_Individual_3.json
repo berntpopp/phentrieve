@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27672653_Individual_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 361,
+  "total_tokens": 2367,
+  "thoughts_tokens": 1618,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate Lucas Miller, an 11-year-old boy whom I follow in our general pediatric clinic. Lucas lives with his parents and is enrolled in an adaptive fifth-grade curriculum. \n\nHis history is significant for an initial period of typical progress followed by a noticeable loss of previously established developmental milestones starting around 5 months of age. He is currently non-ambulatory and requires total assistance for transfers, and he remains completely non-verbal. Reassuringly, he has never experienced an acute encephalopathic event, and his parents report he is entirely free of seizures. He is generally pleasant and calm, with no significant irritability noted at home or during clinic visits. Family history is non-contributory.\n\nOn physical examination, his cranial circumference is disproportionately large, plotting well above the 98th percentile. He demonstrates prominent, diffuse dystonic posturing throughout his limbs and trunk. His cranial nerves appear grossly intact, pupils are reactive, and heart, lung, and abdominal examinations are unremarkable. Routine blood chemistries, complete blood count, and thyroid studies were all within normal limits. \n\nNeuroimaging previously demonstrated bilateral enlargement of the sylvian fissures as well as evidence of subacute subdural bleeding. Notably, ventricular dimensions were appropriate, hydrocephalus was not observed, and there was no evidence of cerebral atrophy. Subsequent metabolic workup revealed abundant excretion of glutaric acid accompanied by a marked elevation of 3-hydroxyglutarate on organic acid testing.\n\nLucas is currently prescribed baclofen for tone management, which provides modest symptomatic relief. I would appreciate your formal assessment and recommendations regarding his ongoing neurological and neurometabolic care. \n\nSincerely,\n\nDr. Marcus Reed, MD\nPediatric Medicine"
+}

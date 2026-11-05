@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_CHCO_09",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 358,
+  "completion_tokens": 320,
+  "total_tokens": 3169,
+  "thoughts_tokens": 2491,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this young boy in your clinic for further neurological evaluation. He lives at home with his parents, and his perinatal history was uncomplicated. Family history is non-contributory with no relatives affected by neurologic illness.\n\nHis parents initially sought attention due to pervasive developmental lags across his motor, cognitive, and communicative milestones. On physical examination, he presents in a chronic, profoundly encephalopathic state, showing markedly blunted environmental engagement and poor visual fixation. Neuromuscular assessment demonstrates severe, widespread muscular flaccidity affecting both his axis and extremities, accompanied by marked head lag on pull-to-sit. His cardiovascular and respiratory examinations are normal, and a full skin examination showed no abnormal cutaneous macules or lesions.\n\nClinically, his caregivers have recorded multiple distinct seizure semiologies. Most prominently, they report clusters of abrupt, forward-folding axial spasms upon awakening. Additionally, they have captured stereotyped focal events consisting of sustained, asymmetric tonic posturing of his right side, as well as separate, lightning-quick focal myoclonic jerks isolated to his left arm.\n\nWe completed an electroencephalogram which demonstrated a chaotic, high-amplitude disorganized pattern with multifocal sharp activity and a loss of normal background architecture. Interictally, the recording showed diffuse cerebral slowing across all leads, alongside discrete focal spike discharges arising repeatedly from the temporal derivations.\n\nGiven his complex electroclinical picture and early developmental compromise, I would greatly value your comprehensive assessment and guidance on further diagnostic workup and therapeutic strategy.\n\nWarm regards,\n\nDr. Julian Vance"
+}

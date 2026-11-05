@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18702659_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 410,
+  "total_tokens": 2509,
+  "thoughts_tokens": 1739,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, \nsehr geehrter Kollege,\n\nich überweise Ihnen heute den 23-jährigen Patienten Herrn Jonas M. zur konsiliarischen Mitbeurteilung.\n\nKlinisch imponiert bei dem jungen Mann eine besondere kraniofaziale Morphologie: Es zeigt sich eine prominent vorgewölbte Stirnpartie in Kombination mit einer deutlich eingesunkenen Nasenwurzel sowie auffallend weit geöffneten Nares. Das Kinn läuft auffällig spitz zu, während die Lippen ein ungewöhnlich breites, wulstiges Lippenrot aufweisen. Auffällig ist intraoral eine vollständige Nichtanlage der Zähne im Ober- und Unterkiefer. Zudem ist die Behaarung am gesamten Kopfbereich extrem schütter und feingliedrig.\n\nAnamnestisch berichtet der Patient über eine nahezu aufgehobene Schweißsekretion, was insbesondere in den Sommermonaten zu einer ausgeprägten Überwärmungsneigung führt. Bereits seit früher Jugend kam es im Verlauf immer wieder zu episodisch auftretenden, fieberhaften Zuständen ohne fassbaren Infektfokus. \n\nDie Nagelstrukturen an Fingern und Zehen wurden inspiziert und stellten sich vollständig intakt sowie morphologisch unauffällig dar. Im Übrigen präsentiert sich der Patient in einem stabilen Allgemeinzustand. Das kardiopulmonale System ist frei von pathologischen Geräuschen, der Blutdruck liegt normwertig bei 125/80 mmHg, und das Abdomen ist weich und tastunauffällig. Eine Dauermedikation wird nicht eingenommen, und die Familienanamnese ergab keine Hinweise auf ähnliche phänotypische Besonderheiten. Der Patient ist als Bürokaufmann tätig.\n\nIch wäre Ihnen für eine klinische Begutachtung und Ihre geschätzte Einschätzung zum weiteren Procedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29217778_P2_D154",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 298,
+  "total_tokens": 2733,
+  "thoughts_tokens": 2087,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 22-year-old woman in consultation for a comprehensive diagnostic assessment. She is employed as a graphic designer, is a non-smoker, and takes only a standard oral contraceptive. Her family history is non-contributory.\n\nHer history is notable for issues dating back to approximately 18 months of age, when she began experiencing repeated, frequent bouts of infectious illness requiring multiple courses of antibiotics. On physical examination today, she is alert and in no distress. Vital signs are normal, with a blood pressure of 118/74 mmHg and a pulse of 70 bpm. Cardiovascular, respiratory, and abdominal examinations are unremarkable, with no palpable lymphadenopathy or hepatosplenomegaly.\n\nRecent blood work revealed a profound deficit across all three peripheral blood lineages. Red cell indices show marked macrocytosis with an elevated MCV of 106 fL, accompanied by an absolute neutrophil count well below baseline and a severely depressed platelet count of 38 x 10^9/L. A subsequent trephine core biopsy demonstrated a severe reduction in total marrow cellularity for her age, along with distinct dysplastic features across the myeloid and erythroid precursors. \n\nGiven the early onset of her symptoms in toddlerhood together with these ongoing hematologic abnormalities, I would greatly appreciate your evaluation and recommendations regarding further investigation and management.\n\nSincerely,\nDr. Arthur Vance"
+}

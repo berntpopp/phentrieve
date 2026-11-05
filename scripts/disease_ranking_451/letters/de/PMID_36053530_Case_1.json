@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36053530_Case_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 769,
+  "completion_tokens": 694,
+  "total_tokens": 4898,
+  "thoughts_tokens": 3435,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die elfjährige Emma zur diagnostischen Beurteilung. \n\nAnamnestisch bestand pränatal eine singuläre Nabelschnurarterie bei ansonsten unauffälliger Schwangerschaft ohne intrauterine Wachstumsretardierung. Postnatal imponierten Trink- und Fütterprobleme, zudem erfolgte neonatal die operative Korrektur einer Duodenalatresie. Kardiologisch fand sich ein Vorhofseptumdefekt ohne persistierendes Foramen ovale oder Aortenwurzelaneurysma. \n\nEmma zeigt einen deutlichen Kleinwuchs sowie eine sekundäre Mikrozephalie; eine Plagiozephalie oder Makrozephalie liegt nicht vor. Entwicklungsneurologisch bestehen eine ausgeprägte globale Entwicklungsverzögerung, eine intellektuelle Beeinträchtigung sowie eine vollständig fehlende Sprachentwicklung; eine Dysarthrie ist insofern nicht beurteilbar. Emma wirkt muskulär hypoton und weist einen breitbasigen Gang ohne Ataxie auf. Es finden sich Züge eines autistischen Verhaltens, jedoch kein ADHS und keine fokalen epileptischen Anfälle mit eingeschränktem Bewusstsein. Skelettal bestehen eine Skoliose sowie radiologisch dokumentierte 11 Rippenpaare.\n\nKraniofazial fallen tief liegende Augen, ein Strabismus, medial aufgeworfene Augenbrauen (ohne Synophrys oder Verbreiterung) sowie eine knollige Nasenspitze bei normalem Nasenrücken und nicht antevertierten Nares auf. Die Mundspalte ist breit bei regulärem Philtrum, ohne Spaltbildung, Mikrognathie, Gaumenanomalie oder breite Alveolarkämme. Es bestehen weder Mittelgesichtsretusion, dreieckige Gesichtsform, Stirnvorwölbung noch eine auffällig schmale Stirn oder ein tiefer Haaransatz. Keine Lidachsenschrägung, keine Blepharophimose, Ptosis, kein Epikanthus, Hypertelorismus oder Hypotelorismus. Die Ohren zeigen verdickte und überfaltete Helices, jedoch keine vereinfachte Ohrmuschelform, Crus-antihelicis-Prominenz, hypoplastischen Anteile, Tassenohren, Ohrläppcheneinkerbungen oder präaurikulären Grübchen. Die Choanen sind durchgängig. \n\nAugenärztlich zeigten sich weder Mikrophthalmus, Peters-Anomalie, Kolobome noch Sehnervenhypoplasie oder -atrophie; Refraktionsanomalien (Myopie, Hyperopie, Astigmatismus, Anisometropie) und eine zerebrale Sehschädigung fehlen. Eine Schallempfindungsschwerhörigkeit wurde ausgeschlossen. Das zerebrale MRT ergab ein Cavum septi pellucidi bei unauffälligem Marklagervolumen, zeitgerechter Myelinisierung, normal weiten Ventrikeln sowie intakter Morphologie von Balken, Commissura anterior, Pons, Kortexrelief und Kleinhirn inklusive Vermis.\n\nIch danke Ihnen für Ihre geschätzte Mitbeurteilung.\n\nMit freundlichen Grüßen"
+}

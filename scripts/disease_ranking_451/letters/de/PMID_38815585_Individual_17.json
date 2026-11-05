@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38815585_Individual_17",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 550,
+  "completion_tokens": 596,
+  "total_tokens": 4006,
+  "thoughts_tokens": 2860,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die sechsjährige Patientin zur weiteren fachärztlichen Einordnung. Die Eltern berichten über eine unauffällige frühe Kindheit, bitten nun jedoch vor der Einschulung um eine fundierte Gesamteinschätzung.\n\nDie somatische Entwicklung verläuft bisher regelrecht: Es besteht kein Kleinwuchs, und der allgemeine Kräftezustand ist gut ohne jede Asthenie. Auffällig zeigt sich am Bewegungsapparat eine deutliche Gelenkhypermobilität bei unauffälligem Gangbild. Es finden sich keine schlanken, arachnodaktylen Finger und kein Pes planus. Die Haut ist fest strukturiert ohne abnorme Transluzenz. Die Wirbelsäulenachse ist gerade, eine lumbosakrale Grübchenbildung liegt nicht vor. \n\nSchädel und Fazies zeigen ein harmonisches Bild mit normaler Kalottenmorphologie, altersentsprechend komplett verschlossener Fontanelle und unauffälligem Kopfumfang ohne Anhalt für Mikro- oder Makrozephalie. Die Stirn ist nicht verschmälert, das Gesicht weder elongiert noch dreieckig geformt, ein Mittelgesichtsrücktritt oder eine Retrognathie fehlen. Die Lidachsen steigen beidseits nach schräg oben-außen an, ohne Epikanthus oder antimongoloide Neigung. Augenabstand und Bulbusgröße sind regelrecht ohne Hypotelorismus, Mikrophthalmus oder Enophthalmus. Es besteht ein Strabismus, eine Exotropie liegt hierbei nicht vor; funduskopisch zeigte sich zudem keine Makulahypoplasie. Die Ohrmuscheln sind seitengleich regelhaft konfiguriert, nicht tief sitzend, nicht antevertiert und nicht nach dorsal rotiert. \n\nIm Mundbereich fällt ein sehr schmales Lippenrot auf; die Mundwinkel sind nicht nach kaudal verzogen. Bei der intraoralen Inspektion imponieren regelrechte Schleimhautverhältnisse ohne Gaumenhochstand, Uvula bifida oder Ankyloglossie. Der Thorax ist symmetrisch ohne Pectus excavatum oder weiten Mamillenabstand, die Mamillen sind nicht invertiert. Leistenhernien bestehen nicht. \n\nDie expressive Sprache ist altersentsprechend entwickelt, Echolalien treten nicht auf. Es zeigen sich keine Verhaltensauffälligkeiten im Sinne von Wutausbrüchen, Aggressivität oder autistischen Zügen, ebenso wenig wie motorische Stereotypien wie Handflattern oder ein wiederholtes Sich-im-Kreis-Drehen.\n\nFür Ihre geschätzte konsiliarische Beurteilung und Empfehlungen zum weiteren Vorgehen danke ich Ihnen herzlich.\n\nMit freundlichen kollegialen Grüßen"
+}

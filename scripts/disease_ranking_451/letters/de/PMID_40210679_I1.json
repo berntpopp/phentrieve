@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40210679_I1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 492,
+  "completion_tokens": 460,
+  "total_tokens": 4264,
+  "thoughts_tokens": 3312,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 10-jährigen Jungen zur weiteren differentialdiagnostischen Einordnung. Erste Auffälligkeiten zeigten sich bereits im Alter von 3 Monaten. Körperlänge und Gewicht liegen im mittleren Normbereich, ohne Anhalt für Kleinwuchs oder Untergewicht. Auch das Schädelwachstum verläuft normokran, eine Mikrozephalie besteht nicht.\n\nKraniofazial fällt eine asymmetrische posteriore Abflachung des Schädels auf. Die Fazies wirkt hypomim, die Brauenhaare sind auffallend schütter. Der Mund ist breit gestaltet, steht habituell offen, zeigt ein evertiertes Lippenrot der Unterlippe sowie weit auseinanderstehende Zähne. Zudem besteht vermehrter Speichelfluss.\n\nDie psychomotorische Gesamtentwicklung verlief von Beginn an schwer retardiert, sodass eine ausgeprägte kognitive Beeinträchtigung vorliegt. Freies Gehen gelang erst spät; das Gangbild ist breitbasig und ataktisch. Eine Lautsprache existiert nicht. Es imponieren eine generalisierte muskuläre Schlaffheit, ein Ruhezittern, parkinsonähnliche Züge sowie repetitive motorische Stereotypien. Im Verhalten dominieren motorische Unruhe, schwer gestörte soziale Interaktionsmuster, autistisches Verhalten und ausgeprägte Schlafstörungen.\n\nIm frühen Kindesalter erlitt der Junge unkomplizierte Fieberkrämpfe, wobei kein febriler Status epilepticus auftrat. Später traten fokal beginnende, sekundär bilateral tonisch-klonische Anfälle und wiederholt ein Status epilepticus auf. Rein tonische Anfälle, epileptische Spasmen oder primär generalisierte Anfallsformen wurden nie beobachtet.\n\nKardiopulmonal ist der Befund unauffällig, die Familienanamnese ist leer. Unter der laufenden antikonvulsiven Therapie ist die Frequenz der Episoden rückläufig. \n\nIch danke Ihnen für Ihre geschätzte konsiliarische Beurteilung und verbleibe\n\nmit freundlichen Grüßen"
+}

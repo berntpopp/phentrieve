@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28468610_8_year_old_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 393,
+  "completion_tokens": 345,
+  "total_tokens": 2303,
+  "thoughts_tokens": 1565,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 8-jährigen Noah zur weiteren differentialdiagnostischen Abklärung. Der bisher normal entwickelte Grundschüler lebt bei seinen gesunden Eltern, nimmt keine Dauermedikation ein und fiel in den letzten Wochen durch eine neu aufgetretene Leistungsminderung auf.\n\nIm primär veranlassten Routinelabor imponierte eine ausgeprägte Panzytopenie. Zudem zeigten sich die Transaminasen mit erhöhter ASAT und ALAT deutlich pathologisch, begleitet von einer substanziell gesteigerten Laktatdehydrogenase sowie einem massiven Anstieg des Ferritinspiegels im Serum. Das zirkulierende Kupfer bestimmte ich ebenfalls; dieses zeigte sich jedoch unauffällig im Normbereich.\n\nSonografisch ließ sich eine deutliche Organvergrößerung von Milz und Leber nachweisen. Bei der körperlichen Untersuchung war das Kind stets aufmerksam und orientiert, eine Schläfrigkeit bestand nicht. Es zeigten sich weder eine Halbseitenlähmung noch Schwächen der Muskulatur an den oberen Extremitäten, die Kraftgrade der Arme waren seitengleich voll erhalten.\n\nIm zur Abklärung veranlassten kranialen MRT fielen fleckige Signalvermehrungen der zerebralen weißen Substanz auf. Anhaltspunkte für eine Demyelinisierung im ZNS ergaben sich in der Bildgebung jedoch nicht. \n\nAngesichts dieses komplexen Bildes bitte ich um Ihre geschätzte konsiliarische Beurteilung und das weitere Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

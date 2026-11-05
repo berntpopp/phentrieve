@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10874631_II_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 362,
+  "completion_tokens": 425,
+  "total_tokens": 2643,
+  "thoughts_tokens": 1856,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die 34-jährige Patientin Frau Sabine Keller zur konsiliarischen Beurteilung und Beratung bezüglich des weiteren Managements.\n\nErste visuelle Auffälligkeiten manifestierten sich bereits im Jugendalter, als der Patientin erhebliche Schwierigkeiten beim Sehen in der Dämmerung und bei Dunkelheit auffielen. Im Laufe der Jahre kam es zu einer gravierenden Sehverschlechterung. Aktuell ist das Sehvermögen beidseits auf eine reine Wahrnehmung von Lichtschein herabgesunken. Bei der perimetrischen Prüfung imponiert eine hochgradige, konzentrische Röhreneinengung des äußeren Gesichtsfeldes.\n\nSpaltlampenbiomikroskopisch ist der vordere Augenabschnitt unauffällig: Die Hornhäute sind klar, die Vorderkammern reizfrei, die Linsen transparent und der Augeninnendruck liegt seitengleich im Normbereich bei 15 mmHg. Funduskopisch zeigen sich beidseits auffallend blasse, wachsartig wirkende Sehnervenscheiben. In der Netzhautperipherie fallen disseminierte, knochenkörperchenartige Pigmentauflagerungen auf. Zudem zeigt sich eine deutliche Rarefizierung und ein flächiger Schwund der choriokapillären Gefäßschicht, wodurch die größeren Aderhautgefäße stark hervortreten. Im Ganzfeld-Elektroretinogramm waren weder unter skotopischen noch unter photopischen Bedingungen messbare elektrische Antworten ableitbar; die Signale stellten sich als vollständig erloschen dar.\n\nSystemische Vorerkrankungen bestehen nicht, Dauermedikamente werden verneint und die Familienanamnese ist bezüglich okulärer Erkrankungen leer. Die Patientin ist Nichtraucherin und arbeitet im Verwaltungsbereich. \n\nIch danke Ihnen für Ihre geschätzte kollegiale Mitbeurteilung.\n\nMit freundlichen Grüßen\n\nDr. med. Thomas Brinkmann"
+}

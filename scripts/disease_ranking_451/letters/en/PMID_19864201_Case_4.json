@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19864201_Case_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 315,
+  "total_tokens": 2541,
+  "thoughts_tokens": 1856,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Montgomery,\n\nThank you for seeing Liam Carter, a 6-year-old boy presenting for further clinical evaluation. Liam lives at home with his parents, attends first grade, and has no significant past medical history. His immunizations are current, and he takes only an over-the-counter multivitamin.\n\nDuring his recent annual review, his physical measurements confirmed persistent linear growth deficiency, tracking well beneath the second percentile for height despite mid-parental projections in the fiftieth percentile. Dermatologic inspection demonstrated a profusion of tiny, discrete, dark brown pigmented macules scattered widely across his face, neck, and torso.\n\nCraniofacial inspection reveals typical ocular spacing, with an entirely unremarkable interpupillary distance. Developmentally, he is flourishing; his school reports age-appropriate reading and social competencies with no cognitive delays or intellectual deficits. His abdomen is soft, and neither the liver nor the spleen is palpable below the costal margins.\n\nA baseline cardiovascular evaluation was completed. Auscultation showed crisp heart sounds without any ejection systolic murmur suggestive of pulmonary outflow narrowing. An electrocardiogram confirmed regular sinus rhythm with normal intervals; there was no evidence of complete atrioventricular dissociation, left-sided bundle conduction delay, or ectopic beats arising from either the atria or the ventricles.\n\nFamily history is non-contributory, with both parents in good health. Given his marked growth deficit alongside these widespread pigmented cutaneous lesions, I would appreciate your formal assessment and guidance on subsequent investigation.\n\nSincerely,\nDr. Evelyn Vance"
+}

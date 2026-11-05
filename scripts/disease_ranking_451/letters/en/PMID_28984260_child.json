@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28984260_child",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 300,
+  "total_tokens": 2942,
+  "thoughts_tokens": 2234,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for evaluating Chloe, a 2-year, 5-month-old girl whom I am referring for your expert assessment. Her clinical concerns first became apparent at approximately twelve months of age.\n\nHer physical growth has been severely compromised; she exhibits marked linear stunting with height tracking well below the 1st percentile, alongside persistent poor weight gain despite high-calorie nutritional supplementation. On examination, she is visibly jaundiced with scleral icterus. Her abdomen exhibits marked protuberance, and palpation reveals a firm liver edge descending 4 cm beneath the right costal margin, whereas the spleen is not enlarged. Cardiovascular and respiratory examinations are normal. She lives at home with her parents, and her vaccinations are up to date. Developmentally, she has met all cognitive and motor milestones without lag, and her parents report no episodes of emesis, periodic febrile illnesses, seizures, or atypical bleeding.\n\nLaboratory testing demonstrates sustained hepatic injury, with AST elevated at 245 U/L, ALT elevated at 210 U/L, and alkaline phosphatase markedly high at 680 U/L. Fasting lipid studies revealed profound elevations in both circulating total cholesterol and triglyceride levels. A percutaneous liver biopsy demonstrated extensive portal-portal and portal-central fibrous bridges across the sampled tissue.\n\nGiven this presentation, I would value your comprehensive evaluation and advice on next steps.\n\nWarm regards,\n\nDr. Julian Vance"
+}

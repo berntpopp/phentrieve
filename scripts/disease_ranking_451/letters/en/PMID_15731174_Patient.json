@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15731174_Patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 433,
+  "completion_tokens": 312,
+  "total_tokens": 2768,
+  "thoughts_tokens": 2023,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 10-month-old boy who has had progressive health concerns since roughly 5 months of age. He lives at home with both parents, and his family history is non-contributory with no early childhood complications reported.\n\nLast month, he required intensive care treatment for life-threatening sepsis. He also recently manifested persistent local inflammation and drainage at his neonatal BCG inoculation site. On physical examination, he presents with an extensive eczematous eruption studded with red papules and diffuse cutaneous scaling across his torso and extremities. Notably, he exhibits complete scalp hair loss, and his face is completely devoid of both eyebrows and eyelashes. Systemic examination reveals generalized enlargement of multiple lymph node basins as well as palpable enlargement of both his liver and spleen. Cardiovascular, respiratory, and neurologic examinations were entirely normal.\n\nLaboratory evaluation demonstrated prominent peripheral eosinophilia. Serum immunoglobulin quantification revealed profoundly low total IgG alongside depressed IgM, contrasted by a strikingly high IgE titer; his circulating IgA concentration was completely normal. Lymphocyte immunophenotyping demonstrated an utter absence of circulating B lymphocytes, an inverted helper-to-suppressor T-cell ratio, and a depleted total count of natural killer cells. Reassuringly, testing of natural killer cell functional activity was unremarkable.\n\nHe is currently maintained on prophylactic trimethoprim-sulfamethoxazole and topical emollients. I would be most grateful for your comprehensive clinical assessment and guidance regarding further diagnostic evaluation and ongoing care.\n\nSincerely,\nDr. Julian Ward"
+}

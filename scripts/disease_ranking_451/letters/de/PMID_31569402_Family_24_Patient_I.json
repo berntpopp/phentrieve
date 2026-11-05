@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_24_Patient_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 538,
+  "completion_tokens": 512,
+  "total_tokens": 3525,
+  "thoughts_tokens": 2475,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung der 48-jährigen Patientin Frau Weber, die sich wegen wiederkehrender Gelenkluxationen in unserer Sprechstunde vorstellte. \n\nKlinisch imponiert ein disproportioniert hoher Wuchs mit Trichterbrust und Skoliose. Im kraniofazialen Bereich zeigen sich flache Wangenknochen, ein vergrößerter Augenabstand und ein kleiner Unterkiefer. Eine Dolichozephalie, prominente Stirnwölbungen oder Epikanthusfalten liegen nicht vor; das Nasenprofil ist unauffällig und die Ohren weisen keinen Tiefstand auf. Ophthalmologisch wurden Schielen, Keratokonus sowie eine Myopie ausgeschlossen, auffällig sind jedoch bläuliche Skleren. Die Mundhöhleninspektion ergab ein hohes Gaumendach sowie eine gespaltene Uvula. \n\nDas Integument ist überdehnbar und zart-durchscheinend; atrophische Narben fehlen, es zeigen sich jedoch Striae sowie eine deutliche Neigung zu Hämatomen. Zudem bestehen eine Nabel- sowie eine Leistenhernie und eine ausgeprägte Varikosis der Beine. An den Extremitäten imponieren auffallend schlanke, lange Finger und beidseits Senkfüße; Klumpfüße oder Beinachsenfehlstellungen wie ein Genu valgum bestehen nicht. Sämtliche Gelenke sind hypermobil, radiologisch finden sich keine Arthrosen, wohl aber eine Osteopenie. Im MRT fielen eine zervikale Instabilität sowie eine lumbosakrale Duralektasie auf. Kardiologisch zeigten sich ein Mitralklappenprolaps mit mäßiger Regurgitation und eine deutliche Schlängelung der arteriellen Gefäße; ein offener Ductus arteriosus bot sich nicht.\n\nAnamnestisch sind Nahrungsmittelallergien bekannt. Die Patientin ist im Bürobereich tätig, Nichtraucherin und nimmt lediglich Vitamin D sowie bei Bedarf Paracetamol ein. Die Familienanamnese ist hinsichtlich frühzeitiger kardiovaskulärer Ereignisse unauffällig, die aktuellen Routinelaborwerte waren regelrecht.\n\nIch danke Ihnen für die Einordnung dieser Befunde und Ihre Empfehlungen bezüglich des weiteren Procederes.\n\nMit freundlichen Grüßen"
+}

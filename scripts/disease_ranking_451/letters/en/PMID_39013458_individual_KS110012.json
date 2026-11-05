@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_KS110012",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 528,
+  "completion_tokens": 389,
+  "total_tokens": 5821,
+  "thoughts_tokens": 4904,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nI am referring this 20-year-old female for your clinical assessment. She was born at 39 weeks, neither small for gestational age nor large for gestational age. Early on, she exhibited diffuse delays across all early developmental milestones, though she experienced no developmental regression. Significant intellectual impairment remains evident, though she communicates well within her home environment. Her medical history includes a childhood punctuated by frequent bouts of infection and ongoing difficulties with oral feeding, though she has never required tube feeding and has had no gastroesophageal reflux or chronic constipation.\n\nOn physical examination, her vital signs are stable. Her height is within standard adult percentiles with no short stature or tall stature, while her body mass index of 28.2 kg/m² indicates excess weight, without meeting criteria for obesity. Head circumference is normal without microcephaly. An ophthalmologic exam identified a hyperopic refractive state, with no strabismus. Skeletal examination shows fallen medial arches bilaterally, but no talipes equinovarus, hallux valgus, clinodactyly of the 5th finger, joint hypermobility, pectus excavatum, or kyphosis. Motor tone is intact with no hypotonia, and she has never suffered a seizure.\n\nHer abdomen is soft without umbilical hernia or inguinal hernia. Genitourinary examination is unremarkable; as expected, there is no hypospadias or cryptorchidism. Renal ultrasound demonstrated no hydronephrosis, renal cyst, or ureteropelvic junction obstruction, and she reports no recurrent urinary tract infections. Echocardiography was normal, showing no patent ductus arteriosus, atrial septal defect, ventricular septal defect, atrioventricular canal defect, or coronary artery fistula. She currently takes only a daily multivitamin.\n\nThank you for your expertise and consultation.\n\nSincerely,\nDr. Marcus Reed"
+}

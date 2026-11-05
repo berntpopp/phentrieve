@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25802881_P76",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 397,
+  "total_tokens": 2481,
+  "thoughts_tokens": 1730,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 1 Jahr und 10 Monate alte Patientin Emily zur weiterführenden pädiatrischen Beurteilung.\n\nDas Mädchen fiel im Rahmen der letzten Vorsorgeuntersuchung durch ein deutliches Wachstumsdefizit auf; die Körperlänge liegt mittlerweile weit unterhalb der 3. Perzentile, was einem manifesten Kleinwuchs entspricht. Zugleich besteht bei einem Gewicht deutlich oberhalb der 97. Perzentile eine ausgeprägte Adipositas. Entwicklungsneurologisch zeigt sich zudem eine tiefgreifende mentale Retardierung mit erheblichem Rückstand der kognitiven Fähigkeiten und bislang fehlendem Sprachverständnis. \n\nRöntgenologisch imponieren an beiden Händen verkürzte Mittelhandknochen. Die Phalangen sind hingegen regelrecht angelegt; eine darüber hinausgehende Verkürzung der Finger im Sinne einer generalisierten Brachydaktylie liegt nicht vor. Bei der Inspektion und Palpation des Integuments fanden sich keinerlei subkutane Verknöcherungen oder derbe Gewebskalzifikationen. \n\nDie orientierende Labordiagnostik zeigte unauffällige Werte des Knochenstoffwechsels: Sowohl die zirkulierende Kalziumkonzentration als auch der anorganische Phosphatspiegel im Serum erwiesen sich als normwertig. Der übrige internistische Status war unauffällig mit blandem Herz-Lungen-Befund und weichem Abdomen. Das Kind nimmt derzeit keine Medikamente ein, und die Familienanamnese der jungen Eltern ist bezüglich chronischer Erkrankungen leer.\n\nÜber Ihre geschätzte Einschätzung zum weiteren Vorgehen und zur Einordnung des Befundkomplexes würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

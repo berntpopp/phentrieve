@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28482824_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 413,
+  "total_tokens": 3014,
+  "thoughts_tokens": 2214,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich stelle Ihnen heute den 20-jährigen Maximilian zur weiteren differenzialdiagnostischen Abklärung vor. Der junge Mann weist einen bereits seit der Geburt bestehenden Symptomkomplex auf.\n\nKraniofazial fallen lateral nach unten geneigte Lidspalten sowie eine deutliche Abflachung der Jochbeinregion auf. Die Oberlippenrinne ist auffallend knapp bemessen; eine Verlängerung dieses Bereichs besteht ausdrücklich nicht. Der Unterkiefer zeigt einen markanten Vorschub mit ausgeprägter Vorverlagerung der Kinnpartie, einhergehend mit einer deutlichen Zahnfehlstellung. Die Ohrmuscheln imponieren nach dorsal verkippt und zeigen kranialwärts hochgezogene Ohrläppchen. \n\nAus den Akten geht eine bereits im frühen Entwicklungsalter aufgetretene Trübung der Augenlinsen hervor. Zudem besteht eine Innenohrhörstörung, weswegen der Patient mit Hörgeräten versorgt ist. Am Bewegungsapparat imponiert eine skoliotische Verkrümmung der Wirbelsäule.\n\nIm psychosozialen Kontakt zeigen sich Verhaltensweisen aus dem autistischen Formenkreis mit stereotyper Kommunikation und Rückzug. Eine kognitive Beeinträchtigung oder Intelligenzminderung liegt jedoch keineswegs vor; der Patient beendete regulär die Schule und befindet sich aktuell in einer Ausbildung zum Fachinformatiker. \n\nKardiopulmonal und abdominell zeigte sich die körperliche Untersuchung vollkommen unauffällig, Labor- und Entzündungswerte waren zuletzt regelrecht. Eine Dauermedikation wird nicht eingenommen, und die Familienanamnese erbrachte keine Hinweise auf ähnliche phänotypische Auffälligkeiten.\n\nIch wäre Ihnen für eine konsiliarische Begutachtung und Ihre geschätzte Einschätzung des Patienten sehr dankbar.\n\nMit freundlichen Grüßen"
+}

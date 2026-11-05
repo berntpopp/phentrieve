@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28862745_PD_Case_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 412,
+  "total_tokens": 2295,
+  "thoughts_tokens": 1544,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen Frau S., die sich in Begleitung ihres Ehemannes in meiner Sprechstunde vorstellte. Erste Symptome traten laut Anamnese im Alter von 39 Jahren auf und zeigen seither eine progrediente Dynamik.\n\nIm Vordergrund steht ein gravierender, fortschreitender Abbau der intellektuellen Fähigkeiten mit deutlichen Einbußen im Alltag, sodass die Patientin die gewohnte Selbstständigkeit verloren hat. Begleitend werden frequente optische Sinnestäuschungen geschildert; so sehe sie wiederholt unbeteiligte Personen im Zimmer umhergehen.\n\nBei der Untersuchung fiel eine verwaschene, undeutliche Artikulation auf. Schreibproben demonstrieren eine ausgeprägte Verkleinerung des Schriftbildes im Zeilenverlauf. Bei passiver Tonusprüfung imponiert an den oberen Extremitäten ein zäher, bleirohrartiger Bewegungswiderstand. In vollständiger Entspannung zeigt sich an beiden Händen ein rhythmisches Zittern, welches bei Willkürbewegungen deutlich abnimmt. Des Weiteren bestehen intermittierende unwillkürliche Verkrampfungen und abnorme Fehlstellungen an Armen und Beinen.\n\nDie übrigen Hirnnerven sind intakt, der Reflexstatus ist seitengleich mittellebhaft ohne pathologische Reflexe. Das Gangbild ist kleinschrittig, das Romberg-Zeichen negativ. Eine basale laborchemische Diagnostik einschließlich Elektrolyten, Nierenwerten, TSH und Vitamin B12 ergab Normalbefunde. Die Patientin ist Nichtraucherin und nimmt abgesehen von einer gelegentlichen Schmerzmedikation bei Spannungskopfschmerzen keine Dauermedikation ein.\n\nIch bitte um Ihre geschätzte fachneurologische Mitbeurteilung sowie um Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

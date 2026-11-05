@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29483676_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 421,
+  "completion_tokens": 462,
+  "total_tokens": 3357,
+  "thoughts_tokens": 2474,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte Mitbeurteilung der 10-jährigen Emma, die sich in Begleitung ihrer Eltern in meiner Sprechstunde vorstellte.\n\nAnamnestisch bestehen Auffälligkeiten bereits seit der Geburt. Im Säuglingsalter zeigten sich ausgeprägte Fütter- und Trinkschwierigkeiten sowie eine anhaltende Gedeihstörung. Bemerkenswerterweise entwickelte sich im weiteren Verlauf eine auffällige Polyphagie. Die Meilensteine wurden verspätet erreicht; aktuell imponieren eine globale Entwicklungsverzögerung mit erheblichem motorischem Rückstand sowie eine kognitive Beeinträchtigung. Emma besucht eine Förderschule. Die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen unauffällig.\n\nKlinisch zeigt sich ein dolichozephaler Schädel mit beidseits abstehenden Ohrmuscheln. Kraniofazial fallen horizontal verlängerte Lidspalten, eine diskrete Ptosis sowie ein feinschlägiger Nystagmus auf. Bei deutlicher Schwäche der mimischen Muskulatur besteht eine gewohnheitsmäßig offene Mundhaltung; das Oberlippenrot zeigt sich charakteristisch zeltförmig aufgeworfen über einem auffallend hohen Gaumen. Die verbale Verständigung ist durch eine ausgeprägt hypernasale Sprache erschwert.\n\nDer Muskeltonus ist generalisiert herabgesetzt im Sinne einer ausgeprägten muskulären Hypotonie mit diffuser Muskelschwäche der Extremitäten. Beim Aufrichten vom Boden demonstriert die Patientin ein positives Gowers-Zeichen mit typischem Aufklettern an den Oberschenkeln. Wirbelsäulenseitig imponiert eine manifeste Skoliose. Auskultationsbefunde von Herz und Lunge sowie das Abdomen stellten sich regelrecht dar. Eine laborchemische Urinuntersuchung ergab unauffällige Aminosäurenmuster, eine Zystinurie lag nicht vor.\n\nZur weiteren ätiologischen Abklärung und Beratung der Familie überweise ich Ihnen die Patientin konsiliarisch.\n\nMit freundlichen kollegialen Grüßen"
+}

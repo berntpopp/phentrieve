@@ -1,0 +1,18 @@
+{
+ "case": "PMID_1907800_TS",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 284,
+  "total_tokens": 2323,
+  "thoughts_tokens": 1676,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 25-year-old woman in consultation. Her clinical challenges first surfaced at approximately six years of age when her teachers and family noted developmental delays, which have persisted as mild intellectual impairment. \n\nOver the past several years, her motor difficulties have become more pronounced. On neurological evaluation, she demonstrated clear extrapyramidal motor signs, presenting with mild generalized rigidity and intermittent dystonic posturing of both hands. Cranial nerve assessment was largely normal, but a detailed dilated funduscopic examination documented prominent bilateral macular cherry-red spots against pale retinal backgrounds. \n\nSpinal imaging obtained during a recent review revealed widespread flattening of the vertebral bodies across her thoracic and lumbar regions. Her general physical exam was reassuring; her abdomen was soft and non-tender, and she demonstrated no hepatomegaly or splenomegaly. Cardiopulmonary exam was normal, and vital signs were stable.\n\nA recent leukocyte lysosomal panel revealed significantly deficient beta-D-galactosidase function. Other routine laboratory investigations, including a complete blood count and comprehensive metabolic panel, returned unremarkable. She resides with her parents, works part-time, and takes only an over-the-counter multivitamin. There is no family history of progressive neurological disorders.\n\nI would greatly appreciate your assessment and guidance on further evaluation and management for this patient.\n\nSincerely,\nDr. Laura Sterling"
+}

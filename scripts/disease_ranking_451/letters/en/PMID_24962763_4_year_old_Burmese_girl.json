@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24962763_4_year_old_Burmese_girl",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 310,
+  "total_tokens": 2706,
+  "thoughts_tokens": 2033,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate Clara, a four-year-old girl whom I have followed since infancy. Her parents initially sought care due to marked, excessive cutaneous folds across her trunk and extremities, which were evident at birth. \n\nHer early history was characterized by congenital stenosis of the tear duct causing chronic epiphora, as well as an indirect groin hernia that required operative reduction at eighteen months. Clara has also experienced frequent lower respiratory infections, requiring multiple hospital admissions for deep lung consolidation; thoracic CT later demonstrated localized emphysematous lung destruction. \n\nA renal workup following an early urinary tract infection included a voiding study that confirmed retrograde urinary flow into the ureters. In addition, routine cardiac screening identified late-systolic displacement and prolapsing of the mitral leaflets, although her current resting vitals and peripheral pulses are entirely normal. Neuroimaging obtained during an earlier workup showed preserved intracranial parenchyma, though the radiologist noted a strikingly flat pituitary fossa.\n\nDevelopmentally, Clara is reaching her cognitive and speech milestones without delay, and her physical examination is otherwise unremarkable with normal muscle bulk and tone. Her family history is non-contributory; both parents are healthy and non-consanguineous. She currently lives at home, attends preschool, and takes no daily maintenance medications.\n\nGiven Clara's constellation of multi-system findings since birth, I would greatly appreciate your clinical assessment and guidance regarding appropriate next steps.\n\nSincerely,\nDr. Rachel Bennett, MD\nGeneral Pediatrics"
+}

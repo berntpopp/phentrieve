@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14628289_Family_A_individual_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 448,
+  "total_tokens": 3024,
+  "thoughts_tokens": 2222,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute die siebenjährige Patientin Mia Sommer zur weiteren pädiatrisch-nephrologischen Abklärung.\n\nDie Eltern berichten, dass Mia seit ihrem 3. Lebensjahr unter einem persistierenden Einnässen während des Nachtschlafes leidet, welches trotz diverser Miktionsprotokolle unverändert fortbesteht. Bei der daraufhin von uns initiierten sonographischen Untersuchung der Nieren fielen beidseits ausgeprägte echoreiche Markpyramiden auf, passend zu diffusen medullären Kalzifikationen des Nierenparenchyms.\n\nIn den daraufhin veranlassten Urinkontrollen zeigte sich laborchemisch eine signifikant gesteigerte renale Kalziumausscheidung mit deutlich erhöhter Kalzium-Kreatinin-Ratio im Spontanurin sowie eine ebenfalls pathologisch vermehrte fraktionelle Magnesiumausscheidung.\n\nEine Einschränkung der Nierenfunktion liegt erfreulicherweise nicht vor; Kreatinin und Harnstoff im Serum liegen stabil im Normbereich, und die berechnete glomeruläre Filtrationsrate ist altersentsprechend normal. Das intakte Parathormon im Serum zeigte sich unauffällig und war zu keinem Zeitpunkt erhöht. Anamnestisch gab es zudem nie rezidivierende Harnwegsinfektionen, und die Urinstix-Untersuchungen waren bis auf die Elektrolytverschiebungen stets blande.\n\nKörperlich präsentiert sich das Mädchen in gutem Allgemeinzustand. Die kardiopulmonale Untersuchung, das Abdomen und die Genitalregion waren unauffällig, der Blutdruck lag mit 98/62 mmHg im Normalbereich. Die Familienanamnese bezüglich Nierenerkrankungen ist leer. Das Kind nimmt aktuell keine Dauermedikation ein und besucht die zweite Klasse einer Grundschule.\n\nZur weiteren ätiologischen Einordnung und Festlegung des therapeutischen Managements bitte ich um Ihre geschätzte konsiliarische Beurteilung.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Brandner"
+}

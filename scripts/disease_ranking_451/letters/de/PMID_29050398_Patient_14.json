@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050398_Patient_14",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 398,
+  "completion_tokens": 390,
+  "total_tokens": 2425,
+  "thoughts_tokens": 1637,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen die heute 4 Jahre und 3 Monate alte Patientin zur pädiatrischen Mitbeurteilung.\n\nDie Eltern schilderten einen Krankheitsbeginn im Alter von vier Monaten. Damals fielen serienweise auftretende Blitz-Nick-Krämpfe sowie intermittierende tonische Muskelversteifungen auf. Im initial abgeleiteten Elektroenzephalogramm zeigte sich ein chaotisches Muster im Sinne einer Hypsarrhythmie. Fokal beginnende Anfälle wurden anamnestisch nie beobachtet, ebenso wenig kam es zum Auftreten von Absencen oder bilateralen tonisch-klonischen Anfällen. \n\nAktuell imponiert eine schwere globale Verzögerung der statomotorischen und kognitiven Entwicklung. Ein freies Sitzen oder Sprachverständnis konnte bisher nicht erreicht werden. Bei der neurologischen Untersuchung zeigt sich ein ausgeprägt schlaffer Muskeltonus am gesamten Achsenskelett und den Extremitäten. Das Schädelwachstum blieb deutlich zurück, der Kopfumfang liegt persistierend weit unterhalb der dritten Perzentile. Die internistische Untersuchung von Herz, Lunge und Abdomen verlief unauffällig, die Familienanamnese der nicht konsanguinen Eltern ist bland. \n\nIn der Bildgebung des Zerebrums dokumentierte sich eine generalisierte Hirngewebsatrophie mit betonter zerebellärer Atrophie sowie einer sichtbaren Degeneration des Hirnstamms. Auffällig waren zudem eine ausgeprägte Hypoplasie beziehungsweise Verdünnung des Balkens und eine dem Entwicklungsalter deutlich hinterherhinkende Markreifung. \n\nIch bedanke mich für Ihre geschätzte Zweitmeinung und die weitere diagnostische Einordnung dieses komplexen Verlaufs.\n\nMit freundlichen kollegialen Grüßen"
+}

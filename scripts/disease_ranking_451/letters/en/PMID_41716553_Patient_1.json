@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 412,
+  "completion_tokens": 347,
+  "total_tokens": 3268,
+  "thoughts_tokens": 2509,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Marcus,\n\nThank you for evaluating Lucas Wright, a five-and-a-half-year-old boy presenting for your clinical assessment. His developmental difficulties have been evident since early infancy. He lives at home with his parents and attends a specialized preschool program; the family medical history is non-contributory, and he takes only an over-the-counter multivitamin.\n\nLucas demonstrates comprehensive developmental lags across all functional sectors, displaying slow gross and fine motor progression alongside profound communicative deficits in both expressive speech and receptive understanding. Testing confirms a significant intellectual deficit, and his overall functional picture reflects a non-progressive cerebral motor impairment. Magnetic resonance neuroimaging previously demonstrated an excess of small, overfolded cerebral gyri as well as a distinctly slender, attenuated interhemispheric commissure.\n\nOn physical examination, his craniofacial features are notable for an unusually wide upper face with a prominently protruding frontal contour, a marked increase in interpupillary distance, inner canthal skin folds, and downward-slanting ocular apertures. His eyebrows extend unusually far laterally, and he has a flattened root of the nose. Systemic examination is otherwise reassuring: heart sounds are regular, lung fields are clear, and his hands display standard flexion patterns with no single horizontal line across either palm. \n\nNeurologically, extraocular motility is conjugate with no ocular misalignment or eye wandering, and tone assessment reveals no increased muscle resistance. A prior electroencephalogram was entirely unremarkable without epileptogenic activity, and his behavioral patterns are sociable and cooperative, without idiosyncratic, repetitive, or aberrant features.\n\nThank you very much for providing your expert opinion on his case and helping guide our ongoing management.\n\nSincerely,\nDr. Eleanor Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_1907800_KT",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 391,
+  "total_tokens": 2954,
+  "thoughts_tokens": 2199,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung der 22-jährigen Patientin Anna Weber, die sich in Begleitung ihrer Mutter in meiner Sprechstunde vorstellte.\n\nErste Auffälligkeiten traten im Alter von circa 13 Jahren auf. Retrospektiv zeigte sich bereits in der Jugend eine leichtgradige intellektuelle Einschränkung, weshalb sie eine Förderschule besuchte; ihren Alltag meistert sie dennoch weitgehend selbstständig. Im Verlauf entwickelte sich eine progrediente Störung der extrapyramidalen Motorik, die sich klinisch aktuell durch distale choreatiforme Hyperkinesien und einen diskreten Rigor der oberen Extremitäten manifestiert.\n\nAugenärztlich imponierten im Rahmen einer kürzlichen Funduskopie beidseits auffällige kirschrote Flecken im Bereich der Makula. Eine bildgebende Abklärung der Wirbelsäule aufgrund unspezifischer Rückenschmerzen zeigte radiologisch eine diffuse Höhenminderung und Abflachung der Wirbelkörper. Eine enzymatische Diagnostik aus isolierten Leukozyten ergab zudem einen deutlichen Aktivitätsverlust der sauren Beta-Galaktosidase.\n\nDie Abdominalsonographie ergab Normalbefunde: Es lag weder eine Vergrößerung der Leber noch eine Vergrößerung der Milz vor. Die Patientin nimmt derzeit keine Dauermedikation ein, die Vitalparameter sowie das routinemäßige Basislabor zeigten sich regelrecht. Die Familienanamnese bezüglich neuromuskulärer oder metabolischer Erkrankungen ist leer.\n\nIch wäre Ihnen für eine differentialdiagnostische Einschätzung der Befundkonstellation und Empfehlungen bezüglich des weiteren Vorgehens sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

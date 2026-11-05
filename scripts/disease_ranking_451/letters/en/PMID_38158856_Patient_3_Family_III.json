@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38158856_Patient_3_Family_III",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 681,
+  "completion_tokens": 520,
+  "total_tokens": 6396,
+  "thoughts_tokens": 5195,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate this eight-year-old boy. He presented to our clinic accompanied by his parents for an updated evaluation. \n\nHe was delivered at term without breathing difficulties in the newborn period. Although his early history was marked by a deceleration in growth velocity following birth, his current linear height is within normal limits. From early childhood, he has demonstrated generalized developmental delays, including slow gross motor progress, significant delays in verbal communication, and noticeable intellectual limitations. He has never experienced a loss of previously attained skills, behavioral disturbances, or seizure episodes, and he sleeps soundly through the night. \n\nOn physical examination, his facial features are distinctive, highlighted by a prominent, tall forehead, lateral upward slanting of the eyes, a confluent unibrow across the midline, and strikingly elongated eyelashes. The eyebrows are otherwise unremarkable—neither medially sparse, abnormally elongated, nor bushy—and his scalp hair is normally dense. His head circumference is normocephalic without a triangular skull deformity, and his neck length and external ear architecture are normal, with intact hearing and no preauricular appendages. Ophthalmology previously noted central corneal leukoma with iris adhesions, alongside an epibulbar choristoma at the limbus. There is no lid margin inflammation, eyelid swelling, ocular clefting, rhythmic ocular oscillation, ocular misalignment, or tear duct blockage. \n\nHis oral cavity displays a vaulted, elevated palatal arch; the tongue is normal in volume without a shortened lingual frenulum. He has no history of an imperforate anus, anteriorly displaced anal opening, fistulous tracts to the urinary tract or perineum, or congenital esophageal interruption. He previously underwent groin hernia repair, and his non-descended testicles remain under observation. \n\nNeurologic assessment demonstrates normal strength, tone, and muscle bulk, with no floppiness, spastic tone, lower extremity paresis, wasting, motor clumsiness, or cerebellar ataxia. His spine is straight. Musculoskeletal review reveals normally positioned thumbs, typical big toes, preserved arches without flatfoot deformity, straight legs, and no inward metatarsal deviation or fixed inward contracture of the forefeet. An electrocardiogram and echocardiogram showed no ventricular communication, persistent ductal patency, open foramen ovale, or pulmonary valve or arterial narrowing. His immune function is intact, and his skin is free of café-au-lait patches or velvety hyperpigmentation.\n\nI would greatly appreciate your specialized assessment regarding his underlying presentation.\n\nSincerely,  \nDr. Julian Vance"
+}

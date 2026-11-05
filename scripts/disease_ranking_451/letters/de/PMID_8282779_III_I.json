@@ -1,0 +1,18 @@
+{
+ "case": "PMID_8282779_III_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 343,
+  "completion_tokens": 432,
+  "total_tokens": 2293,
+  "thoughts_tokens": 1518,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen heute die 16-jährige Patientin Mia Sommer zur konsiliarischen Beurteilung. Die Jugendliche stellte sich aufgrund von Abgeschlagenheit in unserer Sprechstunde vor.\n\nKörperlich zeigt sich eine sonst unauffällige junge Frau in gutem Allgemeinzustand. Das Abdomen ist weich und indolent, Leber und Milz sind palpatorisch nicht vergrößert. Es bestehen keine vergrößerten peripheren Lymphknoten, und das kardiopulmonale System ist regelrecht. Thrombozyten und Leukozyten liegen vollständig im Normbereich, auch die Transaminasen und das Serumkreatinin sind unauffällig. Mia nimmt keine Dauermedikation ein, und die Familienanamnese ist bezüglich chronischer Erkrankungen leer.\n\nLaborchemisch imponiert das Bild einer hämolytischen Anämie bei einem Hämoglobinwert von 9,7 g/dl mit begleitendem Haptoglobinverbrauch. Die Erythrozytenindizes zeigen ein deutlich erniedrigtes mittleres korpuskuläres Volumen von 71 fl. Passend zum vermehrten Zellumsatz besteht eine kräftige Retikulozytose. Das Gesamtbilirubin ist mit 2,4 mg/dl signifikant über die Normgrenze erhöht, ganz überwiegend bedingt durch die unkonjugierte Fraktion. \n\nIm mikroskopischen Blutausstrich fielen zudem zahlreiche Sphärozyten auf. Eine orientierende Testung der zellulären Stabilität ergab eine gesteigerte osmotische Fragilität der Erythrozyten, welche bereits bei physiologisch noch stabilisierenden Kochsalzkonzentrationen zur Hämolyse neigten.\n\nIch wäre Ihnen für eine fachhämatologische Einschätzung dieses Befundmusters sowie für Empfehlungen zur weiteren Abklärung und zum therapeutischen Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Tobias Berger"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28687524_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 472,
+  "total_tokens": 3373,
+  "thoughts_tokens": 2462,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 7-jährigen Lukas zur syndromologischen Mitbeurteilung. Lukas lebt bei seinen gesunden Eltern; die Familienanamnese bezüglich angeborener Erkrankungen ist unauffällig. \n\nRetrospektiv berichtete die Mutter bereits über eine ausgeprägte intrauterine Bewegungsarmut. Seit der Neonatalperiode besteht eine generalisierte muskuläre Hypotonie. Im Verlauf zeigte sich zudem eine erhebliche globale Entwicklungsverzögerung; die motorischen und sprachlichen Meilensteine wurden bisher nur stark verzögert erreicht. \n\nIm Rahmen der körperlichen Untersuchung fallen charakteristische faziale Merkmale auf: Ein nach oben strebender frontaler Haaransatz, eine beidseitige deutliche Vergrößerung der Ohrmuscheln, auffallend enge Lidspalten sowie ein manifester Strabismus. Das Mittelgesicht imponiert durch eine knollig gerundete Nase mit verkürzter Columella, eine breite Mundspalte und ein verschmälertes Lippenrot. Das Kinn stellt sich auffallend kurz dar. Inspektorisch ließ sich zudem eine submuköse Gaumenspalte sichern. \n\nAm Achsenskelett zeigt sich eine behandlungsbedürftige Skoliose. An den Händen finden sich tief eingegrabene Palmarfurchen und Beugekontrakturen der proximalen Fingergelenke. An den Füßen bestehen residuelle Klumpfußstellungen sowie übereinandergelagerte Zehen.\n\nOrganisch wurde neuroradiologisch eine Chiari-I-Malformation dokumentiert. Sonographisch zeigen sich beidseits multiple Zysten des Nierenparenchyms und eine begleitende Hydronephrose. Genital ist ein Hodenhochstand bekannt. Des Weiteren leidet der Junge unter einer therapierefraktären chronischen Obstipation, die derzeit mit Macrogol behandelt wird. Die kardiopulmonale Auskultation war unauffällig.\n\nIch bitte Sie um eine differentialdiagnostische Einordnung des komplexen Befundbildes und danke Ihnen vorab für Ihre kollegiale Unterstützung.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17056636_Patient_No_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 487,
+  "completion_tokens": 387,
+  "total_tokens": 4390,
+  "thoughts_tokens": 3516,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this two-year-old boy who presents for clinical genetics evaluation. He was born at term to non-consanguineous parents, and his perinatal course was uncomplicated. \n\nSince early infancy, he has struggled with faltering growth and poor weight acquisition, although he exhibits no short stature, with length tracking steadily on the 25th percentile. Significant global delays are present across motor, speech, and cognitive domains, consistent with a moderate degree of intellectual handicap. \n\nOn physical examination, craniometry is proportionate with no relative macrocephaly, and brain imaging demonstrated no Dandy-Walker malformation. His scalp hair is noticeably scanty, and his eyebrows are thin and sparse. Dysmorphology exam reveals widely separated eyes, downward-slanting palpebral fissures, and bilateral blepharoptosis, with no strabismus or nystagmus. The nasal bridge is not depressed, but the nares are noticeably upturned, and he lacks coarse facial features. His pinnae are low-placed, though they are not posteriorly rotated. The posterior hairline is not low, but he displays a noticeably brief cervical length with prominent lateral neck webs. \n\nThoracic inspection is normal, showing no shield chest, pectus excavatum, or pectus carinatum. Cardiovascular assessment is notable for narrowing of the pulmonic valve; recent echocardiography demonstrated no atrial septal defect and no hypertrophic cardiomyopathy. His abdomen is soft, and his genitalia are unremarkable with no cryptorchidism. Dermatologic evaluation shows no redundant skin, but there are prominent, deeply grooved palmar creases as well as exaggerated, deep creases across the soles of his feet. Neurologically, he has experienced no seizures.\n\nCurrent medications include a daily multivitamin and supplemental high-calorie formula. I would appreciate your expert evaluation of this child.\n\nSincerely,\nDr. Julian Ward"
+}

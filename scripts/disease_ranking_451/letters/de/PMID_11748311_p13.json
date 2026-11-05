@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11748311_p13",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 355,
+  "completion_tokens": 415,
+  "total_tokens": 2816,
+  "thoughts_tokens": 2046,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung unseres jungen Patienten zur weiteren differentialdiagnostischen Einordnung.\n\nIn unserer kinderärztlichen Betreuung fiel frühzeitig eine deutliche allumfassende Verzögerung der allgemeinen Entwicklung auf, die sowohl die motorischen Meilensteine als auch die kognitiven und sprachlichen Fortschritte betrifft. Im Rahmen der Sprachentwicklung und Ernährung besteht eine funktionelle Schwäche des Weichgaumens mit inkomplettem velopharyngealem Schluss, was sich klinisch in einer näselnden Aussprache und wiederholtem nasalem Reflux von Flüssigkeiten äußert. Phänotypisch imponiert zudem eine atypische Gesichtskonfiguration mit auffälliger Morphologie der Gesichtszüge. An den Extremitäten zeigten sich bei der Untersuchung stets regelrechte Befunde, insbesondere ohne Anhalt für überzählige Finger oder Zehen. Auskultatorisch sind Herz und Lunge unauffällig, das Abdomen ist weich und ohne Resistenzen. Die Familienanamnese bezüglich angeborener Erkrankungen ist leer.\n\nLaborchemisch wurde eine endokrine Insuffizienz der Nebenschilddrüsen mit persistierend niedrigen Parathormon- und Calciumwerten diagnostiziert, weshalb aktuell eine Substitutionstherapie mit Calcium und aktivem Vitamin D erfolgt. Im Rahmen der bildgebenden Diagnostik des vorderen Mediastinums zeigte sich ein weitgehendes Fehlen bzw. eine ausgeprägte Hypoplasie des Thymusgewebes. Die daraufhin veranlasste immunologische Differenzierung erbrachte eine markante Verminderung der absoluten T-Zell-Zahlen im peripheren Blut bei ansonsten unauffälligem Routinelabor.\n\nIch danke Ihnen für Ihre geschätzte Unterstützung und freue mich auf Ihre fachliche Einschätzung sowie Ihre Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

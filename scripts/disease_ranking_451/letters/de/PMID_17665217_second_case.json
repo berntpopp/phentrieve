@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17665217_second_case",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 384,
+  "completion_tokens": 426,
+  "total_tokens": 3167,
+  "thoughts_tokens": 2357,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich stelle Ihnen heute die 13-jährige Schülerin Maya zur konsiliarischen Untersuchung vor. Die Eltern berichten über bereits seit der Geburt bestehende Auffälligkeiten an Händen, Füßen und im Gesichtsbereich. Kognitiv entwickelt sich das Mädchen völlig altersentsprechend, sie besucht derzeit die siebte Klasse eines Gymnasiums. Die Familienanamnese ist bezüglich syndromaler Erkrankungen blande, eine Dauermedikation besteht nicht.\n\nKraniofazial imponiert ein vergrößerter Augenabstand sowie ein zurückliegendes, flach wirkendes Mittelgesicht. Die Nasenwurzel präsentiert sich deutlich eingesunken, wobei die Nase insgesamt keineswegs kurz wirkt, sondern eine unauffällige Länge aufweist. Die Naseneingänge zeigen keine antevertierte Ausrichtung, sondern weisen regelrecht nach kaudal. Die Lidspalten sind von normaler Weite und nicht verlängert. Intraoral zeigt sich ein ausgeprägter Zahnengstand im Ober- und Unterkiefer.\n\nAn den oberen Extremitäten fallen beidseits verkürzte Finger sowie auffallend plumpe, verbreiterte Daumen auf. Röntgenologisch ließ sich passend hierzu ein markant verkürzter erster Mittelhandknochen objektivieren. Zudem imponieren fixierte Beugestellungen an den proximalen Interphalangealgelenken der Langfinger. An den unteren Extremitäten zeigen sich analog verkürzte Strahlen sowie beidseits deutlich verbreiterte Großzehen.\n\nDer sonstige pädiatrische Untersuchungsbefund war unauffällig; Herz und Lunge zeigten sich auskultatorisch bland, der neurologische Status bot keine Defizite. \n\nIch wäre Ihnen für eine fachärztliche Einschätzung des vorliegenden Symptomenkomplexes und Empfehlungen zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_21_Patient_IV",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 527,
+  "completion_tokens": 541,
+  "total_tokens": 4634,
+  "thoughts_tokens": 3566,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen Herrn Becker, einen 71-jährigen pensionierten Lehrer, zur konsiliarischen Beurteilung seines vielschichtigen Befundbildes. \n\nKörperbaulich imponiert ein deutlicher Hochwuchs mit im Verhältnis zum Körperstamm auffallend langen Extremitäten. Im muskuloskelettalen Bereich bestehen ausgeprägte degenerative Gelenkveränderungen im Sinne einer Arthrose sowie beidseits ausgeprägte Plattfüße. Gelenkkontrakturen oder eine Überbeweglichkeit liegen nicht vor, Luxationen traten anamnestisch nie auf. Weder an Händen noch Füßen finden sich spinnenfingerartige Verlängerungen, X-Bein-Achsen oder Fußdeformitäten wie ein Talipes equinovalgus. Die Wirbelsäule verläuft ohne Skoliose, der Thorax zeigt weder eine Trichter- noch eine Kielbrust.\n\nKraniofazial fallen ein weiter Augenabstand, flache Jochbeinregionen, eine markant hervortretende Nase und ein kleiner, rückverlagerter Unterkiefer auf. Eine Dolichozephalie, vorspringende Stirnhöcker, ein Epikanthus oder tief stehende Ohren bestehen nicht. Die Skleren sind unauffällig weiß, es gibt keinen Strabismus und keine Myopie. Bei der Inspektion des Mundraums imponieren eine intakte, ungespaltene Uvula sowie ein reguläres, nicht spitz zulaufendes Gaumendach.\n\nKürzlich wurde eine symptomatische Leistenhernie festgestellt; sonographisch und endoskopisch fanden sich keine Anhaltspunkte für Nabelbrüche oder eine Hiatushernie. Das Hautkolorit ist unauffällig ohne pathologische Transparenz, atrophische Narben, Dehnungsstreifen oder erhöhte Neigung zu Hämatomen. Nahrungsmittelallergien sind nicht bekannt.\n\nKardiologisch zeigt sich im Ultraschall ein Mitralklappenprolaps, jedoch ohne Nachweis einer Mitralregurgitation; ein offener Ductus arteriosus ist nicht vorhanden. Angiographisch dokumentierte sich eine ausgeprägte Tortuositas und Elongation der arteriellen Gefäße, Dissektionen der Herzkranzgefäße konnten sicher ausgeschlossen werden.\n\nFür eine fachärztliche Einschätzung dieses Beschwerdebildes und Empfehlungen bezüglich des weiteren Vorgehens wäre ich Ihnen sehr verbunden.\n\nMit kollegialen Grüßen"
+}

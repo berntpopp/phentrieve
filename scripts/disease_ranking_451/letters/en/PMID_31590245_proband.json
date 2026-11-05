@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31590245_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 297,
+  "total_tokens": 2662,
+  "thoughts_tokens": 2026,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for seeing this 30-year-old gentleman who presents for a specialized cardiovascular opinion. His clinical history is notable for recurrent episodes of rapid, fluttering heartbeats that first manifested during his teenage years. More recently, these episodes have occasionally culminated in unheralded fainting spells with transient loss of consciousness. \n\nOn physical examination today, he appears well and in no distress. His blood pressure is 118/74 mmHg and his resting heart rate is 68 beats per minute. Auscultation reveals normal S1 and S2 sounds with no murmurs, clicks, or gallops. His jugular venous pressure is flat, lung fields are resonant and clear to auscultation, and there is no peripheral edema. He is employed as a graphic designer, does not use tobacco, drinks alcohol socially, and takes no regular medications. Baseline serum electrolytes, renal function, and thyroid studies were all within normal limits.\n\nA recent resting electrocardiogram was notable for marked upward shifting of the ST segments across the right precordial leads. The QRS duration was otherwise normal, with no evidence of an incomplete right-sided bundle branch block pattern. He has never experienced a cardiopulmonary arrest, and his family history is entirely negative for premature sudden fatalities or unexplained nocturnal demises.\n\nI would appreciate your expert assessment and recommendations regarding appropriate diagnostic monitoring and risk stratification for him.\n\nSincerely,\n\nDr. Arthur Pendelton, MD"
+}

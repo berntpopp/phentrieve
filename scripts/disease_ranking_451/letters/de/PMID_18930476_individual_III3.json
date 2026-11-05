@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18930476_individual_III3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 346,
+  "completion_tokens": 396,
+  "total_tokens": 2455,
+  "thoughts_tokens": 1713,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute die 23-jährige Studentin Frau Anna Weber zur konsiliarischen Mitbeurteilung.\n\nDie Patientin berichtet über seit der Adoleszenz, etwa ab dem 15. Lebensjahr, bestehende rezidivierende Schmerzen im Bereich der Muskulatur, die vor allem die Oberschenkel und Oberarme betreffen. Zudem beschreibt sie ein störendes, teils bewegungsabhängiges Steifigkeitsgefühl der Muskulatur. Laborchemisch zeigte sich bei mehreren Kontrollen eine deutliche Erhöhung der Serum-Kreatinkinase mit Werten um 600 U/l.\n\nKörperlich fällt eine ausgeprägte Hohlfußbildung an beiden Füßen auf. Eine Hypertrophie der Wadenmuskulatur liegt hingegen nicht vor, die Unterschenkel zeigen ein regelrechtes Muskelrelief. Bei mechanischer Reizung der Muskulatur mittels Reflexhammer ließen sich perkutorisch keine rasch abrollenden Kontraktionswellen provozieren; das Phänomen perkussionsinduzierter Wulst- oder Wellenbildungen blieb vollständig aus.\n\nDer übrige neurologische Untersuchungsbefund war unauffällig: Kraftgrade allseits 5/5 nach MRC, die Muskeleigenreflexe sind seitengleich mittellebhaft auslösbar, die Sensibilität für alle Qualitäten intakt. Der Hirnnervenstatus ist regelrecht. Anamnestisch bestehen keine relevanten Vorerkrankungen, die Familienanamnese ist bezüglich chronischer Muskelleiden unauffällig. Außer einem oralen Kontrazeptivum nimmt sie keine Dauermedikation ein.\n\nIch danke Ihnen für die weiterführende diagnostische Abklärung und Ihre geschätzte Einschätzung dieses Beschwerdebildes.\n\nMit freundlichen kollegialen Grüßen"
+}

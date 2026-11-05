@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Kinship_2_Patient_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 350,
+  "completion_tokens": 287,
+  "total_tokens": 1685,
+  "thoughts_tokens": 1048,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating Ms. Clara Vance, a 27-year-old graphic designer who presents for a neurological opinion regarding long-standing, slowly progressive weakness that reportedly began around age seven.\n\nMs. Vance reports that she has experienced easy fatigability since her early school years, struggling to keep up during physical activities and tiring noticeably faster than her peers. Over time, she has developed progressive weakness in her hands, resulting in poor manual dexterity and reduced grip strength. On examination, cranial nerves II through XII are completely intact, and sensation to light touch, pinprick, and vibration is preserved throughout. Upper extremity motor testing reveals clear bilateral wasting of the thenar eminences along with weakness of the intrinsic hand muscles. \n\nLower extremity testing demonstrates symmetric weakness of foot dorsiflexion, graded 4/5 bilaterally. Gait assessment is distinctly abnormal: she exhibits an inability to walk on her heels and demonstrates marked impairment when attempting to walk on her toes. Patellar and Achilles reflexes are intact and symmetric, and coordination testing is unremarkable. \n\nShe has no past medical history of note, takes only a daily multivitamin, and works full-time. Family history is negative for any known neuromuscular conditions, and basic metabolic panels and thyroid studies have been normal.\n\nI would appreciate your expert assessment and recommendations for further workup.\n\nSincerely,\nDr. Arthur Miller, MD"
+}

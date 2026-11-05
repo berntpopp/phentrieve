@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_F_III1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 427,
+  "completion_tokens": 308,
+  "total_tokens": 2249,
+  "thoughts_tokens": 1514,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this three-year-old boy who presents for assessment of multiple skeletal and craniofacial differences. He is currently meeting his gross motor and cognitive milestones, lives at home with his parents, and takes only a daily multivitamin. Recent hearing and routine vision screenings were entirely intact.\n\nHis linear growth is significantly delayed, with height falling well below the third percentile. Physical examination is notable for prominent bulging of the frontal and parietal calvarium, persistently unclosed cranial sutures, widely separated eyes, a low nasal bridge, maxillary retrusion, and a small, recessed chin. Oral cavity inspection reveals a delayed eruption pattern of his deciduous teeth with defective, pitted enamel; recent radiographs also visualized an extra, supplemental tooth. \n\nHe exhibits a notably slender, constricted thoracic cage and mild lateral deviation of the spine. His shoulder girdles display striking mobility, allowing him to approximate both shoulders across the midline anteriorly with ease. Plain films confirm hypoplastic collarbones, along with multiple intrasutural skull ossicles, elongated second metacarpals bilaterally, underdeveloped iliac wings, and delayed ossification centers of the pubic bones. His neurologic examination remains non-focal, but a recent spinal MRI obtained to assess his spine demonstrated an internal fluid-filled syrinx within the spinal cord. His cardiopulmonary and abdominal exams were otherwise normal.\n\nI would be grateful for your comprehensive clinical assessment and any recommendations regarding diagnostic workup and longitudinal management.\n\nSincerely,\nDr. Julian Sterling"
+}

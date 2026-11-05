@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41912533_Individual_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 786,
+  "completion_tokens": 636,
+  "total_tokens": 4939,
+  "thoughts_tokens": 3517,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 7-jährigen Felix zur pädiatrischen Mitbeurteilung. \n\nDie Geburt verlief termingerecht und unauffällig, Geburtsgewicht und -länge waren eutroph, ein primärer Minderwuchs des Schädels lag nicht vor. Die frühen motorischen Meilensteine wie freies Sitzen und Laufen wurden zeitgerecht erlernt; Entwicklungsrückschritte, Krampfanfälle, gastroösophagealer Reflux, Fütterstörungen oder eine Infektneigung bestehen nicht.\n\nAktuell zeigt sich eine erworbene Mikrozephalie bei altersgerechter Körperlänge und regulärer, nicht brachyzephaler Schädelkonfiguration. Das Gesicht ist harmonisch, weder auffallend klein, vergröbert, abgeflacht, rund, oval noch dreieckig. Stirnprominenz, ein tiefer Haaransatz oder schütteres Haupthaar fehlen. Kraniofazial imponieren hoch geschwungene Brauen ohne Verdickung, antevertierte Nares bei regelrechter Nasenspitze, regulärem Nasenrücken und unauffälligen Nasenflügeln sowie eine deutliche Verlängerung des Philtrums, welches regelrecht modelliert und nicht verstrichen ist. Lippen und Gaumen sind intakt; das Lippenrot ist unauffällig proportioniert, die Mundspalte nicht verbreitert, die Mundwinkel nicht herabgezogen. Das Gebiss zeigt keine Mikro-, Makro- oder Lückenzähne. \n\nDie Augen sind frei von Schielen, Lidachsenfehlstellungen, Ptosis, Hypertelorismus, okulomotorischer Apraxie, Wimpernhypertrophie oder Refraktionsfehlern; Bulbi, Papillen und Netzhaut sind unauffällig. Die Ohren stehen ab, sind aber normotrop ohne Rotation oder Tiefstand; das Gehör ist intakt. \n\nEntwicklungsneurologisch bestehen eine deutliche Sprachentwicklungsverzögerung, eine ADHS-Symptomatik sowie eine leichte kognitive Einschränkung ohne schwerere Ausprägung. Motorisch fällt eine Dysdiadochokinese auf. Das cMRT und spinale MRT erbrachten regelrechte Befunde ohne Ventrikulomegalie, Balkendysgenesie, periventrikuläre Zysten, Syringomyelie, septo-optische Dysplasie oder Auffälligkeiten der Hypophysenregion.\n\nAn den Extremitäten finden sich auffallend kleine Hände und verkürzte Füße. Brachydaktylien, Zehensyndaktylien, Daumenfehlinserate, Auffälligkeiten des Kleinfingers, prominente Gelenke, Gelenküberbeweglichkeiten, kurze Nägel oder eine Hypertrichose ließen sich ausschließen.\n\nIch danke Ihnen für Ihre differenzialdiagnostische Einschätzung.\n\nMit freundlichen Grüßen"
+}

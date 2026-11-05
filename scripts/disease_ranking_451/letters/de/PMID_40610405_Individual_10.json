@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_10",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 524,
+  "completion_tokens": 533,
+  "total_tokens": 3404,
+  "thoughts_tokens": 2347,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre konsiliarische Mitbeurteilung des nun vierjährigen Jonas, der sich aufgrund einer seit dem Säuglingsalter bestehenden, globalen Entwicklungsverzögerung in unserer Betreuung befindet. \n\nGeburtshilflich handelte es sich um ein eutrophes Reifgeborenes ohne SGA-Konstellation. Die Familienanamnese ist unauffällig, die Eltern sind gesund. Jonas zeigt ein stabiles Gedeihen ohne Gedeihstörung oder Kleinwuchs; die Körpermaße liegen auf mittleren Perzentilen, wohingegen der Kopfumfang entlang der 97. Perzentile verläuft, passend zu einer relativen Makrozephalie. Eine Mikrozephalie oder Sagittalnahtsynostose liegt nicht vor. \n\nEntwicklungsneurologisch bestehen erhebliche Defizite: Sowohl die Grobmotorik als auch die Feinmotorik sind deutlich verzögert. Der Muskeltonus ist generalisiert hypoton, eine Spastik besteht nicht. Auch der Spracherwerb ist stark verzögert, wobei durch den Gebrauch einzelner Wörter kein komplettes Fehlen der Sprache vorliegt. Das Gehör ist intakt. Im Verlauf manifestierten sich tonische Krampfanfälle. Im Schädel-MRT zeigten sich ein verschmälerter Balken sowie eine hypoplastische vordere Kommissur. \n\nIm Gesichtsbereich imponiert ein Strabismus divergens. Es finden sich keine Mikrotie, kein Epikanthus, keine Synophrys und keine antevertierten Nares. Die Lidspalten sind weder verlängert noch schräg aufwärts gerichtet. Philtrum, Mundbreite und Kinn zeigen reguläre Proportionen ohne kurzes Philtrum, schmalen Mund oder Mikrognathie. \n\nBegleitend bestehen eine Dysphagie mit häufigem Verschlucken sowie eine chronische Obstipation. Die Spontanatmung ist stabil ohne Hypoventilation. Kardiologisch wurden ein offener Ductus arteriosus sowie ein Vorhofseptumdefekt vom Sekundum-Typ ausgeschlossen. Die Mamillen sind nicht invertiert. Das Integument zeigt keinen Hirsutismus, an den Händen fehlt eine Klinodaktylie des fünften Strahls. Urologisch fielen eine Phimose und eine Chordee auf.\n\nÜber Ihre geschätzte Einschätzung zum weiteren Vorgehen würden wir uns sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

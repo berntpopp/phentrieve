@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 280,
+  "total_tokens": 2438,
+  "thoughts_tokens": 1821,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to see Sophie Miller, an eight-year-old girl who recently presented to our emergency department following an acute crisis. Her mother reports that these intermittent episodes first began in the neonatal period at eight days of life, initially characterized by extreme somnolence and poor feeding.\n\nDuring her latest presentation, Sophie reported severe, diffuse belly pain. Soon thereafter, her condition deteriorated into marked listlessness and stupor, culminating in an observed generalized tonic-clonic convulsive event. Upon arrival, her vital signs were stable, with a blood pressure of 105/68 mmHg, heart rate of 82 beats per minute, and oxygen saturation of 99% on room air. Physical examination revealed a soft abdomen without distension or organomegaly, and cardiopulmonary auscultation was completely unremarkable. Standard hematology and renal function panels were normal. \n\nCritical laboratory evaluation, however, demonstrated a pronounced elevation of blood ammonia. Subsequent targeted plasma amino acid quantification identified citrulline concentrations that were significantly above the standard reference interval. Sophie was managed with fluid resuscitation and nitrogen scavengers, leading to a prompt recovery of her alertness and complete resolution of symptoms. \n\nGiven her early neonatal history and these biochemical findings, I would value your comprehensive assessment and guidance on her ongoing management plan.\n\nSincerely,\nDr. Arthur Vance"
+}

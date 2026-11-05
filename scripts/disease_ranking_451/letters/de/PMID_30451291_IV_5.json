@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30451291_IV_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 355,
+  "completion_tokens": 387,
+  "total_tokens": 2399,
+  "thoughts_tokens": 1657,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, \nsehr geehrter Kollege,\n\nich überweise Ihnen heute die 10-jährige Patientin zur neuropädiatrischen Mitbeurteilung.\n\nDie ersten Auffälligkeiten zeigten sich bereits im Alter von 8 Monaten. Im Verlauf traten wiederholt generalisierte tonisch-klonische Krampfereignisse auf, welche medikamentös geführt werden. Zu einer kritischen Anfallsverlängerung im Sinne eines Status epilepticus kam es glücklicherweise zu keinem Zeitpunkt. \n\nAktuell imponiert bei dem Mädchen ein gravierender globaler Entwicklungsrückstand. Kognitiv zeigt sich eine schwere Beeinträchtigung; eine lediglich leichte oder auch moderate intellektuelle Einschränkung lässt sich angesichts des ausgeprägten Defizits in allen adaptiven Fähigkeiten klar verneinen. Die Sprachentwicklung ist massiv verzögert, aktive Worte werden nicht gesprochen und die rezeptive Kommunikation beschränkt sich auf wenige Grundsignale. Auffällig sind zudem ausgeprägte Verhaltensweisen aus dem autistischen Formenkreis mit fehlendem Blickkontakt, ausgeprägter sozialer Distanz und repetitiven Bewegungsmustern. Hinweise auf psychotische Episoden, Denkstörungen oder Halluzinationen finden sich nicht.\n\nDie internistische Basisuntersuchung ergab unauffällige Organbefunde, auch Hör- und Sehtests erbrachten regelrechte Ergebnisse. Die Schwangerschaft und Geburt verliefen komplikationslos, die Familienanamnese ist unauffällig. Die Patientin lebt bei ihren Eltern und besucht derzeit eine Ganztagsförderschule.\n\nIch bitte Sie um Ihre geschätzte klinische Beurteilung der Gesamtsituation sowie um Empfehlungen zum weiteren diagnostischen und therapeutischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

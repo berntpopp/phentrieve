@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31590245_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 351,
+  "total_tokens": 2707,
+  "thoughts_tokens": 2017,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Schneider,\n\nich überweise Ihnen heute Herrn Lukas Meyer, einen 30-jährigen Softwareentwickler, zur weiterführenden kardiologischen Abklärung.\n\nDer Patient berichtet über bereits seit seiner Jugendzeit intermittierend auftretende Episoden von heftigem Herzklopfen und paroxysmalem Herzrasen. Begleitend kam es im Verlauf bereits zu mehreren abrupten, transienten Ohnmachtsanfällen ohne erkennbare Prodromi. Zu einem manifesten Kreislaufstillstand oder einer Reanimationssituation kam es im Rahmen dieser Ereignisse glücklicherweise nie. In der familiären Vorgeschichte sind keine plötzlichen Todesfälle in jungen Jahren zu verzeichnen.\n\nIn unserer Praxis zeigte sich der Patient in gutem Allgemeinzustand. Die körperliche Untersuchung ergab einen unauffälligen Auskultationsbefund über Herz und Lunge. Der Blutdruck lag bei 120/75 mmHg bei rhythmischer Herzaktion mit einer Frequenz von 68 Schlägen pro Minute. Vorerkrankungen bestehen nicht, eine Dauermedikation wird nicht eingenommen.\n\nIm von uns abgeleiteten 12-Kanal-EKG fielen deutliche Anhebungen der ST-Strecke in den rechtspräkordialen Ableitungen auf. Eine inkomplette Leitungsverzögerung am rechten Tawara-Schenkel lag hierbei nicht vor, die QRS-Dauer war im Normbereich.\n\nIch wäre Ihnen für eine rhythmologische Beurteilung und Einschätzung des Befundes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Weber"
+}

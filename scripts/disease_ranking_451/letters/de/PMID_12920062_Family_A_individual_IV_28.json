@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12920062_Family_A_individual_IV_28",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 443,
+  "completion_tokens": 449,
+  "total_tokens": 3069,
+  "thoughts_tokens": 2177,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen den 45-jährigen Patienten Herrn Markus Weber zur kardiologischen Mitbeurteilung.\n\nHerr Weber stellte sich ambulant mit Zeichen einer dekompensierten, kongestiven Herzinsuffizienz mit Belastungsdyspnoe und beidseitigen Unterschenkelödemen vor. Im EKG imponierte ein neu aufgetretenes Vorhofflimmern. Eine atrioventrikuläre Überleitungsstörung im Sinne eines AV-Blocks ersten, zweiten oder dritten Grades lag nicht vor. Ebenso fand sich kein Linksschenkelblock, und im Langzeit-EKG traten weder ventrikuläre Extrasystolen noch Episoden ventrikulärer Tachykardien auf. Ein überlebter plötzlicher Herztod oder entsprechende Synkopen sind weder aus der Eigen- noch aus der Familienanamnese zu eruieren.\n\nTransthorakal zeigt sich das Bild einer dilatativen Kardiomyopathie mit einer mäßiggradig reduzierten linksventrikulären Ejektionsfraktion von 38 Prozent; die Pumpfunktion ist somit weder bloß leichtgradig noch schwer bzw. hochgradig eingeschränkt. Das linksventrikuläre enddiastolische Volumen zeigte sich dabei nicht vergrößert, sondern regelrecht.\n\nKlinisch wirkt der als Buchhalter tätige Patient nicht vorzeitig gealtert, ein progeroides Erscheinungsbild des Gesichts besteht nicht. Das subkutane Fettgewebe ist unauffällig verteilt, ohne Anhalt für eine Lipodystrophie. Die Gelenke sind seitengleich frei beweglich, Gelenkkontrakturen fehlen vollständig. Motorisch zeigt sich keine Muskelschwäche, und es sind keine Atrophien der Skelettmuskulatur festzustellen. Die Nierenretentionswerte und Elektrolyte liegen im Normbereich. Eine Entlastungstherapie mit Torasemid wurde eingeleitet.\n\nIch bedanke mich für Ihre geschätzte Begutachtung und Therapieempfehlung.\n\nMit kollegialen Grüßen,\nDr. med. Thomas Keller"
+}

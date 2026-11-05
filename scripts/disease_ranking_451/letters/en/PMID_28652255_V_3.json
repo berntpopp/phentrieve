@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 308,
+  "total_tokens": 2170,
+  "thoughts_tokens": 1511,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 33-year-old gentleman who presents for further neurological assessment. His symptoms first became apparent during early childhood around six years of age and have shown slow, steady progression over time. He is accompanied today by his partner; he works part-time in data entry and takes only an over-the-counter multivitamin.\n\nOn physical examination, his gait is distinctly wide-based and poorly coordinated, with noticeable balance difficulties. In the upper extremities, he exhibits continuous, involuntary slow and writhing movements of the fingers and wrists. Testing of his extraocular movements demonstrates an inability to execute voluntary saccades, particularly along the vertical plane, though full excursion is maintained during oculocephalic testing. His speech is slurred with slow, scanning articulation. Deep tendon reflexes are universally sluggish and reduced to 1+ throughout the biceps, patellar, and Achilles tendons.\n\nCranial nerves are otherwise intact, primary sensory modalities are preserved, and motor strength remains 5/5 across all muscle groups. His family history is non-contributory, with no reported neuromuscular disorders among first-degree relatives. Recent laboratory studies showed no elevation of serum cholesterol, and his circulating albumin concentration was completely normal. A routine complete blood count, renal panel, and liver enzymes were similarly unremarkable.\n\nGiven his long-standing presentation, I would greatly appreciate your specialized evaluation and guidance regarding further diagnostic steps.\n\nSincerely,\nDr. Arthur Bennett\nDepartment of Internal Medicine, Oakridge Clinic"
+}

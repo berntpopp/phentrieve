@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9854053_Sister_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 406,
+  "completion_tokens": 523,
+  "total_tokens": 4237,
+  "thoughts_tokens": 3308,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\n\nich bitte um Ihre konsiliarische Einschätzung bei einer kleinen Patientin, die sich im Alter von rund einem Jahr mit einem deutlichen Abflachen der Längenperzentilen nach zuvor unauffälliger somatischer Entwicklung vorstellte. Die Neugeborenenperiode war komplikationslos; eine behandlungsbedürftige Gelbsucht nach der Geburt trat nicht auf. Das Mädchen trinkt und isst altersentsprechend gut, eine Appetitlosigkeit verneinen die Eltern ausdrücklich.\n\nKörperlich bietet die Patientin einen stabilen Eindruck ohne Nachweis von generalisierten Ödemen. Das Abdomen ist weich und unauffällig, sonographisch fand sich kein Aszites. Auffallend zeigten sich in der Nierensonographie jedoch beidseits stark echoreiche Markpyramiden als Korrelat ausgeprägter Verkalkungen des Nierenparenchyms. Die Nierenfunktion im Serum ist stabil mit regelrechtem, unauffälligem Kreatininwert.\n\nLaborchemisch besteht eine ausgeprägte metabolische Azidose mit erhöhten Chloridwerten bei normaler Anionenlücke, begleitet von einem persistierend erniedrigten Serumkalium von 2,8 mmol/l. Passend zu einer distalen Störung der tubulären H-Plus-Sekretion verbleibt der Harn stets unphysiologisch alkalisch mit Spontanwerten über pH 7,0; eine adäquate renale Ansäuerung des Urins gelang auch unter Belastung nicht. \n\nHämatologisch imponiert eine mikrozytäre Blutarmut mit deutlich vermindertem mittleren Erythrozytenvolumen von 67 fl. Begleitend finden sich Zeichen eines beschleunigten Erythrozytenabbaus mit massiver Vermehrung der unreifen Vorstufen im Sinne eines Retikulozytensprungs sowie einer auffälligen Mehrfarbigkeit der roten Blutzellen im Ausstrich. Mikroskopisch fielen zudem gehäuft Erythrozyten mit schlitzförmigen Aufhellungen auf, entsprechend einer deutlichen Stomatozytenvermehrung. \n\nDie Familienanamnese ist bezüglich renologischer oder hämatologischer Erkrankungen leer. Das Kind erhält derzeit lediglich eine prophylaktische Vitamin-D-Gabe.\n\nIch bedanke mich für Ihre Mitbeurteilung dieses Befundmusters und verbleibe \n\nmit kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_11_Weiss_et_al",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 472,
+  "completion_tokens": 345,
+  "total_tokens": 2652,
+  "thoughts_tokens": 1835,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 5-year-old boy in consultation to assist with a clinical evaluation. He is currently thriving in kindergarten, lives at home with his parents, and takes only a daily multivitamin. The family history is non-contributory.\n\nOn physical examination, he displays several notable craniofacial characteristics. His palpebral apertures slant downward, accompanied by bilateral drooping eyelids and prominent inner canthal folds. His interpupillary measurement is completely normal, and the supraorbital arches show no abnormal brow elevation. The forehead is smooth, lacking any metopic ridge prominence. He has a rounded, bulbous nasal tip with distinctly upturned nostrils, above an unusually wide philtral gutter and a sharply accentuated, prominent cupid's bow. Orthopedic exam of his lower extremities reveals normal foot alignment without medial deviation of the forefoot. \n\nOn neurological exam, he demonstrates generalized reduced muscle tone. However, his motor milestones were achieved on time, and his speech and expressive language development remain entirely age-appropriate. There are no signs of cognitive impairment, global developmental delay, or behaviors on the autism spectrum. He has never had any oral feeding or swallowing difficulties.\n\nA recent neuroimaging study confirmed complete failure of development of the corpus callosum; the scan otherwise showed no enlargement of the ventricles, no evidence of white matter demyelination, and fully present olfactory bulbs. Baseline cardiac evaluation was unremarkable, ruling out any ventricular communication, patent ductus, transposition of the great vessels, double outlet right ventricle, or bicuspid aortic valve.\n\nI would be grateful for your expert perspective on these findings and advice regarding further management.\n\nSincerely,\nDr. Julian Sterling"
+}

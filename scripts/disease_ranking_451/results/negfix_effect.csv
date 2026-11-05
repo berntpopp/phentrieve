@@ -1,0 +1,8 @@
+lang,metric,n,of
+all,gold_excluded_annotated_to_true_disease,936,1695
+de,true_top1_lost,14,289
+de,lost_with_removed_true_disease_features,5,14
+de,true_top1_gained,8,289
+en,true_top1_lost,10,289
+en,lost_with_removed_true_disease_features,8,10
+en,true_top1_gained,6,289

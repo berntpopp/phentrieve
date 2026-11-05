@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35600075_Family_2_individual_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 436,
+  "total_tokens": 2529,
+  "thoughts_tokens": 1654,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 3-jährigen Jungen zur neuropädiatrischen Mitbeurteilung. \n\nDie Symptomatik begann im Alter von 7 Monaten zunächst im Rahmen fieberhafter Infekte mit typischen Fieberkrämpfen. Im weiteren Verlauf kam es wiederholt zu generalisierten bilateralen tonisch-klonischen Anfällen, wobei sich anamnestisch und in der Fremdbeobachtung nie Hinweise auf einen fokalen Beginn dieser bilateralen Konvulsionen ergaben. Andere Anfallssemiologien wurden bislang nicht beobachtet; es finden sich keine Absencen, keine Myoklonien, keine rein tonischen Episoden und keine atonischen Anfälle. Ebenso wenig traten fokale motorische Anfälle oder fokale Ereignisse mit oder ohne Einschränkung des Bewusstseins auf. \n\nDie psychomotorische Entwicklung verläuft bisher erfreulich; ein globaler Entwicklungsrückstand liegt nicht vor. Der Junge spricht altersentsprechend in Mehrwortsätzen und besucht problemlos die örtliche Kita. Die internistische und orientierende neurologische Untersuchung war unauffällig, die Familienanamnese ist leer. \n\nEin kürzlich durchgeführtes Wach-EEG zeigte relevante Auffälligkeiten mit intermittierenden paroxysmalen Verlangsamungen und Spitzen-Wellen-Komplexen. Im durchgeführten Schädel-MRT zeigte sich ein unauffälliger Befund: Es fand sich keine diffuse zerebrale Atrophie, das Corpus callosum war nicht verschmälert und das Kleinhirn zeigte keine Vermishypoplasie. Die weiße Substanz wies kein vermindertes Volumen auf, die ZNS-Myelinisierung war vollkommen altersgerecht und es gab keinen Nachweis einer Hippocampussklerose. \n\nAngesichts der rezidivierenden Ereignisse und der vorliegenden Befunde bitte ich um Ihre geschätzte Einschätzung zum weiteren diagnostischen und therapeutischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

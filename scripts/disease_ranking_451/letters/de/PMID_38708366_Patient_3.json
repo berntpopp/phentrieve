@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 391,
+  "completion_tokens": 474,
+  "total_tokens": 2740,
+  "thoughts_tokens": 1875,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung des nunmehr 14 Jahre und 8 Monate alten Patienten Felix, der sich seit dem frühen Kindesalter in unserer neuropädiatrischen Betreuung befindet.\n\nErstmals im Alter von knapp acht Monaten traten zerebrale Anfälle mit fokaler Semiologie in Form von einseitigen motorischen Entäußerungen auf. Im weiteren Verlauf kam es wiederholt zu bilateralen tonisch-klonischen Konvulsionen. Parallel zur Krankheitsaktivität entwickelte sich das Bild einer ausgeprägten epileptogenen Enzephalopathie mit deutlicher Verlangsamung der weiteren Reifung. Sowohl motorisch als auch sprachlich zeigte sich von klein auf ein deutlicher Rückstand in sämtlichen Entwicklungsbereichen; gegenwärtig imponiert eine schwere geistige Behinderung mit dauerhaftem Unterstützungsbedarf im Alltag. Die abgeleiteten Hirnstrombilder waren wiederholt eindeutig pathologisch mit kontinuierlichen Verlangsamungen und multifokalen steilen Transienten.\n\nIn der Vorgeschichte gab es im Säuglingsalter keinen Anhalt für Blitz-Nick-Salaam-Krämpfe. Es ließen sich weder rein klonische Abläufe noch myoklonische Zuckungen oder typische Absencen beobachten. Ein Status epilepticus trat bislang nicht auf. In verhaltensbiologischer Hinsicht bestehen trotz der schweren kognitiven Einschränkung keine autistischen Züge; Felix ist emotional zugewandt und hält freundlichen Blickkontakt. Eine Aufmerksamkeitsdefizit- oder Hyperaktivitätsstörung liegt ebenfalls nicht vor.\n\nDie internistische Untersuchung erbrachte regelrechte Befunde für Herz, Lunge und Abdomen. Das Hör- und Sehvermögen ist orientierend unauffällig. Die Familienanamnese bezüglich neurologischer Erkrankungen ist leer. Zurzeit erhält der Junge eine antikonvulsive Kombinationstherapie mit Valproat und Clobazam, die jedoch keine anhaltende Besserung bewirkte. \n\nÜber Ihre geschätzte Zweitmeinung bezüglich möglicher weiterer therapeutischer Optionen würde ich mich sehr freuen.\n\nMit kollegialen Grüßen"
+}

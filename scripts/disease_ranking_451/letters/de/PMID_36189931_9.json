@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36189931_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 416,
+  "completion_tokens": 406,
+  "total_tokens": 3136,
+  "thoughts_tokens": 2314,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich überweise Ihnen den 50-jährigen Herrn Frank Berger zur konsiliarischen Beurteilung.\n\nKürzlich wurde bei dem Patienten nach thorakalen Schmerzen computertomografisch eine Dissektion der thorakalen Aorta diagnostiziert. Glücklicherweise kam es zu keiner Aortenruptur, und auch anderweitige arterielle Dissektionen oder arterielle Gefäßrupturen ließen sich angiografisch ausschließen. Klinisch ergab sich kein Hinweis auf das Vorliegen einer Karotis-Kavernosus-Fistel.\n\nInspektorisch imponieren breite kutane Dehnungsstreifen im Bereich der Schultern und Lenden. Die Haut wirkt ansonsten unauffällig, ohne gesteigerte Transparenz der Dermis oder vermehrte Neigung zu Hämatomen; auch eine Varikosis der Beine liegt nicht vor. Das Gesichtsprofil ist regelrecht: Es zeigt sich ein normbreiter Nasenrücken, ein wohlkonturiertes, keineswegs schmales Lippenrot sowie beidseits frei angelegte Ohrläppchen.\n\nIn der Vorgeschichte traten weder ein Spontanpneumothorax noch eine Kolonperforation auf. Der Patient ist als Buchhalter tätig, Nichtraucher und nimmt lediglich Bisoprolol 5 mg zur Blutdruckeinstellung ein. Die Familienanamnese ist unauffällig.\n\nAm Bewegungsapparat imponiert eine gerade Wirbelsäule ohne Skoliose. Sehnenabrisse werden verneint. An den Händen findet sich keine Überbeweglichkeit der kleinen Gelenke. Angeborene Fehlbildungen wie eine Hüftluxation oder ein Klumpfuß bestanden laut eigener Auskunft nie.\n\nIch wäre Ihnen für eine differenzierte Beurteilung und Ihre Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Martin Krause"
+}

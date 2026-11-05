@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31021519_individual_SATB2_102",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 347,
+  "completion_tokens": 303,
+  "total_tokens": 2018,
+  "thoughts_tokens": 1368,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating Leo, a four-year-old boy referred for multidisciplinary assessment. He lives at home with his parents and currently attends an adaptive preschool.\n\nLeo's medical issues began in early infancy, which was notable for marked feeding difficulties requiring high-calorie supplementation and adaptive feeders due to an uncoordinated suck. He was born with a cleft of the secondary palate, which was successfully repaired during his first year. His physical growth trajectory has lagged considerably, with height and weight parameters remaining consistently below the third percentile despite adequate caloric intake.\n\nDevelopmentally, Leo exhibits significant delays across all milestones. He achieved unassisted walking at thirty months of age and currently demonstrates severe expressive and receptive language deficits. On examination, he has noticeable dental anomalies, characterized by several missing deciduous teeth and peg-shaped incisors. A cerebral MRI performed last year identified structural abnormalities, including mild prominence of the lateral ventricles and atypical white matter signal. Notably, there is no history of seizures, and he has never experienced any unprovoked convulsions or stared episodes. \n\nThe remainder of his physical examination is normal; cardiac auscultation reveals regular rate and rhythm without murmurs, his chest is clear, and his abdomen is soft and non-distended. Family history is unremarkable, with healthy parents and a typically developing older sister. His only regular medication is a pediatric multivitamin.\n\nI would appreciate your expert consultation regarding further evaluation and management.\n\nSincerely,\nDr. Evelyn Vance"
+}

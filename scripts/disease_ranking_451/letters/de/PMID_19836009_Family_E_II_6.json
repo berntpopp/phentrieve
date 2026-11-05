@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_E_II_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 416,
+  "total_tokens": 2686,
+  "thoughts_tokens": 1907,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute die 13-jährige Schülerin Leonie zur konsiliarischen Mitbeurteilung.\n\nLeonie stellte sich in unserer Sprechstunde zur Refraktionsbestimmung vor. Auffallend ist eine hochgradige Kurzsichtigkeit mit Werten von beidseits circa -8,5 Dioptrien. Der Augeninnendruck präsentierte sich bei mehreren Kontrollen erhöht mit Werten um 26 mmHg. Biomikroskopisch imponiert eine beidseits sehr flache Vorderkammer. Kammerwinkelsynechien konnten gonioskopisch ausgeschlossen werden. Die Sehnervenpapillen sind vital und randscharf begrenzt, eine vergrößerte Cup-to-Disc-Ratio besteht nicht. Bemerkenswerterweise ist die axiale Bulbuslänge in der Ultraschallbiometrie absolut normwertig und keineswegs verlängert, sodass keine Achsenmyopie vorliegt.\n\nKörperlich imponiert zudem eine deutliche Wuchsminderung mit einer Körpergröße weit unterhalb der dritten Perzentile. Die Finger und Zehen sind auffällig stämmig und kurz gebildet. Die Mutter berichtet zudem über eine spürbare Steifigkeit der Gelenke, die sich auch in unserer Untersuchung als symmetrische Einschränkung des passiven und aktiven Bewegungsausmaßes ohne entzündliche Zeichen oder Schmerzen darstellte. \n\nBisherige pädiatrische Vorsorgen verliefen unauffällig, die kognitive Entwicklung ist altersgerecht. Leonie nimmt außer den von uns probatorisch verordneten drucksenkenden Augentropfen keine Medikamente ein. Die Familienanamnese hinsichtlich okulärer oder orthopädischer Auffälligkeiten ist leer.\n\nIch wäre Ihnen für eine interdisziplinäre Einschätzung des klinischen Gesamtbildes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Lindner"
+}

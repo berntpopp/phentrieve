@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_20_Patient_II",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 575,
+  "completion_tokens": 570,
+  "total_tokens": 4301,
+  "thoughts_tokens": 3156,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn Martin Weber, 32 Jahre alt, zur weiteren konsiliarischen Einschätzung. \n\nKraniofazial imponieren ein länglicher Schädelbau, ein vergrößerter Augenabstand, eine Hypoplasie der Wangenregion sowie ein kleines Kinn. Auffälligkeiten wie eine Stirnbuckelung, tief sitzende Ohren, eine hervortretende Nase oder Epikanthusfalten fehlen. Die Sklären stellen sich altersentsprechend weiß dar, ein Strabismus liegt nicht vor. Ophthalmologisch sind eine ausgeprägte Kurzsichtigkeit sowie ein Keratokonus bekannt. Das Gaumendach ist betont hoch gewölbt, das Zäpfchen zeigt keine Spaltung.\n\nAm Achsenskelett zeigt sich eine kielartige Thoraxvorwölbung bei fehlender Trichterbrust. Die Wirbelsäule ist frei von Skoliosen, die Halswirbelsäule stabil, und im lumbalen MRT fand sich keine Durakektasie. Messungen ergaben eine herabgesetzte Knochendichte. Der Patient berichtet über wiederholte Gelenkluxationen; bei der Untersuchung fanden sich jedoch weder Gelenkkontrakturen noch eine Überbeweglichkeit oder Arthrosen. Knieachsenfehlstellungen wie Genu valga fehlen, die Fußgewölbe sind bds. abgeflacht im Sinne von Plattfüßen, ohne Talipes equinovalgus. Ein disproportioniertes Längenwachstum oder auffallend lange, dünne Finger bestehen nicht.\n\nKardiovaskulär bestehen Krampfadern an den Unterschenkeln. Kardiologisch wurden Mitralklappenprolaps, Mitralinsuffizienz, Koronardissektionen, geschlängelte Gefäßverläufe oder ein persistierender Ductus arteriosus ausgeschlossen.\n\nHaut und Bindegewebe zeigen eine dünne, transparent wirkende Dermis mit sichtbaren Venen, multiple Milien, Neigung zu Hämatomen sowie atrophische, eingesunkene Narben. Eine pathologische Überdehnbarkeit der Haut oder Dehnungsstreifen sind nicht zu verzeichnen. Anamnestisch erfolgte eine Leistenbruchoperation; Nabel- oder Zwerchfellhernien bestehen nicht. Das äußere Genitale ist unauffällig, ohne Hypospadie. \n\nDer Patient arbeitet im Büro, nimmt keine Dauermedikation ein; Nahrungsmittelallergien sowie familiäre Vorerkrankungen werden verneint.\n\nIch danke Ihnen für die Mitbeurteilung und Ihre Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30236613_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 347,
+  "completion_tokens": 412,
+  "total_tokens": 3047,
+  "thoughts_tokens": 2288,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute Frau Renate Weber, 66 Jahre alt, zur weiteren fachneurologischen Beurteilung. \n\nDie Patientin berichtet über Beschwerden, welche schleichend vor etwa zwei Jahren ihren Anfang nahmen. Bei der Untersuchung imponiert eine zunehmend verwaschene, undeutliche Aussprache. Begleitend bestehen Zeichen einer bulbären Lähmung mit ausgeprägter Schluckstörung, insbesondere bei dünnflüssiger Kost. Inspektorisch fällt eine deutliche Verschmächtigung und Volumeneinbuße der Zungenmuskulatur ins Auge. \n\nDarüber hinaus schildert die Patientin eine fortschreitende Schwäche, die sich als generalisierte motorische Parese aller vier Extremitäten mit Kraftgraden um 4/5 darstellt. Die Muskeleigenreflexe präsentieren sich an Armen und Beinen lebhaft bis gesteigert. An beiden unteren Sprunggelenken lässt sich ein mehrschlägiger Fußklonus auslösen. Beim Bestreichen der Fußsohle zeigt sich beidseits ein pathologischer Reflex mit tonischer Dorsalextension der Großzehe. \n\nDie Sensibilitätsprüfung ergab keine Defizite, Schmerz- und Berührungsempfinden sind allseits symmetrisch intakt. Die übrigen Hirnnervenfunktionen bieten einen unauffälligen Befund. Kognitiv wirkt die Patientin klar und vollständig orientiert. Bis auf eine medikamentös eingestellte arterielle Hypertonie (Candesartan 8 mg täglich) ist die Eigenanamnese leer; die Familienanamnese erbrachte keine relevanten Vorerkrankungen. Die pensionierte Bibliothekarin lebt selbstständig mit ihrem Ehemann.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung und die Einleitung der weiteren Abklärung sehr verbunden.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Brandner"
+}

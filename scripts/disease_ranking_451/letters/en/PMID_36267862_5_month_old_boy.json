@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36267862_5_month_old_boy",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 325,
+  "total_tokens": 2371,
+  "thoughts_tokens": 1650,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this 5-month-old male infant, Noah, who presents with congenital skeletal and craniofacial anomalies. He was delivered at term via spontaneous vaginal delivery from a vertex presentation, with no history of breech positioning. His parents are healthy and non-consanguineous, and newborn metabolic screens were entirely normal.\n\nNoah exhibits poor linear growth, with his length remaining well below the 3rd percentile despite normal caloric intake. Craniofacial inspection reveals marked frontal prominence, midfacial retrusion, a flattened nasal bridge, and increased distance between the eyes. He has an elongated philtrum and a visible cleft involving the secondary palate. Cardiovascular, respiratory, and abdominal examinations are unremarkable.\n\nMusculoskeletal examination is notable for generalized congenital joint misalignments. Both hips are displaced out of their acetabula, and he exhibits anterior subluxation of the knee joints as well as dislocated glenohumeral joints. His feet display severe, rigid equinovarus posturing bilaterally, and his thumbs appear unusually broad, flat, and spatula-shaped at the distal phalanges.\n\nRecent radiographic imaging demonstrated uneven, irregular contours along the vertebral endplates throughout the thoracic and lumbar spine. However, the cervical alignment is preserved with no cervical kyphosis, and there is no scoliotic curvature observed. \n\nHe is interactive, smiles socially, and has normal hearing on screening. Given the constellation of multi-joint dislocations and skeletal features, I would value your assessment and input regarding further workup and care coordination.\n\nSincerely,\nDr. Arthur Vance"
+}

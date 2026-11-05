@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34612517_F1_II_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 304,
+  "total_tokens": 3577,
+  "thoughts_tokens": 2862,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this four-month-old girl for an updated evaluation. Cardiac concerns were first flagged on her second-trimester fetal sonogram, though three vessels were clearly identified in the cord at that time with no solitary umbilical vessel.\n\nPostnatal echocardiography confirms a single persistent arterial trunk overriding a large opening between the ventricles, as well as significant narrowing of the pulmonary valve creating outflow obstruction. The arch descends on the left and remains completely continuous with no vascular interruption. Her cardiac architecture is distinct from a tetralogy defect. The tricuspid orifice is widely patent with no atretic changes, and the pulmonary veins drain orthotopically into the left atrium without any anomalous partial return. \n\nShe continues to feed well on standard formula, and laboratory testing reveals stable serum albumin with no enteric loss of protein. Her head circumference is tracking steadily along the 45th percentile, and previous cranial imaging showed a fully formed, intact corpus callosum. A renal ultrasound demonstrated two distinct, normally positioned kidneys with no cystic kidney lesions and no horseshoe configuration. On examination, she is alert and interactive; her hands show five rays bilaterally without any extra ulnar digits, and her feet display straight digits with no crossover or overlapping of the toes. Her family history is non-contributory and her infant immunizations remain up to date.\n\nI would be grateful for your comprehensive clinical assessment and input regarding her ongoing care.\n\nSincerely,\nDr. Rachel Sullivan"
+}

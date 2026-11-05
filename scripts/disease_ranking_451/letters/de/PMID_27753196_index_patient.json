@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27753196_index_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 397,
+  "total_tokens": 2388,
+  "thoughts_tokens": 1626,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte Mitbeurteilung der mittlerweile 7-jährigen Mia, die sich mit ihrer Mutter in meiner Sprechstunde vorstellte. \n\nBereits postpartal zeigte sich das Mädchen als makrosomes Neugeborenes mit Werten für Gewicht und Länge weit oberhalb der 97. Perzentile. Im weiteren Entwicklungsverlauf fiel eine erhebliche kognitive Beeinträchtigung auf, sodass Mia aktuell eine integrative Fördereinrichtung besucht. \n\nKörperlich imponiert ein ausgeprägter Makrozephalus mit deutlich vorspringender Stirnpartie. Am Skelettsystem zeigen sich zudem ein auffallend schmal gebauter Thorax sowie verkürzte Fingerendglieder an beiden Händen. Das Hör- und Sehvermögen erwies sich bei den Vorsorgen als altersgerecht, und die kardiopulmonale Untersuchung sowie ein orientierendes EKG erbrachten Normalbefunde. \n\nIm vorliegenden kranialen MRT zeigte sich eine Erweiterung der inneren Hirnventrikel ohne Anhalt für intrakranielle Druckerhöhung. Eine Abdomensonographie zeigte bis auf eine solitäre Nierenzyste rechts regelrechte parenchymatöse Organe. \n\nAnlass der aktuellen Vorstellung waren rezidivierende Episoden von Hämatochezie. Die daraufhin durchgeführte Koloskopie demonstrierte eine ausgeprägte Dickdarmpolypose mit multiplen Polypen über den gesamten Kolonrahmen verteilt. Eine Dauermedikation besteht nicht, und die Familienanamnese ist bezüglich gastrointestinaler oder neurologischer Erkrankungen leer.\n\nÜber Ihre differenzialdiagnostische Einschätzung dieser komplexen Befundkonstellation sowie Empfehlungen zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

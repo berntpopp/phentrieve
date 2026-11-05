@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33977139_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 482,
+  "completion_tokens": 381,
+  "total_tokens": 2539,
+  "thoughts_tokens": 1676,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 19-year-old young woman whom I follow in my clinic for complex neurodevelopmental issues beginning in early childhood. She lives at home with supportive parents, her family history is non-contributory, and her daily medications include levetiracetam and polyethylene glycol.\n\nEarly on, she exhibited delayed speech acquisition and was late to achieve independent ambulation, followed later by a clear loss of previously attained developmental skills. Her speech remains significantly slurred. Her medical history is also notable for thelarche occurring unusually early in childhood, chronic bowel sluggishness with infrequent stools, and recurrent unprovoked epileptic events. Routine telemetry demonstrated epileptogenic spike discharges originating independently from multiple foci. Cranial MRI revealed a malformed corpus callosum, though the cerebral cortex displays a normal gyral pattern without evidence of polymicrogyria.\n\nOn examination, she has a distinctly rounded facial shape, closely set eyes with deep-set globes, and persistent ocular misalignment. Her head circumference is within normal limits, and she lacks epicanthal folds, widely spaced eyes, a narrow forehead, or synophrys. Eyebrow density is standard, her nasal bridge is well-preserved without an upturned or bulbous nasal tip, philtral length is normal, the lower jaw shows no retrognathia, and inspection reveals a single, intact uvula.\n\nNeurologically, she demonstrates marked trunk flaccidity contrasting with spasticity in both lower extremities, alongside sustained rhythmic beats at the ankles upon rapid dorsiflexion. A lateral spinal curvature is apparent on standing. Dermatologic inspection reveals generalized fish-like scaly skin with marked hyperkeratotic thickening across both her palms and soles.\n\nI would be most grateful for your comprehensive evaluation and guidance regarding her ongoing management.\n\nSincerely,\nDr. Julian Vance"
+}

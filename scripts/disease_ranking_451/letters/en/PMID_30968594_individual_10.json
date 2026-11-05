@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_10",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 233,
+  "total_tokens": 2179,
+  "thoughts_tokens": 1592,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this female infant, who was brought to our attention at 20 days of life for further evaluation. She was delivered at term following an uncomplicated pregnancy, and her parents report that she is feeding vigorously with steady weight gain. \n\nOn physical examination, her vital signs are normal, and cardiovascular, pulmonary, and abdominal examinations are unremarkable. However, examination of the genitalia revealed marked enlargement of the clitoral phallus. We also noted a generalized deepening of skin pigmentation, which was particularly prominent over the areolae and genital creases. \n\nInitial laboratory investigations showed an abnormally low morning cortisol paired with a pronounced rise in plasma adrenocorticotropin. In addition, total testosterone was elevated well above expected neonatal norms, and she demonstrated raised prolactin values. Her circulating estradiol level was normal. Routine baseline chemistries, including serum sodium and potassium, have been unremarkable. \n\nHer family history is non-contributory, and both parents are healthy with no history of early infant illness. I would appreciate your expert evaluation and recommendations regarding her ongoing workup and management.\n\nSincerely,\nDr. Julian Wright"
+}

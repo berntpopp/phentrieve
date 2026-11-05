@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29058101_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 383,
+  "completion_tokens": 423,
+  "total_tokens": 2777,
+  "thoughts_tokens": 1971,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich erbitte Ihre geschätzte Mitbeurteilung unseres dreijährigen Patienten, der sich mit einem zunehmend komplexen Krankheitsbild präsentiert. Die Beschwerden begannen im Alter von etwa zehn Monaten. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer, die Eltern sind nicht blutsverwandt. \n\nInitial fielen vor allem seit Monaten persistierende, wässrige Diarrhoen sowie ein deutlicher Gedeihstillstand mit starkem Abfall der Gewichts- und Längenperzentilen auf. Eine endoskopische Abklärung zeigte das Bild einer chronischen Entzündung der Dickdarmschleimhaut. Zudem besteht ein therapieresistentes, schuppendes Ekzem der Perioralregion. Rezidivierende Mittelohrentzündungen traten in der Vorgeschichte nicht auf. Die kardiopulmonale Auskultation war bis vor kurzem unauffällig, und die neurologische Entwicklung verlief normal. Bei den körperlichen Untersuchungen ergab sich kein Hinweis auf eine generalisierte Lymphknotenschwellung, und sonografisch fand sich keine Organomegalie von Milz oder Leber.\n\nLaborchemisch imponieren seit längerer Zeit eine ausgeprägte Eosinophilie im Differenzialblutbild sowie massiv erhöhte Serum-IgE-Spiegel. Vor einigen Wochen trat zudem ein deutlicher Hämoglobinabfall im Rahmen einer hämolytischen Anämie auf, bei welcher der direkte Antiglobulintest positiv ausfiel. \n\nAktuell wurde der Junge aufgrund einer schweren Lungenentzündung intensivpflichtig. Im Verlauf kam es zu einem akuten hypoxämischen Lungenversagen mit beidseitigen diffusen Infiltraten und Beatmungspflichtigkeit im Sinne eines ARDS. \n\nAufgrund dieser schweren Multiorganbeteiligung bitten wir um eine konsiliarische immunologische Einschätzung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen Grüßen"
+}

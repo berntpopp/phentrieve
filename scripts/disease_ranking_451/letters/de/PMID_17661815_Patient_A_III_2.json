@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_A_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 477,
+  "completion_tokens": 463,
+  "total_tokens": 3280,
+  "thoughts_tokens": 2340,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre konsiliarische Einschätzung bei einem 15-jährigen Patienten mit komplexer angeborener Befundkonstellation. Die Schwangerschaft war durch ein ausgeprägtes Polyhydramnion kompliziert. Direkt postnatal erfolgte die Korrektur einer Ösophagusatresie mit tracheoösophagealer Fistel; eine primäre Saugschwäche lag nicht vor, und ein gastroösophagealer Reflux trat postoperativ nicht auf. Pulmologisch verblieb eine ausgeprägte Bronchomalazie.\n\nKardiovaskulär imponiert ein Ventrikelseptumdefekt kombiniert mit einer überreitenden Aorta sowie einer hypoplastischen Arteria carotis interna. Ein Vorhofseptumdefekt oder eine Ebstein-Anomalie wurden ausgeschlossen; es bestehen keine Zeichen einer Herzinsuffizienz und keine supraventrikulären Tachykardien. \n\nHNO-ärztlich zeigten sich in der Bildgebung hypoplastische Bogengänge bei regelrechter Hörschnecke ohne Anhalt für eine inkomplette Partition Typ II. Anamnestisch litten die Ohren unter chronisch rezidivierenden Otitiden. Kraniofazial fallen ein deutlich langes Gesicht, eine auffallend schmale Mundspalte, ein markanter Nasenrücken sowie Narben nach Verschluss einer Lippen-Gaumen-Spalte auf. Eine Retrognathie liegt nicht vor. Ein kongenitaler Hodenhochstand wurde im Kleinkindalter operativ korrigiert; das äußere Genitale zeigt sonst unauffällige Maße ohne Mikropenis. \n\nNeurologisch besteht eine schwere geistige Behinderung in Verbindung mit einer ausgeprägten posturalen Instabilität im Stand. Der Junge besucht eine Förderschule und lebt wohlbehütet im familiären Umfeld. Die Familienanamnese ist bezüglich angeborener Fehlbildungen vollkommen unauffällig, die Vitalparameter präsentierten sich bei der letzten Vorstellung stabil.\n\nÜber Ihre fachliche Einschätzung zu diesem klinischen Gesamtbild würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36553465_P9",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 267,
+  "total_tokens": 2679,
+  "thoughts_tokens": 2044,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 16-year-old young man for an ophthalmic assessment. He is currently an active high school student with no chronic medical complaints and is not on any daily medications. His family history is non-contributory.\n\nOn examination, his best-corrected distance vision is significantly impaired, measuring 20/80 in the right eye and 20/100 in the left. He exhibits prominent, conjugate horizontal pendular involuntary eye movements. Cover-uncover testing showed completely normal ocular alignment, and no strabismus was noted in any gaze. Slit-lamp evaluation demonstrated pale blue irises with remarkable radial transillumination visible on retroillumination. Posterior segment evaluation, supported by optical coherence tomography, revealed underdeveloped central maculae with an absence of the usual foveal depression in both fundi.\n\nOn physical inspection, his scalp hair is unusually light and pale, and both his brows and lashes are milk-white. Dermatologic evaluation of his exposed skin also noted several scattered, benign-appearing pigmented moles on his shoulders and back. His cardiac, respiratory, and neurological checks were entirely unremarkable.\n\nI would value your comprehensive evaluation regarding his visual function and guidance on long-term management.\n\nSincerely,\nDr. Marcus Miller"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_3269",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 447,
+  "completion_tokens": 327,
+  "total_tokens": 2551,
+  "thoughts_tokens": 1777,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate this young boy, who has been followed in our clinic since birth for multiple congenital features. He lives at home with his parents and takes daily vitamin D; family history is unremarkable with non-consanguineous parents.\n\nNeurocranial imaging initially confirmed premature fusion across the coronal sutures. On craniofacial examination, he displays widely spaced orbits, drooping of both upper eyelids, downward-slanting eye openings, and posteriorly rotated, low-positioned auricles. The oral cavity is normal; there is no split in the lip, the palate is intact without any cleft, and the palatal vault is not unusually arched.\n\nThe neck is supple without lateral skin webbing, and his spine is straight without lateral or rotational curvature. The anterior chest shows no inward depression of the sternum. However, he has prominent soft-tissue webs spanning both axillae, and imaging confirmed an abnormally elevated, small scapula on the left. The abdominal wall is intact with no umbilical or inguinal herniation. Genitourinary exam is notable for empty scrotal sacs due to bilaterally undescended testes.\n\nThe extremities show visibly shortened digits, soft-tissue fusion bridging the third and fourth fingers, and medial curvature of both fifth digits. All fingernails show prominent longitudinal ridges. Brain MRI demonstrated complete absence of the corpus callosum. Across all functional domains—gross motor, fine motor, and expressive language—he demonstrates significant and generalized milestone delays.\n\nWe would be very grateful for your comprehensive clinical assessment and guidance on further workup.\n\nSincerely,\n\nDr. Julian Vance"
+}

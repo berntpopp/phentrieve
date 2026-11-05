@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34421895_P1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 268,
+  "total_tokens": 2614,
+  "thoughts_tokens": 1968,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this young female patient in your clinic. Her clinical issues first surfaced around five years of age with complex multilineage cytopenias. Her history is characterized by Coombs-positive red blood cell lysis, autoantibody-driven destruction of platelets, and persistent autoantibody-induced drops in absolute neutrophil counts. \n\nOn physical examination, she demonstrates marked enlargement of the spleen as well as a distinctly palpable, enlarged liver. Her history is notable for multiple infectious complications; she has previously suffered from a dense lung infection, a severe periapical dental collection, multiple bouts of herpes zoster eruptions, and frequent, culture-confirmed bladder infections. Additionally, she has experienced complete shedding of her scalp hair alongside widespread, itchy eczema-like cutaneous lesions. She also requires maintenance inhalers to control reversible bronchial hyperreactivity. \n\nDuring our recent investigation, thorough imaging and nodal review showed no evidence of Hodgkin disease. Her cardiovascular examination was entirely unremarkable, baseline renal function remains normal, and her vital signs were stable during the visit. Her family history is non-contributory, and she continues to live at home with her supportive parents.\n\nGiven the complexity of her multi-system presentations, I would greatly appreciate your assessment and recommendations regarding ongoing management.\n\nSincerely,\nDr. Vance"
+}

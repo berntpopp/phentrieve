@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36779064_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 465,
+  "completion_tokens": 353,
+  "total_tokens": 2426,
+  "thoughts_tokens": 1608,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Ms. Elena Vance, a 50-year-old accountant, for consultation regarding slowly progressive motor difficulties dating back to early childhood, around five years of age. She is a non-smoker, takes only a daily multivitamin, and has a non-contributory family history. \n\nPer her family, maternal gestation was notable for normal fetal movements, and she was born without congenital contractures. She achieved early motor milestones without delay and never developed a toe-walking gait. Her cognitive development was entirely normal. Early on, she struggled to run alongside peers and has experienced progressive trouble climbing stairs. She denies joint pain. \n\nOn examination, cranial nerve testing is completely normal. Neck flexor and extensor strength is intact at 5/5, and her distal limb power is fully preserved. However, she exhibits symmetrical proximal muscle weakness as well as marked axial weakness. During attempted trunk flexion, cephalic displacement of the umbilicus was readily apparent. Bulk in the shoulder girdles and distal calves is preserved without localized atrophy. Deep tendon reflexes are absent throughout all four extremities. Her feet display normal arches without pes cavus, and ankle range of motion is full without contractures.\n\nA standard 12-lead electrocardiogram was normal. Laboratory workup showed a mildly elevated creatine kinase level at 245 U/L. Electromyography demonstrated clear myopathic motor unit potentials. Skeletal muscle biopsy revealed widespread internal nuclei and notable fatty replacement of the tissue, without active muscle fiber necrosis or fiber type grouping. \n\nI would appreciate your expert neuromuscular assessment and guidance regarding further evaluation. \n\nSincerely,  \nDr. Julian Wright, MD  \nGeneral Neurology"
+}

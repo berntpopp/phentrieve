@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_E_II_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 362,
+  "total_tokens": 3196,
+  "thoughts_tokens": 2471,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 13-year-old girl, who was recently referred to our clinic following a routine optometry screening. \n\nOn ophthalmic examination, she demonstrates severe myopic refractive error, requiring corrections of -9.25 D OD and -9.50 D OS. Interestingly, A-scan biometry showed that the axial dimensions of both globes are strictly within normal limits, without pathological elongation. Slit-lamp biomicroscopy is notable for a markedly diminished anterior chamber depth bilaterally. Gonioscopy reveals narrow iridocorneal angles that are entirely free of adhesions or synechial bands. Her intraocular tension is consistently elevated, measuring between 26 and 28 mmHg on repeated applanation. Fundoscopic inspection is reassuring; the optic nerve heads show healthy neuroretinal rims with no expansion of the physiologic cup-to-disc proportions, remaining around 0.2 OU. \n\nOn physical exam, she presents with growth delay, her standing height plotting well below the third percentile. Both hands and feet display noticeably shortened, stubby digits. Furthermore, she exhibits marked articular tightness with restricted range of motion and joint stiffness predominantly involving the wrists, small joints of the hands, and elbows, without signs of synovitis or swelling. \n\nHer medical background is otherwise unremarkable. She performs well in the eighth grade, and her systemic evaluation—including cardiac auscultation and abdominal palpation—was normal. Family history is negative for ocular or skeletal anomalies, and both parents are of average height. \n\nGiven this distinct combination of ocular and musculoskeletal features, I would appreciate your expert opinion regarding an overall assessment and guidance on her ongoing management.\n\nSincerely,\nDr. Laura Bennett, MD"
+}

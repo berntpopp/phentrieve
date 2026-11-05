@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28969374_Family_2G653001_Pt2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 307,
+  "total_tokens": 2551,
+  "thoughts_tokens": 1867,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate Julian, a 16-year-old male who has been under my care for longstanding neurological concerns that first manifested at two months of age. \n\nJulian demonstrated pervasive delays across all early developmental milestones, with pronounced lags in acquiring motor skills. He functions with substantial cognitive deficits. At home, he lives with his parents and an unaffected sibling, and he is supported by a dedicated school aide. His current medications are limited to baclofen, daily vitamin D, and polyethylene glycol as needed.\n\nOn physical examination, Julian shows severely stunted linear growth, with his height plotting far below the 3rd percentile. Cardiac auscultation reveals a regular rhythm without murmurs, his chest is clear bilaterally, and his abdomen is soft without organomegaly. He has prominent gingival hypertrophy. Musculoskeletal evaluation reveals an evident thoracolumbar spinal curvature. He receives his complete daily caloric intake via enteral nutrition delivered through a gastrostomy.\n\nFrom a neurological standpoint, Julian demonstrates generalized spastic hypertonus in the extremities along with episodic dystonic posturing of his arms. Cranial nerve assessment identifies rapid horizontal eye oscillations, and funduscopy reveals noticeably pale optic discs. Despite these optic findings, his visual acuity is intact and preserved. Previous brain magnetic resonance imaging documented deficient central myelination with arrested white matter maturation. \n\nGiven his complex course, I would be grateful for your expert clinical assessment and management recommendations.\n\nSincerely,\nDr. Robert Morris"
+}

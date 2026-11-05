@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_3301",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 429,
+  "completion_tokens": 293,
+  "total_tokens": 2512,
+  "thoughts_tokens": 1790,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating this young boy for multiple congenital features noted at delivery. He is growing well, takes routine infant vitamin D drops, and lives at home with his parents. Family history is non-contributory for congenital anomalies.\n\nCranial vault assessment shows premature fusion along the coronal suture line. On craniofacial examination, he displays widely spaced globes with a pronounced downward slant to the lateral canthi, along with auricles that insert noticeably below the level of the eyes. Drooping of the upper eyelids is not observed. The lip is intact without clefts, and the oral cavity reveals a normally contoured, intact palate free of any clefting or unusually high vaulting. \n\nHis neck appears supple without cutaneous webbing. Bilateral scapular placement is symmetric and normal in height, and the spine remains completely straight without lateral deviation. Thoracic contour is regular without anterior sternal depression, and axillary folds show no webbing. The abdomen is soft, with an intact umbilical ring and completely clear inguinal canals bilaterally. Examination of the hands highlights radial curvature of both fifth digits, though digit length is age-appropriate without stubbiness or shortening, and no webbed fingers are appreciated. Overall neurodevelopment is right on schedule, and he shows no delays in reaching his expected motor or cognitive milestones.\n\nI would welcome your expert assessment and guidance on further management for this patient.\n\nSincerely,\nDr. Marcus Vance"
+}

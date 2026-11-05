@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31213928_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 382,
+  "completion_tokens": 295,
+  "total_tokens": 2120,
+  "thoughts_tokens": 1443,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 15-year-old female who has experienced progressive motor and neurological difficulties since approximately age five. She lives with her parents, attends high school, and has no family history of neurologic or neuromuscular disease. Her only current daily medication is a multivitamin.\n\nHer mother notes that early symptoms included trouble ascending stairs, and on current evaluation, she still requires using her hands against her thighs to rise from the floor. Her ambulation demonstrates a pronounced waddling character. Neurological examination reveals reduced cervical strength against resistance in both neck flexion and extension, and her deep tendon reflexes are universally diminished across all extremities. Oral examination shows prominent lingual volume loss with visible, fine rippling twitches throughout the tongue. Cranial nerves are otherwise normal, with full extraocular motility and symmetric facial movements.\n\nShe has additionally developed brief, shock-like myoclonic jerks in her arms, accompanied by an involuntary tremor seen at rest. Over the past two years, she has also had several unprovoked generalized tonic-clonic convulsions. Sensory examination to pinprick and light touch is completely intact. Routine blood work was non-contributory, showing normal serum creatine kinase activity and an unremarkable circulating lactate dehydrogenase level.\n\nGiven the combination of peripheral weakness, bulbar signs, and paroxysmal movements, I would value your comprehensive evaluation and advice on further diagnostic management.\n\nSincerely,\nDr. Clara Bennett"
+}

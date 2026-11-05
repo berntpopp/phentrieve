@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37723834_family_1_II_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 330,
+  "completion_tokens": 266,
+  "total_tokens": 2165,
+  "thoughts_tokens": 1569,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for evaluating Ms. Vance, a 32-year-old woman referred for expert assessment of long-standing primary subfertility. She and her partner have been actively attempting to conceive for a decade, with difficulties first recognized around age 22.\n\nOver her treatment history, she has completed several assisted reproductive cycles. During these controlled ovarian stimulation procedures, embryology reports have consistently documented that her retrieved oocytes arrest at the metaphase I stage, failing to advance to mature MII gametes. Furthermore, she has experienced repeated implantation failure across multiple embryo transfer attempts, never achieving a biochemical or clinical pregnancy.\n\nHer general and gynecological examinations are entirely unremarkable. She has a normal body mass index, clear cardiopulmonary exam, and normal external and internal pelvic anatomy with no adnexal tenderness. Her routine pelvic imaging shows an unremarkable uterine cavity, and her baseline metabolic panel was unremarkable. She takes a standard over-the-counter prenatal vitamin, does not smoke or consume alcohol, and has no family history of early ovarian compromise or fertility difficulties.\n\nGiven her persistent metaphase I arrest and recurrent failure to achieve implantation, I would be grateful for your comprehensive review and any recommendations you might offer regarding her prognosis and further management.\n\nSincerely,\n\nDr. Clara Evans"
+}

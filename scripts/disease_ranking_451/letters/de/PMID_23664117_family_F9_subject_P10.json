@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23664117_family_F9_subject_P10",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 488,
+  "completion_tokens": 447,
+  "total_tokens": 2888,
+  "thoughts_tokens": 1953,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nzur weiteren differentialdiagnostischen Beurteilung überweise ich Ihnen die siebenjährige Mia. Das Mädchen besucht die zweite Klasse einer Grundschule, die Familienanamnese ist bezüglich erblicher Erkrankungen leer. Die kardiopulmonale Untersuchung sowie die Vitalparameter zeigten sich altersentsprechend unauffällig.\n\nKörperlich fällt ein abgeflachtes Mittelgesicht mit deutlicher Stirnprominenz, leicht hervortretenden Bulbi und zartblauen Skleren auf. Das Kopfhaar wirkt schütter und fein. Zudem besteht eine verlängerte Oberlippenpartie bei regelrechtem Gaumen ohne Spaltbildung; eine Mikrognathie liegt nicht vor. Das Hautkolorit ist unauffällig, die Haut selbst präsentiert sich jedoch außergewöhnlich weich, teigig, deutlich überdehnbar und stellenweise schlaff herabhängend. \n\nEs besteht eine generalisierte Muskelhypotonie. Neben einer ausgeprägten Überbeweglichkeit der großen Gelenke sowie der Fingergelenke imponieren spatelartig geformte Daumen sowie Kontrakturen im Handbereich. Die Ellenbogengelenke zeigen eine beidseitige Bewegungseinschränkung. Röntgenologisch stellen sich die Metakarpalia regelrecht lang dar, Synostosen der Handwurzelknochen oder eine akzelerierte Verknöcherung der Karpalia finden sich nicht. \n\nDie Wirbelsäule zeigt eine ausgeprägte Kyphoskoliose mit radiologisch verifizierter Abflachung der Wirbelkörper und ventralen Schnabelbildungen. Im Bereich der unteren Extremität besteht ein Zustand nach Hüftluxation bei beidseits auffällig vergrößerten Trochanteren und hypoplastischem Corpus ossis ilii; eine Dysplasie der Femurköpfe ist hingegen nicht nachweisbar. Die Metaphysen der langen Röhrenknochen sind schlank und zeigen keine Aufweitungen. Zudem besteht ein Klumpfuß.\n\nIch bitte um Ihre konsiliarische Einschätzung zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

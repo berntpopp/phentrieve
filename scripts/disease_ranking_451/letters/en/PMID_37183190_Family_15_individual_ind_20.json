@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37183190_Family_15_individual_ind_20",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 545,
+  "completion_tokens": 416,
+  "total_tokens": 4443,
+  "thoughts_tokens": 3482,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate Julian, a 7-year-6-month-old boy whom I have followed since his presentation at 2 years 7 months of age. \n\nJulian has profound cognitive impairment along with global delays affecting all major early milestones. His expressive and receptive communication is especially delayed, with minimal verbal output. On physical examination, he demonstrates persistent generalized low muscle tone. Over the years, he has experienced both generalized convulsive tonic-clonic seizures and discrete episodes of sustained tonic stiffening. He has never had focal-onset seizures or atonic drop attacks. Serial routine and sleep-deprived EEGs have shown no abnormalities. \n\nCranial MRI revealed no reduction in cerebral white matter volume, no intraventricular hemorrhage, and no cerebral or cerebellar vermis atrophy. The corpus callosum is neither thick nor thin. On exam, Julian displays no ataxia, dystonia, or episodes of hyperventilation. He is socially pleasant, maintaining appropriate eye contact with no aggressive behavior. \n\nHe exhibits no coarse facial features. His forehead is neither broad nor prominent, his anterior hairline is not low, and there is no synophrys. His eyes show no epicanthus or upslanted palpebral fissures, and his eyelashes are not unusually long. Ear examination shows no macrotia or large earlobes. His nasal tip is not bulbous, and the columella is neither short nor low-hanging. His philtrum is not short, the mouth is not wide, and the upper lip vermilion is neither thin nor tented. Intraoral exam reveals no high palate, a non-protruding tongue, and normally proportioned teeth without microdontia or widely spaced teeth. There is no mandibular prognathia.\n\nHis cardiopulmonary and abdominal examinations are entirely normal. Family history is negative for early neurological disease, and he is currently maintained on levetiracetam. I would appreciate your specialized assessment and diagnostic guidance.\n\nSincerely,  \nDr. Eleanor Davis"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24073597_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 389,
+  "total_tokens": 2212,
+  "thoughts_tokens": 1485,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich überweise Ihnen heute den 11-jährigen Felix Schneider, der sich in Begleitung seiner Mutter in meiner Sprechstunde vorstellte. Erste visuelle Auffälligkeiten wurden anamnestisch bereits im Alter von 4 Jahren bemerkt.\n\nAktuell zeigt sich unverändert eine herabgesetzte Sehschärfe; der bestkorrigierte Visus liegt rechts bei 0,5 sowie links bei 0,4. Bei der Spaltlampenuntersuchung fallen beidseits vergrößerte Hornhautdurchmesser auf, horizontal jeweils mit 13,5 mm vermessen. Die berührungsfreie Pachymetrie dokumentiert zudem eine deutliche Verdünnung des Hornhautgewebes mit zentralen Werten von rechts 420 µm und links 425 µm. Des Weiteren stellt sich die Vorderkammer an beiden Augen ausgesprochen tief dar. \n\nDer Augeninnendruck war bei der heutigen Applanationstonometrie mit 14 mmHg beidseits unauffällig, pathologische Druckwerte lagen zu keinem Zeitpunkt vor. Die Hornhäute sind klar und spiegelnd, ohne Rupturen der Descemet-Membran. Die Linsen sind beidseits transparent und regelrecht zentriert. Funduskopisch zeigen sich vitale, randscharfe Papillen ohne Exkavation sowie eine unauffällige Makula.\n\nFelix besucht derzeit die 5. Klasse einer Realschule. Es bestehen keine sonstigen Vorerkrankungen, eine Dauermedikation wird verneint. Auch die ophthalmologische Familienanamnese ist vollkommen leer. \n\nIch bitte um Ihre geschätzte konsiliarische Mitbeurteilung und eine differentialdiagnostische Einschätzung der Befunde. \n\nMit freundlichen Grüßen"
+}

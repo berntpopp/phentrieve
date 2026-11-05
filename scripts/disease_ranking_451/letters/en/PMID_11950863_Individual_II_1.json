@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11950863_Individual_II_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 331,
+  "total_tokens": 4121,
+  "thoughts_tokens": 3359,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davies,\n\nThank you for seeing Ms. Karen Patel, a 50-year-old administrative assistant who presents for evaluation of longstanding facial and oral variations. Her medical background is otherwise unremarkable; she takes only a daily multivitamin, and she denies any history of convulsive episodes.\n\nOn examination, she stands at an average height of 165 cm, and her craniofacial contours are completely symmetric. Clinical inspection reveals marked flatness across the zygomatic regions, a widened inner canthal distance, and hypoplastic lateral nasal wings. Her forehead is smooth without any midline frontal crest or metopic keeling. Examination of the perioral tissues demonstrates a strikingly narrow upper vermilion featuring a central indentation resembling a false cleft. Intraoral inspection shows a distinct notch in the midline of her maxillary alveolar crest, and historical dental records confirm congenitally missing secondary dentition. Her tongue has a multi-lobed architecture, though it is not split down the center and lacks any hamartomatous nodules along the mucosal surface. Her palatal vault is intact without any fissure or split, and there are no extra or duplicated labial or buccal frenula.\n\nHer skin is smooth and free of small epidermoid inclusions. She demonstrates normal cognitive capacity, having earned a degree in business administration. Her extremities are fully formed, with no fused webbing of the digits and normal length of the fourth metatarsal bones bilaterally. A baseline renal ultrasound demonstrated no evidence of polycystic change or parenchymal dysplasia.\n\nI would be very grateful for your comprehensive clinical assessment of her overall presentation.\n\nSincerely,\nDr. Rachel Mercer"
+}

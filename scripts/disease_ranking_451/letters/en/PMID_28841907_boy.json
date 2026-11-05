@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28841907_boy",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 336,
+  "total_tokens": 2905,
+  "thoughts_tokens": 2147,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to evaluate this two-year-old boy, whose congenital anomalies have been evident since birth. He lives with his parents and older sister, and his family history is non-contributory. \n\nIn the delivery room, he was noted to have features consistent with the classic Robin complex, including marked mandibular hypoplasia. Closer inspection of his oral cavity confirms a submucous palatal defect. His facial morphology is further notable for a flattened nasal root with upturned nostrils, hypoplasia of the midface, low-implanted auricles, and widely spaced eyes with anteriorly prominent globes. Pediatric ophthalmology recently evaluated him for a noticeable white pupillary reflex and confirmed bilateral lens opacities.\n\nHis physical growth is notably compromised, with his height remaining far below the third percentile. On musculoskeletal examination, he demonstrates restricted range of motion with an inability to achieve full flexion at either elbow. Plain radiographs demonstrate significant thickening of the skull vault as well as delayed appearance of the capital femoral ossification centers bilaterally. In terms of his neurodevelopment, expressive and receptive communication milestones are severely delayed, although his motor skills are relatively preserved. Neurologic tone is normal with no central or peripheral hypotonia, and he shows no excessive joint laxity or indications of joint pain. A screening echocardiogram was normal, confirming no prolapse of the mitral valve leaflets, and his baseline renal imaging was completely unremarkable. He is currently on no daily medications other than an over-the-counter multivitamin.\n\nI would be grateful for your comprehensive assessment regarding these multisystem findings. \n\nSincerely,\nDr. Robert Callahan"
+}

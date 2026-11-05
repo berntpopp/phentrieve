@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37963460_Family_5_individual_II_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 633,
+  "completion_tokens": 441,
+  "total_tokens": 4719,
+  "thoughts_tokens": 3645,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 9-year-old girl with multisystem developmental and growth concerns. She resides at home with her family and receives support in a specialized educational setting.\n\nHer prenatal history was unremarkable for amniotic fluid volume abnormalities, lacking either oligohydramnios or polyhydramnios, and she was not small for gestational age. Currently, her linear growth and weight remain depressed well below the third percentile, although her head circumference is maintained within normal limits without microcephaly. On examination, she exhibits fine scalp hair, widely spaced eyes, and horizontal palpebral fissures without epicanthal folds, upslant, or downslant. Her nasal bridge is low rather than prominent. Her ears are low-set and prominent, but free of microtia, anteversion, auditory canal stenosis, widened antihelical crura, or lobule creases. Oral assessment demonstrates an intact, highly arched palate with uncrowded dentition. The philtrum is short with preserved ridges rather than flat, and the upper lip vermilion is neither tented nor unusually thick.\n\nFrom infancy, she experienced significant feeding difficulties alongside generalized hypotonia. Early motor progression was delayed, and she continues to present with global developmental delay. Psychometric evaluation indicates a moderate, rather than severe, degree of intellectual disability; although speech is not absent, expressive language is markedly delayed. Her behavioral profile features hyperactivity, autistic features, rhythmic motor stereotypies, and chronic sleep-wake disruption, without any aggressive tendencies or seizure activity.\n\nNeuroimaging previously demonstrated a thin, hypoplastic corpus callosum without complete agenesis, accompanied by normal cortical gyral patterns and an absence of ventriculomegaly or colpocephaly. Echocardiography was normal, showing no atrial or ventricular septal defects, atrioventricular canal defects, patent ductus arteriosus, or mitral regurgitation. Formal audiometry and ophthalmology consultations excluded sensorineural hearing loss and strabismus. Renal ultrasound showed no hydronephrosis, and she has a normally formed, patent anus. \n\nI would appreciate your expert opinion regarding further diagnostic assessment.\n\nSincerely,\nDr. Julian Vance"
+}

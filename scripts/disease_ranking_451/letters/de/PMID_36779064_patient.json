@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36779064_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 465,
+  "completion_tokens": 518,
+  "total_tokens": 2965,
+  "thoughts_tokens": 1982,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung unserer 50-jährigen Patientin. Erste Auffälligkeiten traten retrospektiv bereits im fünften Lebensjahr auf; die frühe motorische Meilensteinentwicklung war zuvor jedoch unauffällig verlaufen, und auch die intrauterinen Kindsbewegungen wurden anamnestisch als vollkommen zeitgerecht beschrieben. Eine kognitive Beeinträchtigung liegt nicht vor, die Patientin steht voll im Berufsleben.\n\nAktuell berichtet sie über eine progrediente Erschöpfung beim Gehen. Das Treppensteigen bereitet ihr erhebliche Mühe, und Rennen ist ihr seit langem nicht mehr möglich. Bei der Untersuchung imponiert eine deutliche Schwäche der proximalen Muskelgruppen an oberen und unteren Extremitäten sowie der axialen Muskulatur. Beim Versuch, sich aus der Rückenlage aufzusetzen, weicht der Bauchnabel typischerweise nach kranial ab (positives Beevor-Phänomen). Die Nackenmuskeln weisen hingegen eine regelrechte Kraft auf, und die distale Muskelkraft ist seitengleich voll erhalten. Auffällige Atrophien im Schultergürtelbereich oder an den Unterschenkeln sind nicht nachweisbar. Die Muskeleigenreflexe sind generalisiert erloschen. Ein Zehenspitzengang oder Hohlfüße bestehen nicht, die oberen Sprunggelenke zeigen sich frei beweglich ohne Kontrakturen. Die Hirnnerven sind funktionell intakt. Arthralgien werden verneint, Hinweise auf angeborene multiple Gelenkkontrakturen ergaben sich nie.\n\nIm Labor fand sich eine diskrete CK-Erhöhung auf 210 U/l. Das Ruhe-EKG war unauffällig. Die Elektromyographie wies eindeutige myopathische Veränderungen nach. Bildgebend zeigte sich im MRT ein diffuser fettiger Umbau der Skelettmuskulatur. In einer extern veranlassten Muskelbiopsie ließen sich vermehrt zentralständige Kerne darstellen, während Fasernekrosen und Fasertypengruppierungen fehlten.\n\nAußer einer gelegentlichen Einnahme von Magnesium besteht keine Dauermedikation, die Familienanamnese ist leer. Ich danke Ihnen für die konsiliarische Einschätzung und Ihre Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

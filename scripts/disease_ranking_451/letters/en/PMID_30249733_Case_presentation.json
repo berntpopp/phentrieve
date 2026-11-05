@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30249733_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 314,
+  "total_tokens": 2836,
+  "thoughts_tokens": 2123,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing Julian, a 3-year-old boy whom I have followed since birth for complex developmental and physical concerns. He is the first child of healthy, non-consanguineous parents. His family history is non-contributory, and his growth parameters currently plot along the 50th percentile. Cardiac auscultation is normal, and routine chemistry panels have been unrevealing.\n\nJulian exhibits a marked delay in achieving his gross motor milestones; he sat late and currently requires assistance to take steps. Neurologically, he presents with generalized low muscular tone, complemented by widespread articular hyperlaxity throughout his extremities and pronounced cutaneous hyperelasticity. His hands demonstrate thumbs held persistently flexed across the palms, and he was born with bilateral clubfoot, which underwent serial orthotic management.\n\nHis cranial and facial features include a broadened distance between the eyes, downward-slanting palpebral apertures, and eyebrows that meet across the bridge of the nose. His ears are set noticeably low, and on profile he shows deeply accentuated grooves running between the nose and mouth, a slender upper vermilion border, and a highly vaulted palatal arch. \n\nIn addition, an abdominal ultrasound performed in infancy identified renal pelvicalyceal dilatation, and genital examination confirms undescended testes bilaterally. \n\nGiven Julian’s multi-system congenital findings, I would value your formal assessment and recommendations for further diagnostic evaluation. \n\nSincerely,  \nDr. Arthur Vance  \nPediatric Care Associates"
+}

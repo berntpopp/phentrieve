@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25802881_P24",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 432,
+  "total_tokens": 2112,
+  "thoughts_tokens": 1342,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich überweise Ihnen heute die 32-jährige Patientin Frau Sarah Weber zur konsiliarischen Mitbeurteilung.\n\nDie Vorstellung erfolgte primär im Rahmen einer präventiven Routineuntersuchung. Klinisch ist die Patientin aktuell völlig beschwerdefrei. In der körperlichen Untersuchung zeigten sich altersentsprechend unauffällige Befunde bei regelrechtem kardiopulmonalem Status und normotonen Blutdruckwerten von 118/74 mmHg. Eine Dauermedikation besteht nicht, Vorerkrankungen sind nicht bekannt und die Familienanamnese ist bezüglich chronischer Leiden leer.\n\nLaborchemisch zeigte sich jedoch wiederholt eine isolierte Abweichung im Mineralhaushalt: Das anorganische Phosphat im Serum war mit 1,98 mmol/l deutlich über die obere Referenzgrenze angehoben, was sich auch in einer zeitnahen Kontrollmessung bestätigte.\n\nAuffälligkeiten der zirkulierenden Kalziumkonzentration ließen sich dabei nicht nachweisen; die Messwerte lagen mit einem Gesamtkalzium von 2,34 mmol/l stabil im mittleren Normbereich. Das intakte Parathormon war weder supprimiert noch pathologisch erhöht, sondern zeigte sich mit 34 pg/ml vollkommen unauffällig. Die Nierenretentionsparameter waren mit einem Serumkreatinin von 0,8 mg/dl und einer eGFR von über 90 ml/min intakt, und auch das übrige Basislabor inklusive Blutbild, Elektrolyten und Vitamin-D-Spiegel erbrachte regelrechte Ergebnisse.\n\nAufgrund der persistierenden Erhöhung des Serumphosphats bei ansonsten unauffälliger Konstellation bitte ich Sie um eine weiterführende spezialisierte Abklärung und Ihre geschätzte Einschätzung zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Becker\nFacharzt für Allgemeinmedizin"
+}

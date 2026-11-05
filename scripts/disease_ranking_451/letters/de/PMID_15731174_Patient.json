@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15731174_Patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 433,
+  "completion_tokens": 406,
+  "total_tokens": 2606,
+  "thoughts_tokens": 1767,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 10 Monate alten Jungen zur dringenden Mitbeurteilung. Das Kind entwickelte sich nach unauffälliger Schwangerschaft zunächst unauffällig, bis ab dem fünften Lebensmonat schwere Komplikationen auftraten. Unter anderem durchlebte er eine lebensbedrohliche septische Episode sowie eine ausgeprägte BCGitis im Bereich der Impfstelle.\n\nKlinisch imponiert eine ausgeprägte generalisierte Vergrößerung der peripheren Lymphknoten sowie eine deutliche Hepatosplenomegalie. Das Integument zeigt eine schwere ekzematöse Dermatitis mit diffuser Schuppung der Haut und multiplen roten Papeln. Auffällig ist zudem ein vollständiger Haarausfall am Capillitium; auch Wimpern und Augenbrauen fehlen vollständig. Die kardiopulmonale Untersuchung verlief regelrecht, der Junge ist derzeit afebril. \n\nIm Routinelabor fiel eine erhebliche Eosinophilie auf. Die Nieren- und Leberwerte waren im Normbereich. Die immunologische Diagnostik erbrachte stark erniedrigte Serumspiegel für IgG und IgM, während die Gesamt-IgE-Konzentration massiv erhöht ist. Der IgA-Titer war hingegen vollkommen unauffällig. In der Durchflusszytometrie ließen sich im peripheren Blut keinerlei B-Lymphozyten nachweisen. Die CD4/CD8-Ratio zeigte sich invertiert. Zudem besteht eine quantitative Verminderung der natürlichen Killerzellen, wenngleich sich deren funktionelle Zytotoxizität unbeeinträchtigt zeigte.\n\nDie Familienanamnese ist bezüglich relevanter Vorerkrankungen leer, die Eltern sind nicht konsanguin. Wir bitten um Ihre geschätzte konsiliarische Beurteilung und Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen Grüßen"
+}

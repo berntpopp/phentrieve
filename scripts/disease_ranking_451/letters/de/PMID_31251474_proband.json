@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31251474_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 440,
+  "total_tokens": 3975,
+  "thoughts_tokens": 3104,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute achtjährigen Lukas zur weiteren diagnostischen Beurteilung. Erste auffällige Symptome zeigten sich bei dem Jungen im Alter von etwa fünf Monaten.\n\nLukas bietet das Bild eines schweren globalen Entwicklungsrückstands; ein freies Sitzen gelang ihm beispielsweise erst massiv verspätet. Klinisch imponieren eine ausgeprägte Haltungsschwäche mit schlaffem Rumpftonus, begleitende dystone Hyperkinesien an den Extremitäten sowie ein ständiger, unkontrollierter Speichelfluss. Bei den somatischen Parametern besteht ein chronisches Gedeihdefizit mit Körpermaßen weit unterhalb der Altersnorm, passend dazu liegt auch der Schädelumfang deutlich unter der dritten Perzentile. Bei der fachärztlichen Untersuchung wurde beidseits ein Sehnervenschwund festgestellt, zudem besteht ein sensorineurales Hördefizit.\n\nIm Labor fielen mehrfach Episoden mit erniedrigter Blutglukose sowie eine metabolische Azidose mit stark erhöhtem Laktatwert auf. Die Organosäurendiagnostik im Urin erbrachte wiederholt deutlich vermehrte Ausscheidungen von 3-Methylglutaconsäure und 3-Methylglutarsäure. Elektrolyte, Transaminasen und Nierenretentionsparameter waren stets normwertig. Die Familienanamnese bezüglich neurologischer Erkrankungen ist leer.\n\nDas durchgeführte Schädel-MRT zeigte einen generalisierten Hirnsubstanzverlust mit Betonung der Großhirnrinde sowie des subkortikalen Marklagers. Zudem fielen deutliche T2-Hypointensitäten der Basalganglien auf. In der MR-Spektroskopie ließen sich ein vermindertes N-Acetylaspartat-Signal sowie ein abnormer Laktatpeak im Hirngewebe nachweisen. \n\nIch danke Ihnen für die stationäre Mitbeurteilung des Patienten und Ihre geschätzte Empfehlung zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

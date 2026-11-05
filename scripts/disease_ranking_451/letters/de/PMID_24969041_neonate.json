@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24969041_neonate",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 418,
+  "total_tokens": 1920,
+  "thoughts_tokens": 1158,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute den kleinen Felix, einen 11 Tage alten Knaben, zur stationären Übernahme und weiteren diagnostischen Abklärung. Felix wurde reif nach einer unkomplizierten Schwangerschaft spontan entbunden. Das Geburtsgewicht betrug 3420 g, der APGAR lag bei 9/10 und die Familienanamnese ist bezüglich neurologischer Erkrankungen unauffällig.\n\nBereits am ersten Lebenstag imponierte eine ausgeprägte muskuläre Hypertonie aller vier Extremitäten mit auffallend steifer Haltung. Zudem zeigt der Säugling eine extreme Schreckhaftigkeit; schon auf leise akustische Reize oder sanfte Berührungen der Glabella reagiert er prompt mit generalisierten, heftigen Zuckungen. Ergänzend fallen immer wieder unwillkürliche, fahrige Bewegungsabläufe auf, die wir als dyskinetisch einordnen. \n\nAm vierten Lebenstag kam es ohne vorherige invasive Beatmung oder bekanntes Trauma zu einem spontanen Pneumothorax der rechten Seite, welcher mittels Pleuradrainage versorgt werden musste. Der Befund hat sich inzwischen radiologisch vollständig zurückgebildet. \n\nDie bisherige Routinediagnostik erbrachte unauffällige Entzündungswerte, stabile Blutzuckerwerte und regelrechte Serumelektrolyte. Eine kranielle Magnetresonanztomographie zeigte eine regelrechte ZNS-Morphologie ohne jegliche strukturelle Auffälligkeiten oder Hinweis auf ischämische Areale. Das Neugeborenenscreening und das automatisierte Hörscreening waren regelrecht. \n\nDa die erhebliche Tonuserhöhung und die pathologische Reizbarkeit unverändert fortbestehen, bitten wir um Ihre geschätzte neuropädiatrische Beurteilung und Empfehlungen zum weiteren Prozedere. \n\nMit freundlichen kollegialen Grüßen\nDr. med. Martin Stein"
+}

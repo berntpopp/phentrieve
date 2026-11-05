@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22258530_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 402,
+  "total_tokens": 2003,
+  "thoughts_tokens": 1234,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\n\nich überweise Ihnen heute den mittlerweile elfjährigen Felix zur neuropädiatrischen Mitbeurteilung. \n\nFelix fiel den Eltern bereits im ersten Lebenshalbjahr durch erhebliche Rückstände in sämtlichen Meilensteinen auf; es liegt eine tiefgreifende Verzögerung der globalen Entwicklung vor. Ein aktiver Spracherwerb blieb bis zum heutigen Tag vollständig aus, lautsprachliche Äußerungen fehlen gänzlich. Im Rahmen der körperlichen Untersuchung zeigt sich unverändert eine deutliche axiale und periphere Muskelhypotonie. Der Kopfumfang liegt mit 53 cm stabil auf der 40. Perzentile, eine Mikrozephalie lässt sich somit klar ausschließen. Die internistische Untersuchung einschließlich Visus und Hörvermögen ist unauffällig, die Familienanamnese bezüglich neurologischer Auffälligkeiten bland.\n\nEpileptologisch imponieren seit dem Kleinkindalter rezidivierende generalisierte tonisch-klonische Krampfanfälle. Zusätzlich treten im Alltag gehäuft kurze Momente der Abwesenheit mit Blickarretierung im Sinne typischer Absencen auf. Rein tonische Anfallsmuster konnten in den bisherigen Beobachtungen und Video-EEG-Ableitungen hingegen nie verzeichnet werden. Felix ist aktuell auf Levetiracetam eingestellt.\n\nIn der rezenten kranialen Kernspintomographie fand sich neben einer progredienten zerebellären Atrophie auch eine deutliche Degeneration mit Volumenverlust im Bereich des Hirnstamms, supratentoriell zeigten sich keine akuten Läsionen.\n\nÜber Ihre geschätzte konsiliarische Einschätzung zum weiteren differentialdiagnostischen Vorgehen bei Felix würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Lindner\nFacharzt für Kinder- und Jugendmedizin"
+}

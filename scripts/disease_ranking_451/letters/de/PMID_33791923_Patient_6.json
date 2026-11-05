@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33791923_Patient_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 407,
+  "completion_tokens": 508,
+  "total_tokens": 2860,
+  "thoughts_tokens": 1945,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nwir verlegen Ihnen heute ein fünf Tage altes Mädchen zur dringenden konsiliarischen Mitbeurteilung und weiterführenden Diagnostik.\n\nDas Kind wurde nach unauffälliger Schwangerschaft am Termin geboren (Geburtsgewicht 3120 g, Apgar 8/9/10). Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, die Eltern sind nicht blutsverwandt. Ab dem zweiten Lebenstag zeigte die Patientin ein akut progredientes Krankheitsbild. Zunächst bestanden eine ausgeprägte Trinkschwäche mit kaum auslösbarem Saugreflex sowie rezidivierendes Erbrechen. Abdominell tastete sich ein weicher Bauch; sonographisch sicherte sich ein deutlich hypertrophierter Pylorus im Sinne einer Pylorusstenose. \n\nZudem traten rezidivierende epileptische Anfälle auf, und im EEG zeigte sich ein ausgeprägtes Burst-Suppression-Muster. Aufgrund einer respiratorischen Insuffizienz mit rezidivierenden Apnoen musste das Mädchen endotracheal intubiert werden und wird seither assistiert beatmet. \n\nIm internen und neurologischen Status fällt ein globales Entwicklungsdefizit auf. Das Kind bietet eine schwere axiale Muskelhypotonie bei gleichzeitig gesteigerten Muskeleigenreflexen an allen vier Extremitäten. Äußerlich imponieren ein deutlich reduzierter Kopfumfang unterhalb der dritten Perzentile sowie ein kleiner, fliehender Unterkiefer. Kardiopulmonal zeigte sich echokardiographisch ein noch offenes Foramen ovale bei ansonsten regelrechtem anatomischem Herzbefund. \n\nIn der zerebralen Bildgebung fand sich eine Dysplasie des Corpus callosum neben einer unzureichenden zerebralen Myelinisierung. Eine Ventrikulomegalie lag nicht vor, auch Zeichen eines Hydrozephalus konnten computertomographisch und kernspintomographisch ausgeschlossen werden. \n\nDie Stoffwechseldiagnostik ergab eine markante Hyperglyzinämie im Serum sowie parallel dazu eine signifikant erhöhte Glyzinkonzentration im Liquor. Die Patientin erhält derzeit Phenobarbital und eine balancierte Infusionstherapie.\n\nWir bitten um Ihre geschätzte differentialdiagnostische Einschätzung und Festlegung des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 404,
+  "total_tokens": 2339,
+  "thoughts_tokens": 1584,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen Herrn Tobias Becker, 33 Jahre alt, zur konsiliarischen Abklärung eines seit der Kindheit bestehenden, langsam fortschreitenden neurologischen Beschwerdebildes. Erste motorische Auffälligkeiten fielen den Eltern bereits um das sechste Lebensjahr herum auf.\n\nKlinisch imponiert gegenwärtig ein deutlich schwankendes, breitbasiges Gangbild in Kombination mit ausgeprägten Zielleistungsstörungen bei den Zeigeversuchen an beiden Armen. An den Händen und Fingern lässt sich zudem beidseits eine langsame, unwillkürliche, windende Bewegungsunruhe beobachten. Die Sprache wirkt verwaschen, undeutlich und mühsam moduliert. Bei der Untersuchung der Augenbewegungen fällt ein ausgeprägtes Defizit der willkürlichen Vertikalmotilität auf, während reflektorische Vertikalbewegungen über das Puppenkopfphänomen regelrecht auslösbar sind. Sämtliche Muskeleigenreflexe an den oberen und unteren Extremitäten sind symmetrisch nur noch äußerst schwach bahnbar. Sensibilität und Muskelkraft sind seitengleich intakt.\n\nDie laborchemische Basisdiagnostik erbrachte unauffällige Entzündungswerte, Elektrolyte und Nierenretentionsparameter. Das Serumalbumin lag vollkommen im Referenzbereich, und auch das Lipidprofil zeigte keine erhöhten Cholesterinwerte. Blutdruck und Puls waren normwertig, die kardiopulmonale Untersuchung ohne pathologischen Befund. Familiär gibt es keine bekannten neurologischen Vorerkrankungen; der Patient lebt in einer festen Partnerschaft und arbeitet im kaufmännischen Bereich. \n\nÜber Ihre neurologische Expertise bezüglich des weiteren Vorgehens würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Stefan Lindner"
+}

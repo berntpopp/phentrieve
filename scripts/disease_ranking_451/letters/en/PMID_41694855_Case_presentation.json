@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41694855_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 292,
+  "total_tokens": 2406,
+  "thoughts_tokens": 1744,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing Clara Higgins, a four-year-old girl presenting for evaluation of progressive neurovisceral symptoms that first became apparent around age two. Her parents initially noted a gradual loss of previously mastered language and motor skills. Over the subsequent months, she developed an uncoordinated, broad-based gait alongside sudden, shock-like muscle jerks. More recently, she experienced two generalized convulsive episodes characterized by bilateral stiffening and rhythmic jerking. Her ocular motility is distinctly abnormal, marked by an inability to voluntarily initiate horizontal saccades without using compensatory head thrusts.\n\nOn physical exam, Clara is pleasant and interactive. Her heart sounds are regular, lung fields are clear, and her liver is not enlarged. Abdominal palpation, however, reveals a distinctly enlarged spleen extending roughly 4 cm beneath the left costal margin. She was delivered at term after an uncomplicated gestation, family history is non-contributory, and she resides with both parents. Her only current daily medication is levetiracetam.\n\nRecent blood work revealed a depressed hemoglobin concentration alongside a reduced total white blood cell count; her platelet count was normal. A marrow aspirate subsequently identified abundant, lipid-engorged macrophages displaying a characteristic crinkled tissue paper cytoplasmic appearance.\n\nI would deeply appreciate your expert evaluation and guidance regarding further diagnostic investigations and management for Clara. \n\nSincerely, \nDr. Laura Bennett, MD"
+}

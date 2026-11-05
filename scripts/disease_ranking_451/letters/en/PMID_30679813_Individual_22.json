@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_22",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 516,
+  "completion_tokens": 391,
+  "total_tokens": 2861,
+  "thoughts_tokens": 1954,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Lucas, a 12-year-old boy referred for clinical evaluation. His mother describes a generalized delay in achieving early motor and cognitive milestones, as well as longstanding feeding difficulties that complicated his infancy and early childhood. He currently attends supportive schooling, lives at home, and takes no regular prescription medications.\n\nOn physical examination, his stature, weight, and cranial circumference are along the 50th centile, with no short stature, overweight, or microcephaly. Craniofacial inspection reveals an upward slant of the palpebral fissures, a flattened, smooth philtrum, and a noticeably slender upper lip vermilion. The philtrum itself is neither unusually short, elongated, nor broad. The lower lip lacks eversion, and the oral aperture is not narrowed. Nasal morphology is unremarkable, lacking a widened nasal bridge, convex ridge, bulbous tip, upturned nostrils, or hypoplastic alae. His cranium shows no brachycephalic contour, and ear placement is anatomically normal. Ocular assessment demonstrates normal intercanthal distances without widely or closely spaced eyes, and there is no evidence of ptosis, epicanthic folds, unusually long palpebral fissures, elongated eyelashes, enophthalmos, or strabismus.\n\nNeurologically, Lucas exhibits normal muscle tone without hypotonia, and he has never experienced a seizure. Prior brain imaging confirmed standard ventricular calibers without ventriculomegaly. Musculoskeletal review is notable for typical digit morphology without tapering, and there is no joint hypermobility. Behaviorally, he is pleasant and interactive, showing no autistic mannerisms, anxiety, short attention span, hyperactive restlessness, or aggressive outbursts, and he experiences no sleep disturbances. Routine chest and abdominal examinations were normal.\n\nI would appreciate your detailed assessment to help guide further care for Lucas and his family.\n\nSincerely,\n\nDr. Julian Sterling"
+}

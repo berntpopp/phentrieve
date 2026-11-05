@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23335590_Subject_4021",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 447,
+  "completion_tokens": 427,
+  "total_tokens": 2971,
+  "thoughts_tokens": 2097,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre konsiliarische Mitbeurteilung unseres jungen Patienten zur ätiologischen Einordnung eines komplexen Fehlbildungsmusters. Die Auffälligkeiten bestehen bereits seit der Geburt. Die Familienanamnese ist bezüglich genetischer Erkrankungen leer, die Eltern sind gesund und nicht blutsverwandt. Eine Dauermedikation besteht nicht.\n\nKraniofazial imponieren eine vorzeitige Synostose der Koronarnähte, weit auseinanderstehende Bulbi, nach außen-unten abfallende Lidachsen sowie eine Ptosis der Oberlider. Die Ohren setzen tief an. Die Mundhöhle zeigt einen hoch aufgeworfenen Gaumenbogen, wobei eine Lippen- oder Gaumenspalte ausgeschlossen werden konnte. \n\nAm Skelettsystem fällt ein anatomischer Schulterblatthochstand auf. Pterygien im Bereich der Axillen sowie ein Pterygium colli fehlen. Der Thorax ist seitengleich belüftet und weist keine Trichterbrust auf, die Wirbelsäule zeigt keine Skoliose. Abdominell besteht eine Leistenhernie bei unauffälliger Nabelregion ohne Herniation. Zudem liegt ein beidseitiger Hodenhochstand vor.\n\nAn den Händen und Füßen imponieren deutlich verkürzte Phalangen mit partiellen Weichteilsyndaktylien. Sämtliche Nagelplatten weisen eine ausgeprägte Längsrillung auf. Eine Klinodaktylie des fünften Strahls ist beidseits nicht nachweisbar. \n\nIm kranialen MRT zeigte sich eine Agenesie des Corpus callosum. Klinisch präsentiert sich der Junge mit einer ausgeprägten globalen Entwicklungsverzögerung sowohl im motorischen als auch im sprachlichen Bereich. Das orientierende Hörscreening und die ophthalmologische Routinekontrolle waren unauffällig.\n\nÜber Ihre geschätzte Einschätzung bezüglich des weiteren diagnostischen Vorgehens freuen wir uns. \n\nMit freundlichen Grüßen"
+}

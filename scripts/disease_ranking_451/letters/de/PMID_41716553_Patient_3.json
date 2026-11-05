@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 425,
+  "completion_tokens": 433,
+  "total_tokens": 2889,
+  "thoughts_tokens": 2031,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Lieber Kollege,\n\nich überweise Ihnen heute die 6 Jahre und 2 Monate alte Mia zur konsiliarischen Beurteilung. \n\nDie Eltern bemerkten erste Entwicklungsauffälligkeiten im Alter von etwa 9 Monaten. Das Mädchen kam als SGA-Neugeborenes termingerecht zur Welt. In der Folge zeigte sich eine deutliche Verzögerung sämtlicher Meilensteine: Das selbstständige Drehen von Bauch auf Rücken wurde erst mit 14 Monaten erlernt, das freie Laufen gelang mit knapp drei Jahren. Es besteht eine ausgeprägte Sprachentwicklungsverzögerung mit derzeitigem Wortschatz von lediglich etwa zehn Worten, eingebettet in eine globale Entwicklungsverzögerung und manifeste Intelligenzminderung.\n\nPhänotypisch imponieren eine breite sowie deutlich vorgewölbte Stirnpartie, eine eingesunkene Nasenwurzel, ein auffallend langes Philtrum und ein sehr schmales Lippenrot. Die Ohren sind ungewöhnlich groß. Zudem besteht ein manifester Strabismus convergens. Ein Hypertelorismus liegt nicht vor, auch die Lidachsen verlaufen horizontal und zeigen keine Schrägstellung nach außen unten. An den Händen findet sich links eine durchgehende Vierfingerfurche. \n\nNeurologisch zeigt sich kein erhöhter Muskeltonus, die Sehnenreflexe sind seitengleich mittellebhaft auslösbar. Ein kraniales MRT im Vorjahr ergab den Befund einer linkshemisphärischen arachnoidalen Zyste, im Routine-EEG imponierten epilepsietypische Auffälligkeiten ohne klinisches Korrelat. Atypische Verhaltensweisen oder stereotype Bewegungsmuster bestehen erfreulicherweise nicht; Mia ist sozial zugewandt und besucht eine Fördereinrichtung. Die Familienanamnese hinsichtlich neurologischer oder genetischer Erkrankungen ist leer. Dauermedikation besteht nicht.\n\nIch wäre Ihnen für eine syndromologische Einschätzung und Empfehlung des weiteren Vorgehens sehr dankbar.\n\nMit freundlichen Grüßen"
+}

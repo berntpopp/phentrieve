@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_second_family_patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 362,
+  "completion_tokens": 380,
+  "total_tokens": 2357,
+  "thoughts_tokens": 1615,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute die sechsjährige Patientin Mia zur weiteren konsiliarischen Mitbeurteilung. Das Mädchen fiel bereits seit der Geburt durch Auffälligkeiten in ihrer Entwicklung und im Gedeihen auf.\n\nAktuell zeigt sich somatometrisch eine Wachstumsretardierung mit einer Körpergröße deutlich unter der dritten Perzentile, ebenso verbleibt das Schädelwachstum weit unterhalb des Normbereichs für ihr Alter. In der vorangegangenen MRT-Diagnostik des Neurokraniums imponierten diffuse kortikale Fehlanlagen mit zahlreichen abnorm kleinen Hirnwindungen, ein auffallend ausgedünnter Balken sowie eine unzureichende Ausprägung des Kleinhirnwurms.\n\nEntwicklungsneurologisch besteht vor allem ein erheblicher Rückstand im Erwerb der Lautsprache; Mia artikuliert bislang lediglich wenige isolierte Wortfragmente. Im Verhaltensbereich berichtet die Familie über eine ausgeprägte affektive Labilität mit unvermittelten Stimmungsumbrüchen bei minimalen Frustrationen. Ein unkritisches, übersteigert freundliches oder distanzloses Verhalten gegenüber fremden Personen zeigt sich hingegen nicht, Mia reagiert im Erstkontakt adäquat zurückhaltend. Körperlich fällt zudem eine beidseitige Überlagerung der Zehen auf, bei der die Digiti II über die Nachbarzehen reiten.\n\nDie allgemeine internistische Untersuchung bot regelrechte Befunde mit unauffälligen Herztönen und blandem Abdomen. Es besteht keine Dauermedikation, die Familienanamnese bezüglich neurologischer Vorerkrankungen ist leer.\n\nIch danke Ihnen für die Einordnung dieser Befundkonstellation und verbleibe mit kollegialen Grüßen."
+}

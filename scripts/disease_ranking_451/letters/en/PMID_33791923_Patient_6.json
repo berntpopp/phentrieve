@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33791923_Patient_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 407,
+  "completion_tokens": 347,
+  "total_tokens": 3148,
+  "thoughts_tokens": 2394,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nI am transferring care of a five-day-old female infant admitted to our neonatal intensive care unit for urgent multidisciplinary evaluation. She was born at term to a 28-year-old primigravida following an uncomplicated pregnancy, with normal prenatal imaging and non-consanguineous parents. \n\nThe child appeared stable initially but deteriorated on her second day of life with profound global developmental arrest, a feeble suck effort, and marked generalized muscular hypotonicity. She quickly developed frequent neonatal convulsions along with ventilatory failure requiring endotracheal intubation and mechanical ventilation. On physical examination, her head circumference falls well below the second percentile, her mandible is notably micrognathic, and she displays markedly brisk, exaggerated deep tendon reflexes throughout. Frequent non-bilious emesis prompted an abdominal ultrasound, which demonstrated gastric outlet obstruction secondary to pyloric muscular hypertrophy. \n\nAn electroencephalogram demonstrated an unreactive burst-suppression pattern. Brain MRI revealed dysplasia of the corpus callosum alongside prominent cerebral white matter hypomyelination; of note, the cerebral ventricles were of typical caliber, with no ventriculomegaly and no evidence of hydrocephalus. Echocardiography was normal aside from a small, physiologically expected left-to-right shunting PFO. Metabolic screening is significant for a marked elevation of glycine in the CSF as well as marked elevation of serum glycine, while basic serum electrolytes, renal function, and blood counts have remained entirely normal.\n\nGiven the severity of her encephalopathy and multi-system involvement, I would greatly appreciate your specialist assessment and guidance regarding ongoing diagnostic testing and management.\n\nSincerely,\nDr. Evelyn Vance, MD\nNeonatal Intensive Care Unit"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23562786_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 432,
+  "completion_tokens": 426,
+  "total_tokens": 2815,
+  "thoughts_tokens": 1957,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 2 Jahre und 9 Monate alten Jungen zur pädiatrischen Mitbeurteilung. Den Eltern fielen erste Auffälligkeiten im Alter von etwa eineinhalb Jahren auf; seither klagt das Kind wiederkehrend über Schmerzen in den Beinen und zeigt ein auffallend watschelndes Gangbild. \n\nKlinisch präsentiert sich ein ausgeprägter disproportionierter Kleinwuchs mit vorwiegender Verkürzung der Extremitäten. Die Gesichtsform ist völlig unauffällig, kraniofaziale Besonderheiten liegen nicht vor. An den oberen Extremitäten besteht beidseits ein deutliches Streckdefizit im Ellenbogengelenk, zudem imponieren kurze Finger. An den unteren Extremitäten zeigt sich eine sichtbare Genu-valgum-Deformität. Die internistische Untersuchung, das Hörvermögen und die Sehfunktionen waren vollkommen regelrecht. Die Familienanamnese hinsichtlich Skeletterkrankungen ist leer.\n\nRadiologisch finden sich verkürzte Röhrenknochen mit ausgeprägten metaphysären Unregelmäßigkeiten sowie trompetenartigen Aufweitungen der femoralen Metaphysen. Die Epiphysen stellen sich generell irregulär dar, am Hüftgelenk imponiert eine beidseitige Hypoplasie der Femurkopfepiphysen bei auffallend flachen und unregelmäßig konturierten Azetabulumpfannen. Das Handröntgen demonstriert eine deutliche Verzögerung der Knochenkernbildung im Bereich der Handwurzel. In den Wirbelsäulenaufnahmen zeigen sich ventrale schnabelartige Kanten an den Wirbelkörpern. Eine laborchemische Untersuchung auf Mukopolysaccharidurie fiel negativ aus, die renale Ausscheidung der Glykosaminoglykane liegt im Referenzbereich.\n\nZur weiteren ätiologischen Abklärung und Beratung der Familie bitte ich um Ihre geschätzte konsiliarische Beurteilung.\n\nMit freundlichen Grüßen"
+}

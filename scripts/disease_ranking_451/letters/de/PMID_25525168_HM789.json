@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25525168_HM789",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 373,
+  "completion_tokens": 432,
+  "total_tokens": 2638,
+  "thoughts_tokens": 1833,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute die sechsjährige Patientin Emily zur weiterführenden Diagnostik und Mitbeurteilung.\n\nIm Rahmen der aktuellen ophthalmologischen Untersuchung imponierte eine Myopia magna von beidseits -9,0 Dioptrien. Trotz optimaler Glaskorrektur bleibt die Sehschärfe mit einem Visus von 0,4 beidseits deutlich herabgesetzt. Biometrisch zeigt sich eine ausgeprägte Verlängerung der axialen Bulbuslänge von jeweils 26,2 mm. Bei der Ophthalmoskopie fielen zudem morphologische Irregularitäten des Fundus mit peripapillären Aufhellungen und feindispersen retinalen Pigmentverschiebungen auf.\n\nPädiatrisch und neurologisch präsentiert sich das Mädchen ansonsten unauffällig. Die somatische Entwicklung verläuft entlang der 50. Perzentile, eine Gedeihstörung liegt nicht vor. Emily besucht regulär die Grundschule; die geistige Entwicklung ist absolut altersentsprechend, ohne jeden Hinweis auf eine Intelligenzminderung. Anamnestisch traten bisher keine Krampfanfälle auf. Das Hörvermögen ist orientierend vollkommen intakt, eine Hörbeeinträchtigung besteht nicht. Motorisch zeigt sich das Gangbild harmonisch ohne Stand- oder Gangataxie. Die grobe Muskelkraft ist seitengleich kräftig erhalten, und es finden sich keinerlei Skelettmuskelatrophien oder Paresen. Kardiopulmonal ist die Patientin vollständig kompensiert, ohne klinische Zeichen einer Herzinsuffizienz oder einer respiratorischen Insuffizienz. \n\nDie Familienanamnese bezüglich früher Sehstörungen ist unergiebig. Eine Dauermedikation besteht nicht, Allergien sind nicht bekannt. \n\nIch wäre Ihnen für eine konsiliarische Begutachtung der Befunde und Ihre geschätzte Einschätzung zum weiteren Procedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen,\nDr. med. Tobias Weber"
+}

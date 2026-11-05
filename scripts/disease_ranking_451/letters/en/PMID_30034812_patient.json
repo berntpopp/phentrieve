@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30034812_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 394,
+  "completion_tokens": 329,
+  "total_tokens": 2342,
+  "thoughts_tokens": 1619,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to consult on Ms. Clara Vance, a 35-year-old graphic designer who has experienced progressive musculoskeletal complaints since approximately age 20. \n\nShe presents reporting persistent, generalized skeletal discomfort alongside more localized, chronic aching across both shoulder girdles. On physical examination, her vital signs were stable, and cardiopulmonary auscultation was unremarkable. Her mental status and cognition were completely intact. Craniofacial inspection was notable for a protuberant forehead, mild globe protrusion, and bilateral blepharoptosis. She is independently ambulatory, although she displays a pronounced waddling pattern when walking. \n\nSkeletal radiography reveals widespread hyperostotic remodeling. Specifically, there is pronounced diaphyseal cortical thickening involving the tubular long bones, coupled with striking cortical widening throughout the humeri. These hyperostotic changes have resulted in significant constriction of the medullary spaces. \n\nInitial laboratory evaluation was notable for an elevated alkaline phosphatase at 310 U/L and mild hypocalcemia, with a corrected serum calcium of 7.7 mg/dL. Her serum creatinine concentration was normal, and liver enzymes were otherwise within reference ranges. A baseline 12-lead electrocardiogram showed normal sinus rhythm without any conduction delay or repolarization abnormalities. \n\nShe has no relevant family history, takes only occasional acetaminophen for symptom control, and denies alcohol or tobacco use. Given the unusual combination of craniofacial changes and progressive diaphyseal changes, I would greatly value your comprehensive assessment and recommendations for further diagnostic evaluation.\n\nWarm regards,\n\nDr. Julian Hayes\nInternal Medicine"
+}

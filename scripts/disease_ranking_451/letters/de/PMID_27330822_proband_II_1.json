@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27330822_proband_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 375,
+  "total_tokens": 2365,
+  "thoughts_tokens": 1615,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute den 3-jährigen Max zur weiteren Beurteilung. Die Eltern stellten den Jungen vor, da er seit einiger Zeit wiederholt über Schmerzen in den Beinen klagt und den Eltern ein auffällig watschelndes Gangbild Sorgen bereitet. Die frühkindliche Entwicklung verlief bislang unauffällig, die Familienanamnese ist bezüglich Skeletterkrankungen leer. Er nimmt keine Dauermedikation ein und besucht beschwerdefrei den Kindergarten.\n\nKlinisch zeigt sich Max in gutem Allgemein- und altersgerechtem Ernährungszustand. Herz und Lunge sind auskultatorisch unauffällig, das Abdomen ist weich und ohne Resistenzen. Auffallend sind sehr kleine Hände mit deutlicher Verkürzung der einzelnen Fingerglieder. Die grobe Kraft und die Sensibilität sind allseits intakt. \n\nDie eingeleitete radiologische Diagnostik erbrachte folgende Befunde: In der Wirbelsäulenaufnahme imponieren generalisiert abgeflachte Wirbelkörper mit ventralen, schnabelförmigen Ausziehungen. Im Beckenübersichtsbild zeigt sich eine ungewöhnlich weite Schambeinfuge sowie eine deutlich unruhige, unregelmäßige Kontur beider Pfannendächer. Die knöchernen Femurkopfanlagen sind beidseits hypoplastisch und stellen sich nur zart dar. An den langen Röhrenknochen zeigen sich zudem kelchförmig aufgeweitete Metaphysen. \n\nAufgrund dieser Befundkonstellation bitte ich um Ihre kinderradiologische und pädiatrische Expertise sowie um Empfehlungen bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

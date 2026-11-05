@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19864672_Patient_1M",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 430,
+  "total_tokens": 2520,
+  "thoughts_tokens": 1724,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Klein,\n\nich überweise Ihnen heute Frau Martina Baumgärtner zur konsiliarischen Beurteilung und weiteren Abklärung. \n\nDie Patientin berichtet über ein Beschwerdebild, welches bereits im Kindesalter begann. Seit vielen Jahren leidet sie unter einer ausgeprägten, chronischen Tinea an Rumpf und Extremitäten, die sich unter lokalen wie auch systemischen Azoltherapien immer wieder als äußerst hartnäckig erweist. Hinzu kommen rezidivierende mykotische Entzündungen im Bereich von Vulva und Vagina, die in kurzen Abständen aufflammen und die Lebensqualität erheblich beeinträchtigen. \n\nKlinisch zeigt sich die Mundhöhle demgegenüber völlig unauffällig; anamnestisch besteht keinerlei Neigung zu rezidivierendem Mundsoor. Anhaltspunkte für eine ZNS-Beteiligung oder gar das Vorliegen einer mykotischen Meningitis bestanden zu keinem Zeitpunkt, meningeale Reizzeichen waren stets negativ. \n\nIn den bisherigen Laboruntersuchungen fand sich eine unauffällige Leukozytenzahl im Differentialblutbild. Die quantitative Bestimmung der zirkulierenden Serum-Immunglobuline zeigte normwertige Konzentrationen für IgG, IgA und IgM. In der durchgeführten Immunphänotypisierung stellten sich die Proportionen der CD4-positiven Subpopulationen normal dar, und auch die Gesamtzahl der CD8-positiven T-Zellen lag vollkommen im Normbereich. \n\nFrau Baumgärtner ist als Grundschullehrerin tätig, lebt in stabiler Partnerschaft und nimmt abgesehen von den lokalen Antimykotika keine Dauermedikation ein. Die Familienanamnese bezüglich chronischer Infektionen ist leer. \n\nIch wäre Ihnen für Ihre geschätzte differentialdiagnostische Einschätzung der Patientin und eventuelle weiterführende Empfehlungen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

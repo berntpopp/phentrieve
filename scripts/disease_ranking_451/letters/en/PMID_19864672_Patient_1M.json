@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19864672_Patient_1M",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 279,
+  "total_tokens": 1843,
+  "thoughts_tokens": 1198,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this adult female who presents for further immunological assessment. Her clinical history is notable for longstanding, recurrent superficial fungal infections that first began during her childhood. She suffers from frequent, bothersome bouts of Candida vulvovaginitis, which flare multiple times per year despite standard antifungal therapy. Additionally, she has struggled with chronic, refractory cutaneous tinea infections involving her trunk and extremities.\n\nImportantly, her review of systems is negative for any deep or invasive disease; she has never had fungal meningitis, nor has she had recurrent oral thrush. Her general health is otherwise stable. She works as an office administrator, does not smoke, and reports no significant family history of chronic infections or primary immunodeficiencies. Her vital signs today were normal, and cardiopulmonary and abdominal examinations were benign.\n\nInitial laboratory testing has not yielded an obvious etiology. Her total leukocyte count was completely normal, and baseline circulating immunoglobulin concentrations were all well within normal reference ranges. Lymphocyte subset analysis showed a normal proportion of CD4+ T cells, and her total absolute number of CD8+ T cells was similarly unremarkable.\n\nGiven the persistent and recurring nature of her mucosal and cutaneous fungal issues since youth, I would greatly appreciate your specialized assessment and guidance on further diagnostic investigations and management.\n\nSincerely,\nDr. Laura Bennett\nDepartment of Internal Medicine, Oakridge Clinic"
+}

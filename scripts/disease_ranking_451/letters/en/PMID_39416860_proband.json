@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39416860_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 355,
+  "total_tokens": 2174,
+  "thoughts_tokens": 1484,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for agreeing to evaluate this four-month-old male infant who was referred to our service following the onset of recurrent convulsive events at one month of life. He was born at 39 weeks following an uncomplicated gestation and delivery, and his family history is non-contributory with healthy, non-consanguineous parents.\n\nHis clinical course began with paroxysmal tonic posturing and focal jerking that have proven refractory to standard anticonvulsants, including phenobarbital and levetiracetam. Prolonged electroencephalography demonstrated marked background disorganization, burst suppression, and frequent electrical seizures alongside severe neurodevelopmental arrest, indicating an ongoing encephalopathy driven by unremitting epileptic activity. Neuroimaging via cranial MRI revealed marked thinning and attenuation of the corpus callosum throughout the genu and body. An echocardiogram obtained during his inpatient stay demonstrated an isolated, small left-to-right interatrial shunt through a patent oval foramen. Furthermore, recent diagnostic auditory brainstem response testing revealed a significant bilateral sensorineural auditory loss.\n\nOn physical examination today, he is normocephalic with an open, flat anterior fontanelle. Cardiopulmonary examination is benign, with clear lung sounds and regular heart tones. His abdomen is soft and non-tender without palpable organomegaly. Musculoskeletal examination shows no contractures, and skin examination is clear of any pigmentary alterations.\n\nGiven the combination of refractory neonatal-onset convulsions, severe epileptic neurodevelopmental regression, commissural thinning, congenital interatrial communication, and auditory deficit, I would appreciate your formal evaluation and recommendations regarding further specialized neurogenetic investigations and clinical management.\n\nSincerely,\nDr. Marcus Bell, MD\nPediatric Medicine"
+}

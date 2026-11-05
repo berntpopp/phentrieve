@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Kinship_1_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 451,
+  "total_tokens": 2590,
+  "thoughts_tokens": 1771,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 45-jährige Patientin Frau Martina S. zur weiteren differentialdiagnostischen Abklärung. Anamnestisch begann die Symptomatik schleichend bereits im Jugendalter um das 15. Lebensjahr und zeigt seither einen sehr langsamen, aber stetigen Progress. Die Familienanamnese ist bezüglich neuromuskulärer Beschwerden unauffällig, Vorerkrankungen bestehen nicht, und abgesehen von einer gelegentlichen Bedarfsmedikation mit Ibuprofen werden keine Arzneimittel eingenommen. Die Patientin arbeitet als Sachbearbeiterin im Büro und lebt in einer festen Partnerschaft.\n\nIn der körperlichen Untersuchung fällt ein unsicheres, deutlich watschelndes Gangbild mit beidseitigem Absinken des Beckens auf. Es imponiert eine ausgeprägte proximale Kraftminderung im Bereich der Oberschenkel- und Beckenmuskulatur, wodurch bereits das Aufstehen aus tiefen Sitzmöbeln stark erschwert ist. Ebenso zeigt sich eine symmetrische Schwäche im Schultergürtel, die das Heben der Arme über die Horizontale deutlich einschränkt. Distal imponiert an den unteren Extremitäten eine manifeste Fußheberparese, die einen Fersengang verunmöglicht. An den Händen besteht eine deutliche Kraftminderung beim Zupacken, passend dazu lässt sich eine beidseitige Verschmächtigung der Daumenballen palpieren und inspektorisch verifizieren.\n\nDie Hirnnervenfunktionen präsentieren sich intakt: Es zeigt sich keine Schwäche der mimischen Muskulatur, die Lidspalten sind symmetrisch ohne Herabhängen des Oberlides, und Doppelbilder werden nicht angegeben. Zeichen einer bulbären Beteiligung fehlen, Schluckakt und Sprachbildung sind vollkommen ungestört. Die Sensibilität für alle Qualitäten sowie die Koordination an den Extremitäten waren regelrecht.\n\nFür Ihre fachneurologische Mitbeurteilung und Einordnung der Befunde wäre ich Ihnen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

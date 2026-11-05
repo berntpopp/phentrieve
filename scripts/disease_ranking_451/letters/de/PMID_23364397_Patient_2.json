@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23364397_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 395,
+  "total_tokens": 2819,
+  "thoughts_tokens": 2089,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute den 9 Monate alten Jonas zur neuropädiatrischen Mitbeurteilung. \n\nDie Eltern berichten, dass seit dem 8. Lebensmonat eine deutliche Verlangsamung seiner Entwicklung auffällt. Jonas zeigt eine starke Verzögerung sämtlicher Meilensteine; ein freies Sitzen, Drehen oder differenziertes Lautieren sind bislang nicht möglich. In unserer Untersuchung fiel neben einer generalisierten, deutlichen Kraftminderung der Willkürmuskulatur ein spastisch gesteigerter Tonus an Armen und Beinen auf, sodass die Extremitäten bei passiver Durchbewegung auffallend straff und hyperton wirken.\n\nZudem besteht seit Wochen ein kontinuierliches, therapieresistentes Fiebergeschehen, für das sich laborchemisch und sonographisch bisher kein infektiöser Fokus nachweisen ließ. Anamnestisch ist bedeutsam, dass der Junge vor vier Wochen im Rahmen einer kurzen Allgemeinanästhesie eine fulminante intraoperative Stoffwechselkrise mit exzessivem Temperaturanstieg und Muskelrigidität erlitt, die intensivmedizinisch stabilisiert werden musste.\n\nDie kardiopulmonale Untersuchung ist unauffällig, die Herztöne sind rein und rhythmisch, die Lunge ist seitengleich belüftet. Das Abdomen ist weich und ohne Resistenzen, die Hirnnervenfunktionen wirken soweit prüfbar intakt. Jonas lebt wohlbehütet bei seinen Eltern, die Familienanamnese ist bezüglich neuromuskulärer Vorerkrankungen leer.\n\nAufgrund dieses komplexen Beschwerdebildes bitte ich um Ihre geschätzte neurologische Einschätzung sowie Einleitung einer weiterführenden Diagnostik.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Stein\nFacharzt für Kinder- und Jugendmedizin"
+}

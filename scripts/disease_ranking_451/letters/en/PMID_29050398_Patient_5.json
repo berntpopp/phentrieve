@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050398_Patient_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 302,
+  "total_tokens": 2754,
+  "thoughts_tokens": 2082,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Chen,\n\nThank you for agreeing to evaluate this 3-year-old girl, whom I have followed since her initial presentation at seven months of age. \n\nShe displays profound neurodevelopmental delay across gross motor, fine motor, and communicative domains. Her occipitofrontal circumference has consistently tracked well below the third percentile. On examination, she demonstrates marked central floppiness and poor head control, though deep tendon reflexes are present and symmetric. Her general physical exam is otherwise unremarkable, showing clear lung sounds, normal heart tones, and no visceral enlargement or dysmorphic cutaneous lesions. Her family history is non-contributory, and she lives at home with both parents.\n\nHer seizure history is significant for two distinct semiologies. The family describes episodes of sustained axial stiffening lasting several seconds, as well as separate focal spells characterized by behavioral arrest, unresponsiveness, and subtle lip smacking. Importantly, she has experienced no epileptic flexor or extensor spasms, no bilateral convulsions with alternating contraction and relaxation, and no brief non-motor staring episodes. \n\nAn electroencephalogram demonstrated a characteristically chaotic, high-voltage background intermixed with multifocal sharp waves across both hemispheres. Subsequent neuroimaging demonstrated a pronounced lag in white matter maturation relative to age expectations. She is currently maintained on levetiracetam with incomplete control.\n\nI would appreciate your comprehensive assessment and recommendations regarding further evaluation and management for this child.\n\nWarm regards,\n\nDr. Evelyn Reed"
+}

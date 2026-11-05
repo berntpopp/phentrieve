@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_first_family_patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 387,
+  "total_tokens": 2384,
+  "thoughts_tokens": 1646,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung der 20-jährigen Patientin Lisa M., die seit dem frühen Säuglingsalter unter einer globalen Entwicklungsverzögerung leidet. Die junge Frau lebt in einer betreuten Wohneinrichtung; die Familienanamnese ist bezüglich neurometabolischer Erkrankungen leer.\n\nKörperlich präsentiert sich die Patientin mit einer Körperlänge von 141 cm deutlich mindergroß. Der okzipitofrontale Kopfumfang liegt mit 48 cm ebenfalls weit unterhalb der dritten Perzentile. In der zerebralen Bildgebung imponieren vermehrt angelegte, abnorm kleine Hirnwindungen sowie ein auffallend verschmälertes Balkenorgan. Kardiopulmonal zeigt sich die Patientin stabil, Blutdruck und Routine-Laborparameter waren vollkommen unauffällig. An den unteren Extremitäten finden sich orthopädisch regelrechte Verhältnisse, insbesondere zeigten sich keine übereinandergelagerten Zehen.\n\nIm Betreuungsalltag bereitet vor allem das Verhalten erhebliche Probleme. Es kommt regelmäßig zu fremdaggressiven Durchbrüchen mit Schlagen und Treten gegen das Pflegepersonal. Ein distanzlos-überfreundliches Kontaktverhalten liegt dabei nicht vor. Eine ausgeprägte affektive Labilität oder rasche Stimmungswechsel lassen sich im Längsschnitt ebenfalls nicht feststellen; die Grundstimmung ist außerhalb der Ausbrüche eher indifferent. \n\nZur Dämpfung der Spitzen erhält sie derzeit probatorisch Melperon am Abend. Über Ihre fachliche Einschätzung der Befundkonstellation und etwaige Empfehlungen zum weiteren diagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

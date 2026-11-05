@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_VUSM110022",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 561,
+  "completion_tokens": 610,
+  "total_tokens": 3939,
+  "thoughts_tokens": 2768,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den nun 13-jährigen Jungen zur neuropädiatrischen und humangenetischen Mitbeurteilung.\n\nDer Patient wurde reif, jedoch mit Geburtsmaßen deutlich unter der zehnten Perzentile geboren, passend zu einer intrauterinen Mangelentwicklung; ein LGA-Status lag keineswegs vor. Von klein auf fiel eine erhebliche Verzögerung sämtlicher Entwicklungsmeilensteine auf. Bis heute besteht eine ausgeprägte kognitive Beeinträchtigung bei vollständigem Fehlen jeglicher Laut- und Wortsprache. Ein Verlust vormals erworbener Fertigkeiten wurde nie beobachtet.\n\nIm somatischen Status imponiert eine manifeste Adipositas, die weit über ein einfaches Übergewicht hinausgeht. Die Körperlänge liegt exakt auf der Normperzentile, sodass weder ein Hoch- noch ein Kleinwuchs vorliegt. Der Kopfumfang ist normwertig ohne Anhalt für eine Mikrozephalie. Der Muskeltonus ist regelrecht, eine Hypotonie liegt nicht vor. \n\nPsychiatrisch und verhaltensbiologisch zeigt der Jugendliche keine Zeichen von Autismus, ADHS, bipolarer affektiver Störung, Depression, Angst oder Psychose. Zwanghaftes Verhalten, motorische Stereotypien, Fremdaggressionen oder Automutilation traten nie auf. Zerebrale Anfälle sind anamnestisch nicht bekannt. \n\nDie internistische und orthopädische Durchuntersuchung verlief blande: Weder Leisten- noch Nabelhernien ließen sich tasten. Gastrointestinal bestehen kein Reflux, keine chronische Verstopfung und keine Ernährungsschwierigkeiten. Das Genitale ist unauffällig mit beidseits vollständig im Skrotum liegenden Hoden ohne Hypospadie. Renosonografisch zeigen sich keine Nierenzysten, Hydronephrosen oder Ureterabgangsstenosen. Kardiologisch wurden Vorhof- und Ventrikelseptumdefekte, ein Atrioventrikularkanal, ein offener Ductus arteriosus sowie Koronarfisteln sicher ausgeschlossen. Eine erhöhte Infektneigung besteht nicht. Wirbelsäule und Thorax sind unauffällig ohne Skoliose, Kyphose oder Trichterbrust. Eine Bandlaxizität bzw. Überbeweglichkeit der Gelenke ist nicht nachweisbar; Fingerfehlbildungen wie eine Klinodaktylie der Kleinfinger sowie Fehlstellungen der Füße wie Klumpfüße, Senk-Plattfüße oder ein Hallux valgus fehlen vollständig. \n\nDie Familienanamnese bezüglich neurologischer Auffälligkeiten ist leer. Ich bitte um Ihre geschätzte Zweitmeinung bezüglich der weiteren syndromalen Abklärung.\n\nMit freundlichen kollegialen Grüßen"
+}

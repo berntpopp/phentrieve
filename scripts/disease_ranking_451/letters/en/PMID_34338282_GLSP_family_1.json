@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34338282_GLSP_family_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 316,
+  "completion_tokens": 319,
+  "total_tokens": 1860,
+  "thoughts_tokens": 1225,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Higgins,\n\nThank you for evaluating this patient in consultation at your clinic. They were recently referred to my practice for further evaluation following observations regarding progressive unsteadiness and long-standing visual complaints.\n\nOn physical examination, the patient appears well-nourished and in no acute distress. Vital signs are within normal limits, including a blood pressure of 118/74 mmHg and a resting heart rate of 68 beats per minute. Cardiopulmonary auscultation is unremarkable, with normal S1 and S2, no murmurs, and clear lung fields bilaterally. The abdomen is soft, non-tender, and non-distended. \n\nNeurologic assessment demonstrates significant unsteadiness on their feet. When walking, the patient maintains a wide-based, poorly coordinated gait and struggles notably with tandem steps, requiring occasional support to prevent a fall. Upper extremity testing reveals bilateral dysmetria on target-directed movements. Otherwise, cranial nerves are grossly intact, sensory modalities are preserved to light touch and vibration, and deep tendon reflexes are 2+ and symmetrical throughout. \n\nOphthalmologic examination is particularly striking for a total bilateral absence of the iris tissue. Aside from this structural defect, optic discs appear healthy, and intraocular pressures are within normal limits. \n\nThe patient takes no regular medications, has no known drug allergies, and has an unremarkable family history, with no relatives known to share similar ocular or balance problems. \n\nI would greatly appreciate your assessment and guidance regarding appropriate diagnostic next steps.\n\nSincerely,\nDr. Arthur Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29385733_Proband_32595",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 384,
+  "completion_tokens": 395,
+  "total_tokens": 2465,
+  "thoughts_tokens": 1686,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen den 13-jährigen Max zur weiteren Abklärung. Seine Mutter berichtet über Sehstörungen, die anamnestisch bereits im Kleinkindalter um das zweite Lebensjahr einsetzten.\n\nOphthalmologisch zeigt sich eine ausgeprägte Visusminderung (bestkorrigiert bds. 0,3) im Rahmen einer höhergradigen Hyperopie von ca. +5,0 Dioptrien beidseits. In der Inspektion fällt ein persistierender Nystagmus auf. Im Schielstatus verifiziert sich eine manifeste Einwärtsdeviation der Bulbi; ein divergentes Schielen bzw. eine Exodeviation besteht definitiv nicht. Gesichtsfeldperimetrisch imponiert eine konzentrische Einengung der peripheren Grenzen.\n\nDie elektrophysiologische Testung erbrachte ein abnorm verändertes photopisches ERG. Bei der Dunkeladaptation zeigten sich bei Standard-Lichtreizen zunächst deutlich reduzierte Amplituden der b-Welle. Bemerkenswerterweise fand sich bei Applikation intensiver Einzelblitzreize unter skotopischen Bedingungen jedoch eine supernormale Konfiguration der b-Welle mit exzessiv hohen Amplitudenwerten.\n\nDie Spaltlampenuntersuchung der vorderen Abschnitte war regelrecht, Linse und Hornhaut beidseits klar, der Intraokulardruck liegt im Normbereich bei 15 mmHg beidseits. Max besucht eine Regelschule, nimmt keine Dauermedikation ein, und die ophthalmologische Familienanamnese ist bezüglich erblicher Augenerkrankungen vollkommen blande.\n\nÜber Ihre geschätzte fachliche Zweitmeinung und Empfehlungen zum weiteren Prozedere bei diesem Befundmuster würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\nDr. med. Stefan Meyer"
+}

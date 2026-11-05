@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22353940_cousin_V_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 463,
+  "completion_tokens": 480,
+  "total_tokens": 3526,
+  "thoughts_tokens": 2583,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 7-jährigen Lukas zur weiteren pädiatrischen Beurteilung. Erste Auffälligkeiten traten anamnestisch bereits im zweiten Trimenon im Rahmen der pränatalen Ultraschalluntersuchungen zutage.\n\nDer Junge weist ein erhebliches kognitives Defizit auf und hat bislang keine Lautsprache erworben. Seine motorischen Meilensteine sind gravierend verzögert. Bei der Untersuchung imponiert ein ausgeprägter Makrozephalus mit einem Kopfumfang deutlich oberhalb der 97. Perzentile; ein Mikrozephalus liegt somit keineswegs vor. Es zeigt sich eine prominent vorgewölbte Stirn sowie nach außen-unten abfallende Lidachsen und beidseitige Epikanthus-Falten. Weiterhin besteht eine manifeste Esotropie, wohingegen eine Stäbchen-Zapfen-Dystrophie funduskopisch sicher ausgeschlossen wurde. Eine Lippen- oder Gaumenspalte liegt nicht vor, das Lippenrot ist unauffällig und nicht verbreitert, und auch die Morphologie der oralen Schleimhautbändchen stellt sich regelrecht dar. Die Ohrmuscheln sind normgerecht und nicht tief ansetzend. An Händen und Füßen fehlen postaxiale Polydaktylien.\n\nIm aktuellen cMRT zeigt sich das typische Bild eines Molar-Tooth-Zeichens, begleitet von einer Ventrikulomegalie sowie einer deutlich erweiterten Cisterna magna. Eine Hypoplasie des Kleinhirnwurms fand sich nicht, ebenso wenig eine frontale Polymikrogyrie. Abdominell imponiert sonographisch eine polyzystische Nierendysplasie, wobei das renale Restgewebe eine normale Echotextur aufweist und keine Hyperechogenität zeigt.\n\nKardiopulmonal ist der Auskultationsbefund normal, die Vitalparameter sind unauffällig. Lukas lebt bei den Eltern und erhält zurzeit keine medikamentöse Dauertherapie.\n\nIch bedanke mich für Ihre kollegiale Einschätzung dieser Befunde und die Mitbeurteilung des Patienten.\n\nMit freundlichen Grüßen\nDr. med. Thomas Brandner"
+}

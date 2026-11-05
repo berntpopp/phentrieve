@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38158856_Patient_3_Family_III",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 681,
+  "completion_tokens": 577,
+  "total_tokens": 5821,
+  "thoughts_tokens": 4563,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, lieber Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung des nun 8-jährigen Felix. In der Vorgeschichte bestand eine ausgeprägte postnatale Gedeihstörung, ein Kleinwuchs liegt derzeit jedoch nicht vor. Die Neugeborenenperiode verlief ohne Atemnotsyndrom oder Ösophagusatresie; operativ versorgt wurden ein Leistenbruch sowie ein Kryptorchismus.\n\nEntwicklungsneurologisch imponieren eine globale Retardierung, deutliche Verzögerungen im Spracherwerb, ein motorischer Rückstand und kognitive Einschränkungen. Regressionen, epileptische Anfälle, Ataxie, Ungeschicklichkeit, Paraparesen, Schlafstörungen oder Verhaltensauffälligkeiten traten nie auf. Muskeltonus und -kraft sind unauffällig; es bestehen keine Hypotonie, Spastik, Muskelschwäche oder Muskelatrophien.\n\nKraniofazial fällt eine ungewöhnliche Gesichtsform mit hoher Stirn, gotischem Gaumen, Synophrys und auffallend langen Wimpern bei schräg nach außen-oben verlaufenden Lidspalten auf. Der Kopfumfang ist normozephal, Trigonozephalie, Halsverkürzung, Ohrmuscheldysmorphien, Schwerhörigkeit, präaurikuläre Anhängsel, schütteres Haupthaar sowie verdickte, verlängerte oder medial lichte Augenbrauen fehlen. Ophthalmologisch wurden ein Limbusdermoid sowie eine Peters-Anomalie beschrieben; Tränenwegsstenosen, Lidödeme, Blepharitis, Schielen, Nystagmus oder Kolobome liegen nicht vor.\n\nOral zeigen sich weder Makroglossie noch ein verkürztes Zungenbändchen. Der Anus ist orthotop angelegt; Analatresie, rektourethrale oder rektoperineale Fisteln wurden ausgeschlossen. Kardiologisch fand sich bei normalem EKG kein Anhalt für eine Pulmonalstenose, periphere Pulmonalarterienstenose, einen VSD, PDA oder ein PFO. Orthopädisch bestehen keine Skoliose, O-Beine, Knick-Senk-Füße, Metatarsus adductus, Vorfußadduktionskontrakturen, proximal inserierende Daumen oder breite Großzehen. Die Haut ist frei von Café-au-lait-Flecken oder einer Acanthosis nigricans; ein Immundefekt ist nicht bekannt.\n\nFelix besucht derzeit eine Förderschule und erhält Logo- sowie Ergotherapie. Ich danke Ihnen für Ihre Einschätzung zur weiteren Abklärung.\n\nMit freundlichen Grüßen"
+}

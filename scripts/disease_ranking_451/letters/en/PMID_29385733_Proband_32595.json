@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29385733_Proband_32595",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 384,
+  "completion_tokens": 318,
+  "total_tokens": 3133,
+  "thoughts_tokens": 2431,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to see this 13-year-old young man, who was accompanied by his mother. His parents first noted ocular irregularities around 2 years of age. He is otherwise healthy, takes no medications, and performs well in school. Family ocular history is completely negative. \n\nOn examination, his Snellen acuity is diminished bilaterally, measuring 20/80 in the right eye and 20/100 in the left eye, despite a significant farsighted refractive error (+4.50 D OU). Anterior segment examination, pupillary responses, and intraocular pressures were entirely normal. Motility evaluation showed fine, conjugate horizontal ocular oscillations at rest, alongside an inward ocular misalignment of 16 prism diopters on cover test. There was definitely no outward ocular turning or exotropia demonstrated in any gaze. Goldmann perimetry revealed striking concentric narrowing of his peripheral boundaries in each eye.\n\nElectrophysiologic testing demonstrated notable abnormalities. His photopic recordings revealed distinctly aberrant cone waveforms with marked suppression across all light-adapted testing. Under scotopic conditions, dim-flash stimulation showed a depressed b-wave amplitude; however, maximal high-intensity stimulation following prolonged dark adaptation elicited an extraordinarily enlarged, supranormal b-wave. \n\nThe optic discs and retinal vasculature appear grossly healthy on funduscopy, without typical bone-spicule pigmentation. Given these unusual clinical and electrodiagnostic findings, I would appreciate your formal evaluation and guidance regarding his ongoing care.\n\nSincerely,\nDr. Eleanor Hayes"
+}

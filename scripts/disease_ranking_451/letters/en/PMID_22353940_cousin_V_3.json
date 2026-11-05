@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22353940_cousin_V_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 463,
+  "completion_tokens": 389,
+  "total_tokens": 4127,
+  "thoughts_tokens": 3275,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Caldwell,\n\nThank you for agreeing to consult on this 7-year-old boy for diagnostic evaluation. His medical history traces back to the second trimester of gestation, when routine obstetrical sonography first noted structural concerns. He resides at home with his parents, who report no family history of neurodevelopmental conditions, and his routine childhood vaccinations are current.\n\nHe presents with a significant intellectual deficit and has never spoken or acquired meaningful verbal communication. There has also been marked delay in his motor skills, though he continues to make slow progress in physical therapy. On physical examination, he demonstrates an abnormally large head circumference well above the 97th percentile with a pronounced frontal prominence; he certainly does not have microcephaly. Craniofacial review reveals bilateral medial epicanthal folds, downward slanting of his eye slits, and a clear convergent strabismus. His auricles are normally placed and not low-set, there is no thickening of the vermilion border, he displays a normal oral frenulum structure, and there is no cleft of the lip or palate. Inspection of his extremities shows five digits per limb, with no postaxial extra digits on the hands nor any extra postaxial toes. \n\nRecent cranial MRI demonstrated a distinct molar-tooth malformation at the midbrain-hindbrain junction, dilated cerebral ventricles, and an expanded retrocerebellar cistern, while the scan showed no cerebellar vermian hypoplasia and was without frontal-lobe polymicrogyria. Formal ophthalmologic review revealed no evidence of rod-cone retinal dystrophy. Abdominal imaging identified a multicystic dysplastic appearance of both kidneys, although the renal parenchyma was not hyperechogenic. \n\nAside from an as-needed osmotic laxative for mild constipation, he takes no regular medications. I would be grateful for your comprehensive assessment regarding this boy's presentation.\n\nSincerely,\n\nDr. Marcus Vance, MD"
+}

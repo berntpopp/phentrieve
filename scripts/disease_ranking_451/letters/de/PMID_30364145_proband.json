@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30364145_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 455,
+  "completion_tokens": 420,
+  "total_tokens": 2848,
+  "thoughts_tokens": 1973,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die sechsjährige Mia zur differentialdiagnostischen Abklärung. \n\nDas Mädchen kam reif, jedoch mit ausgeprägter intrauteriner Dystrophie zur Welt. Schon früh zeigte sich eine globale Retardierung der Meilensteine; aktuell besteht eine leichte kognitive Behinderung. Anamnestisch ist eine im Säuglingsalter korrigierte Fallot-Tetralogie bekannt. Zudem traten im Verlauf wiederholt generalisierte bilateral-tonisch-klonische Anfälle auf. Das Füttern gestaltete sich in den ersten Lebensjahren infolge eines gastroösophagealen Refluxes und ausgeprägter Trink- und Fütterstörungen sehr schwierig.\n\nBei der körperlichen Untersuchung imponieren ein langes Gesicht mit breiter Stirn sowie tief sitzende Bulbi bei reduziertem Augenabstand und leichter Oberlidptosis. Die Lidspalten sind nicht verlängert, und die Augenbrauen weisen keinen hoch geschwungenen Verlauf auf. Der Nasenrücken erscheint unauffällig, die Columella hängt kaudal tief herab. Auffallend sind ferner ein verlängertes, merkmalsarmes Philtrum, eine feine, schmale Oberlippenkontur, ein hoher Gaumenbogen sowie Makrotien beidseits. Das Kinn ist gut ausgebildet, eine Retrognathie besteht nicht. An den Akren finden sich verbreiterte Daumen und Großzehen sowie auffällig prominente Fingerbeerenpolster. Die Wirbelsäule ist inspektorisch gerade, ohne Hinweis auf eine Skoliose.\n\nDie Familienanamnese ist bezüglich genetischer Erkrankungen leer, die Eltern sind nicht blutsverwandt. Audiometrische Untersuchungen verliefen unauffällig.\n\nIch bitte um Ihre klinisch-genetische Beurteilung dieses komplexen Bildes und danke für die Mitbetreuung.\n\nMit kollegialen Grüßen"
+}

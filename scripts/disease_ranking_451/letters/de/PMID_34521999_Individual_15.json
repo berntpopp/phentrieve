@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34521999_Individual_15",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 587,
+  "completion_tokens": 507,
+  "total_tokens": 3899,
+  "thoughts_tokens": 2805,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die vierjährige Mia zur weiteren diagnostischen Abklärung. \n\nSchwangerschaft und Spontangeburt verliefen komplikationslos, die Familienanamnese ist leer und eine Dauermedikation besteht nicht. \n\nIn unserer Beurteilung imponiert eine deutliche Verzögerung der motorischen Meilensteine bei ausgeprägter muskulärer Hypotonie. Des Weiteren fällt eine irreguläre Verteilung des subkutanen Fettgewebes auf. Der Schädel zeigt eine atypische Konfiguration, die Brauen präsentieren sich markant hochgebogen. \n\nDer Kopfumfang ist normwertig; weder eine primäre noch eine sekundäre Mikrozephalie oder eine postnatale Makrozephalie sind festzustellen. Das Körpergewicht liegt stabil auf der Perzentile ohne Über- oder Untergewicht. Die Augenregion ist frei von Ptosis, Schielen, Epikanthus, Kolobomen, Proptosis oder tiefliegenden Bulbi; die Lidspalten sind weder überdurchschnittlich lang noch schräggestellt, der Augenabstand ist regulär. Die Augenbrauen verlaufen weder horizontal noch lateral ausgedünnt, eine Synophrys fehlt. Mittelgesicht, Nasenrücken sowie Position und Rotation der Ohren sind anatomisch unauffällig. Es traten keine rezidivierenden Otitiden auf. Das Philtrum ist regelrecht moduliert, das Lippenrot nicht verschmälert und das Gebiss altersentsprechend intakt. \n\nDie Nahrungsaufnahme bereitet keinerlei Fütter- oder Schluckprobleme. Echokardiographisch zeigten sich weder Vorhof- noch Ventrikelseptumdefekte. Die Nierenanatomie stellt sich sonographisch unauffällig dar. Im zerebralen MRT ergab sich kein Hinweis auf Polymikrogyrie, Kortexdysplasien oder Auffälligkeiten an Ventrikeln, Zerebellum und Marklager. Das EEG war befundfrei; epileptische Anfälle sind nie aufgetreten. An den Extremitäten finden sich normale Finger, keine Gelenkhypermobilität und kein Pes planus. Es gibt keine Anhaltspunkte für ein Neoplasma.\n\nÜber Ihre geschätzte Einschätzung zur Ätiologie dieser Befunde würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

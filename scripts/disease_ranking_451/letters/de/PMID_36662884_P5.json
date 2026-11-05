@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36662884_P5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 448,
+  "completion_tokens": 455,
+  "total_tokens": 3054,
+  "thoughts_tokens": 2151,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute einen 22-jährigen Patienten, derzeit Lehramtsstudent und Nichtraucher, zur weiterführenden immunologischen Beurteilung.\n\nAnamnestisch bestehen bei dem jungen Mann bereits seit dem vierten Lebensmonat gehäufte Infektionen des Respirationstrakts. Vor wenigen Wochen musste er aufgrund einer Pneumocystis-jirovecii-Pneumonie stationär therapiert werden, welche sich glücklicherweise ohne respiratorische Insuffizienz stabilisieren ließ. Das durchgeführte Thorax-CT zeigte keine Bronchiektasen und keinen Anhalt für eine ungewöhnliche Bronchiolitis. Mikrobiologische Proben blieben bezüglich nichttuberkulöser Mykobakterien negativ. Auskultatorisch war die Lunge zuletzt seitengleich belüftet, eine Bronchokonstriktion lag nicht vor. Eine Neigung zu rezidivierenden Sinusitiden wird verneint. Blickdiagnostisch imponiert zudem eine ungewöhnlich ausgeprägte, therapieresistente mykotische Nagelinfektion an Händen und Füßen.\n\nGastroenterologisch ist der Verlauf blande: Es besteht keine chronische Diarrhoe, und eine frühere Endoskopie zeigte keine Kolitis. In der Sonografie fanden sich weder eine Hepatomegalie noch eine Splenomegalie, auch eine Lymphadenopathie ist klinisch wie bildgebend nicht nachweisbar. \n\nLaborchemisch präsentiert sich eine Panhypogammaglobulinämie mit deutlich verminderten Serumkonzentrationen für IgG, IgA sowie IgM. In der durchflusszytometrischen Differenzierung zeigt sich der Anteil der CD4-positiven T-Helferzellen normwertig, also weder vermindert noch erhöht. Allerdings ist der relative Anteil der klassengeswitchten Gedächtnis-B-Zellen stark erniedrigt. Die Familienanamnese bezüglich bekannter Erkrankungen ist unauffällig.\n\nIch bedanke mich für Ihre geschätzte konsiliarische Einschätzung und weitere Diagnostik.\n\nMit freundlichen Grüßen"
+}

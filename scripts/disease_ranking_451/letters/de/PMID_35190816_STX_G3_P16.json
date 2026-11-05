@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_G3_P16",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 331,
+  "completion_tokens": 386,
+  "total_tokens": 2521,
+  "thoughts_tokens": 1804,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute ein weibliches Kleinkind zur spezialisierten neuropädiatrischen Mitbeurteilung.\n\nDie Symptomatik manifestierte sich bereits in der Neonatalzeit. Zunächst bot das Kind wiederholt umschriebene motorische Phänomene im Sinne von Anfällen mit streng fokalem Beginn an der linken oberen Extremität. Im weiteren Verlauf traten zusätzlich mehrmals täglich stereotype, blitzartige Beugebewegungen des Rumpfes und der Extremitäten in dichten Serien auf, bevorzugt nach dem Aufwachen. \n\nEntwicklungspädiatrisch imponiert eine hochgradige, tiefgreifende Verzögerung in sämtlichen Domänen; altersentsprechende kognitive oder motorische Fähigkeiten konnten bislang nicht erworben werden. Das kürzlich abgeleitete EEG zeigte eine völlig desorganisierte, generalisiert hochamplitudige Kurve mit kontinuierlichen, wandernden multifokalen Spitzen und steilen Wellen ohne erkennbare physiologische Grundstruktur.\n\nDie allgemeinpädiatrische Untersuchung bot einen unauffälligen internistischen Befund mit unauffälliger Herz- und Lungenauskultation, weichem Abdomen und blandem Integument. Die Schwangerschaft und Geburt verliefen unkompliziert, und die Familienanamnese ist bezüglich neurologischer Auffälligkeiten völlig unauffällig. Die Eltern sind gesund und nicht blutsverwandt. Die routinemäßig bestimmten Blutwerte, einschließlich Elektrolyte, Nierenretentionsparameter und Leberwerte, lagen ausnahmslos im Referenzbereich.\n\nZur weiteren Einordnung und für Empfehlungen zum therapeutischen Vorgehen bedanke ich mich für Ihre geschätzte konsiliarische Beurteilung.\n\nMit freundlichen Grüßen\nDr. med. Thomas Martin"
+}

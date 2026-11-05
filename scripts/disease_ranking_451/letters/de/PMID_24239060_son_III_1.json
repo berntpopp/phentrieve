@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24239060_son_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 473,
+  "completion_tokens": 469,
+  "total_tokens": 3647,
+  "thoughts_tokens": 2705,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Sommer,\n\nich überweise Ihnen Herrn Jonas Keller, 20 Jahre alt, zur weiteren neurologischen Beurteilung. Er studiert derzeit Informatik, nimmt keine Dauermedikation ein, und die familiäre Anamnese bezüglich neuromuskulärer Vorerkrankungen ist vollkommen unauffällig.\n\nDie frühkindliche motorische Entwicklung verlief zeitgerecht. Seit dem späten Grundschulalter berichtet der Patient jedoch über eine zunehmende allgemeine Kraftlosigkeit und rasche Ermüdbarkeit, einhergehend mit einer deutlichen Häufung von Stürzen. \n\nIn der aktuellen Untersuchung ist die Gehfähigkeit uneingeschränkt erhalten, es imponiert jedoch ein watschelndes Gangbild. Fersen- und Zehengang können unbeeinträchtigt demonstriert werden. Es zeigt sich ein diffuser Muskelabbau an allen Extremitäten ohne fokale Hypertrophien; zudem besteht eine manifeste Schwäche der Nackenbeuger. Die Muskeleigenreflexe sind generalisiert erloschen. Myalgien werden verneint. Auffällig sind ferner beidseits deutlich abstehende Schulterblätter sowie bilaterale Knick-Senk-Füße; eine Skoliose liegt nicht vor. Kraniofazial zeigen sich ein langes, schmales Gesicht, ein auffallend kleiner Unterkiefer und ein hoher, gotischer Gaumen.\n\nDoppelbilder oder eine Ptosis liegen nicht vor, auch Kau- und Schluckakte sowie das Sprechen sind unbeeinträchtigt. Das Berührungs- und Vibrationsempfinden ist seitengleich intakt. Pulmonal traten anamnestisch keine rezidivierenden Pneumonien auf.\n\nLaborchemisch zeigte sich die Serum-Kreatinkinase normwertig, und eine Myoglobinurie konnte ausgeschlossen werden. In den elektrophysiologischen Untersuchungen fanden sich normale motorische Nervenleitgeschwindigkeiten. Im kürzlich veranlassten MRT fiel jedoch ein diffuser fettiger Umbau der Skelettmuskulatur auf.\n\nIch danke Ihnen für die konsiliarische Mitbeurteilung und Einschätzung des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Brandner"
+}

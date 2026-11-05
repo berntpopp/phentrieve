@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29217778_P2_D154",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 415,
+  "total_tokens": 2612,
+  "thoughts_tokens": 1849,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindemann,\n\nich überweise Ihnen die 22-jährige Patientin Lisa Weber zur konsiliarischen Beurteilung und Weiterbehandlung. \n\nFrau Weber berichtet über eine bereits im Kleinkindalter, etwa ab dem 18. Lebensmonat, einsetzende Neigung zu gehäuften, wiederkehrenden Infekten, insbesondere der oberen Atemwege. Die Familienanamnese ist hinsichtlich hereditärer oder hämatologischer Erkrankungen unauffällig. Die Patientin studiert Betriebswirtschaft, raucht nicht und nimmt außer gelegentlichen Schmerzmitteln bei Bedarf keine Dauermedikation ein.\n\nIm aktuellen Labor imponiert eine ausgeprägte Verarmung aller drei Blutzellreihen im peripheren Blut. Es besteht ein Mangel an weißen Blutkörperchen sowie eine signifikante Thrombozytenverminderung mit Werten um 35 G/l. Zudem zeigt sich eine Makrozytose mit einem deutlich über die Normgrenze angehobenen mittleren Erythrozytenvolumen von 106 fl bei einem Hämoglobinwert von 8,8 g/dl. \n\nIn der kürzlich veranlassten Knochenmarkbiopsie zeigte sich ein für das Lebensalter auffallend zellarmes Knochenmarksgewebe. Ergänzend wurden im Aspirat deutliche dysplastische Veränderungen innerhalb der Zellreifung beschrieben. \n\nDie körperliche Untersuchung bot bis auf eine leichte Blässe keine pathologischen Befunde. Die Milz und die Leber sind nicht tastbar vergrößert, periphere Lymphknoten stellen sich indolent und unauffällig dar, der kardiopulmonale Auskultationsbefund ist regelrecht.\n\nIch wäre Ihnen für eine zeitnahe hämatologische Begutachtung der Befunde und eine Empfehlung zum weiteren Vorgehen sehr verbunden.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Brandner"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31068971_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 334,
+  "total_tokens": 2359,
+  "thoughts_tokens": 1638,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nI am referring Liam, a 7-month-old boy, for an urgent assessment regarding an unresolved and progressive clinical presentation. His parents, who are healthy and non-consanguineous, report that his issues began around 3 months of age.\n\nOver the past four months, Liam has suffered from severe growth faltering, dropping from the 50th to well below the 3rd percentile for weight. He has had frequent febrile spikes and repeated severe bacterial infections, including two separate admissions for culture-proven bacteremia. In addition, his mother notes recurrent unprovoked nosebleeds and frequent passages of frank blood in his stool. \n\nOn physical examination today, he is pale and fussy, though his cardiac and chest auscultation are entirely normal. Examination of the neck demonstrates multiple palpable, enlarged anterior cervical lymph nodes. He has marked organomegaly; his liver edge is palpable 4 cm below the right costal margin, and his spleen extends 3 cm below the left costal margin. \n\nHis latest blood counts demonstrate a striking elevation in total white blood cells alongside significant anemia and depressed platelet counts. Extensive prior immunologic testing showed that surface CD18 expression on his granulocytes was fully preserved, and his circulating immunoglobulin levels were entirely normal. Electrolytes, liver transaminases, and renal parameters are also unremarkable.\n\nGiven his combination of hematologic derangements, bleeding tendencies, marked hepatosplenomegaly, and infectious vulnerability, I would appreciate your expert opinion on how best to proceed with his evaluation.\n\nSincerely,\n\nDr. Evelyn Vance\nPediatric Ambulatory Care"
+}

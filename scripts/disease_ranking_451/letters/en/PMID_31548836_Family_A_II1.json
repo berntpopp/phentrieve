@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31548836_Family_A_II1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 427,
+  "completion_tokens": 345,
+  "total_tokens": 2457,
+  "thoughts_tokens": 1685,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Harrison,\n\nThank you for agreeing to evaluate Lucas, a 3-year-old boy referred for consultation regarding multiple congenital skeletal and craniofacial anomalies. Lucas lives at home with his parents, is meeting cognitive milestones, and currently takes daily pediatric vitamin D.\n\nHis linear growth is significantly stunted, tracking well below the 1st percentile. Head circumference is relatively enlarged with marked biparietal and frontal prominence, accompanied by widely patent cranial sutures and multiple intrasutural Wormian ossicles on radiographs. Facial features include a flattened bridge of the nose, a distinctly retruded middle third of the face, and a receded, undersized mandible. Interpupillary and canthal distances are normal, without telecanthus or ocular spacing abnormalities. Dentition has been noticeably delayed in its primary emergence, and the erupted teeth display thin, poorly mineralized enamel; panorex imaging shows no extra or supplemental teeth.\n\nOn musculoskeletal examination, Lucas exhibits a distinctly constricted thorax and mild thoracic lateral spinal curvature. His shoulder girdle shows remarkable hypermobility, allowing him to oppose both shoulders across his anterior chest wall. Radiographs confirm stunted clavicular length bilaterally, hypoplastic iliac wings, and retarded ossification of the pubic bones. The hand films show typical metacarpal proportions without elongation of the index metacarpals. In addition, an elective neuroaxis MRI completed last month revealed a thoracic spinal cord syrinx. Cardiac auscultation, abdominal palpation, and cranial nerve functions were all within normal limits.\n\nI would be grateful for your expert clinical opinion and recommendations for Lucas's ongoing care and diagnostic workup.\n\nSincerely,\n\nDr. Marcus Vance, MD\nDepartment of Pediatrics"
+}

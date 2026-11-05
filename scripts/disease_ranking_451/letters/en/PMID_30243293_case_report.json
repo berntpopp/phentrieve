@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30243293_case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 325,
+  "total_tokens": 1836,
+  "thoughts_tokens": 1159,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 21-year-old gentleman who has experienced persistent neuromuscular issues since roughly eleven years of age. He is employed in an administrative office role and takes only daily multivitamins. His family history is non-contributory.\n\nHe primarily complains of pervasive muscular tightness that causes functional discomfort, particularly after periods of immobility. On physical examination, he presents with prominent, widespread muscular enlargement across his trunk and extremities, appearing remarkably bodybuilder-like despite minimal athletic activity. Neurological assessment shows cranial nerves II-XII are intact, and sensory examination to light touch, vibration, and pinprick is preserved. Manual motor testing revealed preserved 5/5 power globally, with no objective muscle weakness identified. However, there is clear delayed relaxation following sustained fist clenching, as well as percussion-induced dimpling of the thenar eminence. His deep tendon reflexes are globally diminished, eliciting only 1+ responses at the biceps, brachioradialis, patellae, and Achilles bilaterally. Plantar responses are flexor, and his gait is unaffected.\n\nRoutine hematology, metabolic panels, and thyroid testing were completely unremarkable. However, his circulating creatine kinase activity was raised at 495 U/L. An outside quadriceps biopsy was re-examined; histochemical staining was largely unrevealing, demonstrating intact cytochrome C oxidase activity with no evidence of COX-negative fibers.\n\nI would be grateful for your neurological consultation and assessment regarding his presentation.\n\nSincerely,\n\nDr. Evelyn Vance\nDepartment of Internal Medicine"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_C_II_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 412,
+  "total_tokens": 2299,
+  "thoughts_tokens": 1531,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich erbitte Ihre geschätzte konsiliarische Beurteilung des 21-jährigen Jonas, der sich in Begleitung seiner Mutter in meiner Sprechstunde vorstellte. \n\nAnamnestisch ist bereits seit der frühen Kindheit eine erhebliche Verzögerung beim Erreichen der motorischen Meilensteine bekannt; das freie Gehen wurde erst weit nach dem dritten Lebensjahr erlernt. Im weiteren Verlauf traten im Schulalter wiederholt bilaterale tonisch-klonische Krampfanfälle auf. Der Patient lebt im häuslichen Umfeld und arbeitet in einer Werkstätte für betreutes Arbeiten. Die Familienanamnese ist bezüglich neurologischer Vorerkrankungen unauffällig.\n\nIn der aktuellen Untersuchung imponiert ein deutlich ausladendes, breitbasiges Gangbild bei ausgeprägter zerebellärer Gang- und Standataxie. Bei den Augenfolgebewegungen fällt ein feinschlägiger Blickrichtungsnystagmus auf. Bei der Überprüfung der Willkürmotorik des Mund- und Gesichtsbereichs zeigt sich eine erhebliche oromotorische Apraxie; Bewegungen der Lippen und der Zunge können auf Aufforderung nicht zielgerichtet ausgeführt werden. An den unteren Extremitäten besteht eine spastische Tonuserhöhung mit gesteigerten Reflexen und beidseits positiv auslösbarem Babinski-Reflex als Hinweis auf pathologische Pyramidenbahnzeichen. \n\nDer sonstige internistische Status, die peripheren Pulse sowie die Sensibilität an Rumpf und Extremitäten präsentierten sich unauffällig. Auch das Basislabor inklusive Elektrolyte, Nieren- und Leberwerten erbrachte regelrechte Ergebnisse.\n\nÜber Ihre geschätzte Einschätzung des klinischen Bildes und Empfehlungen zum weiteren diagnostischen Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

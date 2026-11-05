@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26239674_proband_III_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 414,
+  "completion_tokens": 375,
+  "total_tokens": 3213,
+  "thoughts_tokens": 2424,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 54-year-old female whose medical complexities initially began at approximately 30 years of age. \n\nHer earliest symptoms included persistent frontotemporal head pain, bilateral milky nipple discharge, and the premature cessation of her menses. Sellar imaging demonstrated a pituitary lesion measuring 14 mm, and biochemical testing revealed significant prolactin hypersecretion along with corticotropin insufficiency, for which she currently takes physiologic hydrocortisone. \n\nIn addition, she has developed primary autonomous parathyroid overactivity characterized by supraphysiologic parathyroid hormone levels. While abdominal ultrasonography confirmed no renal calculi or nephrolithiasis, she recently experienced an episode of frank, visually apparent hematuria. She also complains of persistent lower back discomfort. \n\nHer gastrointestinal history is notable for frequent watery bowel movements. Subsequent workup revealed excessive circulating gastrin concentrations originating from a confirmed gastrin-secreting neoplasm in the duodenum, complicated by a recurrent cratered ulcer in the duodenal bulb. Surgical history also includes resection of an indolent foregut carcinoid neoplasm as well as an encapsulated thymic epithelial neoplasm. Furthermore, she carries an ongoing diagnosis of adult-onset diabetes, managed with metformin.\n\nAt her visit today, she was alert and pleasant. Physical examination showed a blood pressure of 124/76 mmHg, heart rate of 72 bpm, and completely normal heart sounds, clear lungs, and a soft, non-tender abdomen. Neurological examination was entirely non-focal. She works as a school administrator, does not smoke, and reports no family history of endocrine disorders.\n\nGiven her multifaceted presentation, I would greatly appreciate your assessment and guidance on how best to coordinate her ongoing multidisciplinary care.\n\nSincerely,\n\nDr. Julian Vance"
+}

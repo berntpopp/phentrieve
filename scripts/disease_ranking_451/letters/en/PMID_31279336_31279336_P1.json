@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31279336_31279336_P1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 286,
+  "total_tokens": 2380,
+  "thoughts_tokens": 1750,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing this 7-month-old male infant who was brought to my clinic regarding progressive concerns that started over the past few weeks. \n\nHis birth history was uncomplicated at 39 weeks gestation, and his newborn metabolic screens were unremarkable. He lives with both parents and has no significant family medical history. Recently, however, his parents note that he has been acting chronically unwell, appearing subdued and lacking his usual vitality. In tandem with this, he exhibits intense, inconsolable crying episodes, alongside profound sleep fragmentation with an inability to remain asleep for more than brief intervals.\n\nOn physical examination, vital signs are within normal limits, and his anterior fontanelle is soft and flat. Heart sounds are dual with no murmurs, the chest is clear to auscultation, and the abdomen is soft and non-tender. Neurological assessment reveals pronounced central floppiness with head lag on pull-to-sit; conversely, his limbs display prominent resistance to passive movement, manifesting as significant extremity tightness and rigidity. \n\nNeuroimaging was performed earlier this week. The cranial MRI revealed unusual architectural variations in the white matter bordering the lateral ventricles, in addition to an anomalous configuration of the cerebellar structures.\n\nI would be very grateful for your formal evaluation of this child to help clarify these clinical and imaging findings.\n\nWarm regards,\n\nDr. Julian Mercer\nGeneral Pediatrics"
+}

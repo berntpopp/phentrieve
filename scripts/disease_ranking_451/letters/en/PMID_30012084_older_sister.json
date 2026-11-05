@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30012084_older_sister",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 316,
+  "total_tokens": 2726,
+  "thoughts_tokens": 2033,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating Chloe, a 14-year-old girl who presented to my clinic for ongoing skeletal management. \n\nChloe’s history began in infancy following a delivery complicated by maternal waters breaking prior to the onset of labor. Her early physical milestones were noticeably delayed, and she did not manage independent ambulation until two and a half years of age. However, she showed no broad developmental delay across non-physical domains, and she has never demonstrated any intellectual impairment, currently excelling in mainstream secondary school.\n\nOver the course of her life, she has sustained repeated broken bones from minimal trauma, beginning in her first year. This has led to progressive curvature and angulation of the long bones in both her upper and lower extremities secondary to these healed injuries. Recent radiological imaging confirmed diffuse demineralization of the skeleton as well as flattened vertebral bodies throughout the spine. Her linear growth has been significantly curtailed, with her stature plotting far beneath the third percentile. \n\nOn physical exam, she presents with bilateral drooping of the upper eyelids. Her sclerae are unremarkable and entirely white, lacking any bluish tint. Examination of the oral cavity confirms normal, healthy dentition with no abnormal tooth translucency, amber discoloration, or structural fragility. Vital signs, cranial nerves, and cardiopulmonary auscultation were all normal. She currently takes daily supplemental vitamin D, and her family history is non-contributory.\n\nI would be grateful for your expert assessment and management recommendations regarding her presentation.\n\nSincerely, \nDr. Arthur Miller"
+}

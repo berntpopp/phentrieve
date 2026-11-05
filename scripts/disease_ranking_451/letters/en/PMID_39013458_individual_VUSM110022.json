@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_VUSM110022",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 561,
+  "completion_tokens": 427,
+  "total_tokens": 2887,
+  "thoughts_tokens": 1899,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to evaluate this 13-year-old male for comprehensive clinical assessment. He attends a local specialized educational program and is currently taking no regular medications.\n\nHe was born small for gestational age at term, notably not large for gestational age. Early milestones were markedly delayed, consistent with severe global developmental delay. He is entirely non-verbal, without any spoken speech, and demonstrates profound intellectual disability. His parents note a stable course with no developmental regression and no history of seizures. \n\nBehaviorally, he is calm. There is no evidence of autism, attention deficit hyperactivity disorder, bipolar affective disorder, anxiety, depression, or psychosis. He demonstrates no aggressive behavior, compulsive behaviors, motor stereotypies, or self-mutilation. \n\nOn physical examination, his height is tracking along the 50th percentile, with neither short stature nor tall stature. His BMI is well above the 99th percentile, reflecting clinical obesity rather than merely being overweight. His head circumference is normal, without microcephaly. Axial and appendicular muscle tone is normal, with no hypotonia. He exhibits no pectus excavatum, kyphosis, or scoliosis. The extremities show no joint hypermobility, fifth finger clinodactyly, hallux valgus, pes planus, or talipes equinovarus. Genitourinary examination revealed normally positioned meatus without hypospadias and descended testes with no cryptorchidism. No umbilical or inguinal hernias are present. \n\nSystemic review is similarly unremarkable. He has experienced no feeding difficulties, gastroesophageal reflux, chronic constipation, or recurrent infections. Past renal ultrasound demonstrated normal kidneys without hydronephrosis, renal cysts, or ureteropelvic junction obstruction. A previous echocardiogram was structurally normal, showing no coronary artery fistula, patent ductus arteriosus, atrial septal defect, ventricular septal defect, or atrioventricular canal defect.\n\nI would greatly appreciate your evaluation and guidance on further management.\n\nWarm regards,\n\nDr. Marcus Vance, MD"
+}

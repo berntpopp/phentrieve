@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_5_Patient_I",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 577,
+  "completion_tokens": 522,
+  "total_tokens": 4445,
+  "thoughts_tokens": 3346,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nzur differentialdiagnostischen Beurteilung überweise ich Ihnen den 47-jährigen Verwaltungsangestellten Herrn T. Anamnestisch bestehen keine Nahrungsmittelallergien, die Familienanamnese ist leer, und eine Dauermedikation wird verneint.\n\nKörperlich imponiert eine deutliche Kielbrust sowie eine thorakolumbale Skoliose, eine Trichterbrust besteht nicht. Schädel- und gesichtsmorphologisch fallen eine Dolichozephalie, ein Hypertelorismus sowie eine prominente Nasenstruktur auf. Stirnhöcker, eine Malarhypoplasie, eine Mikrognathie oder tief ansetzende Ohren finden sich ebenso wenig wie ein Epikanthus. Die Sklären sind weiß, eine Myopie, ein Schielen oder ein Keratokonus wurden augenärztlich ausgeschlossen. Intraoral zeigt sich ein hoher, spitzbogiger Gaumen bei ungespaltener Uvula und geschlossenem Gaumen.\n\nDas Integument ist von durchscheinender Zartheit mit sichtbarem Venenmuster, jedoch ohne Hyperelastizität, Dehnungsstreifen, Milien, atrophische Narben oder Hämatomneigung. Verdächtige Hautläsionen wie selbstheilende Epitheliome fehlen.\n\nGefäßmorphologisch zeigte sich im MRT eine generalisierte Elongation und Schlängelung der arteriellen Gefäße, neuroaxial ohne durale Ektasie. Kardial zeigten sich weder ein persistierender Ductus arteriosus, eine Mitralklappenregurgitation noch ein Klappenprolaps; Spontandissektionen der Koronarien traten nie auf.\n\nEs besteht kein disproportioniertes Längenwachstum. Die HWS ist stabil. Sämtliche Gelenke sind bandstabil ohne Hypermobilität, rezidivierende Luxationen, Arthrosen oder Kontrakturen. Die Hände weisen keine überlangen Finger auf. Knieachsen (kein Genu valgum) und Füße (kein Pes planus, kein Klumpfuß) sind regelrecht. Bauchwand und Genitale zeigen keine Leistenhernien oder Hypospadien; intestinale Komplikationen wie ein Volvulus oder periphere Varizen sind nicht bekannt.\n\nIch danke Ihnen für Ihre geschätzte konsiliarische Einschätzung.\n\nMit freundlichen Grüßen"
+}

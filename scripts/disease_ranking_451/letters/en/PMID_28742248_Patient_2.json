@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28742248_Patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 424,
+  "completion_tokens": 347,
+  "total_tokens": 2334,
+  "thoughts_tokens": 1563,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to assess this 5-year, 10-month-old girl, who attended clinic today with her parents for a multidisciplinary neurodevelopmental evaluation. \n\nHer concerns first came to light around six months of age when she began falling behind in her developmental milestones. She continues to display generalized neurodevelopmental delays, with substantial motor impairment affecting both ambulation and fine motor coordination, alongside severely restricted receptive and expressive communication skills. Her history is also significant for bilateral clubfeet and recurrent afebrile convulsive episodes, for which she is maintained on daily levetiracetam. A previous cranial MRI documented excessive small cortical foldings across the cerebral cortex as well as a distinct cystic formation in the cerebellum. On current examination, she demonstrates an isolated cranial nerve III paresis with partial ptosis and restricted elevation and adduction of the left eye.\n\nHer craniofacial features are unremarkable. Facial length is proportionate, without an elongated appearance, and her eyes are not deeply set. Cycloplegic refraction was normal with no hyperopia. The nasal ridge is of typical breadth. Her vermilion borders have normal fullness, and the philtrum is of standard length with clearly defined vertical columns rather than a smooth appearance. Dentition is well aligned with no crowded teeth, and her jaw shows normal position and dimensions without retrognathia or micrognathia. Her skin displays normal opacity without translucency, and testing of the small joints of the hands revealed no hyperextensibility.\n\nShe lives at home and receives physical and speech therapies at a specialized preschool. I would greatly appreciate your assessment and recommendations for her ongoing care.\n\nSincerely,\nDr. Katherine Vance"
+}

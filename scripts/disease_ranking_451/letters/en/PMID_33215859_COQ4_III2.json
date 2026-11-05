@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33215859_COQ4_III2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 282,
+  "total_tokens": 2712,
+  "thoughts_tokens": 2073,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Sophia Miller, a 9-year-old girl who presented with marked flaccidity at birth and has shown an insidious neurodegenerative course since early infancy.\n\nAlthough she achieved partial motor milestones initially, she experienced an inability to walk after age seven and is now entirely wheelchair-bound. Her parents report progressive cognitive regression over the past eighteen months, accompanied by emerging difficulties with swallowing that necessitate a modified diet. She also suffers from recurrent epileptic events, currently managed with levetiracetam. In recent months, she has developed ventilatory compromise, prompting the initiation of nocturnal non-invasive positive pressure support.\n\nOn physical examination, she demonstrates a profound, diffuse reduction in muscle tone with absent deep tendon reflexes. Cardiovascular, abdominal, and cranial nerve examinations were otherwise normal. Interestingly, formal audiology was unremarkable with no deficits in auditory acuity. Prior electrodiagnostic studies confirmed a diffuse sensorimotor peripheral nerve disease, and surveillance laboratories consistently show elevated serum lactic acid levels, hovering between 3.6 and 4.1 mmol/L. Cranial MRI demonstrated pronounced shrinkage of the cerebellar vermis and hemispheres. \n\nSophia lives with her parents and healthy older sibling; family history is non-contributory. I would greatly appreciate your evaluation and recommendations regarding next diagnostic steps for this child.\n\nSincerely,\n\nDr. Marcus Brody\nPediatric Neurology"
+}

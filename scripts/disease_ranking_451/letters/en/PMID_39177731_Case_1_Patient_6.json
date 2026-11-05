@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39177731_Case_1_Patient_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 419,
+  "completion_tokens": 328,
+  "total_tokens": 3044,
+  "thoughts_tokens": 2297,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to see Lucas, a 9-year-old boy whose family first noted low muscle tone at approximately three weeks of life. Early motor progression was delayed; he could not sit unsupported until fourteen months and was unable to walk independently until almost three years of age. His speech and linguistic milestones were significantly delayed as well, and his conversation remains marked by poorly articulated, slurred speech. Despite these issues, his cognitive development is preserved with no intellectual disability, and he has steadily acquired new abilities without any developmental regression. Cerebral palsy was thoroughly considered previously and ruled out.\n\nOn physical examination, Lucas demonstrates generalized low tone alongside prominent swaying oscillations of the trunk when seated. Coordination testing shows bilateral past-pointing, though he exhibits no intention tremor. His gait is unsteady and wide-based. Cranial nerve assessment is remarkable for saccadic, cogwheeling smooth visual tracking. Slit-lamp and fundoscopic examinations disclose persistently enlarged, dilated pupils, underdeveloped iris stroma, fine residual strands bridging the pupillary apertures, and strikingly pale, underpigmented ocular fundi bilaterally. His deep tendon reflexes are symmetric, and routine audiometry was normal. \n\nRecent neuroimaging demonstrates isolated volumetric loss of the cerebellar vermis, but no diffuse cerebellar atrophy is present across the hemispheres.\n\nLucas lives at home with his parents, performs well in mainstream fourth grade, and takes only a daily multivitamin. There is no family history of early-onset neurological disease. \n\nI would appreciate your comprehensive subspecialty evaluation and guidance regarding further management.\n\nSincerely,\nDr. Arthur Pendelton"
+}

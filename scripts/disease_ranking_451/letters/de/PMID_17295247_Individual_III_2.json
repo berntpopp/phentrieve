@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17295247_Individual_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 393,
+  "total_tokens": 2310,
+  "thoughts_tokens": 1569,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen den kleinen Patienten zur spezialisierten kardiologischen Mitbeurteilung und weiteren Therapieplanung. Der Knabe kam nach unkomplizierter Schwangerschaft termingerecht zur Welt; die Familienanamnese ist bezüglich kardialer Auffälligkeiten unauffällig.\n\nIn der primären Bildgebung zeigte sich unmittelbar nach der Geburt eine komplexe Fehlbildung. Echokardiographisch imponiert ein funktionell univentrikuläres Herz mit einer großen gemeinsamen Hauptkammer. Es zeigt sich eine Vorwärtsverlagerung der Aorta, welche anterior und rechts aus der Herzkammer entspringt, im Sinne einer D-Transposition der großen Gefäßstämme. Das Pulmonalklappenniveau stellt sich vollständig atretisch und membranös verschlossen dar, sodass kein antegrader Fluss über den rechtsventrikulären Ausflusstrakt nachweisbar ist. Der atrioventrikuläre Einstrom über die linke Klappe stellt sich morphologisch intakt und gut durchgängig dar; eine Mitralatresie liegt nicht vor. \n\nSonographisch ließen sich im Abdomen multiple kleine Nebenmilz-Formationen bzw. eine Aufteilung in mehrere Milzparenchymknoten darstellen. Eine Asplenie konnte somit eindeutig ausgeschlossen werden. Die Nieren und ableitenden Harnwege stellen sich regelrecht dar. Bei der körperlichen Untersuchung zeigte sich das Kind in gutem Allgemeinzustand. Die Reflexe sind seitengleich lebhaft auslösbar, der Muskeltonus ist unauffällig. Aktuell erhält der Patient eine kontinuierliche Prostaglandin-Infusion.\n\nWir bitten um Ihre geschätzte konsiliarische Beurteilung bezüglich des weiteren Vorgehens und danken für die Übernahme.\n\nMit freundlichen kollegialen Grüßen"
+}

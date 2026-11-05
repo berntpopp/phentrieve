@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_4_4_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 450,
+  "total_tokens": 2571,
+  "thoughts_tokens": 1725,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen einen heute drei Monate alten Säugling zur konsiliarischen Mitbeurteilung und weiteren diagnostischen Einordnung des komplexen Beschwerdebildes. \n\nDas Kind wurde nach unauffälliger Schwangerschaft reifgeboren, das Neugeborenenscreening war regelrecht, die Familienanamnese ist bezüglich erblicher Vorerkrankungen leer. Zuletzt erhält der Säugling lediglich eine Vitamin-D-Prophylaxe.\n\nIn den vergangenen Wochen traten wiederholt zerebrale Krampfanfälle auf. Im kranialen MRT zeigte sich ein vollständiges Fehlen der Balkenstrukturen. Entwicklungsneurologisch besteht ein deutlicher Rückstand der motorischen Meilensteine mit ausgeprägter Muskelschwäche, wobei sich elektrophysiologisch ein myopathisches Muster nachweisen ließ. Ophthalmologisch imponiert eine bilaterale Linsentrübung. Bei der körperlichen Untersuchung fällt zudem eine generalisierte Minderung der Hautpigmentierung im Vergleich zu den Eltern auf. Das Abdomen ist weich, die Leber tastet sich deutlich über die Altersnorm vergrößert unter dem rechten Rippenbogen. Zudem wurde laborchemisch eine ausgeprägte Störung der zellulären und humoralen Immunabwehr nachgewiesen.\n\nEin Nystagmus ließ sich zu keinem Zeitpunkt auslösen. Eine Lippen- oder Gaumenspalte liegt nicht vor, der Gaumen ist vollständig geschlossen. Der Kopfumfang befindet sich stabil auf der 45. Perzentile, sodass eine Mikrozephalie ausgeschlossen werden kann. Die kardiale Diagnostik inklusive Echokardiographie zeigte reguläre Pumpverhältnisse ohne Anhalt für eine Kardiomyopathie. Der Thymus konnte sonografisch mit regelrechtem Volumen dargestellt werden, eine Aplasie oder Hypoplasie des Organs besteht nicht. Die Wirbelsäule ist klinisch achsengerecht und zeigt keine Skoliose.\n\nÜber Ihre geschätzte Expertise und Vorschläge zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22647861_41_year_old_woman",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 462,
+  "completion_tokens": 493,
+  "total_tokens": 2749,
+  "thoughts_tokens": 1794,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Frau Weber, eine 42-jährige Verwaltungsangestellte, die sich wegen zunehmender Skelett- und Gelenkbeschwerden vorstellt. Rückblickend traten erste Symptome bereits im Kindesalter auf.\n\nDie Patientin berichtet über chronische, tief sitzende Rückenschmerzen im Lendenwirbelbereich sowie über schmerzhafte Schwellungen beider Sprunggelenke. Zudem besteht eine seit Langem progrediente, polyartikuläre Arthropathie. In der durchgeführten Bildgebung ließen sich neben ausgeprägten Chondrokalzinosen an mehreren Gelenkregionen auch deutliche Verkalkungen der Bandscheiben dokumentieren. Die Metaphysen zeigten sich dabei schlank und regulär konfiguriert, ohne metaphysäre Aufweitungen; auch das Schädeldach war radiologisch nicht verdickt.\n\nKraniofazial und neurologisch imponiert die Patientin unauffällig: Der Kopfumfang liegt im Normbereich ohne Anhalt für eine Makrozephalie. Es finden sich weder eine verbreiterte Stirn noch Stirnhöcker oder paranasale Wülste. Die Gesichtsform ist harmonisch, keineswegs verlängert. Die Augen zeigen einen normalen Augenabstand, ohne Telekanthus oder Epiblepharon. Die Ohrmuscheln stehen orthotop, sind nicht tief angesetzt und nicht dorsal rotiert. Eine Fazialisparese liegt nicht vor. \n\nLaborchemisch imponiert ein deutlich erniedrigtes Serumphosphat bei regelrechtem, unauffälligem Gesamtkalzium. Auffällig ist zudem ein reaktiv gesteigertes intaktes Parathormon im Rahmen eines sekundären Hyperparathyreoidismus. Im 24-Stunden-Sammelurin bestätigten sich eine ausgeprägte Hyperphosphaturie sowie eine Hyperkalziurie. Vitalparameter und Routine-Entzündungswerte waren unauffällig, die Familienanamnese ist leer, Vorerkrankungen bestehen außer gelegentlicher Einnahme von Ibuprofen nicht.\n\nZur ätiologischen Einordnung dieses Befundkomplexes und Einleitung einer zielgerichteten Therapie bitte ich um Ihre geschätzte Mitbeurteilung.\n\nMit freundlichen Grüßen"
+}

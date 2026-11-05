@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 367,
+  "total_tokens": 2618,
+  "thoughts_tokens": 1894,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Weber,\n\nich überweise Ihnen heute die dreimonatige Patientin Mia zur konsiliarischen Mitbeurteilung.\n\nDas Mädchen kam nach unauffälliger Schwangerschaft termingerecht zur Welt. Die Familienanamnese ist bezüglich neurometabolischer Vorerkrankungen unergiebig, die Eltern sind nicht blutsverwandt. \n\nBereits am 3. Lebenstag kam es zu einer akuten Verschlechterung mit rezidivierenden zerebralen Krampfanfällen. Im Rahmen der damaligen Akutdiagnostik zeigte sich in der Schnittbildgebung ein ausgeprägtes Hirnödem. Laborchemisch fiel eine massive Erhöhung des Blutammoniaks auf. In der differenzierten Aminosäureanalytik imponierte ein exzessiv gesteigerter Citrullinspiegel im Plasma sowie ein deutlich vermehrtes Serum-Glutamin. Demgegenüber war die Argininkonzentration im zirkulierenden Blut signifikant erniedrigt. Zudem ließ sich eine stark gesteigerte Orotsäureausscheidung im Urin feststellen. Ein pathologischer Anstieg der Laktatkonzentration im Plasma konnte dabei wiederholt ausgeschlossen werden; die entsprechenden Werte lagen durchgehend im Normbereich.\n\nAktuell zeigt sich das Kind kardiopulmonal stabil, die Fontanelle ist normfrequent pulsierend und im Niveau, das Abdomen weich ohne Hepatosplenomegalie. \n\nAufgrund der geschilderten Befundkonstellation bitte ich um Ihre geschätzte Beurteilung und Empfehlungen bezüglich des weiteren diagnostischen und therapeutischen Vorgehens.\n\nMit freundlichen Grüßen\nDr. med. Thomas Becker"
+}

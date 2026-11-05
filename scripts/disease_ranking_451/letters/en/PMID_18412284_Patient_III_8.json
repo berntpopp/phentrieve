@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18412284_Patient_III_8",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 300,
+  "total_tokens": 2156,
+  "thoughts_tokens": 1504,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Ms. Clara Davis, a 35-year-old accountant referred for further assessment. She reports visual troubles dating back to roughly ten years of age, initially presenting as severe difficulty seeing in dim lighting and dark environments. Over the past two decades, she has experienced an insidious, ongoing constriction of her peripheral visual fields, and more recently she has noted a gradual decline in her central sharpness.\n\nOn examination, her best-corrected visual acuity was diminished to 20/50 in the right eye and 20/60 in the left. Anterior segment evaluation was entirely unremarkable; corneas were clear, anterior chambers were deep and quiet, and intraocular pressures were 15 mmHg OU. Extraocular movements were full, and pupillary responses were brisk without an afferent defect.\n\nFundus examination demonstrated marked diffuse narrowing of the retinal arterioles and striking bone-spicule pigment deposits scattered across the mid-periphery in both eyes. Confrontation and formal perimetry confirmed substantial concentric visual field loss. Electroretinography was conducted; notably, her electroretinogram was not undetectable, as discernible, reproducible waveforms were still present bilaterally.\n\nMs. Davis has no significant past medical history, takes only a daily multivitamin, and has no family history of visual impairment. I would appreciate your expert evaluation and diagnostic impression regarding her presentation and the best management plan moving forward.\n\nSincerely,\nDr. Julian Sterling"
+}

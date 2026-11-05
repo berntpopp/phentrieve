@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31898322_case_3_index",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 579,
+  "completion_tokens": 560,
+  "total_tokens": 4247,
+  "thoughts_tokens": 3108,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen Frau Schneider, 51 Jahre, zur konsiliarischen Beurteilung. Bei der mit 1,84 m auffallend großgewachsenen Patientin zeigte sich computertomographisch ein umschriebenes Aneurysma der thorakalen Aorta. Die Aorta abdominalis ist hingegen unauffällig, ohne Dissektionsmembran oder aneurysmatische Weitung; auch die Beckenarterien sind frei von Ektasien. Die Aortenwurzel ist normal weit, die Aorta descendens ohne Dissektion. Karotiden und Vertebralarterien verlaufen geradlinig ohne Tortuositas. Echokardiographisch imponiert ein normal dimensionierter linker Ventrikel ohne Hinweis auf eine dilatative Kardiomyopathie, die Klappen schließen kompetent ohne Mitral- oder Aortenregurgitation, ein Mitralklappenprolaps liegt nicht vor. Im EKG zeigt sich ein normofrequenter Sinusrhythmus ohne Arrhythmien oder inkompletten Rechtsschenkelblock.\n\nKörperlich fallen zudem eine deutliche Retrognathie, ein verstrichenes, glattes Philtrum bei regelrechter Philtrumlänge sowie eine ausgeprägte Varikosis der unteren Extremitäten auf. Das übrige kraniofaziale Profil ist unauffällig: kein Dolichozephalus, keine Stirnhöcker, keine hohe Stirn, kein langes Gesicht und keine Mittelgesichtsretraktion. Der Gaumen ist intakt. Der Zahnstatus ist altersentsprechend ohne Engstand oder vergrößerten Überbiss. Die Ohren sind orthotop inseriert. Die Augen bieten keine Ptosis, keinen Strabismus, keine Proptosis und reguläre Lidachsen; Hypertelorismus und blaue Sklären fehlen.\n\nDer Bewegungsapparat ist intakt: Die Wirbelsäule zeigt weder Skoliose noch Spondylolisthesis, peripher imponieren keine Kamptodaktylie, kein Hallux valgus und keine Arthrosen. Anamnestisch bestanden weder Hüftdysplasie noch Klumpfüße, auch eine frühkindliche Muskelhypotonie wurde verneint. Das Muskelrelief ist seitengleich kräftig, das Integument weder samtartig-weich noch durchscheinend. Vorereignisse wie ein Pneumothorax oder eine subdurale Blutung traten nie auf. \n\nBei der ansonsten gesunden Patientin (Nichtraucherin, keine Dauermedikation) bitte ich um Ihre geschätzte Einschätzung des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

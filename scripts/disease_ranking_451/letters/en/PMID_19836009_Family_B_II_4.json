@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_B_II_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 329,
+  "total_tokens": 2059,
+  "thoughts_tokens": 1367,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 14-year-old girl who presented to my clinic for a comprehensive ophthalmic assessment. She is accompanied by her mother, reports doing well academically in high school, and currently takes no daily medications.\n\nOn exam, her visual acuity is notably reduced without correction, and cycloplegic refraction demonstrates severe nearsightedness (-9.50 diopters in the right eye, -10.00 diopters in the left eye). A-scan ultrasonography shows that her ocular axial lengths are not elongated and remain completely within standard limits at 21.8 mm bilaterally. Slit-lamp biomicroscopy is notable for markedly crowded, shallow anterior chambers. Despite this narrow anterior segment anatomy, gonioscopy demonstrated no evidence of anterior chamber synechiae, and her intraocular pressures were entirely normal at 13 mmHg in each eye. Her optic nerve heads exhibited healthy physiologic cupping with no enlargement of the cup-to-disc ratio, and the maculae appeared flat.\n\nSystemically, her growth parameters reveal a height lagging well below the third percentile for her age. Inspection of her extremities reveals noticeably shortened digits across both hands, accompanied by reduced mobility and generalized tightness in her small peripheral joints, with no warmth or active synovitis. Her family history is non-contributory, and the remainder of her systemic exam, including cardiac and chest auscultation, was entirely unremarkable. \n\nGiven this constellation of ocular and skeletal features, I would value your expert assessment and management advice. \n\nSincerely, \nDr. Evelyn Vance"
+}

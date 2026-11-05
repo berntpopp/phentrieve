@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31898322_case_29_brother_of_28",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 490,
+  "completion_tokens": 460,
+  "total_tokens": 3718,
+  "thoughts_tokens": 2768,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 18-jährigen Jonas zur differenzialdiagnostischen Beurteilung. \n\nAktuell imponiert bei ihm ein ausgeprägter Engstand der Zähne im Ober- und Unterkiefer. Zudem ist eine beidseitige Hüftdysplasie mit unvollständiger Überdachung des Femurkopfes bekannt.\n\nDie übrige Untersuchung verlief unauffällig: Der junge Mann ist mit 176 cm altersgerecht gewachsen, ein Hochwuchs liegt nicht vor. Das Muskelrelief ist seitengleich voll ausgebildet. Der Schädel ist normozephal geformt, ohne Dolichozephalie, hohe Stirn oder Stirnhöcker. Das Gesicht wirkt harmonisch; es finden sich kein verlängertes Gesichtsprofil, keine Mittelgesichtsdepression und kein fliehendes Kinn. Die Ohren inserieren unauffällig. Die Lidachsen stehen horizontal, ein Herabhängen der Lider, ein Hypertelorismus, Schielen oder vorgewölbte Bulbi fehlen. Die Skleren sind weiß. Der Gaumen ist vollständig geschlossen, das Philtrum weder verkürzt noch verstrichen, und ein tiefer Überbiss besteht nicht.\n\nKardiologisch arbeitet die Aortenklappe suffizient ohne Regurgitation. Anamnestisch gab es nie einen Pneumothorax oder subdurale Hämatome, und die postpartale Phase verlief ohne neonatale Muskelhypotonie. \n\nDie Wirbelsäule ist lotrecht, ohne Skoliose oder Gleitwirbel. Sämtliche Gelenke zeigen keine Arthrosezeichen. An den Händen finden sich keine Beugekontrakturen der Finger, an den Füßen weder ein Ballenzeh noch eine Klumpfußfehlstellung. Das Hautbild zeigt eine normale Textur ohne ungewöhnliche Samtigkeit oder durchscheinende Venenmuster.\n\nDer Patient nimmt derzeit keine Medikamente ein, Laborparameter inklusive Entzündungswerten waren blande.\n\nIch danke Ihnen für Ihre freundliche konsiliarische Einschätzung des Beschwerdebildes.\n\nMit freundlichen Grüßen"
+}

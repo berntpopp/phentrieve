@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24573067_CASE_REPORT",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 341,
+  "total_tokens": 2535,
+  "thoughts_tokens": 1840,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich überweise Ihnen heute Frau Elisabeth Bauer, eine 80-jährige Patientin, zur weiteren dermatologischen Einordnung und Beurteilung. \n\nDie Patientin berichtet über Hautveränderungen, welche sich bereits im Kindesalter manifestiert haben und seither persistieren. Anamnestisch besteht ein medikamentös gut eingestellter Bluthochdruck unter einer Monotherapie mit Amlodipin. Die Familienanamnese bezüglich kutaner Erkrankungen ist unauffällig, und die Patientin führt ihren Haushalt vollkommen selbstständig.\n\nKlinisch zeigen sich palmar und plantar multipel verteilte, punktuelle und harte Verhornungsherde. Des Weiteren imponieren an den Händen und Fußsohlen vereinzelte, umschriebene und derb verhornende Knötchen. Das restliche Integument zeigt sich unauffällig. Die Nägel an Händen und Füßen sind glatt und weisen keinerlei morphologische Anomalien oder Dystrophien auf. Das Kopfhaar ist dicht und zeigt eine normale Struktur. Ebenso ist der Zahnstatus altersgemäß regelrecht; pathologische Veränderungen der Zahnmorphologie sind nicht vorhanden. \n\nHistologisch zeigte eine Gewebeprobe der Palma eine ausgeprägte Verbreiterung des Stratum granulosum. Eine Parakeratose ließ sich mikroskopisch nicht nachweisen.\n\nIch wäre Ihnen für eine fachärztliche Einschätzung der Befunde sowie für etwaige therapeutische Empfehlungen sehr verbunden.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Meißner"
+}

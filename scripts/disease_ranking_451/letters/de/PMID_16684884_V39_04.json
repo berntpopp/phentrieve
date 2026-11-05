@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16684884_V39_04",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 322,
+  "total_tokens": 2310,
+  "thoughts_tokens": 1648,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich stelle Ihnen heute den 17-jährigen Lukas zur weiteren fachärztlichen Beurteilung vor.\n\nAnlass der Überweisung ist ein klinisches Bild, bei dem unter anderem eine ungewöhnliche morphologische Konfiguration des Gesichts imponiert. Des Weiteren leidet der Jugendliche unter einer deutlichen nasalen Sprachfärbung; hierbei zeigte sich ein funktionell unzureichender Verschluss des Gaumensegels gegenüber der Rachenhinterwand. In den Vorbefunden wurde zudem eine strukturelle kardiovaskuläre Auffälligkeit dokumentiert, bezüglich derer der Patient jedoch aktuell vollkommen asymptomatisch und im Alltag gut belastbar ist. \n\nDie geistige und psychomotorische Reifung verlief stets regelrecht. Lukas besucht derzeit die Oberstufe eines Gymnasiums, Anhaltspunkte für eine globale Entwicklungsverzögerung oder Lernschwierigkeiten liegen keineswegs vor. Die Extremitäten sind seitengleich entwickelt und vollständig fünfstrahlig angelegt; überzählige Finger oder Zehen wurden nicht festgestellt. \n\nDie ergänzende internistische Basisdiagnostik einschließlich Blutdruck und Laborparametern zeigte durchweg Normalbefunde. Der Jugendliche nimmt keine Dauermedikation ein, Allergien sind nicht erinnerlich, und die Familienanamnese ist hinsichtlich chronischer Erkrankungen unauffällig.\n\nIch wäre Ihnen für eine konsiliarische Mitbeurteilung des Patienten und Ihre Einschätzung zum weiteren Vorgehen sehr verbunden.\n\nMit freundlichen kollegialen Grüßen"
+}

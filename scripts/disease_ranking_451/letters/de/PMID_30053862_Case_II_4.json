@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30053862_Case_II_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 372,
+  "total_tokens": 2541,
+  "thoughts_tokens": 1812,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung unseres kleinen Patienten, eines 25 Tage alten Knaben, der uns zur weiterführenden Abklärung verlegt wurde. Die Auffälligkeiten zeigten sich bereits unmittelbar nach der Geburt.\n\nKlinisch imponiert eine massive, generalisierte Schwellung des Weichteilgewebes mit eindrückbaren Flüssigkeitseinlagerungen über Stamm und Extremitäten. Im kraniofazialen Bereich fallen ein deutlich vergrößerter Abstand zwischen den Augen, tief ansetzende Ohrmuscheln sowie eine ausgeprägte Unterkieferhypoplasie mit fliehendem Kinn auf. In der zerebralen Bildgebung fand sich das Bild einer ausgeprägten Gehirnvolumenminderung in Verbindung mit einer nahezu völlig fehlenden Furchung der Großhirnrinde.\n\nRenal besteht laborchemisch ein terminales Nierenversagen im Stadium 5 mit ausgeprägter Urämie. Der sonographische Befund der Nieren zeigt ein homogen verdichtetes Parenchym mit weitgehend aufgehobener Abgrenzbarkeit zwischen Mark und Rinde.\n\nKardiopulmonal ist der Patient stabil, die Echokardiographie zeigte regelrechte kardiale Strukturen und Flussverhältnisse. Die hepatischen Laborparameter und die Schilddrüsenwerte liegen im Normbereich. Die jungen Eltern sind nicht miteinander blutsverwandt, die Familienanamnese ist bezüglich frühkindlicher Erkrankungen leer. Aktuell führen wir eine supportive intensivmedizinische Therapie durch.\n\nFür Ihre differenzialdiagnostische Einschätzung und Empfehlungen zur weiteren Diagnostik wären wir Ihnen sehr dankbar.\n\nMit kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33078099_IV_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 345,
+  "completion_tokens": 383,
+  "total_tokens": 2677,
+  "thoughts_tokens": 1949,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den sechsjährigen Felix, der sich heute mit seinen Eltern in meiner Sprechstunde vorstellte. Die Sehstörung fiel den Eltern bereits in den ersten Lebensmonaten auf.\n\nIn unserer Untersuchung fand sich beidseits eine hochgradig herabgesetzte Sehschärfe mit Fixationsschwierigkeiten. Es besteht ein ständiges Augenzittern im Sinne eines horizontalen Pendelnystagmus sowie ein manifester Strabismus divergens. Spaltlampenbiomikroskopisch zeigt sich beidseits eine ausgeprägte, fibrotisch-häutige Linsentrübung mit deutlicher Verflachung des Linsenkörpers; staubförmige oder pulverige Trübungsanteile lassen sich an den Linsen nicht nachweisen. Die sonografisch bestimmten axialen Längen der Augäpfel liegen mit 21,9 mm rechts und 22,1 mm links im normalen Referenzbereich für das Alter, eine pathologische Dehnung der Bulbusachse ist nicht feststellbar.\n\nDie Hornhaut ist beidseits spiegelnd und transparent, die vordere Augenkammer reizfrei und der intraokulare Druck mit 15 mmHg seitengleich regelrecht. Soweit durch die Trübungen einsehbar, zeigen sich Papille und Netzhaut unauffällig. Felix besucht derzeit die Vorschule, die allgemeine kindliche Entwicklung verläuft abgesehen von den visuellen Einschränkungen unauffällig und er nimmt keine Dauermedikation ein. Die Familienanamnese hinsichtlich okulärer Erkrankungen ist leer.\n\nIch bitte um Ihre geschätzte Mitbeurteilung bezüglich der weiteren operativen und konservativen Schritte.\n\nMit besten kollegialen Grüßen\nDr. med. Stefan Meyer"
+}

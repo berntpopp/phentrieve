@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29483676_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 421,
+  "completion_tokens": 344,
+  "total_tokens": 2377,
+  "thoughts_tokens": 1612,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this 10-year-old girl for an assessment of her congenital and progressive neurodevelopmental concerns. She was born at term to non-consanguineous parents, with medical concerns noted immediately following delivery. \n\nHer neonatal period was complicated by severe floppiness and feeding difficulties, contributing to early and persistent growth faltering. Interestingly, she has since developed an insatiable appetite, continually seeking out food, though she remains significantly underweight. She has traversed her life with comprehensive developmental delay, including pronounced gross motor lags, and she functions with moderate-to-severe cognitive impairment. Her speech is functional but marked by excessive nasal resonance. \n\nOn physical examination, she is alert and interactive. Neurologic assessment demonstrates diffuse, generalized muscular weakness affecting both the trunk and limbs, and she requires a classic maneuver of walking her hands up her thighs to stand from the floor. Craniofacial inspection reveals an elongated skull contour, anteverted ears, prolonged palpebral apertures, bilateral blepharoptosis, and fine rhythmic horizontal ocular oscillations. She exhibits bilateral mimetic facial weakness with a resting open-mouth posture, an exaggerated tented peak to her cupid's bow, and a noticeably vaulted palate. Spine examination is notable for a mild lateral spinal curve. \n\nCardiovascular, respiratory, and abdominal examinations were entirely normal. Metabolic screening, including urinary amino acid analysis, was negative, with no evidence of cystinuria. She lives with her parents and two healthy siblings and currently takes only daily multivitamins.\n\nI would deeply appreciate your consultation regarding this complex clinical picture and any diagnostic steps you would recommend.\n\nSincerely,\nDr. Julian Vance"
+}

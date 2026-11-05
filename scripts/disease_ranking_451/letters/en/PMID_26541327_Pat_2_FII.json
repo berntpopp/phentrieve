@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26541327_Pat_2_FII",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 428,
+  "completion_tokens": 384,
+  "total_tokens": 3480,
+  "thoughts_tokens": 2668,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for agreeing to see this 22-year-old female who was recently transferred to our inpatient service. Her medical history dates back to seven months of age, when she first presented with recurrent generalized convulsions. Despite this early neurological event, her developmental milestones were met appropriately, and she demonstrates no intellectual disability.\n\nOn physical examination, her height remains well below the 1st percentile. Dysmorphology assessment notes narrowed interpupillary spacing and a decreased inner canthal distance; there is no hypertelorism. Flexion-extension cervical spine films demonstrated no cervical instability, and recent bone densitometry was within normal limits with no osteopenia. A dilated fundoscopic exam showed sharp, pink optic discs with no optic atrophy. Peripheral blood smears revealed mature granulocytes with typical multi-lobed morphology and no hyposegmentation of neutrophil nuclei. \n\nHer current admission was precipitated by acute liver failure. Biochemical testing demonstrated marked hepatocellular injury, with an AST of 520 U/L, ALT of 610 U/L, and a high GGT level of 340 U/L. Serum total bilirubin was elevated at 7.2 mg/dL, with a pronounced conjugated fraction of 5.1 mg/dL. Her PT was noticeably prolonged at 26 seconds. Furthermore, she experienced recurrent bouts of low blood glucose down to 42 mg/dL, elevated circulating ammonia reaching 115 umol/L, and an increased plasma lactate level of 3.8 mmol/L. Brain MRI performed during this admission revealed diffuse cerebral volume loss. \n\nHer family history is non-contributory, and she does not take any regular medications aside from her current inpatient regimen. I would be very grateful for your assessment and diagnostic recommendations regarding her multi-system picture.\n\nSincerely,\n\nDr. Julian Vance"
+}

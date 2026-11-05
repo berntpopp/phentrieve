@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_4_from_PMID_12112661",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 311,
+  "completion_tokens": 316,
+  "total_tokens": 1763,
+  "thoughts_tokens": 1136,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reed,\n\nThank you for seeing this patient in your outpatient clinic for a formal evaluation. They were evaluated by our acute care team following an unprovoked, witnessed paroxysm involving an abrupt loss of consciousness and sustained bilateral tonic-clonic motor activity. The bystanders described approximately two minutes of rhythmic, generalized convulsive shaking associated with eye rolling and brief apnea, followed by deep post-event lethargy and disorientation that took nearly forty minutes to fully clear. \n\nDuring our clinical assessment, the patient had regained full orientation. The physical and neurological examinations were entirely unremarkable. Cranial nerves II through XII were fully intact, motor testing revealed symmetric 5/5 strength throughout all muscle groups with normal tone, and deep tendon reflexes were brisk and equal bilaterally. Sensory testing to light touch and proprioception was preserved. Gait and balance were completely stable. Vital signs were normal, including a blood pressure of 118/74 mmHg and a resting heart rate of 68 beats per minute. \n\nInitial workup was unrevealing. A complete blood count, comprehensive metabolic panel, and toxicology screening showed no disturbances. The patient has no known past medical history, takes no daily medications, and works full-time in administrative logistics. The family history is negative for any neurological or paroxysmal disorders.\n\nGiven the initial convulsive episode, I would appreciate your expert opinion regarding risk stratification, further outpatient neurodiagnostic investigations, and long-term management strategies.\n\nSincerely,\n\nDr. Arthur Pendelton\nInternal Medicine, Oakridge Health Clinic"
+}

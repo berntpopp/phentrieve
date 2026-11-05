@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19208399_Patient_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 444,
+  "total_tokens": 4697,
+  "thoughts_tokens": 3861,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nzur konsiliarischen Mitbeurteilung überweise ich Ihnen den 44-jährigen Herrn Michael Bauer. Der Patient berichtet über eine schleichend progrediente Kraftminderung, deren Beginn er rückblickend auf sein 41. Lebensjahr datiert.\n\nIn unserer Untersuchung zeigte sich ein deutlicher Schwund der rumpfnahen Muskulatur sowie eine proximale Parese der oberen Extremitäten, insbesondere der Schulterabduktoren. Auffallend waren zudem beidseits markant abstehende Schulterblätter und eine ausgeprägt watschelnde Gangabwicklung. Im Gespräch wirkte der ansonsten allseits orientierte Patient auffallend teilnahmslos und affektarm. Das EKG war normgerecht, Vorerkrankungen oder eine Dauermedikation bestehen nicht, und die Familienanamnese ist bezüglich neuromuskulärer Leiden leer. Eine audiologische Vorstellung ergab den Nachweis einer Innenohrschwerhörigkeit.\n\nLaborchemisch fand sich eine deutliche Aktivitätssteigerung der Kreatinkinase im Serum auf 485 U/l. Auffällig war ferner eine markante Erhöhung der knochenspezifischen alkalischen Phosphatase. Eine daraufhin veranlasste Bildgebung des Beckens demonstrierte eine umschriebene pagetoide Knochenläsion mit grober Trabekelstruktur und kortikaler Verdickung.\n\nDie Biopsie des Musculus deltoideus erbrachte das Bild einer chronischen Myopathie mit fleckförmig verteilten atrophen Muskelfasern und vermehrt schmalen, eckig konfigurierten Fasern. Elektronenmikroskopisch fielen charakteristische filamentäre Einschlusskörperchen im Zytoplasma der Myozyten auf. Typische Randvakuolen ließen sich histopathologisch hingegen nicht abgrenzen.\n\nIch wäre Ihnen für eine neurologische Begutachtung und Ihre Einschätzung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Stefan Wagner"
+}

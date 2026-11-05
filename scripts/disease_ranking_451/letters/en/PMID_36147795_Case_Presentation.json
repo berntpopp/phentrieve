@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36147795_Case_Presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 298,
+  "total_tokens": 2321,
+  "thoughts_tokens": 1645,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 13-year-old girl who is transferring her neurodevelopmental care to your clinic. Her parents report that pervasive developmental lags across all functional areas were apparent from early infancy. Independent ambulation was notably late, and she exhibits profound impairment across all cognitive assessments. Communication remains severely limited, as she has never acquired verbal language and demonstrates profound receptive and expressive speech delays.\n\nIn clinic, she showed diminished reciprocal social interactions alongside prominent autistic mannerisms, frequently engaging in stereotypic, rhythmic hand-flapping. Her mother notes recurrent bursts of unprompted, unprovoked laughter throughout the day. She has experienced recurrent convulsive episodes, and outpatient electroencephalograms have documented distinct paroxysmal background discharges between clinical seizures. She is maintained on levetiracetam with reasonable tolerance.\n\nOn physical examination, she demonstrates an elongated facial appearance, a slanted forehead with a receding frontal contour, a broad nasal bridge, and clear ocular misalignment. Her somatic examination is otherwise unrevealing: heart sounds are regular without murmurs, peripheral pulses are intact, and respiratory effort is clear. Deep tendon reflexes are symmetric, and routine laboratory screening, including renal function and a complete blood count, was normal. She lives at home with her parents and an unaffected sibling, with no family history of neurologic or metabolic concerns.\n\nI would greatly value your comprehensive assessment and updated recommendations regarding her ongoing management.\n\nSincerely,\nDr. Arthur Vance"
+}

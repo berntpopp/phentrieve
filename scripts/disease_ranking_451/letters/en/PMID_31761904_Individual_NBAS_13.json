@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31761904_Individual_NBAS_13",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 453,
+ "attempt": 3,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 460,
+  "completion_tokens": 352,
+  "total_tokens": 2830,
+  "thoughts_tokens": 2018,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this patient following their recent admission for sudden-onset severe liver failure, characterized by marked coagulopathy, jaundice, and rapid hepatic decompensation.\n\nDuring our investigations, laboratory work demonstrated markedly depressed serum IgG concentrations, whereas IgA titers and absolute natural killer cell counts were entirely intact. A peripheral blood smear demonstrated normal multi-lobed neutrophil morphology without hyposegmentation. Urine organic acid screening was unremarkable, specifically showing no 3-methylglutaconic acid excretion, and glycemic profiles remain stable with no evidence of insulin-dependent diabetes.\n\nOn physical examination, height is preserved along the 50th percentile. We noted diffuse muscular floppiness, yet cognitive function is unimpaired and past gross motor progression was timely. The patient's vocalization is noticeably shrill and strikingly high-pitched. Craniofacial assessment revealed normal midface projection without cheek flattening, and the skull is normocephalic with no cranial suture patency delays or posterior flattening. \n\nThe musculoskeletal evaluation is notable for an indented anterior chest wall, thoracic spinal curvature, and slender, elongated digits without metacarpal shortening. The skin retains normal elasticity without redundant folds. There is no joint hyperlaxity, and the plantar arches are well-formed. Interestingly, the patient recently sustained a low-impact fragility fracture of the ulna. Subsequent densitometry confirmed significantly diminished bone density, although radiologic skeletal maturation matches chronological age. Ophthalmologic examination was reassuring, showing sharp optic discs without pallor.\n\nFamily history is non-contributory, and home medications currently include only supportive multivitamin supplementation. I would greatly appreciate your specialized assessment regarding these multisystem features.\n\nSincerely,\nDr. Evelyn Vance"
+}

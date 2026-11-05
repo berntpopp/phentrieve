@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30580808_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 570,
+  "completion_tokens": 403,
+  "total_tokens": 4203,
+  "thoughts_tokens": 3230,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davis,\n\nI would appreciate your evaluation of this 5-year-old boy, Leo, whom I recently reviewed for developmental follow-up.\n\nHe was born at term without intrauterine growth restriction, experiencing an uncomplicated nursery stay free of neonatal respiratory distress or low muscle tone at birth. Early feeding was uneventful with no feeding difficulties or failure to thrive, and his height remains normal without short stature. While his speech and language development has progressed appropriately and formal testing shows no intellectual disability, he has displayed a mild global developmental delay affecting his early motor and adaptive skills. His temperament is stable; there is no autistic behavior, motor stereotypy, obsessive-compulsive traits, aggression, hyperactivity, or frequent temper tantrums. He shows no inflexible adherence to routines, self-injurious behavior, anxiety, mania, polyphagia, or sleep disturbances.\n\nOn examination, Leo is normocephalic with no macrocephaly. His scalp hair is healthy and not sparse, and there is no hypertrichosis. Facial features show a wide nose, though it is not bulbous and the nares are not anteverted. His eyebrows are not thick, lashes are not abnormally long, and he has no ptosis. Oral inspection shows a normal palatal contour without a high palate, and lip morphology is unremarkable without a thin upper lip vermilion or thick lower lip vermilion. Formal audiology has excluded both conductive and sensorineural hearing impairment.\n\nNeurologically, he exhibits generalized hypotonia without hypertonia, dystonia, hyperkinetic movements, extrapyramidal dyskinesia, or abnormal pyramidal signs. Musculoskeletal examination demonstrates inward clinodactyly of the fifth fingers bilaterally, without prominent interphalangeal joints. Spinal alignment is straight with no scoliosis, kyphosis, thoracic lordosis, or abnormal vertebral morphology. The abdomen is soft with no hernia.\n\nThank you for providing your specialist assessment.\n\nSincerely,\nDr. Mark Harris"
+}

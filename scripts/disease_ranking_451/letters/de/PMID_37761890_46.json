@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_46",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 472,
+  "total_tokens": 2602,
+  "thoughts_tokens": 1751,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen das bei uns vorgestellte Kind zur konsiliarischen Mitbeurteilung und weiteren differentialdiagnostischen Abklärung.\n\nIn unserer Sprechstunde imponiert eine deutliche globale intellektuelle Beeinträchtigung mit erheblichem kognitiven Entwicklungsrückstand. Der gemessene Schädelumfang liegt mit einem Z-Wert von unter minus drei Standardabweichungen signifikant unter den altersentsprechenden Perzentilen, Zeichen einer Makrozephalie bestanden im Verlauf zu keinem Zeitpunkt. Die internistische Untersuchung präsentierte sich vollkommen regelrecht mit bitemporal symmetrischen Pulsen, unauffälligen Herztönen und freier Atmung. Die abdominelle Palpation war blande. Seh- und Hörvermögen erwiesen sich in den orientierenden Basistests als intakt. In der Familie sind keine neurologischen Erkrankungen bekannt, das häusliche Umfeld ist stabil und eine Dauermedikation besteht nicht.\n\nIn der durchgeführten kranialen MRT-Bildgebung zeigt sich ein vollständiges Fehlen der interhemisphärischen Kommissur im Sinne einer Agenesie des Corpus callosum. Eine isolierte Balkenhypoplasie ist damit nicht gegeben. Das Ventrikelsystem imponiert schlank und harmonisch, eine Ventrikulomegalie sowie ein Hydrozephalus konnten sicher ausgeschlossen werden. Das zerebrale Marklager stellt sich homogen dar, ohne Residuen einer periventrikulären Leukomalazie. Das gyroskopische Muster ist anatomisch unauffällig differenziert, eine Pachygyrie ist nicht erkennbar. Die hippokampalen Formationen sind seitengleich konfiguriert und zeigen keine Dysgenesiezeichen. Zudem sind die Bulbi olfactorii regelrecht belüftet und angelegt, ohne Nachweis einer Aplasie.\n\nAufgrund des Zusammentreffens der ausgeprägten Mikrozephalie, des zerebralen Fehlbildungsmusters und der kognitiven Defizite bitten wir um Ihre Expertise bezüglich der weiteren syndromalen Einordnung und Diagnostik.\n\nMit freundlichen kollegialen Grüßen"
+}

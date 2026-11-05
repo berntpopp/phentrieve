@@ -1,0 +1,18 @@
+{
+ "case": "PMID_20461149_index",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 357,
+  "total_tokens": 2822,
+  "thoughts_tokens": 2077,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die zehnjährige Mia zur weiteren fachärztlichen Einordnung und Beratung der Eltern. \n\nBereits angeboren zeigte sich bei dem Mädchen ein umschriebenes Aplasie-Areal der Kopfhaut im Scheitelbereich. Im orofazialen Bereich imponiert eine diskrete mediane Pseudospalte der Oberlippe. Der harte und weiche Gaumen ist hingegen vollständig intakt, eine Gaumenspalte liegt nicht vor. Das Kinn ist normal geformt; weder eine Spaltbildung des Kinns noch ein Kinngrübchen sind festzustellen.\n\nOphthalmologisch bestehen erhebliche bilaterale Veränderungen: Neben einer ausgeprägten Mikrophthalmie beidseits finden sich dichte Linsentrübungen sowie Kolobome der Iris und der Netzhaut. Funktionell besteht eine beidseitige Erblindung ohne jegliche Lichtwahrnehmung. Zudem persistiert seit dem Säuglingsalter eine Tränenwegsstenose mit chronischer Verlegung der ableitenden Tränenwege und rezidivierendem Tränenträufeln. Audiometrisch ist zudem eine reine Schallleitungsschwerhörigkeit gesichert.\n\nDer sonstige internistische Untersuchungsstatus ist unauffällig; Herz und Lunge präsentieren sich auskultatorisch kompensiert, das Abdomen ist weich und ohne Resistenzen. Die Patientin nimmt keine Dauermedikation ein, und die Familienanamnese ist bezüglich angeborener Besonderheiten leer.\n\nIch bedanke mich für Ihre geschätzte konsiliarische Beurteilung dieses komplexen Befundes und verbleibe\n\nmit kollegialen Grüßen"
+}

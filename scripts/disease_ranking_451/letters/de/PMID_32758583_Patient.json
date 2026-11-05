@@ -1,0 +1,18 @@
+{
+ "case": "PMID_32758583_Patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 476,
+  "total_tokens": 2549,
+  "thoughts_tokens": 1651,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute fünf Monate alten Säugling zur konsiliarischen Beurteilung und weiteren Abklärung. \n\nDer Junge kam als Frühgeborenes der 33. Schwangerschaftswoche nach unauffälligem Schwangerschaftsverlauf zur Welt, zeigte sich damals jedoch bezüglich des Geburtsgewichts deutlich unterhalb der zehnten Perzentile für das Reifealter. Seit der Neonatalperiode bestehen erhebliche Fütter- und Trinkprobleme, die in einer ausgeprägten mangelnden Gewichtszunahme mündeten. Auch das Kopfwachstum blieb progredient zurück, sodass der Schädelumfang inzwischen weit unter der 3. Perzentile liegt.\n\nPhänotypisch fallen dichte, breite Brauen sowie überdurchschnittlich lange Zilien auf. Urogenital zeigen sich ein auffallend klein dimensionierter Penis sowie ein beidseits palpatorisch nicht im Skrotum befindlicher Hoden. Die kardiopulmonale Untersuchung sowie die Palpation des Abdomens sind regelrecht.\n\nIm Alter von drei Monaten traten erstmals zerebrale Krampfanfälle auf. In der zerebralen Bildgebung zeigten sich periventrikuläre leukomalazische Residuen, eine beträchtliche Verschmächtigung des Corpus callosum sowie eine für das Alter verzögerte Markreifung. Eine pädiatrisch-ophthalmologische Abklärung erbrachte den Nachweis einer retinalen Stäbchen-Zapfen-Dystrophie. \n\nLaborchemisch wurde eine hypothyreote Stoffwechsellage diagnostiziert, weshalb wir eine Substitution mit L-Thyroxin eingeleitet haben. Die gonadotrope Achse ist insuffizient mit deutlich erniedrigten Serumkonzentrationen für LH und FSH sowie einem daraus resultierenden markanten Testosteronmangel. Die basalen Cortisolwerte im Serum lagen hingegen stets im Normbereich.\n\nDie Familienanamnese ist bezüglich neurologischer oder syndromaler Erkrankungen leer. Wir bitten um Ihre geschätzte Expertise bezüglich der Einordnung dieses komplexen Krankheitsbildes und des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

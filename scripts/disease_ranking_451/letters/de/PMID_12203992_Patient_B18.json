@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12203992_Patient_B18",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 447,
+  "completion_tokens": 537,
+  "total_tokens": 3912,
+  "thoughts_tokens": 2928,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nzur konsiliarischen Mitbeurteilung überweise ich Ihnen die 8-jährige Patientin Mia Becker. Mia besucht derzeit die zweite Klasse einer Grundschule, zeigt eine unauffällige kognitive Entwicklung und nimmt keine Dauermedikation ein. Die Familienanamnese hinsichtlich chronischer Vorerkrankungen ist vollkommen bland.\n\nKörpergröße und Körpergewicht liegen stabil auf der 50. Perzentile, sodass sich klinisch weder ein Hochwuchs noch ein Kleinwuchs dokumentieren lässt. Die Schädelkonfiguration ist normozephal ohne Hinweis auf einen Langschädel, die Jochbeinregion stellt sich symmetrisch ohne Abflachung dar und es zeigen sich keine tief liegenden Augen. Im Bereich der Mundhöhle fallen ein spitzbogig hoch gewölbter Gaumen sowie ein deutlicher Engstand der Zähne auf. Die Finger und Zehen imponieren auffallend schlank und langgliedrig. Es besteht eine ausgeprägte Überbeweglichkeit der peripheren Gelenke, wobei die Ellenbogen frei beweglich sind und kein Streckdefizit aufweisen. An den Füßen zeigt sich beidseits eine deutliche Plattfußbildung. Der Brustkorb ist symmetrisch geformt, ohne Deformitäten im Sinne einer Trichterbrust oder Kielbrust. Die Wirbelsäule verläuft klinisch gerade ohne Skoliose. Die Leistenregionen sind frei von Vorwölbungen oder Hernien. Die Hautbeschaffenheit ist weich, keineswegs verhärtet und frei von Dehnungsstreifen.\n\nAugenärztlich wurde eine progrediente Kurzsichtigkeit festgestellt. Bei der Spaltlampenuntersuchung zeigte sich zudem eine beidseitige Linsensubluxation; ein Kolobom der Linse fand sich nicht, und die Netzhaut lag ringsum regulär an ohne Ablösung. In der kardiologischen Diagnostik imponiert eine deutliche aneurysmatische Dilatation der Aortenwurzel, glücklicherweise ohne Anhalt für eine Dissektion der Aorta ascendens. Des Weiteren zeigte sich ein systolischer Prolaps des vorderen Mitralklappensegels, eine begleitende Mitralregurgitation ließ sich echokardiographisch jedoch ausschließen.\n\nÜber Ihre geschätzte Einschätzung zur Ätiologie dieses Befundkomplexes und Vorschläge zum weiteren Procedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

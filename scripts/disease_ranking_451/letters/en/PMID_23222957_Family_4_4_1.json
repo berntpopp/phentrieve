@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_4_4_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 355,
+  "total_tokens": 3343,
+  "thoughts_tokens": 2592,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate this three-month-old infant presenting with a complex clinical picture. The patient was born at 39 weeks via uncomplicated spontaneous vaginal delivery to non-consanguineous parents, and routine newborn screening was completely unremarkable. \n\nOver the past month, the family noted unprovoked focal convulsions and significant motor milestone arrest, characterized by an inability to achieve sustained head elevation. Brain imaging demonstrated complete non-formation of the interhemispheric callosal commissure. Neuromuscular evaluation revealed marked axial floppiness and limb weakness consistent with an underlying intrinsic muscle disorder. Formal eye examination identified dense bilateral crystalline lens opacifications. On examination, the infant exhibits a strikingly underpigmented dermis compared to both parents, and abdominal palpation demonstrates an enlarged liver extending 4 cm below the right costal margin. Furthermore, recurrent opportunistic infections prompted a focused workup confirming severe defective immune function.\n\nRegarding other systems, the cranial circumference is preserved at the 50th percentile, with no abnormally small head size. There is no evidence of clefting affecting the lip or the palate. Eye motility testing confirmed the absence of involuntary rhythmic ocular oscillations. A transthoracic echocardiogram was reassuring, demonstrating normal biventricular dimensions and systolic function with no myocardial dysfunction. Chest radiography demonstrated an appropriately developed, normal-sized thymic silhouette, excluding any thymic underdevelopment or complete absence. Examination of the back showed straight spinal alignment with no lateral curvature.\n\nCurrent medications include levetiracetam and oral nystatin. Given this multifaceted presentation, I would be grateful for your comprehensive subspecialty assessment and recommendations regarding ongoing management.\n\nWarm regards,\n\nDr. Eleanor Vance, MD\nDepartment of Pediatrics"
+}

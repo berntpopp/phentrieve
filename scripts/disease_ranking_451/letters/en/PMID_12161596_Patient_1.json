@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12161596_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 371,
+  "total_tokens": 2594,
+  "thoughts_tokens": 1820,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for agreeing to evaluate this female patient regarding her multisystem clinical presentation, which first became noticeable in early childhood. She recently relocated to our area and is accompanied today by her mother. \n\nPhysical examination reveals a markedly diminutive stature, with her height falling well beneath the third percentile, alongside a cranial circumference that is disproportionately large for her body size. On craniofacial assessment, her interpupillary distance is increased and she displays prominent epicanthal folds over both eyes; notably, palpebral fissures are symmetric with no upper eyelid drooping. An ophthalmologic slit-lamp review showed dark brown eyes rather than blue irises, and no melanocytic hamartomas were identified. \n\nDermatologic evaluation is notable for profuse, small, dark lentiginous macules distributed across her cheeks, neck, and upper torso. We observed no light-brown café-au-lait lesions. Her neck is supple without redundant lateral cutaneous webbing. Musculoskeletal examination demonstrates an asymmetrical contour of her thoracic cage, though there is no prominent sternal protrusion. Her spinal alignment is normal, with no excessive sagittal thoracic curve or kyphotic deformity.\n\nRecent cardiology investigations identified non-obstructive concentric left ventricular hypertrophy. A baseline 12-lead electrocardiogram demonstrates sinus rhythm without intraventricular conduction delays or left bundle branch block. She reports good exercise tolerance for daily tasks and has no medical history of recurrent pneumonias or significant pulmonary issues. Cognitively, she manages her daily living activities independently, though schooling records confirm mild intellectual limitations. Baseline serum chemistries, thyroid function, and full blood counts were all within normal reference ranges.\n\nI would appreciate your comprehensive assessment and guidance on further clinical management for her. \n\nSincerely,\n\nDr. Evelyn Reed, MD  \nDepartment of Internal Medicine"
+}

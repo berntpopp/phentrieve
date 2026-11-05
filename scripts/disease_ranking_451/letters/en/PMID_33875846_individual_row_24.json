@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33875846_individual_row_24",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 290,
+  "total_tokens": 2400,
+  "thoughts_tokens": 1762,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reed,\n\nThank you for evaluating this young child, whom I am referring for diagnostic review of developmental concerns noted since early infancy.\n\nThe patient displays significant multi-domain developmental lags, having been slow to achieve gross motor milestones, accompanied by persistent central low muscle tone across the trunk and limbs. In addition, both expressive and receptive communication are markedly behind schedule, with no clear words and only rare non-specific vocalizations to date.\n\nOn physical examination, vital signs, length, and head circumference are all tracking along the 50th centile. Cardiac auscultation reveals regular rate and rhythm without murmurs, the chest is clear, and the abdomen is soft and non-tender without hepatosplenomegaly. Craniofacial inspection reveals a broad forehead that tapers down sharply to a delicate, pointed jawline. The eyes appear distinctly recessed within the orbits, and the upper nasal root is noticeably thin and pinched. \n\nA review of obstetrical records shows that prenatal screening was non-contributory, with a first-trimester scan confirming that the nuchal translucency thickness was well within normal limits without any pathological fluid accumulation. Family history is unremarkable, with both parents in good health, and the patient is currently on no regular medications.\n\nI would greatly appreciate your specialized assessment and guidance regarding further clinical evaluation for this patient.\n\nSincerely,\n\nDr. Eleanor Vance\nValley Community Pediatrics"
+}

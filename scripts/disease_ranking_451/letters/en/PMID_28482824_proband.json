@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28482824_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 295,
+  "total_tokens": 2853,
+  "thoughts_tokens": 2171,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 20-year-old gentleman for a comprehensive clinical assessment. Many of his atypical physical and neurobehavioral features have been recognized since the neonatal period.\n\nOn physical examination, his facial architecture is notable for downward-slanting palpebral apertures, flattened cheek contours, and a prominent, anteriorly projected lower jaw. The distance from his nasal base to the upper lip margin is abnormally diminutive, with no evidence of an elongated philtral groove. His dentition shows significant bite misalignment and crowding. The ears are angled posteriorly with lobules that curve upward. Audiometric testing has previously established a bilateral sensorineural deficit, and ophthalmology records document developmental lens clouding dating back to early life. Musculoskeletal inspection reveals an obvious lateral curvature of his thoracic spine. \n\nBehaviorally, he exhibits restricted interests, difficulties with social reciprocity, and repetitive motor mannerisms typical of an autism spectrum profile. Importantly, formal psychometric evaluations show intact learning abilities, and intellectual disability was ruled out. He completed secondary education successfully and currently works part-time at an archival library. Systemic examination, including cardiac auscultation, respiratory mechanics, and abdominal palpation, was completely unremarkable. He is on no regular medications, and the family medical history is non-contributory.\n\nI would be very grateful for your expert clinical review and any diagnostic recommendations you might offer.\n\nWarm regards,\n\nDr. Julian Myers"
+}

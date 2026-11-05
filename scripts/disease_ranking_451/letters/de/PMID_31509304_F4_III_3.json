@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31509304_F4_III_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 376,
+  "total_tokens": 2460,
+  "thoughts_tokens": 1718,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, lieber Kollege,\n\nich bitte um Ihre kinderneurologische Mitbeurteilung der 6-jährigen Patientin Lea Berger.\n\nErste Auffälligkeiten traten bereits im ersten Lebensmonat zutage, in dem eine deutliche Verzögerung der frühkindlichen motorischen Meilensteine auffiel; im weiteren Verlauf manifestierte sich eine umfassende Entwicklungsretardierung über sämtliche Bereiche. Das Mädchen hatte zwischenzeitlich wenige Schritte an den Händen gelernt, hat diese Gehfähigkeit jedoch wieder vollständig verloren und ist seither rollstuhlpflichtig. \n\nIm aktuellen Befund imponiert eine ausgeprägte spastische Tonuserhöhung der Extremitäten, eine muskuläre Hypotonie besteht nicht. Die osteotendinösen Reflexe sind generalisiert lebhaft gesteigert. Auffällig ist zudem ein feinschlägiger Nystagmus. Hinweise auf eine Ataxie ließen sich nicht feststellen. Bei der Augenfolgebewegung waren die Sakkaden zielgenau und nicht hypometrisch. \n\nDie Wirbelsäule zeigt sich klinisch gerade, ohne Anhalt für eine Skoliose. Zerebrale Krampfanfälle wurden bislang nicht beobachtet. Die Nahrungsaufnahme erfolgt vollständig oral und ohne Verschlucken; eine Zuleitung über eine Sonde ist nicht erforderlich. \n\nKardiopulmonal ist Lea kompensiert, das Abdomen ist weich und unauffällig. Die Eltern sind gesund und nicht konsanguin, die Familienanamnese ist bezüglich neurologischer Erkrankungen leer. Das Kind erhält aktuell keine Dauermedikation. \n\nIch wäre Ihnen für eine differenzierte Beurteilung und diagnostische Einschätzung des Zustandsbildes sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

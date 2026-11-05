@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_15",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 515,
+  "completion_tokens": 525,
+  "total_tokens": 4032,
+  "thoughts_tokens": 2992,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den fünfjährigen Julian zur weiteren differentialdiagnostischen Beurteilung. Er wurde reif und normgewichtig, nicht als SGA-Säugling, entbunden. Das Längenwachstum ist kontinuierlich unauffällig, ohne Gedeihstörung oder Kleinwuchs. Auch die Familienanamnese erbringt keine relevanten Vorerkrankungen.\n\nSeit dem ersten Lebensjahr zeigte sich eine ausgeprägte Entwicklungsretardierung: Es besteht eine schwere kognitive Beeinträchtigung, ein vollständiges Fehlen einer expressiven Sprache sowie ein deutlicher Rückstand grob- und feinmotorischer Fertigkeiten. Julian ist jedoch zugewandt und zeigt keine Verhaltensweisen aus dem Autismusspektrum. Neurologisch imponiert eine ausgeprägte muskuläre Schlaffheit ohne spastische Zeichen. Zudem dokumentierten wir wiederkehrende Episoden einer alveolären Hypoventilation. Eine zerebrale Sehminderung wurde ophthalmologisch festgestellt; das Gehör erwies sich als vollkommen intakt.\n\nKardial sind ein Sekundum-Vorhofseptumdefekt sowie ein persistierendes Offenbleiben des Ductus Botalli bekannt. Das Neuroimaging zeigte eine Verschmächtigung des Balkens und eine Hypoplasie des Kleinhirnwurms. \n\nKraniofazial fallen nach außen-oben gerichtete Lidachsen, ausgeprägte mediale Kantenfalten der Augenlider sowie ein auffallend kurzer Abstand zwischen Nase und Oberlippe auf. Die Lidspalten sind nicht verlängert, eine Synophrys oder nach oben gerichtete Naseneingänge liegen nicht vor. Die Mundöffnung ist nicht verschmälert, eine Mikrognathie fehlt. Der Kopfumfang liegt auf der mittleren Perzentile, weder Mikro- noch Makrozephalie, und eine Sagittalnahtsynostose wurde ausgeschlossen. Die Ohrmuscheln sind regelrecht entwickelt, ohne Mikrotie. \n\nDie Mamillen sind unauffällig und nicht invertiert. Gastrointestinale Motilitätsstörungen bestehen nicht. An den Händen zeigt sich keine Klinodaktylie des fünften Fingers, das Integument ist frei von Hirsutismus. Das Genitale stellt sich altersentsprechend dar, ohne Phimose oder Chordee.\n\nÜber Ihre geschätzte Einschätzung und Empfehlungen zum weiteren Vorgehen würde ich mich sehr freuen."
+}

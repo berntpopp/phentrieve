@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30095615_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 359,
+  "completion_tokens": 257,
+  "total_tokens": 3296,
+  "thoughts_tokens": 2680,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 19-year-old male for an ophthalmic assessment. His visual decline first began around nine years of age, initially presenting as difficulty seeing in dim environments and navigating at night. In recent years, he has noted a further progressive drop in vision, coupled with significant light intolerance outdoors.\n\nOn exam today, his visual acuity is moderately compromised at 20/70 in the right eye and 20/60 in the left. Automated visual field testing reveals marked loss within his peripheral field of vision bilaterally. His anterior segments, corneas, and lenses are completely clear, and intraocular pressures are normal at 14 mmHg OU. Funduscopy displays notable narrowing and thinning of the retinal blood vessels, alongside patchy areas where the retinal pigment layer has become atrophic across the mid-periphery and posterior pole. Full-field electrophysiology confirms severe, widespread functional degeneration involving both cone and rod photoreceptor pathways.\n\nHe is currently an undergraduate student in good general health, takes no prescription medications, and has no known family history of ocular problems. \n\nI would be grateful for your expert evaluation of these findings and your thoughts on management.\n\nSincerely,\nDr. Arthur Pendelton"
+}

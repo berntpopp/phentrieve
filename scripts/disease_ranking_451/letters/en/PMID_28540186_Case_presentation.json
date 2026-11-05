@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28540186_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 324,
+  "total_tokens": 2711,
+  "thoughts_tokens": 2016,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nI am referring Leo Vance, a four-month-old male infant, for your specialist evaluation and management recommendations. His clinical difficulties have been present since birth, following an uncomplicated full-term gestation.\n\nImmediately after delivery, Leo manifested severe ventilatory compromise alongside recurrent central apneic spells, requiring mechanical support. Over the subsequent weeks, he developed epileptic seizures characterized by focal rhythmic jerking, as well as marked gastroesophageal regurgitation that has complicated his oral intake. \n\nOn physical examination, he appears comfortable on room air, his anterior fontanelle is soft, and his abdomen is soft and non-tender without hepatosplenomegaly. Routine serum electrolytes and renal function tests were normal. However, his blood lactate levels have been consistently elevated, repeatedly measuring above 5.0 mmol/L. Chest radiography demonstrated notable cardiac enlargement, and a subsequent echocardiogram confirmed concentric hypertrophy involving both ventricles. Although structural brain MRI was unremarkable, magnetic resonance spectroscopy revealed a pronounced cerebral lactate resonance. \n\nA quadriceps biopsy was recently obtained to investigate further. Biochemical analysis demonstrated markedly depleted coenzyme Q10 content within the muscle specimen. In addition, transmission electron microscopy revealed marked swelling of the mitochondria across the evaluated myofibers.\n\nLeo is currently cared for by his parents, who are healthy and non-consanguineous. There is no family history of early childhood mortality or neuromuscular disease. Given this complex multisystem presentation, I would be grateful for your comprehensive review and guidance regarding further diagnostic evaluation.\n\nSincerely,\nDr. Arthur Pendelton\nPediatric Critical Care Medicine"
+}

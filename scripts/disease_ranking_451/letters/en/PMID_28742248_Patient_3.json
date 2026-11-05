@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28742248_Patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 332,
+  "total_tokens": 3238,
+  "thoughts_tokens": 2503,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Lucas, a 4-year-and-6-month-old boy referred for ongoing neurologic evaluation. His parents first noted difficulties at eight months of age when he struggled to reach expected early milestones.\n\nHe continues to demonstrate profound delays across all developmental spheres. His gross and fine motor capabilities remain significantly behind those of his peers, and he only recently mastered an unsteady independent gait. His spoken language has failed to develop adequately, with expressive communication limited to non-specific vocalizations and gestures. Additionally, he has experienced recurrent convulsive episodes since early toddlerhood, currently managed with daily levetiracetam. A previous cranial MRI demonstrated a cortical architecture marked by an abnormal abundance of small, fused gyral folds, as well as a fluid-filled cystic space within the cerebellar tissue.\n\nOn physical examination, his facial structure lacks vertical elongation, and the bridge of his nose is not narrowed. His globes are neither deeply placed nor recessed, and formal ophthalmologic testing confirmed no hyperopic refractive error. The lower jaw is not retruded, the chin is not small, and his deciduous teeth show normal spacing without overcrowding. Examination of the perioral area shows lips that display normal thickness rather than thin margins, and his philtrum is not shortened, retaining distinct vertical ridges rather than a flat surface. His skin is completely opaque without translucence, and his cardiovascular and pulmonary examinations were entirely benign. The family history is non-contributory, and both parents are healthy.\n\nI would appreciate your expert neurodevelopmental assessment and guidance regarding further management.\n\nSincerely,\nDr. Kathryn Vance"
+}

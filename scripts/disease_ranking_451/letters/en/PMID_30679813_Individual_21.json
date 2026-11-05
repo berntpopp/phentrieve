@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_21",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 520,
+  "completion_tokens": 369,
+  "total_tokens": 3416,
+  "thoughts_tokens": 2527,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Higgins,\n\nThank you for evaluating this 13-year-old male who lives with his parents and attends an adapted eighth-grade curriculum. His medical history is notable for pervasive delays across motor, language, and cognitive milestones, along with protracted feeding difficulties during childhood. He does not take any regular medications.\n\nOn examination, his height is significantly diminished below the third percentile, though his weight is proportionate with no excess or overweight status. He has striking facial features including an increased interpupillary distance, distinctly upward-angled palpebral apertures, elongated eyelashes, and a pronouncedly thin upper lip vermilion. Notably, there is no ocular ptosis, strabismus, epicanthic folding, abnormal lengthening of the palpebral fissures, deep-set globes, or hypotelorism. Cranial dimensions are normal without microcephaly, brachycephaly, or a broadened forehead, and his pinnae are not low-set. Nasal contours are unremarkable with normal alar development, lacking a widened bridge, convex profile, bulbous tip, or anteverted nares. His mouth width is not constricted, the lower lip is not everted, and the philtrum shows typical depth, width, and length without being flattened, shortened, elongated, or broad.\n\nMusculoskeletal assessment reveals marked generalized ligamentous laxity without tapering of the digits. Neurologically, muscle tone is completely preserved with no hypotonia. Recent brain MRI excluded ventriculomegaly. There is no personal history of seizures. Behaviorally, he is friendly and engaged: his parents report no hyperactive conduct, attentional deficits, anxiety, aggressive outbursts, or sleep fragmentation, and he displays no autistic features.\n\nI would appreciate your expert clinical assessment regarding his presentation.\n\nSincerely,\nDr. Arthur Vance"
+}

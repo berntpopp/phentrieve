@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33078099_II_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 271,
+  "total_tokens": 2391,
+  "thoughts_tokens": 1782,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 49-year-old woman for a comprehensive ophthalmic evaluation. She presents for review of bilateral visual difficulties that have been documented since early infancy.\n\nOn examination today, her visual acuity is substantially diminished, correcting only to 20/200 in the right eye and 20/150 in the left. Fixation is complicated by persistent, fine involuntary ocular oscillations, and cover testing demonstrates a significant outward eye deviation in primary gaze. Anterior segment inspection reveals clear corneas and deep, quiet chambers with briskly reactive pupils. Slit-lamp biomicroscopy reveals flattened, fibrotic membranous opacifications occupying both lenses; there is no sign of any powdery or dust-like pulverulent opacification within either lens substance.\n\nIntraocular pressures are completely normal at 14 mmHg bilaterally. Dilated funduscopy shows normal optic nerve heads and flat maculae in both eyes. Systemically, she has no chronic medical conditions, takes only daily over-the-counter calcium supplements, and works as an archivist. Her family history is entirely negative for childhood eye disorders.\n\nI would value your assessment regarding her lens architecture and ocular alignment, and whether any surgical or refractive interventions are indicated.\n\nSincerely,\nDr. Julian Ward"
+}

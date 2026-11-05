@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28074573_MA1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 495,
+  "completion_tokens": 367,
+  "total_tokens": 5604,
+  "thoughts_tokens": 4742,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Caldwell,\n\nI would appreciate your opinion on Lucas, an alert 19-month-old boy referred for comprehensive evaluation. He lives at home with his parents and is on no medications. Linear growth is tracking along the 50th centile with no short stature, and his parents report no feeding difficulties.\n\nPhysical examination reveals an inverted triangular facial shape with a pronounced forehead, flattened nasal root, and widely spaced eyes with downward-slanting eye openings, inner canthal skin folds, and bilateral upper eyelid droop. There is noticeable thinning and paucity of his eyebrows, but there is no sparse hair on the scalp. The ears are not low-set, auditory screening showed no hearing impairment, and ophthalmologic evaluation noted no strabismus, myopia, or anisometropia. His philtrum is normal with no deep philtrum, and he has no low posterior hairline.\n\nLucas has prominent lateral webbing of the neck. Chest examination reveals no shield chest and normal nipple placement without wide intermamillary distance. Upper limbs show no cubitus valgus, but there is diffuse articular hyperlaxity throughout his peripheral joints. His muscle bulk and resistance are preserved, with no hypotonia. Neurologically, he demonstrates delays across motor, speech, and adaptive milestones; formal testing confirms no intellectual disability, and brain MRI demonstrated no Chiari type I malformation.\n\nCardiac evaluation revealed an interatrial communication along with thickened, nodular pulmonary valve leaflets creating right ventricular outflow stenosis; ventricular dimensions are normal with no hypertrophic cardiomyopathy. His skin is clear, with no cafe-au-lait spots, no keratosis pilaris, and no neoplasm.\n\nThank you for evaluating this child to assist with diagnostic clarification and ongoing management recommendations.\n\nSincerely,\nDr. Julian Reed"
+}

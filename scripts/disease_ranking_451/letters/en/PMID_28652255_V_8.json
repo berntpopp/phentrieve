@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28652255_V_8",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 302,
+  "total_tokens": 1776,
+  "thoughts_tokens": 1137,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for evaluating Leo Jenkins, a 5-year-old boy referred for further investigation of progressive neurological difficulties that his parents first noticed around twelve months of age. \n\nLeo was born at term following an uncomplicated pregnancy, and early milestones were initially met. However, over the past four years, his motor control has become increasingly disrupted. On examination, he demonstrates marked unsteadiness with an uncoordinated, wide-based gait and significant balance instability. His speech has grown slow, indistinct, and noticeably slurred, making conversational clarity challenging. \n\nNeuro-ophthalmologic assessment reveals an impairment of voluntary conjugate gaze, particularly evident on attempted vertical saccades, although reflex eye movements triggered by passive head rotation remain entirely preserved. In his upper extremities, I observed persistent, slow, involuntary writhing movements involving his fingers and hands. Muscle bulk is normal, but his deep tendon reflexes are uniformly attenuated throughout, eliciting only trace or 1+ responses at the knees, ankles, and elbows. \n\nThe remainder of the physical examination is non-contributory. His vital signs are stable, heart sounds are regular, his abdomen is soft and non-tender, and sensory responses to light touch appear intact. He lives at home with his parents and older sister, and the family history is negative for childhood motor disorders.\n\nI would be very grateful for your comprehensive evaluation and advice on further diagnostic investigations. \n\nSincerely,\nDr. Eleanor Hayes\nGeneral Pediatrics"
+}

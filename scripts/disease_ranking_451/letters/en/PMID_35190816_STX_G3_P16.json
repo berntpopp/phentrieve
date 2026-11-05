@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_G3_P16",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 331,
+  "completion_tokens": 317,
+  "total_tokens": 2064,
+  "thoughts_tokens": 1416,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to evaluate this young girl for further management of her refractory epileptic disorder and profound neurodevelopmental arrest. \n\nHer difficulties first declared themselves during the neonatal period, initially presenting as focal motor seizures characterized by unilateral clonic movements of the left arm and face. Over the following weeks, her events evolved, and her parents reported frequent, stereotyped clusters of rapid jackknife flexion jerks, most prominent upon waking. An outpatient electroencephalogram captured these clinical episodes against a background of high-voltage, severely disorganized and chaotic slow activity interspersed with multifocal spike discharges.\n\nAlongside these seizure manifestations, she demonstrates a severe and pervasive stagnation across all developmental milestones. She has not acquired head control, shows minimal social smiling, does not visually track objects, and remains profoundly delayed in motor, language, and adaptive areas. \n\nOn examination today, she is well-nourished with stable vital signs. Heart sounds are normal without murmurs, and her chest is clear to auscultation. Her abdomen is soft and non-tender, with no evidence of organomegaly. A comprehensive dermatological survey shows no hypopigmented macules or unusual pigmentation. Cranial nerves are grossly intact, and deep tendon reflexes are present and symmetric bilaterally. Family history is non-contributory for neurological disease, and she currently resides at home with her supportive parents. \n\nGiven the refractory nature of these events and her significant developmental challenges, I would be grateful for your comprehensive assessment and recommendations for further management.\n\nSincerely,\nDr. Julian Wright"
+}

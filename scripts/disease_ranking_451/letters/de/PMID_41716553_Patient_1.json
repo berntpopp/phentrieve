@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41716553_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 412,
+  "completion_tokens": 424,
+  "total_tokens": 3406,
+  "thoughts_tokens": 2570,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindner,\n\nich überweise Ihnen den heute fünfeinhalbjährigen Lukas zur neuropädiatrischen Mitbeurteilung. Bei dem Jungen besteht seit dem Säuglingsalter ein schwerer globaler Entwicklungsrückstand.\n\nDie motorischen Fertigkeiten sind stark verzögert – ein freies Gehen konnte er bislang nicht erlernen –, und auch die Sprachentwicklung hinkt mit einem Ausbleiben von Wortbildungen weit hinterher. Zudem imponiert eine deutliche kognitive Beeinträchtigung. Wir führen Lukas unter der Arbeitsdiagnose einer infantilen Zerebralparese; eine muskuläre Hypertonie liegt bei der Untersuchung allerdings nicht vor, der Tonus ist vielmehr normo- bis hypoton. Auffälligkeiten im Verhalten oder stereotype Muster zeigt er nicht, Lukas ist sozial aufgeschlossen. Das interiktale EEG war unauffällig und zeigte keinerlei pathologische Graphoelemente.\n\nPhänotypisch fallen eine breite sowie markant vorgewölbte Stirnpartie, ein vergrößerter Augenabstand und nach außen-unten verlaufende Lidachsen auf. Des Weiteren zeigen sich zarte Epikanthusfalten, auffallend langgestreckte Augenbrauen und eine deutlich eingesunkene Nasenwurzel. Ein Strabismus besteht nicht. An den Händen finden sich unauffällige Hohlhandfurchen, eine Vierfingerfurche ist nicht nachweisbar. \n\nIn der zerebralen MRT-Untersuchung wurden ein stark verdünnter Balken sowie das Bild einer zweiseitigen Polymikrogyrie beschrieben. Das Hörscreening und ein kardiologischer Basisultraschall waren unauffällig. Lukas nimmt keine Medikamente ein, und die Eltern sowie die ältere Schwester sind gesund.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung zum weiteren differentialdiagnostischen Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen\nDr. med. Stefan Keller"
+}

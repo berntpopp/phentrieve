@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30701076_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 371,
+  "total_tokens": 2499,
+  "thoughts_tokens": 1689,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Higgins,\n\nThank you for seeing this 31-year-old accountant for further diagnostic evaluation. His multi-system concerns first became noticeable during adolescence, roughly around age 15.\n\nOn cranial evaluation, he exhibits marked anteroposterior lengthening of the calvarium, a sequel of premature cranial suture fusion identified in early life. His facial profile demonstrates a notably receded lower jaw along with prominent tissue folds over the inner canthi. Ophthalmologic assessment confirms severe nearsightedness (-8.50 D) accompanied by an outward ocular divergence. An examination of his chest shows an anterior protrusion of the sternal body, while any inward chest depression is distinctly absent. Thoracic radiographs revealed bilateral accessory cervical ribs. He additionally uses nocturnal positive airway pressure to manage verified upper airway collapse during sleep.\n\nCardiovascular evaluation is notable for marked dilatation of the sinuses of Valsalva alongside systolic billowing of the mitral leaflets. Spinal imaging demonstrated abnormal hypermobility across the cervical segments on dynamic views, as well as a progressive lateral rotational curvature of the spine. Brain and spine magnetic resonance studies revealed prominent twisting and corkscrewing of the intracranial arterial tree and ballooning of the lumbosacral thecal sac. Radiographs of the pelvis demonstrated intrapelvic protrusion of both acetabular cups, and lower extremity alignment shows bilateral knock-knees. Broad cutaneous stretch marks are scattered across his flanks and back. \n\nHis extremities are otherwise intact, and there are no extra digits along the lateral borders of the hands or feet. Vital signs, basic blood work, and cranial nerve testing were unremarkable. He takes lisinopril daily and has no family history of early vascular disease. \n\nI would greatly appreciate your comprehensive assessment of these combined structural, vascular, and ocular findings.\n\nSincerely,\nDr. Arthur Vance"
+}

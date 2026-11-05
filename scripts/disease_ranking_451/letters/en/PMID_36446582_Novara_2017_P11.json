@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_Novara_2017_P11",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 376,
+  "completion_tokens": 287,
+  "total_tokens": 2454,
+  "thoughts_tokens": 1791,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for agreeing to evaluate this young girl, who was referred to my clinic for a comprehensive developmental and neurological assessment. \n\nHer early history is notable for profound lags across all key milestones. She experienced pronounced gross motor delays during early childhood and continues to have severe receptive and expressive speech delays, currently communicating with only a few vocalizations. Her parents also report marked difficulties with peer interaction, poor eye contact, and prominent stereotypic routines consistent with an autism spectrum profile. Over the past year, she has suffered multiple generalized convulsive seizures, which are presently monitored.\n\nOn examination, her linear growth is entirely preserved, tracking comfortably along the 50th percentile with no evidence of stunted height. Dysmorphology examination reveals widely spaced eyes, full and unusually bushy eyebrows that meet continuously across the midline, and a prominent, fleshy nasal tip with clearly upturned nares. Intraoral inspection showed distinctly enlarged central incisors. Examination of her upper extremities was completely unremarkable; her hands and digits are normally formed with no contractures or missing/extra digits. Heart and lung sounds were normal, and her abdomen was soft and non-tender. She lives at home with both parents, and family history is negative for neurodevelopmental conditions.\n\nGiven these complex clinical findings, I would greatly appreciate your expert opinion regarding an overall evaluation and recommendations for ongoing care.\n\nSincerely,\nDr. Laura Vance, MD"
+}

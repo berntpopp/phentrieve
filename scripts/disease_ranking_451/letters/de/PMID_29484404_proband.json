@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29484404_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 427,
+  "total_tokens": 2497,
+  "thoughts_tokens": 1700,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die dreijährige Patientin zur weiteren differentialdiagnostischen Beurteilung.\n\nBereits in der Neonatalperiode war den Eltern ein wiederkehrendes gelbliches Hautkolorit aufgefallen. Bei der aktuellen Vorstellung in unserer Praxis präsentiert sich das Mädchen in gutem Allgemeinzustand, die motorische und sprachliche Entwicklung verläuft völlig altersgerecht. Körperlich fallen jedoch ein deutlicher Sklerenikterus sowie eine gelblich verfärbte Haut auf. Abdominell lässt sich der Leberrand zweieinhalb Querfinger unter dem Rippenbogen tasten, und auch das Milzvolumen ist sonographisch wie palpatorisch deutlich über die Altersnorm hinaus vergrößert. Die kardiopulmonale Untersuchung war unauffällig, periphere Lymphknoten sind nicht vergrößert. Die Patientin besucht regelmäßig den Kindergarten und benötigt derzeit keine Dauermedikation.\n\nLaborchemisch zeigt sich ein verminderter Hämoglobinwert von 8,3 g/dl mit einer begleitenden kräftigen Markantwort in Form von stark erhöhten Retikulozytenwerten (7,9 %). Im manuellen Blutausstrich imponieren vermehrt elongierte, zigarrenförmige Erythrozyten.\n\nZur Abklärung führten wir bereits einige Voruntersuchungen durch: Der direkte Coombs-Test fiel negativ aus, womit sich kein Hinweis auf eine immunhämolytische Genese ergab. Die Aktivität der Glukose-6-Phosphat-Dehydrogenase lag vollständig im Normbereich. In der Hämoglobinanalyse fand sich zudem ein unauffälliges Bandenmuster ohne Anhalt für eine Imbalance der Globinkettensynthese. \n\nVor dem Hintergrund einer blanden Familienanamnese bezüglich hämatologischer Erkrankungen bitten wir um Ihre fachärztliche Einschätzung und Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen kollegialen Grüßen"
+}

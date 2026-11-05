@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 512,
+  "completion_tokens": 504,
+  "total_tokens": 3227,
+  "thoughts_tokens": 2211,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die heute 8-jährige Mia zur weiteren diagnostischen Abklärung. \n\nIn der Anamnese besteht eine seit dem Kleinkindalter bekannte, globale Verzögerung der Entwicklungsmeilensteine. Im Alltag imponiert eine ausgeprägte Ermüdbarkeit mit deutlich verkürzter Aufmerksamkeitsspanne. Autistische Züge, Ängste, gesteigerte Aggressivität oder eine Hyperaktivität liegen nicht vor. Der Nachtschlaf ist ruhig, Fütter- oder Gedeihstörungen gab es nie. Es traten bislang keine zerebralen Krampfanfälle auf. Die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer.\n\nKörperlich zeigt sich das Mädchen in gutem Allgemeinzustand. Körperlänge und Gewicht liegen unauffällig auf der 50. Perzentile, sodass weder ein Kleinwuchs noch Übergewicht besteht. Der Schädel ist normozephal ohne Anhalt für eine Mikro- oder Brachyzephalie; die Stirn ist nicht verbreitert. Der Muskeltonus ist seitengleich regelrecht, eine muskuläre Hypotonie fehlt. An den Händen fallen nach distal schmal zulaufende Finger sowie eine Überstreckbarkeit der Gelenke auf. \n\nIm kraniofazialen Bereich zeigt sich eine breite Nasenwurzel bei geradem Nasenrücken ohne Höckerbildung; die Nasenspitze ist nicht knollig geformt, die Nasenflügel sind normal angelegt und die Nares nicht antevertiert. Es bestehen Epikanthusfalten, schräg nach außen-oben verlaufende Lidachsen sowie ein Strabismus. Die Lidspalten sind normal lang, die Wimpern unauffällig, Ptosis oder tief liegende Bulbi fehlen. Der Augenabstand ist regulär, ohne Zeichen für Hypo- oder Hypertelorismus. Die Ohren sind orthotop, keineswegs tief sitzend. Die Mundspalte ist normal weit, das Philtrum von unauffälliger Länge und Breite, jedoch vollständig verstrichen. Die Oberlippe weist ein sehr schmales Lippenrot auf, die Unterlippe ist nicht evertiert.\n\nIch danke Ihnen für die Mitbeurteilung der Patientin und verbleibe mit freundlichen Grüßen."
+}

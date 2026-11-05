@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_74",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 442,
+  "total_tokens": 3866,
+  "thoughts_tokens": 2985,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 2-jährigen Felix zur weiteren pädiatrischen Beurteilung. \n\nDen Eltern fiel im Verlauf eine globale Entwicklungsretardierung auf. Felix zeigt einen deutlichen motorischen Rückstand sowie eine ausgeprägte Verzögerung der expressiven wie rezeptiven Sprachentwicklung. Kognitiv besteht der Eindruck einer leichten Einschränkung; Hinweise auf eine mittelgradige, schwere oder gar schwerste Intelligenzminderung finden sich jedoch nicht. Phänotypisch imponiert ein merklich weiter Augenabstand. Gastrointestinal besteht eine chronische Obstipation, Diarrhöen wurden nie beobachtet.\n\nIm Spielverhalten zeigen sich Züge aus dem autistischen Formenkreis. Dennoch ist kein auffälliges Sozialverhalten festzustellen; Felix sucht und hält adäquaten Blickkontakt und zeigt keine Beeinträchtigung des Persönlichkeitsfunktionsniveaus. Stereotype motorische Abläufe oder repetitive Zwangshandlungen fehlen gänzlich. Seine Aufmerksamkeitsspanne ist nicht pathologisch verkürzt, und auch Schlafstörungen werden verneint.\n\nDer Junge präsentiert sich in gutem Allgemeinzustand, normalgewichtig und ohne Übergewicht. Eine Makrozephalie liegt nicht vor, der Kopfumfang verläuft unauffällig auf der 50. Perzentile. Der Muskeltonus ist seitengleich regelrecht ohne muskuläre Hypotonie. An den unteren Extremitäten zeigt sich kein Pes planus. Zerebrale Anfälle traten bisher nicht auf. Die orientierenden Sinnesprüfungen ergaben weder eine Sehbeeinträchtigung noch eine Hörstörung. Eine Hyperbilirubinämie in der Periode der Neugeborenenzeit wird verneint. Die Familienanamnese ist bezüglich syndromaler Erkrankungen unauffällig. Felix erhält derzeit keine Dauermedikation.\n\nIch danke Ihnen für die Mitbeurteilung des Patienten und erbitte Ihre geschätzte diagnostische Einschätzung.\n\nMit freundlichen Grüßen\nDr. med. E. Jansen"
+}

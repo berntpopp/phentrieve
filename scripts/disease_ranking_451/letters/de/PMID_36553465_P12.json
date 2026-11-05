@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36553465_P12",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 423,
+  "total_tokens": 2438,
+  "thoughts_tokens": 1644,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\nsehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn Walter Becker, 65 Jahre alt, zur weiteren fachärztlichen Beurteilung und konsiliarischen Mitbetreuung.\n\nDer Patient stellte sich zur Routineuntersuchung bei mir vor. Ophthalmologisch zeigte sich eine ausgeprägte, beidseitige Minderung der Sehschärfe mit einem bestkorrigierten Visus von 0,2 rechts und 0,25 links. Auffällig war zudem ein ständiger horizontaler Pendelnystagmus. In der Schielprüfung fand sich eine manifeste Einwärtsschielstellung im Sinne einer Esotropie; ein Strabismus divergens bzw. eine Exotropie war klinisch nicht nachweisbar.\n\nSpaltlampenbiomikroskopisch präsentieren sich beidseits sehr helle, blaue Regenbogenhäute. Bei retrograder Beleuchtung imponierten deutliche Transilluminationsdefekte der Iris im Sinne von Kirchenfensterphänomenen. Die Hornhaut war klar und der Augeninnendruck mit 15 mmHg seitengleich normwertig. In der optischen Kohärenztomographie zeigte sich an beiden Augen eine Hypoplasie der Fovea mit vollständigem Fehlen der physiologischen Foveaeinsenkung.\n\nIm allgemeinen Erscheinungsbild fallen ein auffallend helles, pigmentarmes Kopfhaar sowie komplett weiße Wimpern und weiße Augenbrauen auf. Am oberen Rücken zeigte sich bei der Hautinspektion ein reizloser, regelrecht konfigurierter Naevus. Die internistische Vorgeschichte ist bis auf einen gut eingestellten Bluthochdruck leer, Herr Becker nimmt lediglich morgens Valsartan 80 mg ein. Die Familienanamnese bezüglich ophthalmologischer Auffälligkeiten ist unergiebig.\n\nÜber Ihre geschätzte Einschätzung dieser Befundkonstellation und das weitere empfohlene Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

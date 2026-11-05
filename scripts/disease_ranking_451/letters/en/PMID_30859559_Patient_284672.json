@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30859559_Patient_284672",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 692,
+  "completion_tokens": 470,
+  "total_tokens": 5515,
+  "thoughts_tokens": 4353,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 8-year-old girl. Antenatal ultrasound demonstrated increased nuchal thickness without cystic hygroma or nonimmune hydrops fetalis. Her infancy was notable for decreased muscle tone and difficulties with feeding. Early developmental milestones were globally delayed; she was late to walk independently and exhibits marked delay in expressive speech and language alongside intellectual impairment. She has not displayed autistic behavior, and there is no history of seizures. Routine pediatric surveillance blood counts ruled out acute lymphoblastic leukemia.\n\nOn examination, she has an elongated facial structure without coarse facial features, midface retrusion, or micrognathia. Her forehead is neither high, broad, nor narrow, and lacks a prominent metopic ridge; the anterior hairline is not high. Her posterior hairline, however, is low on the nape. Ocular evaluation reveals pale blue irides, widely spaced eyes, downward-slanting palpebral fissures, and bilateral lid ptosis, with no epicanthus, strabismus, or long palpebral fissures. Her nasal bridge is not depressed, nares are not anteverted, and she has no prominent nasolabial folds. She demonstrates retrognathia with a pointed chin, high-arched palate, and dental malocclusion. Her ears are posteriorly rotated but are not low-set. Straight scalp hair is present without curly hair or hirsutism. Audiology confirmed a sensorineural hearing deficit.\n\nShe has a short, webbed neck without redundant neck skin. Her chest demonstrates an excavated sternum, but no pectus carinatum, wide intermamillary distance, or scoliosis. Echocardiography shows mitral regurgitation, with no mitral valve prolapse, hypertrophic cardiomyopathy, pulmonic stenosis, atrial septal defect, or ventricular septal defect.\n\nExtremities show a single transverse palmar crease, but no prominent fingertip pads, 2-3 toe syndactyly, or pes planus. The integument is intact without hyperextensible skin, hyperpigmentation of the skin, palmoplantar cutis laxa, hyperkeratosis, or eczematoid dermatitis. Growth parameters show no microcephaly or short stature.\n\nI would value your formal assessment and recommendations.\n\nSincerely,\nDr. Evelyn Vance"
+}

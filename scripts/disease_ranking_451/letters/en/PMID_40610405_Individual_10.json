@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_10",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 524,
+  "completion_tokens": 419,
+  "total_tokens": 4165,
+  "thoughts_tokens": 3222,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing this 4-year-old boy in consultation. He was delivered at term with appropriate birth measurements, without being small for gestational age. He has grown steadily since birth, showing no growth faltering or stunted linear height. \n\nSince infancy, he has presented with broad-based neurodevelopmental delays. His gross motor skills are significantly behind, his manual dexterity is delayed, and his language acquisition has been slow, although he is not completely mute. On physical assessment, he demonstrates generalized diminished muscular tone throughout his trunk and limbs, with no spasticity or hyperreflexia. Over the past six months, he developed brief generalized stiffening paroxysms concerning for tonic-pattern seizures, prompting neuroimaging. Cranial MRI revealed a markedly slender, attenuated corpus callosum and a diminutive anterior commissure. \n\nHe exhibits a disproportionate cranial circumference relative to his body stature, but the skull is not abnormally small, and there is no premature fusion along the sagittal cranial suture. He displays an outward ocular deviation on visual tracking. The remainder of his face is unremarkable: the eyebrows do not meet medially, the eye slits show neither upward tilting nor excessive length, medial canthal skin folds are absent, the nostrils are not upturned, the philtral groove is not shortened, the mouth width is normal, and his lower jaw is not recessed. The ears are well-formed without pinna hypoplasia, and auditory testing demonstrated no hearing deficit. Respiratory drive is regular without hypoventilatory periods.\n\nHis parents report ongoing difficulty swallowing solid foods and long-standing hard, infrequent bowel movements. Cardiac ultrasound confirmed the absence of a persistent ductus arteriosus and revealed an intact interatrial septum lacking a secundum defect. He has normally projected, uninverted nipples, straight pinky fingers without inward curvature, and no excessive hairiness. Urogenital exam demonstrates an unretractable foreskin accompanied by ventral penile curvature. \n\nI would appreciate your comprehensive evaluation and diagnostic guidance.\n\nSincerely,  \nDr. Vance"
+}

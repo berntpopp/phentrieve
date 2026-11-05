@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_17_from_PMID_15952210",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 328,
+  "total_tokens": 3094,
+  "thoughts_tokens": 2379,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing this young male patient for an expert neurological and metabolic evaluation. His medical problems began on his third day of life when he developed frequent convulsive episodes, which have remained refractory to phenobarbital and levetiracetam. \n\nIn clinic, he demonstrates profound delays across all motor and cognitive milestones. While his development is severely impaired, he has not shown any loss of previously attained skills, and his parents report no regression in his abilities. On physical examination, his head circumference is well below the third percentile for age. Neurologically, he presents with marked central floppiness paired with increased muscle tone and brisk reflexes in his extremities. He shows no chorea, tremors, dystonic posturing, or other involuntary movement dysfunction associated with the extrapyramidal system. An ophthalmological examination confirmed clear ocular media, with the crystalline lenses normally positioned and completely free of subluxation. His cardiovascular and respiratory assessments are normal, his abdomen is soft without organomegaly, and there are no cutaneous lesions. His family history is unremarkable, and his older sibling is healthy.\n\nLaboratory workup is notable for a persistently low concentration of circulating uric acid in his blood. Correspondingly, urine studies showed depressed renal urate excretion rather than any excessive uric acid wasting. Metabolic testing confirmed that his urinary hypoxanthine excretion is not elevated; however, specialized screening identified an abnormal abundance of S-sulfocysteine in the urine.\n\nGiven this complex constellation of findings, I would value your diagnostic assessment and guidance on further specialized workup. \n\nSincerely, \nDr. Evelyn Vance"
+}

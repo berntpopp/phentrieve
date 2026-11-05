@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14628289_Family_A_individual_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 327,
+  "total_tokens": 2294,
+  "thoughts_tokens": 1611,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 15-year-old young man for further evaluation. He first presented to our clinic around the age of ten with persistent involuntary nighttime bedwetting, which has unfortunately continued to trouble him. \n\nHe is otherwise doing well, currently attending tenth grade and participating in school athletics. His past medical history is non-contributory, and he takes no prescription medications. A review of systems is completely negative. On physical examination, he is alert and in no distress. His blood pressure is 112/70 mmHg, heart rate is 68 beats per minute, and his abdominal, cardiac, and neurological examinations are entirely normal. His family history is negative for any early-onset stone disease or known metabolic problems.\n\nOur initial laboratory workup demonstrated significant wasting of calcium in his 24-hour urine collection, accompanied by excessive urinary elimination of magnesium. Importantly, his serum intact parathyroid hormone has been checked repeatedly and remains strictly within the reference interval, without any upward deviation. Serum creatinine and blood urea nitrogen are normal, indicating fully preserved filtering capacity with no sign of impaired kidney function. He has had no history of repeated bladder infections or frequent culture-positive urine episodes. A recent renal ultrasound demonstrated diffuse hyperechogenicity and acoustic shadowing throughout the medullary pyramids bilaterally, indicating extensive calcium deposition within the parenchymal tissue. \n\nGiven these ongoing tubular losses, parenchymal calcium deposits, and nighttime incontinence, I would be very grateful for your assessment and guidance on further metabolic investigation. \n\nSincerely,\n\nDr. Julian Vance"
+}

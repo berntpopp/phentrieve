@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30046498_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 430,
+  "completion_tokens": 347,
+  "total_tokens": 3071,
+  "thoughts_tokens": 2294,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate this 2-year-and-7-month-old boy whom I have followed since he initially presented at 21 days of life with pronounced icteric discoloration of his conjunctivae and pale, clay-like stools. \n\nAt his recent visit, his parents reported that he is thriving socially and communicative; his gross motor, fine motor, and cognitive milestones are on target, with no delay in his overall development. On physical examination, he displays an expansive, wide brow with an otherwise triangular facial shape, noticeably sunken globes, scant eyebrows, and prominently flared ears. His skin appears parched with extensive xerosis, and multiple yellowish, lipid-laden cutaneous nodules are visible along the extensor surfaces of his extremities. Abdominal palpation reveals hepatic enlargement extending 4 cm below the right costal margin.\n\nLaboratory investigations demonstrate marked cholestatic liver involvement, with raised serum bilirubin alongside increased circulating aspartate transaminase, alanine transaminase, gamma-glutamyl transferase, and alkaline phosphatase. Slit-lamp evaluation by our pediatric ophthalmologist identified a prominent, anteriorly displaced Schwalbe ring. In addition, spinal radiographs demonstrated sagittal clefting across several mid-thoracic vertebral arches, and thoracic imaging showed bilateral underdevelopment of the lungs. Previous neuroimaging also noted bilateral dilation of the subarachnoid spaces.\n\nHis family history is non-contributory, and he takes daily fat-soluble vitamin supplements without difficulty. Given this complex constellation of hepatic, skeletal, ocular, and cutaneous features, I would value your comprehensive clinical assessment and guidance regarding further management.\n\nWarm regards,\n\nDr. Arthur Pendelton\nPediatric Medicine"
+}

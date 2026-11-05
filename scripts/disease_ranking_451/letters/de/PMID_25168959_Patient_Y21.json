@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25168959_Patient_Y21",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 616,
+  "completion_tokens": 606,
+  "total_tokens": 3939,
+  "thoughts_tokens": 2717,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die heute neunjährige Patientin zur weiteren fachärztlichen Beurteilung. Das Mädchen kam termingerecht, jedoch als hypotrophes Neugeborenes (SGA) zur Welt. Entwicklungsneurologisch besteht ein globales Entwicklungsdefizit mit hochgradiger Intelligenzminderung; eine lediglich milde oder moderate kognitive Einschränkung liegt keinesfalls vor. Eine lautsprachliche Kommunikation fehlt vollständig. Auffälligkeiten wie Hyperaktivität, Impulsdurchbrüche, Wutanfälle oder autoaggressives Verhalten traten bisher nicht auf. Des Weiteren leidet die Patientin unter einer zerebralen Anfallsneigung, einer deutlichen muskulären Hypotonie und einer Hörminderung. Der Visus ist intakt, eine Ptosis besteht nicht. \n\nKörperlich zeigen sich ein ausgeprägter Kleinwuchs sowie ein Mikrozephalus (Kopfumfang weit unterhalb P3). Dysmorphologisch imponieren dicht buschige Augenbrauen, verlängerte Wimpern, ein schütteres Kopfhaar, eine breite Nasenwurzel (weder eingesenkt noch verschmälert) sowie ein verlängertes Philtrum, welches weder verstrichen-kurz noch breit wirkt. Das Oberlippenrot ist auffallend schmal, die Unterlippe hingegen voll ausgeprägt; der Gaumen ist spitzbogig hoch, eine Gaumenspalte liegt nicht vor. Am Rumpf und den Extremitäten zeigt sich eine Hypertrichose, zudem eine mäßige thorakale Skoliose sowie eine beidseitige Brachydaktylie der Kleinfinger und Kleinzehen; die Fingergelenke sind schlank und ohne Prominenz.\n\nIn der Vorgeschichte finden sich rezidivierende Atemwegsinfekte, Trink- und Fütterprobleme sowie ein gastroösophagealer Reflux; eine Pylorusstenose lag nie vor. Eine Inguinalhernie wurde im Säuglingsalter operiert; Hinweise auf Nabel-, Hiatus- oder Zwerchfellhernien fanden sich nicht. Ein zerebrales MRT zeigte eine auffällige Balkenmorphologie ohne Dandy-Walker-Malformation oder Hinweis auf Neoplasien. Kardiologisch wurden Septumdefekte (ASD, VSD), eine Pulmonalstenose und eine Dextrokardie ausgeschlossen. Sonographisch waren die Nieren unauffällig, ohne Zeichen für Hydronephrose, Ureterdilatation, vesikoureteralen Reflux, Hufeisenniere oder Urethraldivertikel. Die Familienanamnese ist leer, die Eltern sind gesund.\n\nIch bedanke mich für Ihre differentialdiagnostische Einschätzung und verbleibe\n\nmit kollegialen Grüßen"
+}

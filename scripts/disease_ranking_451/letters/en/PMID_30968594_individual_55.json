@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30968594_individual_55",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 283,
+  "total_tokens": 2160,
+  "thoughts_tokens": 1523,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this male patient in consultation for ongoing endocrine evaluation. His clinical presentation initially began in early infancy, with his family first noting concerns at approximately six weeks of life.\n\nOn physical examination, he appears well-nourished and in no acute distress. His vital signs are stable, with a blood pressure of 118/74 mmHg and a resting heart rate of 72 beats per minute. Cardiopulmonary auscultation is unremarkable, and his abdomen is soft, non-tender, and free of organomegaly. Neurologic screening is intact. Inspection of the integument reveals widespread darkening of his skin, with especially prominent deep pigmentation over the knuckles, creases, and extensor surfaces.\n\nLaboratory workup reveals a markedly elevated plasma adrenocorticotropic hormone. Furthermore, circulating prolactin measurements are high, and his serum testosterone is persistently low. In contrast, evaluations of his circulating cortisol have remained completely normal, and his serum estradiol concentration was normal as well. Comprehensive metabolic and electrolyte panels were otherwise unremarkable.\n\nHe currently takes only a standard daily multivitamin. There is no family history of metabolic or hormonal disorders, and he has had no recent hospitalizations or intercurrent illnesses. \n\nGiven this constellation of laboratory results and dermatologic features, I would greatly appreciate your assessment and recommendations for his ongoing clinical management.\n\nSincerely,\nDr. Arthur Vance"
+}

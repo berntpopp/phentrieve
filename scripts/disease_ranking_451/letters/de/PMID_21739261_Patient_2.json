@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21739261_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 341,
+  "completion_tokens": 334,
+  "total_tokens": 1960,
+  "thoughts_tokens": 1285,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute das ein Jahr und neun Monate alte Mädchen Emma zur freundlichen Mitbeurteilung.\n\nDie Eltern stellen ihre Tochter vor, da ihnen bereits unmittelbar postpartal eine extrem helle, diffus pigmentarme Haut am gesamten Integument aufgefallen war. Zudem zeigt sich seit der Geburt eine ausgeprägte, kupferrote Kopfbehaarung. \n\nHinsichtlich der ophthalmologischen Funktionen ergab die orientierende Untersuchung unauffällige Befunde. Die Bulbi standen vollkommen ruhig, ein Nystagmus ließ sich zu keinem Zeitpunkt auslösen oder beobachten. Ebenso lag kein Schielen vor; die Augenachsen standen stets parallel. Das Kind fixiert dargebotene Spielzeuge prompt und verfolgt diese flüssig, sodass eine Verminderung des Sehvermögens klinisch nicht anzunehmen ist.\n\nDie bisherige körperliche sowie sprachliche und motorische Entwicklung verläuft zeitgerecht. Das Mädchen läuft stabil, schläft gut und besucht seit Kurzem problemlos eine Spielgruppe. Vorerkrankungen bestehen nicht, Medikamente werden nicht eingenommen. Die Familienanamnese bezüglich kutaner Besonderheiten ist unauffällig. Die orientierende körperliche Untersuchung erbrachte abgesehen von der beschriebenen Pigmentierung regelrechte Verhältnisse, Herz und Lunge waren auskultatorisch ohne Befund, das Abdomen war weich und unauffällig.\n\nIch bedanke mich für Ihre geschätzte fachliche Einschätzung der Befunde.\n\nMit kollegialen Grüßen"
+}

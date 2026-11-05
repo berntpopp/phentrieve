@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37476413_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 573,
+  "completion_tokens": 381,
+  "total_tokens": 3053,
+  "thoughts_tokens": 2099,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for evaluating this 3-year-old boy who presents with multiple congenital anomalies and profound delays across all developmental milestones. He remains completely non-verbal, demonstrates severe cognitive impairment, and exhibits generalized hypotonia alongside marked joint laxity, though notably without joint contractures. He lives at home with non-consanguineous parents and is currently maintained on levetiracetam for unprovoked seizures, as well as omeprazole for gastroesophageal reflux and significant feeding difficulties. Persistent daytime teeth grinding has also been noted.\n\nOn exam, height and head circumference fall markedly below the third centile. Cranial contour reveals asymmetry alongside premature suture fusion. Dysmorphic features include widely spaced eyes, bilateral epicanthic folds, a flattened nasal bridge, and an effaced philtrum. Ophthalmologic evaluation noted a squint and marked farsightedness, but no cortical visual impairment; audiology demonstrated preserved hearing. He has a mild spinal curvature, but radiographs confirmed the absence of hemivertebrae. Extremity examination reveals incurved fifth digits and overlapping toes. Genitourinary findings include bilateral cryptorchidism, phimosis, and a previous groin hernia repair, with no history of urinary tract infections.\n\nHis medical course has been complicated by chronic bronchodysplasia and recurrent bouts of pneumonia; however, quantitative serum immunoglobulins are normal. Endocrine testing confirmed normal circulating growth hormone levels. Brain MRI showed preserved cerebellar anatomy, normal ventricles, and normal white matter morphology. Echocardiography was unremarkable, excluding ventricular or atrial septal defects. Abdominal ultrasound identified a present gallbladder, no intestinal malrotation or atresia, and two kidneys of normal size and structure without cystic dysplasia, agenesis, or a horseshoe configuration.\n\nI would greatly appreciate your assessment and recommendations for this child.\n\nSincerely,\nDr. Robert Evans"
+}

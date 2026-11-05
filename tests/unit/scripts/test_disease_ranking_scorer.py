@@ -76,3 +76,24 @@ def test_scores_and_ranks_match_varlens(ref: dict) -> None:
 
 def test_reference_has_enough_profiles() -> None:
     assert len(REFERENCE["profiles"]) >= 20
+
+
+def test_soft_weights_share_a_chunk_unit_weight() -> None:
+    import analysis
+
+    chunks = [
+        [
+            ["HP:A", 0.9, "affirmed"],
+            ["HP:B", 0.8, "affirmed"],
+            ["HP:C", 0.95, "negated"],
+        ],
+        [["HP:B", 0.85, "affirmed"]],
+        [],
+    ]
+    assert analysis.soft_weights(chunks, 1, "raw") == {"HP:A": 1.0, "HP:B": 1.0}
+    raw = analysis.soft_weights(chunks, 3, "raw")
+    assert raw["HP:A"] == pytest.approx(0.9 / 1.7)
+    assert raw["HP:B"] == 1.0  # a term takes its maximum weight over chunks
+    assert "HP:C" not in raw  # negated candidates never enter
+    sharp = analysis.soft_weights(chunks, 3, 0.05)
+    assert sharp["HP:A"] == pytest.approx(1 / (1 + np.exp(-0.1 / 0.05)))

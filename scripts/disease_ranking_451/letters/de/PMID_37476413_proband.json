@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37476413_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 573,
+  "completion_tokens": 552,
+  "total_tokens": 4935,
+  "thoughts_tokens": 3810,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nwir stellen Ihnen den dreijährigen Felix zur konsiliarischen Beurteilung vor. Die Eltern sind gesund und nicht blutsverwandt; ein fünfjähriger Bruder entwickelt sich zeitgerecht. \n\nBereits seit Geburt imponiert eine ausgeprägte globale Entwicklungsretardierung mit schwerer kognitiver Beeinträchtigung sowie komplett fehlender Sprachentwicklung. Im Verlauf manifestierten sich zerebrale Krampfanfälle, zudem fällt ein deutlicher Bruxismus auf. Das cMRT ergab keinen Anhalt für eine Ventrikulomegalie; die weiße Substanz und das Kleinhirn stellen sich morphologisch regelrecht dar. Audiometrisch zeigte sich kein Hördefizit, ophthalmologisch bestehen jedoch ein Strabismus und eine Hyperopie. Eine zerebrale Sehstörung konnte ausgeschlossen werden.\n\nKraniofazial fallen eine vorzeitige Nahtsynostose mit Plagiozephalie, eine Mikrozephalie, Hypertelorismus, Epikanthusfalten, eine verflachte Nasenwurzel sowie ein verstrichenes Philtrum auf. Es besteht ein deutlicher Kleinwuchs bei normwertigen Wachstumshormonspiegeln. Am Bewegungsapparat imponiert eine generalisierte Muskelhypotonie mit ausgeprägter Gelenküberbeweglichkeit, wohingegen Gelenkkontrakturen fehlen. Weiterhin zeigen sich eine thorakolumbale Skoliose ohne Halbwirbelbildungen, beidseits eine Klinodaktylie des fünften Fingers sowie übereinanderstehende Zehen.\n\nPulmonal bestehen eine bronchopulmonale Dysplasie und anamnestisch rezidivierende Pneumonien bei normalen Serum-Immunglobulinen. Echokardiografisch konnten atriale und ventrikuläre Septumdefekte ausgeschlossen werden. Gastrointestinal bestehen eine erhebliche Fütterstörung und ein gastroösophagealer Reflux. Sonografisch stellt sich die Gallenblase unauffällig dar; Fehlbildungen wie Malrotation oder Darmatresie liegen nicht vor. Die Nieren imponieren orthotop und normal groß, ohne Anhalt für Zystennieren, Agenesie, Hufeisenniere oder Dysplasiezeichen; rezidivierende Harnwegsinfekte traten nie auf. Urologisch bestehen ein Kryptorchismus sowie eine Phimose bei Zustand nach operierter Inguinalhernie.\n\nWir bitten um Ihre differenzialdiagnostische Einschätzung und Empfehlungen zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

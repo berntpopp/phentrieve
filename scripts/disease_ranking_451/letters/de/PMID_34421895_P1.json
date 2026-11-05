@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34421895_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 428,
+  "total_tokens": 3204,
+  "thoughts_tokens": 2398,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute eine junge Patientin zur weiteren differentialdiagnostischen Beurteilung, deren komplexe Krankengeschichte bereits im fünften Lebensjahr begann.\n\nHämatologisch imponiert eine ausgeprägte Zytopenie auf immunologischer Basis: In den Vorbefunden zeigen sich ein autoimmun vermittelter Thrombozytensturz, eine antikörperbedingte Hämolyse der roten Blutkörperchen sowie wiederkehrend stark erniedrigte neutrophile Granulozyten durch Autoantikörper. Sonografisch dokumentierten wir wiederholt eine deutliche Milzvergrößerung sowie eine messbare Lebervergrößerung. Ein Morbus Hodgkin beziehungsweise ein Hodgkin-Lymphom konnte histopathologisch und bildmorphologisch erfreulicherweise sicher ausgeschlossen werden.\n\nAuffallend ist zudem eine erhebliche Infektanfälligkeit. Anamnestisch erlitt die Patientin bereits eine stationär behandlungsbedürftige Lungenentzündung, einen schmerzhaften odontogenen Abszess, wiederkehrende Infekte der ableitenden Harnwege sowie gehäufte Episoden einer Gürtelrose. \n\nDermatologisch besteht seit mehreren Jahren ein kompletter Ausfall des Kopfhaares, begleitet von therapieresistenten, ekzemartigen Hautveränderungen an Rumpf und Beugeseiten. Pulmologisch bestehen rezidivierende asthmatische Atemwegsbeschwerden mit bronchialer Obstruktion. \n\nDie orientierende neurologische und kardiale Untersuchung ergab unauffällige Normalbefunde. Vitalparameter und Nierenwerte lagen stets im Normbereich. Die Familienanamnese bezüglich angeborener Syndrome ist leer. Die Patientin besucht regulär die Schule und inhaliert derzeit lediglich bei Bedarf Salbutamol.\n\nÜber Ihre geschätzte kollegiale Einschätzung und Vorschläge zur weiteren Einordnung dieses Befundkomplexes wäre ich Ihnen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

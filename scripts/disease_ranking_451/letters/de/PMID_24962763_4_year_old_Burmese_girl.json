@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24962763_4_year_old_Burmese_girl",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 390,
+  "total_tokens": 2793,
+  "thoughts_tokens": 2040,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die vierjährige Greta zur weiteren differentialdiagnostischen Beurteilung. Das Mädchen fiel bereits unmittelbar post partum durch auffallend schlaffe, in weiten Falten liegende Hautüberhänge am gesamten Körper auf. \n\nIn den ersten Lebensmonaten bestand zudem eine therapiebedürftige, kongenitale Verlegung des Tränennasengangs. Im Alter von knapp einem Jahr musste beidseits ein Durchtritt von Eingeweiden im Leistenkanal operativ versorgt werden. Kardiologisch zeigte sich bei der Echokardiographie eine systolische Vorwölbung der Mitralsegel in das Atrium. \n\nSorge bereiten den Eltern insbesondere ständige bakterielle und virale Entzündungen der tiefen Atemwege, die mehrfach hospitalisiert werden mussten. Ein kürzlich angefertigtes Thorax-CT wies dabei deutliche Zeichen einer irreversiblen pulmonalen Überblähung mit Destruktion des Alveolargewebes nach. Urologisch wurde im Rahmen einer Fieberabklärung ein beidseitiger Rückfluss von Urin aus der Blase in die oberen Harnwege diagnostiziert. In einem kranialen MRT zur Abklärung chronischer Kopfschmerzen fiel ergänzend eine ungewöhnlich flach konfigurierte Hypophysengrube auf, wobei das Hirngewebe unauffällig blieb. \n\nDie Familienanamnese ist leer, die Eltern und der ältere Bruder sind gesund. Kognitiv zeigt sich Greta altersgerecht entwickelt, das Hörvermögen ist normal und sie nimmt aktuell keine regelmäßigen Medikamente ein. \n\nÜber Ihre geschätzte Einschätzung dieses komplexen Krankheitsbildes und Empfehlungen zum weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

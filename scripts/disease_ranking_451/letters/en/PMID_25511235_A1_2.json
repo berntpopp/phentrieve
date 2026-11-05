@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25511235_A1_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 339,
+  "completion_tokens": 264,
+  "total_tokens": 2432,
+  "thoughts_tokens": 1829,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Stevens,\n\nThank you for agreeing to see this young patient for further assessment following an acute episode that began at nine months of age in the setting of reduced oral intake.\n\nUntil this presentation, developmental milestones and somatic growth were tracking appropriately along the 50th percentiles. The pregnancy and delivery were uncomplicated, routine immunizations are current, and the family history is non-contributory with two healthy older siblings.\n\nDuring the initial evaluation, the child was noted to have profoundly low blood glucose, dipping to 1.9 mmol/L. Concurrent serum chemistries identified a significant metabolic-pattern acidemia with a bicarbonate of 12 mmol/L and an elevated anion gap. Physical examination was notable for an enlarged hepatic span, with the lower border easily palpable 4 cm below the right costal margin; cardiac, chest, and neurological examinations were otherwise normal.\n\nSubsequent blood work demonstrated markedly increased circulating non-esterified fatty acids. Furthermore, urine organic acid profiling showed prominent dicarboxylic aciduria.\n\nThe child stabilized following intravenous dextrose resuscitation and is currently back to their baseline feeding schedule. In light of the liver enlargement and the biochemical constellation observed during decompensation, I would appreciate your expert clinical evaluation and recommendations regarding further diagnostic strategy.\n\nSincerely,\nDr. Marcus Vance"
+}

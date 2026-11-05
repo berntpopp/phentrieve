@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19458539_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 386,
+  "completion_tokens": 285,
+  "total_tokens": 2671,
+  "thoughts_tokens": 2000,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Mrs. Elena Vance, a 57-year-old administrative assistant who presented to my clinic with an insidious neuromuscular decline that first became apparent when she was 41 years old. She lives with her husband and has no family history of neuromuscular disease. Her past medical history is otherwise unremarkable, and routine blood chemistries and thyroid studies were normal.\n\nOver the past several years, she has experienced significant functional deterioration. She reports great trouble ascending flights of stairs and severe difficulty when attempting to stand from a seated position without pushing off with both arms. \n\nOn physical examination, she demonstrates a striking waddling ambulation. Strength testing revealed bilateral proximal limb girdle weakness, most pronounced across the shoulder abductors and hip flexors. We also detected distinct weakness against resistance in her neck flexors. Cranial nerve assessment was unremarkable, with no weakness of the facial muscles noted. Sensory testing was preserved, though her deep tendon reflexes were diffusely diminished throughout.\n\nSerum testing showed elevated creatine kinase activity at 580 U/L. A subsequent biopsy of the vastus lateralis revealed marked variation in fiber caliber, scattered atrophic angulated fibers, abundant internal nuclei, and several myofibers displaying rimmed vacuoles.\n\nI would appreciate your expert assessment regarding her clinical picture and advice on long-term management. \n\nSincerely,  \nDr. Arthur Pendelton"
+}

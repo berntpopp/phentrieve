@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37761890_59",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 422,
+  "completion_tokens": 454,
+  "total_tokens": 3029,
+  "thoughts_tokens": 2153,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute eine junge Patientin zur weiteren pädiatrischen Beurteilung. Die bisherige Familienanamnese ist bezüglich chronischer Erkrankungen leer, die Geburt verlief termingerecht und ohne Komplikationen. \n\nIm klinischen Alltag fällt eine ausgeprägte generalisierte Muskelhypotonie auf; das Mädchen wirkt im Spontanmotorikbild sehr kraftlos. Die Meilensteine werden insgesamt mit starker zeitlicher Verzögerung erreicht, es zeigt sich ein schwerer Rückstand in der globalen Entwicklung. Dies betrifft neben den motorischen Fertigkeiten auch die Sprachentwicklung, da lautsprachliche Äußerungen bisher weitgehend fehlen. Zuletzt berichteten die Eltern über wiederholt aufgetretene zerebrale Krampfanfälle. Bei der körperlichen Untersuchung zeigt sich das Schädeldach deutlich unterproportionert mit einem Kopfumfang weit unterhalb der Normperzentilen; ein Makrozephalus liegt nicht vor. Zudem bestehen erhebliche Fütter- und Trinkprobleme. Ein gastroösophagealer Reflux konnte jedoch nicht nachgewiesen werden; eine gastrale Sondenernährung per PEG im Säuglingsalter war ebenso wenig erforderlich wie eine parenterale Zufuhr.\n\nDie zerebrale Bildgebung zeigte ein vollständiges Fehlen der quer verlaufenden Kommissurenfasern, sodass eine isolierte Hypoplasie des Balkens ausgeschlossen ist. Das Kammersystem war unauffällig konfiguriert ohne Anhalt für Ventrikulomegalie oder einen Hydrozephalus. Es fanden sich keine periventrikulären Leukomalazien und das zerebrale Furchenrelief ließ keine Pachygyrie erkennen. Eine Dysgenesie der Hippocampi war nicht nachweisbar, und auch eine Aplasie des Bulbus olfactorius fand sich beidseits nicht. Die kardiopulmonale und abdominelle Untersuchung blieb ohne pathologischen Befund.\n\nIch danke Ihnen für die konsiliarische Einschätzung und Ihre geschätzte Empfehlung zum weiteren diagnostischen Procedere.\n\nMit freundlichen kollegialen Grüßen"
+}

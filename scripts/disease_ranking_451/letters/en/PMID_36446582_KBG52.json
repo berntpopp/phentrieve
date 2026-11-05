@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_KBG52",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 505,
+  "completion_tokens": 337,
+  "total_tokens": 2947,
+  "thoughts_tokens": 2105,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this young male patient. He was delivered at term following a gestation complicated by fetal growth restriction. Early infancy was marked by significant feeding difficulties. Although gross motor milestones were achieved without delay, he exhibits marked intellectual impairment alongside delayed expressive and receptive language development. His sleep is undisturbed, and clinical observation reveals no autistic behaviors or attention-deficit/hyperactivity traits.\n\nOn examination, his height is significantly below the 3rd percentile, though head circumference is normal, without microcephaly. Neurologically, he demonstrates generalized low tone. Craniofacial assessment reveals a triangular facial contour, a low anterior hairline, prominent low-set ears, and full, thick eyebrows bridging across the midline. His chin is microretrognathic, and mandibular prognathism is absent. His nose features forward-tilted nares, but the nasal structure is neither bulbous nor prominent, and interpupillary distance is normal without hypertelorism. The philtrum is not elongated, and his upper lip contour lacks an exaggerated cupid's bow. He also exhibits bilateral anomalous hand morphology. \n\nHis abdomen is soft, with no umbilical or inguinal hernias. He has no history of recurrent middle ear infections. A baseline EEG was entirely normal. Previous echocardiography excluded any congenital heart disease, specifically confirming the absence of atrial septal defects, ventricular septal defects, atrioventricular canal defects, pulmonary valve stenosis, and bicuspid aortic valve. Family history is non-contributory, and both parents are healthy.\n\nI would appreciate your expert clinical assessment regarding his presentation.\n\nSincerely,\nDr. Julian Vance"
+}

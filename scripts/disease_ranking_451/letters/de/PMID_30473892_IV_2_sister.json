@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30473892_IV_2_sister",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 350,
+  "total_tokens": 2212,
+  "thoughts_tokens": 1505,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die dreijährige Mia zur weiteren diagnostischen Einordnung. Die Eltern berichten über Auffälligkeiten, die bereits im Säuglingsalter ihren Anfang nahmen.\n\nIn der aktuellen Untersuchung präsentiert sich das Mädchen mit einer ausgeprägten muskulären Schlaffheit und deutlichem Tonusverlust. Die osteotendinösen Reflexe lassen sich an beiden Beinen und Armen nur stark abgeschwächt auslösen. Phänotypisch zeigen sich eine auffallend schmale Stirnpartie, eine deutlich eingesunkene Nasenwurzel sowie insgesamt vergröbert wirkende Gesichtszüge. Pädaudiologisch wurde vor wenigen Wochen eine beidseitige Innenohrschwerhörigkeit objektiviert. Bei der Palpation des Abdomens imponiert ein deutlicher Vorfall beider Oberbauchorgane; sonographisch konnte eine relevante Größenzunahme von Leber und Milz bestätigt werden. Zerebrale Krampfanfälle sind im gesamten Verlauf bisher nicht aufgetreten, und die Eltern verneinen jegliche Anzeichen epileptischer Ereignisse.\n\nDie Familienanamnese ist blande; die Eltern und die ältere Schwester sind gesund. Mia erhält derzeit keine Dauermedikation. Die kardiopulmonale Untersuchung verlief unauffällig, Herztöne rein, vesikuläres Atemgeräusch seitengleich ohne Rasselgeräusche. Vitalparameter sowie Ernährungssituation sind stabil.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung des Kindes und Ihre Empfehlungen zum weiteren differentialdiagnostischen Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

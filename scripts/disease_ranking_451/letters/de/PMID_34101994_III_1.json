@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34101994_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 384,
+  "total_tokens": 2442,
+  "thoughts_tokens": 1726,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 15-jährigen Julian zur konsiliarischen Beurteilung und Einordnung des bisherigen Verlaufs. Die Symptomatik begann im Alter von 6 Jahren.\n\nIm Rahmen der damaligen Diagnostik und operativen Versorgung bestätigte sich neuropathologisch ein hochgradig maligner embryonaler Prozess des zentralen Nervensystems mit charakteristischer rhabdoider und teratoider Zellmorphologie. Ein Ependymom konnte seinerzeit sowohl bioptisch als auch in der schnittbildgebenden Kontrollserie eindeutig ausgeschlossen werden. Im Verlauf ergaben sich zudem glücklicherweise keinerlei Hinweise auf das Vorliegen einer leukämischen Systemerkrankung; die wiederholt durchgeführten Blutbildanalysen und zytologischen Knochenmarksbeurteilungen zeigten stets eine vollkommen normale, blastenfreie Hämatopoese.\n\nJulian besucht derzeit regulär die neunte Klasse und ist kognitiv gut integriert. In der aktuellen körperlichen Untersuchung zeigt sich ein Jugendlicher in unbeeinträchtigtem Allgemeinzustand. Herz und Lunge stellen sich auskultatorisch unauffällig dar, das Abdomen ist weich und indolent. Neurologisch bestehen weder Paresen noch sensible Defizite, die Hirnnerven sind intakt und die Koordination ist regelrecht. Auch die Familienanamnese erbringt keine relevanten Vorerkrankungen; die Eltern und die jüngere Schwester erfreuen sich bester Gesundheit.\n\nÜber Ihre geschätzte Einschätzung zum weiteren Vorgehen und den künftigen Nachsorgeintervallen würde ich mich sehr freuen.\n\nMit kollegialen Grüßen\n\nDr. med. Thomas Lindner\nFacharzt für Kinder- und Jugendmedizin"
+}

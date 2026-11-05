@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31944623_Patient_C",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 374,
+  "completion_tokens": 318,
+  "total_tokens": 2111,
+  "thoughts_tokens": 1419,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to evaluate this 32-year-old gentleman who has been under my care for longstanding neurological and functional decline, which his family first noted around the age of six. He currently lives at home with his parents, works in an adapted administrative role, and takes over-the-counter vitamin D. Family history is negative for any neurologic or psychiatric disease.\n\nHis gait and mobility have steadily worsened, and he now experiences recurrent falls on a weekly basis. Neurological examination reveals severe spastic weakness largely restricted to both lower limbs. Lower extremity hyperreflexia is notable for sustained rhythmic ankle beats bilaterally, along with clear upgoing plantar responses. Bulbar function is also increasingly compromised; his articulation has become heavily slurred and difficult to follow, and he reports significant difficulty swallowing, frequently choking on both liquids and solid foods. Over the past eighteen months, he has additionally developed prominent psychiatric symptoms featuring persecutory delusions and auditory hallucinations. \n\nRecent cranial MRI demonstrated generalized thinning of the cerebral cortex alongside marked volume loss throughout the cerebellum. \n\nIn contrast, testing of rapid alternating movements was completely intact with no dysdiadochokinesis. He shows no bradykinesia on repetitive finger tapping, and there are no features of parkinsonism, with normal upper extremity tone and an absence of tremor. Sensation to light touch and pinprick is preserved throughout.\n\nGiven his complex course and progressive disability, I would be grateful for your expert evaluation and guidance regarding appropriate management.\n\nSincerely,\nDr. Julian Vance, MD"
+}

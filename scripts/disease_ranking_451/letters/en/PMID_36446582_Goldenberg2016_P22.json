@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_Goldenberg2016_P22",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 345,
+  "completion_tokens": 294,
+  "total_tokens": 2190,
+  "thoughts_tokens": 1551,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this young boy in your clinic for a comprehensive developmental consultation. \n\nHis parents initially brought him in due to pervasive neurodevelopmental delays across his motor, adaptive, and cognitive milestones. His expressive language is severely behind; he relies almost entirely on nonverbal gestures and has not yet developed single words or communicative phrases. Physical examination revealed distinctly enlarged dentition, with notably oversized incisors. In addition, there is atypical morphology of both hands, characterized by unusual tapering of the digits and anomalous palmar creases. A recent left wrist radiograph demonstrated that his ossification centers are significantly underdeveloped for his chronological age. \n\nReassuringly, his cranial circumference is entirely normal with no evidence of an undersized head. His linear growth has also been well preserved along the fiftieth percentile, and he does not display an unusually short stature. The remainder of his systemic examination was unremarkable, with normal cardiac auscultation, clear lung fields, and a soft, non-tender abdomen without organomegaly. Neurological tone and deep tendon reflexes were symmetric throughout. \n\nHe currently takes no prescribed medications other than a standard multivitamin and has no known allergies. His parents are non-consanguineous, and his older sister is healthy and thriving. \n\nI would greatly appreciate your specialized assessment regarding his presentation and guidance on any further investigations you feel are warranted.\n\nSincerely,\nDr. Rachel Brooks\nGeneral Pediatrics"
+}

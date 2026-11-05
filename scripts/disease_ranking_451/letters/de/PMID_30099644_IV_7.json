@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30099644_IV_7",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 361,
+  "completion_tokens": 409,
+  "total_tokens": 2613,
+  "thoughts_tokens": 1843,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Weber,\n\nich überweise Ihnen heute die 42-jährige Patientin Frau Sabine Krause zur konsiliarischen Mitbeurteilung.\n\nFrau Krause schildert eine bereits im frühen Kindesalter begonnene Problematik mit ausgeprägter Einschränkung des Dämmerungs- und Nachtsehens. Im Verlauf sei es zudem zu einer schleichenden, aber kontinuierlichen Abnahme der zentralen Sehschärfe gekommen. Die aktuelle bestkorrigierte Sehschärfe liegt rechts bei 0,3 und links bei 0,4. Die Familienanamnese ist unauffällig, systemische Vorerkrankungen oder eine Dauermedikation bestehen nicht. Der Augeninnendruck lag bei unauffälligen 14 mmHg beidseits.\n\nVorderabschnittlich imponieren beidseits beginnende subkapsuläre Linsentrübungen. Fundoskopisch zeigen sich beidseits auffallend wächsern blasse Sehnervenpapillen sowie eine ausgeprägte generalisierte Kaliberverengung der retinalen Gefäße. In der mittleren und äußeren Peripherie finden sich dichte, knochenkörperchenartige Pigmentauflagerungen. Girlandenförmig konfigurierte chorioretinale Atrophieareale ließen sich fundoskopisch wie auch autofluoreszenztomographisch nicht nachweisen. Das ergänzend veranlasste Ganzfeld-Elektroretinogramm demonstriert eine hochgradige Funktionsminderung sowohl des skotopischen als auch des photopischen Systems im Sinne einer kombinierten Degeneration der Stäbchen- und Zapfenantworten.\n\nIch wäre Ihnen für Ihre fachärztliche Einschätzung des Befundes sowie Empfehlungen zum weiteren diagnostischen und supportiven Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Christian Meißner"
+}

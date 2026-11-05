@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27220909_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 335,
+  "completion_tokens": 364,
+  "total_tokens": 1855,
+  "thoughts_tokens": 1156,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen heute den sechsjährigen Felix zur spezialisierten konsiliarischen Beurteilung der Dentition. \n\nDie Eltern bemerkten bereits im frühen Kindesalter mit dem Durchbruch der ersten Zähne strukturelle Besonderheiten. Klinisch zeigt sich eine generalisierte Bildungsstörung des Zahnschmelzes, welche sowohl die persistierenden Milchzähne als auch die ersten bereits durchgebrochenen bleibenden Molaren betrifft. Der Schmelzmantel ist dabei quantitativ auffällig reduziert und imponiert insgesamt deutlich verdünnt. Auf den Glattflächen fallen zudem disseminierte, punktförmige Grübchen und winzige kraterartige Defekte auf. Hinweise auf eine unzureichende Schmelzmineralisation finden sich klinisch nicht; die vorhandene Zahnhartsubstanz ist von normaler Festigkeit, lässt sich mit der Sonde nicht ritzen und zeigt keine kreidigen Trübungen oder Weichheiten.\n\nDie Gingiva ist reizlos, das übrige Weichgewebe der Mundhöhle stellt sich unauffällig dar. Bei guter häuslicher Mundhygiene besteht derzeit keine aktive Karies. Felix wächst im häuslichen Umfeld mit zwei gesunden älteren Geschwistern auf, seine allgemeine körperliche und motorische Entwicklung verläuft zeitgerecht. Es besteht keine Dauermedikation, und die Familienanamnese ist bezüglich dentaler Auffälligkeiten leer.\n\nÜber Ihre fachzahnärztliche Einschätzung und Empfehlungen bezüglich des weiteren präventiven und therapeutischen Managements würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\nDr. med. dent. Markus Schneider"
+}

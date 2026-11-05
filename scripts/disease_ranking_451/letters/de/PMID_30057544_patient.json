@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30057544_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 420,
+  "total_tokens": 2715,
+  "thoughts_tokens": 1930,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen Herrn Thomas Becker, 31 Jahre alt, zur neurologischen Mitbeurteilung.\n\nDer Patient schildert eine langsam progrediente Symptomatik, deren Beginn er rückblickend um sein 21. Lebensjahr datiert. Im Vordergrund steht ein ausgeprägtes Spannungs- und Steifigkeitsgefühl der Beinmuskeln, welches mit einer deutlichen motorischen Ungeschicklichkeit im alltäglichen Ablauf einhergeht. Sensibel werden zudem distale Kribbelgefühle und Taubheit sowie brennende, teils schmerzhafte Missempfindungen an beiden Füßen angegeben. \n\nKlinisch zeigt sich ein spastisch gebundenes, mühsames Gangbild. An den unteren Extremitäten besteht eine betonte spastische Tonuserhöhung, kombiniert mit einer generalisierten Kraftminderung der Beine (Kraftgrad 4/5). Die Muskeleigenreflexe sind dort lebhaft gesteigert, an beiden Sprunggelenken lässt sich ein mehrschlägiger, unerschöpflicher Klonus auslösen. \n\nDie oberen Extremitäten zeigen hingegen normale Kraftgrade, unauffällige Reflexe und keinen erhöhten Tonus. Eine Ataxie ließ sich bei den Koordinationsprüfungen nicht objektivieren. Kognitiv ist der Patient vollständig orientiert und eloquent; Anhaltspunkte für ein dementielles Defizit oder eine Intelligenzminderung finden sich keineswegs, er arbeitet regulär in Vollzeit als Programmierer. Die Hirnnervenfunktionen stellen sich seitengleich intakt dar, das Miktionsverhalten ist unauffällig. Die Familienanamnese ist bezüglich neuromuskulärer Beschwerden leer, Vorerkrankungen oder eine ständige Medikation bestehen nicht.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung des Patienten sowie eine Einschätzung des weiteren diagnostischen Vorgehens sehr dankbar.\n\nMit freundlichen Grüßen"
+}

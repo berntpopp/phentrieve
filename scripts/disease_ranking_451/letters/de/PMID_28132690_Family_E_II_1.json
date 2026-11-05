@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28132690_Family_E_II_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 410,
+  "total_tokens": 2340,
+  "thoughts_tokens": 1541,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich überweise Ihnen den heute sechs Monate alten Jungen zur pädiatrischen Mitbeurteilung. Im Alter von fünf Monaten traten bei dem Säugling erstmals zerebrale Krampfanfälle auf, die sich als kurze tonisch-klonische Episoden präsentierten.\n\nBei der körperlichen Untersuchung imponiert eine Vergröberung der Weichteile und Gesichtszüge. Der Augenabstand ist dabei unauffällig, und die Nasenspitze stellt sich zart und nicht verbreitert dar. Der Thorax ist symmetrisch geformt, eine Trichterbrust besteht nicht. An den Händen und Füßen lässt sich keine Verkürzung der Finger oder Zehen feststellen. Abdominell tastet sich der Bauch weich; sonographisch fand sich ein homogenes Leberparenchym ohne Nachweis von Leberzysten. \n\nDie radiologische Diagnostik erbrachte eine ausgeprägte Höhenminderung der Wirbelkörper im Sinne abgeflachter Wirbelkörper sowie eine auffallende Hypoplasie der knöchernen Femurkopfkerne beidseits. \n\nIm Routinelabor fiel eine deutliche Vermehrung der absoluten Eosinophilenzahl im Differenzialblutbild auf. Die daraufhin veranlasste immunologische Differenzierung zeigte jedoch altersentsprechend regelrechte T-Zell-Subpopulationen; eine schwere T-Zell-Defizienz oder ein schwerer kombinierter Immundefekt konnten labordiagnostisch ausgeschlossen werden. \n\nDie Familienanamnese ist bezüglich chronischer Erkrankungen leer, die Eltern sind gesund und nicht blutsverwandt. Das Kind wird gestillt und erhält regelmäßig Vitamin D. \n\nIch bitte um Ihre geschätzte Einschätzung und Empfehlungen zum weiteren diagnostischen Vorgehen bei diesem unklaren Befundbild.\n\nMit freundlichen kollegialen Grüßen"
+}

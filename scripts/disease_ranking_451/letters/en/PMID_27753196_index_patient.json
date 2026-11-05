@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27753196_index_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 318,
+  "total_tokens": 2139,
+  "thoughts_tokens": 1456,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Miller,\n\nThank you for evaluating Maya Davis, a 7-year-old female who presented to my clinic for comprehensive evaluation. \n\nMaya was macrosomic at birth, delivered at 39 weeks with a birth weight well exceeding the 97th percentile for gestational age. From early childhood, she has demonstrated marked global cognitive impairment and currently requires full-time specialized educational support. On physical examination, her vital signs are completely stable, and her cardiovascular and lung exams are normal. Distinctive craniofacial findings include significant frontal bossing and an occipitofrontal circumference tracking persistently above the 99th percentile. Her thorax appears unusually constricted and slender. On inspection of her extremities, there is noticeable shortening of the terminal phalanges bilaterally, though her palms and nail beds are otherwise normal.\n\nHer family recently sought evaluation after noticing recurrent streaks of fresh red blood per rectum. A colonoscopy was performed, which revealed numerous polyps widely distributed throughout her large bowel. Routine abdominal sonography concurrently identified a solitary fluid-filled cortical cyst in the upper pole of her right kidney; the liver, gallbladder, and spleen were normal. A previous brain MRI showed clear dilatation of the cerebral lateral ventricles without mass effect or signs of increased intracranial pressure. She currently takes daily polyethylene glycol, and her family history is non-contributory.\n\nGiven this complex constellation of clinical and imaging findings, I would greatly appreciate your assessment and guidance on how best to proceed with her diagnostic workup.\n\nSincerely,\n\nDr. Alan Vance, MD\nPediatric Care Clinic"
+}

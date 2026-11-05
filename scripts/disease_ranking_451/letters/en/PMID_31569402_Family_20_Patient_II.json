@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_20_Patient_II",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 575,
+  "completion_tokens": 435,
+  "total_tokens": 4117,
+  "thoughts_tokens": 3107,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this 32-year-old gentleman, an accountant, for diagnostic clarification. He takes over-the-counter vitamin D and reports no known food allergies. \n\nPhysical examination reveals an elongated, dolichocephalic cranial vault without frontal bossing, normal ear placement without low-set pinnae, and a non-prominent nasal bridge. His facial profile demonstrates widely spaced eyes, flattened malar eminences, a diminutive jaw, and a steeply arched palate; the uvula is intact and epicanthal folds are absent. Bilateral keratoconus and significant myopia were noted on corneal topography, though his sclerae remain white without a blue hue and alignment is orthophoric without strabismus.\n\nThoracic inspection demonstrates a prominent anterior sternal protrusion, with no excavatum deformity. Echocardiography and vascular imaging comfortably ruled out mitral valve prolapse, mitral regurgitation, patent ductus arteriosus, coronary dissection, and arterial tortuosity. Abdominal examination is remarkable for a persistent left inguinal hernia; there is no umbilical or hiatal hernia. His genitourinary examination was entirely normal, showing no hypospadias. \n\nHis skin is strikingly translucent with visible superficial venous branching, multiple tiny milia, a marked tendency to bruise easily, and several paper-thin atrophic scars over his knees and elbows. Crucially, his skin is not hyperextensible and shows no striae distensae. He displays significant lower-extremity varicose veins and pronounced bilateral flat feet, without knock-knees or clubfoot deformities.\n\nMusculoskeletal review is significant for multiple previous shoulder and patellar dislocations, with recent DEXA scanning revealing diminished bone mineral density. However, there are no fixed joint contractures, osteoarthritis, or generalized joint hypermobility. He exhibits normal proportions without disproportionate tall stature or arachnodactyly. Finally, spinal imaging showed no scoliosis or cervical instability, and lumbar MRI was negative for dural ectasia.\n\nI would greatly appreciate your specialist assessment regarding his presentation.\n\nSincerely,  \nDr. Arthur Vance"
+}

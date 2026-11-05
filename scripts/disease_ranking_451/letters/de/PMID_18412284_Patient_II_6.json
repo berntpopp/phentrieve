@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18412284_Patient_II_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 417,
+  "total_tokens": 2678,
+  "thoughts_tokens": 1909,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute die 67-jährige Patientin Marianne Klein zur weiteren fachärztlichen Beurteilung. \n\nFrau Klein berichtet über visuelle Beschwerden, deren Beginn sie bereits auf ihr zehntes Lebensjahr datiert. Damals fielen erstmals erhebliche Schwierigkeiten beim Sehen in der Dämmerung sowie eine ausgeprägte Nachtblindheit auf. Im Laufe der Jahrzehnte entwickelte sich zudem ein kontinuierlich fortschreitender Verlust des peripheren Gesichtsfeldes, der mittlerweile zu einer massiven Einschränkung des Sehfeldes geführt hat. In den letzten Jahren bemerkt die Patientin nun auch eine deutliche Verschlechterung der zentralen Sehschärfe; der bestkorrigierte Visus liegt aktuell rechts bei 0,3 und links bei 0,2.\n\nBei unserer Untersuchung zeigten sich die vorderen Abschnitte und die brechenden Medien altersentsprechend unauffällig, der Intraokulardruck lag beidseits im Normbereich bei 14 mmHg. Die Funduskopie offenbarte jedoch dichte, knochenkörperchenartige Pigmentansammlungen in der mittleren und äußeren Netzhautperipherie sowie auffallend stark verengte, fadenförmig verdünnte retinale Gefäße. Die ergänzend durchgeführte Ganzfeld-Elektroretinographie zeigte unter standardisierten Bedingungen beidseits keinerlei messbare Potenziale mehr, die Antworten waren vollständig erloschen.\n\nDie Patientin ist als pensionierte Bibliothekarin kognitiv fit, die Familienanamnese bezüglich ophthalmologischer Erkrankungen ist leer. Systemische Vorerkrankungen bestehen außer einer gut eingestellten arteriellen Hypertonie nicht. \n\nIch wäre Ihnen für eine konsiliarische Einschätzung des Befundes sowie für Empfehlungen bezüglich möglicher weiterer Schritte sehr dankbar.\n\nMit kollegialen Grüßen\n\nDr. med. Stefan Meyer"
+}

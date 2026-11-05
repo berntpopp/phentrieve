@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36553465_P1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 379,
+  "completion_tokens": 313,
+  "total_tokens": 3907,
+  "thoughts_tokens": 3215,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for evaluating Arthur Bennett, a 20-year-old gentleman referred for further evaluation of his long-standing visual difficulties. Arthur is an otherwise healthy college sophomore who takes no prescription medications and has an unremarkable general medical history.\n\nOn ocular examination today, his best-corrected visual acuity was markedly impaired, measuring 20/100 in each eye. Cycloplegic refraction demonstrated a high hyperopic refractive status (+4.50 D) along with a substantial corneal astigmatic error; nearsightedness was completely absent. Motility assessment revealed rapid, involuntary horizontal pendular oscillations in primary gaze, as well as an obvious convergent strabismic deviation. There was no outward ocular turning or exodeviation on cross-cover testing.\n\nSlit-lamp inspection demonstrated strikingly light blue irises, accompanied by entirely white cilia along the lid margins and bleached, white brows. Furthermore, he displays prominent pigmentary dilution of his scalp hair relative to his relatives. His skin examination was otherwise unremarkable aside from several small, benign pigmented moles across his upper trunk. Anterior chambers were deep and quiet, with intraocular pressures measuring 14 mmHg bilaterally. On posterior segment evaluation, funduscopy and optical coherence tomography demonstrated an absent foveal reflex and marked underdevelopment of the central macula with failure of normal pit formation. The optic nerves and retinal vessels appeared completely healthy.\n\nI would be very grateful for your comprehensive assessment and recommendations regarding his visual rehabilitation.\n\nWarm regards,\n\nDr. Clara Adams"
+}

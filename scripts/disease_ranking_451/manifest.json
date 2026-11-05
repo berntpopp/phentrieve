@@ -1,0 +1,97 @@
+{
+ "issue": "berntpopp/phentrieve#451",
+ "releases": {
+  "hpo": "v2026-09-01",
+  "phentrieve_data": "berntpopp/phentrieve-data hpo-v2026-09-01-r1 (biolord-multivec)",
+  "phenopacket_store": "0.1.27",
+  "hpo_translations": "obophenotype/hpo-translations@735ab350d1b1f8ea9e8833f6505c8c973df4280b",
+  "rarebench": "huggingface chenxz/RareBench@6f054e04071953ef2c1779b279074245f2ab398c"
+ },
+ "code": {
+  "phentrieve_commit": "377b58d05db77ee14be4adf5387e28ef4381ab33",
+  "phentrieve_library_base": "main@02f8fea (library code unchanged)",
+  "varlens_commit_reference": "779a6d256f2e573ee20f84152d33e83f1433f91f",
+  "varlens_hpo_db_builder_version": 6
+ },
+ "generator": {
+  "provider": "gemini",
+  "model": "gemini-3.7-flash",
+  "version": "3.7-flash-08-2026",
+  "temperature": 0.0,
+  "seed": "451 + attempt"
+ },
+ "posthoc": {
+  "llm_extraction": "Phentrieve two_phase whole_document_grounded, gemini-3.1-flash-lite (DEFAULT_LLM_MODEL)",
+  "negation_fix": "PR #453, branch fix/llm-list-negation-scope, commit d0f431b (EXTRACT_TAG=_negfix)",
+  "reorder": "claude-opus-5-5 via local Claude Code (claude -p), effort medium; frozen in results/reorder_frozen.json"
+ },
+ "packages": {
+  "phentrieve": "0.29.1",
+  "numpy": "2.4.4",
+  "scipy": "1.17.1",
+  "chromadb": "1.5.9",
+  "sentence-transformers": "6.0.1",
+  "google-genai": "1.73.1"
+ },
+ "python": "3.13.6",
+ "inputs_sha256": {
+  "hpo-v2026-09-01": {
+   "genes_to_disease.txt": "7937a1b92779dc8614e39ace623b443c7c71dd15e4de11d5e52b14e331ab5978",
+   "genes_to_phenotype.txt": "507a17bff9c49e6329fbd88b1f91734fa7e9fdea5c06304044c0892eb6ab248c",
+   "hp.json": "a7b3a012e7b4007a35a7cf8da35f2373b54cc16907f80d13d62470d31f833501",
+   "phenotype.hpoa": "e89aa39c8f97bf5a52c5d160f9250a603681d630ade8ec2679d84ac5aece1f72"
+  },
+  "phentrieve-data-v2026-09-01": {
+   "SHA256SUMS": "2289a6df4192862e7b66c4ce8fb06ad79c8d9935fdb0f1dc9c7724255b733d43",
+   "phentrieve-data-v2026-09-01-biolord-multivec.tar.gz": "3cb5d60a4726337cbfe91a5803822047ab31b1caee0a24248a3057a00f5fabe8",
+   "release-manifest.json": "4beeccaf0fb678bdbe677966cfb18a5ff16efe320ab66d100054e99eb4d6262b",
+   "verification-report.json": "1dd061a79aeacc66db84f19f81915d1d68ac20284fce57b4b7ffbe7fe2659708"
+  },
+  "phenopacket-store-0.1.27": {
+   "all_phenopackets.zip": "d0c70005bb09b87035087516252b6b539fbc0415be7c664b73c9cde7eedf205a"
+  },
+  "hpo-translations-735ab35": {
+   "hp-de.babelon.tsv": "f7926d08e383a645bd4dc824df1d6b74325892363cfdeadd60a361886c16245b",
+   "hp-de.synonyms.tsv": "0f316fc4a65f4d3c49f3ade53715beb071ee2dd7836a5ec4cee641e1ba91e83e"
+  },
+  "rarebench-6f054e0": {
+   "data.zip": "458ebbbd7b8f2975aa9c3a1773e9c1fb103563a291775b6fd5e979375ed1ab3c"
+  }
+ },
+ "derived_sha256": {
+  "cases.jsonl": "058b76ed810871dfa69b1bbf95a7e3428347c25b7ee80c66ac908887a51786f5",
+  "letters/": "cbf761b4fb4f538df599a5a029d28b2a3b6bbd3dae15c802fb3dd688bf12572a",
+  "results/extractions_de.jsonl": "31894a9fcb8631dd9ac667fd45b7b3767aceeebcdea69c17a414f56fc234555a",
+  "results/extractions_en.jsonl": "67c9f9b5c7767f31328b2552e16aafd1c2ff343b3c739231127c044e5779a9b6",
+  "results/extractions_de_llm.jsonl": "84928eb4be35c716b755b9f87931153508131b7ba92d9b016caa3aff9ed0ef18",
+  "results/extractions_de_llm_negfix.jsonl": "1c64413010aa05ac5710a7b64e301818589990abdf1632bf8d6a3459c5e88d89",
+  "results/extractions_de_top_term.jsonl": "b3bcdd447d26b1a8328883beb4e2f4068d85d29dbc33a34ddd581fa2ec441778",
+  "results/extractions_en_llm.jsonl": "d17702afc946e8e16af2ea378371e1c9421b1c6b346bdaa283c5378d3b1fb4b3",
+  "results/extractions_en_llm_negfix.jsonl": "11e4abc3327cb6d4accc3a9d943e321285b5b60f7d64ff679a0e51c57590fe0e",
+  "results/extractions_en_top_term.jsonl": "4f8fb98dfffd63c0393d73737e1861decaa457610bd578551837cd66f9d3fc2c",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v2_de.jsonl": "44ccba3a15d2c97a84464b2d245f977fdb0a15768689447b0c5c875cd6c82af5",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v2_de.jsonl.gz": "a4a3bc6167ac41e84f6ab986827df2090633d21d8acc47deeef528bfa4026726",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v2_en.jsonl": "d473c7df75e8c73c8270098520ae4f7f7303f81b51ba5def1271886adbddb937",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v2_en.jsonl.gz": "95590baeab290afbb6733f24ffbcc1468bdefbc42f7ce721c4413adc0428c7d7",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v3_de.jsonl": "e0141c32cb6c34c4f6f4bbdb6883172d13838464bffebe3ab8a27ec4df5f1491",
+  "results/reorder_cc-claude-opus-5-5_top50_negfix_v3_en.jsonl": "313fda8fe48edb05361c7e08c7284c448f332a02e94cf85326033887011f8a30",
+  "results/reorder_cc-claude-opus-5-5_top50_v3_de.jsonl": "728597f52943cdbec71b50df53dee7fa78cdd5c0beec64882c5b8446ecc418c6",
+  "results/reorder_cc-claude-opus-5-5_top50_v3_en.jsonl": "c543a54a9a3b3a5ac4b7226507337953e467ad262c5c8ec1aa941cc69eff8848",
+  "results/reorder_cc-claude-opus-5-5_top50_v4_de.jsonl": "1272cf4087200b99b419a3becd32cacfbff31b20bbe1d8533089672f929952b9",
+  "results/reorder_cc-claude-opus-5-5_top50_v4_en.jsonl": "585ffb6d6d2ed60b8f273b258d6237dae49887d590b1bac0bba99c66f6f5d1ad",
+  "results/reorder_cc-claude-opus-5-5_top50_v5_p3_de.jsonl": "349371811063d8999ecb576d09e1475e3d83f9e9bfba1f2b493ff4ac5423fa39",
+  "results/reorder_cc-claude-opus-5-5_top50_v5_p3_de.jsonl.gz": "aa1215ba494a91261925c4fab404052725c25b0812e998558233dba11ed728a4",
+  "results/reorder_cc-claude-opus-5-5_top50_v5_p3_en.jsonl": "42848841072ed4283f77d014feda7c92f8506256f5d73b33237132f84dcb166e",
+  "results/reorder_cc-claude-opus-5-5_top50_v5_p3_en.jsonl.gz": "f558522fbb9ca74621a3bd60728121b450c29143ec8c64d37ffab9605c73de4d",
+  "results/reorder_claude-opus-5-5_top20_de.jsonl": "1f3a38a3509ba0100c2c05fa2851e2e8a78db92561c7dad72bf81c2f0e50a9bf",
+  "results/reorder_claude-opus-5-5_top20_en.jsonl": "be2a039767799d1c2e4b84742a79ee3c944bcceb5f3fee5696bd846a373e6772",
+  "results/reorder_claude-opus-5-5_top50_de.jsonl": "117b3090f813e46f40cbd0983977dc870e1fce457da0e2d876581888c47e2b76",
+  "results/reorder_claude-opus-5-5_top50_en.jsonl": "bb3f5a406179779c69fb3291a952f49b7deadd27a42c4561b079651a8d55b83b",
+  "results/reorder_claude-opus-5-5_top50_v2_de.jsonl": "fc08834d98f69aa3e3b97c6dea7212e69a53e14540894f5b0c5640d3aed296d3",
+  "results/reorder_claude-opus-5-5_top50_v2_en.jsonl": "aa0a094f6f1e78b48ecd32ce8ad999533b3a9dc4268dbc9877a7626d7a218f8f",
+  "results/reorder_frozen.json": "77a6d7e7a5c95a6eba4cf15e794c5a2b96c940058f0596733d53a064858a648d",
+  "results/reorder_gemini-3.1-flash-lite_top20_de.jsonl": "4e2f1278ebe1147e8f9e5396d9920146e544f097765a1fa19bd6496adbeb1193",
+  "results/reorder_gemini-3.1-flash-lite_top20_en.jsonl": "4eb84bfc21da4f60ba0209bb2c267400b5fb752ef2a4f358199480ff2c467390",
+  "conformance/varlens_reference.json": "5e2a7bd2d815312ddb2f0a4989eb6b9d81aefa63b1b726e3f1a1fb48f36e9163"
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30236613_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 347,
+  "completion_tokens": 292,
+  "total_tokens": 1955,
+  "thoughts_tokens": 1316,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing Mrs. Eleanor Vance, a 66-year-old retired schoolteacher whom I am referring for an urgent neurological assessment. She reports an insidious onset of motor symptoms starting approximately two years ago, which have progressively worsened over time. She lives with her husband, does not drink or smoke, and takes only low-dose lisinopril for mild hypertension. Her family history is non-contributory.\n\nOn examination, her speech is noticeably slurred, strained, and difficult to comprehend. Cranial nerve evaluation shows marked bulbar weakness, accompanied by sluggish palatal elevation and prominent wasting of the tongue. Extraocular movements, pupillary reflexes, and facial sensation are entirely preserved. \n\nMotor testing demonstrates generalized weakness affecting all four limbs, with power measured at 4/5 throughout both the upper and lower extremities. Sensory examination, including light touch, pinprick, and proprioception, is completely intact. Her deep tendon reflexes are globally brisk throughout. Furthermore, sustained beats of clonus are easily elicited at both ankles, and she demonstrates upgoing toes bilaterally on plantar stimulation. \n\nHer recent routine bloods, including full blood count, comprehensive metabolic panel, and thyroid function, were all within normal limits. In light of this constellation of progressive motor features, I would value your specialist opinion and guidance regarding further evaluation and ongoing care.\n\nKind regards,\n\nDr. Marcus Reed"
+}

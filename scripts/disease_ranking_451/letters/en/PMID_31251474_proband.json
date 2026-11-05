@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31251474_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 431,
+  "completion_tokens": 287,
+  "total_tokens": 2301,
+  "thoughts_tokens": 1583,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nI am referring an eight-year-old boy for your comprehensive neurological and metabolic evaluation. His difficulties began at roughly five months of age, with poor somatic growth and profound delays across all developmental milestones, including a markedly delayed capacity to sit unsupported. He lives at home with non-consanguineous parents and a healthy older sister.\n\nOn physical examination, he is microcephalic with his head circumference tracking far beneath the third percentile, alongside persistent poor weight gain. Neurologically, he demonstrates marked central hypotonia with prominent limb dystonia. He also struggles with chronic excessive drooling. Funduscopy revealed pale optic discs bilaterally, and recent audiologic testing confirmed sensorineural auditory deficits. Cardiac and pulmonary examinations were entirely normal.\n\nLaboratory investigations have documented intermittent episodes of low blood glucose accompanied by an elevated serum lactate with metabolic acidosis. Quantitative urine organic acids demonstrated marked excretion of 3-methylglutaconic and 3-methylglutaric acids.\n\nRecent neuroimaging revealed generalized volume loss involving both the cortex and subcortical white matter, reflecting diffuse, global parenchymal atrophy. There was also notable T2 hypointensity within the basal ganglia. Concomitant MR spectroscopy demonstrated depleted N-acetylaspartate levels paired with a prominent lactate resonance peak.\n\nThank you for offering your specialist perspective on this complex clinical picture.\n\nSincerely,\nDr. Arthur Vance"
+}

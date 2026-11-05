@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31761904_Individual_NBAS_13",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 460,
+  "completion_tokens": 490,
+  "total_tokens": 3049,
+  "thoughts_tokens": 2099,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen unseren Patienten zur konsiliarischen Beurteilung der vorliegenden Symptomkonstellation. \n\nKürzlich kam es zu einem akuten Leberversagen mit begleitender Koagulopathie und Transaminasenerhöhung, welches sich unter intensivmedizinischer Therapie stabilisierte. Laborchemisch fiel zudem ein erniedrigter Serum-IgG-Spiegel auf. Die zirkulierenden IgA-Werte lagen im Normbereich, ebenso die Gesamtzahl der natürlichen Killerzellen. Das periphere Blutbild zeigte eine regelrechte Segmentierung der neutrophilen Granulozytenkerne. Ein Typ-1-Diabetes mellitus besteht nicht, und die organischen Säuren im Urin ergaben keinen Nachweis einer 3-Methylglutakonsäure-Ausscheidung.\n\nIm Skelettsystem imponieren eine thorakolumbale Skoliose, eine Trichterbrust sowie auffallend lange, schlanke Finger bei regelrechter Länge der Metakarpalknochen. Die Knochendichtemessung belegte eine verminderte Knochenmasse; passend dazu erlitt der Patient unlängst eine pathologische Fraktur nach einem Bagatellereignis. Die radiologische Skelettreifung entspricht exakt dem Lebensalter. Des Weiteren bestehen ein reduzierter Muskeltonus und eine auffällig hohe Phonation beim Sprechen.\n\nIn der körperlichen Untersuchung zeigt sich eine normale Körpergröße entlang der 50. Perzentile. Die Schädelform ist normozephal ohne Abflachung des Okziputs oder der Wangenknochen, die Schädelnähte sind zeitgerecht verschlossen. Die Gelenke weisen keine Überstreckbarkeit auf, das Fußgewölbe ist seitengleich unauffällig ausgebildet, und die Haut bietet keinen Hinweis auf eine Cutis laxa. Ophthalmologisch zeigten sich vitale, randscharfe Sehnervenpapillen ohne Zeichen einer Atrophie. Die motorischen und kognitiven Fähigkeiten entwickelten sich stets altersentsprechend. Vitalparameter und Familienanamnese sind unauffällig.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung bezüglich der Ätiologie und der weiteren Diagnostik.\n\nMit freundlichen Grüßen"
+}

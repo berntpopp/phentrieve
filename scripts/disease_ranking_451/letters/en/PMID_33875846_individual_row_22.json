@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33875846_individual_row_22",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 313,
+  "total_tokens": 2262,
+  "thoughts_tokens": 1609,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this young patient in consultation for ongoing developmental and growth concerns.\n\nPrenatal records show that first-trimester screening was notable for an abnormally thickened fluid space along the fetal neck. The infant was subsequently delivered preterm at 33 weeks gestation following spontaneous rupture of membranes. Although the initial neonatal course was relatively uncomplicated, early follow-up revealed marked delays across all major developmental milestones, including gross motor control, fine motor skills, and speech. Subsequent formal neurodevelopmental testing has further demonstrated significant, persistent cognitive impairment. Additionally, linear growth has remained severely restricted, with length consistently plotting well below the 2nd percentile for age.\n\nOn physical examination, the child is interactive and calm. There is a distinctly atypical craniofacial appearance characterized by an unusual overall facial contour and altered midface proportions. The remainder of the examination is non-contributory: cardiac auscultation reveals regular heart sounds without murmurs, the chest is clear bilaterally, and the abdomen is soft and non-tender with no hepatosplenomegaly. Neurologic evaluation shows symmetric tone, and deep tendon reflexes are 2+ bilaterally without focal deficits. \n\nFamily history is negative for congenital disorders, and the non-consanguineous parents are in good health. The child receives speech and occupational therapies and takes only a daily pediatric multivitamin.\n\nI would be very grateful for your comprehensive clinical evaluation and any recommendations you may have regarding further diagnostic investigation.\n\nSincerely,\nDr. Marian Vance\nGeneral Pediatrics"
+}

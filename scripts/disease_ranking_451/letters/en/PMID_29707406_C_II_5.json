@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_C_II_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 307,
+  "total_tokens": 1886,
+  "thoughts_tokens": 1223,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this 21-year-old gentleman who presents for a comprehensive neurological assessment. He was accompanied by his mother, with whom he resides. He completed high school with support and currently works part-time at a community greenhouse. His family history is non-contributory, and general physical examination reveals normal vital signs and a soft, non-tender abdomen.\n\nHis medical history is notable for childhood onset of neurodevelopmental concerns, with significant delays in achieving early physical milestones including rolling, sitting, and independent walking. His mobility has remained persistently compromised; during our assessment, he exhibited a wide-based, uncoordinated ambulation accompanied by appendicular dysmetria. \n\nCranial nerve examination is remarkable for gaze-evoked rhythmic, involuntary oscillatory eye movements. He also displayed marked difficulty in planning and executing voluntary tongue and facial movements on command, although routine bulbar sensation and resting symmetry were preserved. Motor examination revealed velocity-dependent hypertonia affecting the lower extremities bilaterally. Deep tendon reflexes were brisk throughout, with positive Babinski signs elicited on both sides. In addition, his history is notable for recurring episodes of generalized convulsive activity featuring loss of awareness, bilateral whole-body stiffening, and rhythmic limb jerking. Sensory examination to light touch, proprioception, and temperature remained entirely intact.\n\nI would greatly appreciate your evaluation and thoughts regarding further diagnostic testing and guidance on long-term management for this young man.\n\nSincerely,\nDr. Arthur Finch"
+}

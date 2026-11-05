@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_B_IV_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 310,
+  "total_tokens": 2278,
+  "thoughts_tokens": 1580,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Harris,\n\nThank you for agreeing to see this young woman for further clinical evaluation. \n\nShe has a history dating back to birth, when she was noted to have extra digits along the fifth-digit borders of both hands, which were surgically excised in infancy. Her early development was marked by neurodevelopmental concerns; speech and verbal communication were noticeably late in developing, and she continues to demonstrate significant intellectual deficits requiring supportive care. Her family also notes an absence of spontaneous menarche, although endocrine testing revealed no hypogonadism.\n\nOn physical examination, her BMI is 41 with marked, generalized excess adiposity. Oral inspection shows prominent overcrowding of the teeth across both dental arches. Cardiopulmonary and abdominal exams are completely normal. She has had progressive visual difficulties; ophthalmologic assessment demonstrated advanced neuroretinal degenerative changes, distinct bone-spicule deposits across the retinal periphery, markedly attenuated retinal vasculature, and electroretinography confirmed combined dystrophic changes involving both rods and cones. Importantly, visual alignment is intact with no strabismus, and cycloplegic refraction revealed no myopia. \n\nRecent laboratory investigations, including a comprehensive metabolic panel, show preserved estimated GFR with no renal insufficiency. Her fasting plasma glucose and glycated hemoglobin are within normal limits, showing no diabetes mellitus. She currently takes no prescribed medications, and family history is non-contributory.\n\nI would be grateful for your comprehensive assessment and recommendations regarding appropriate diagnostic workup for her constellation of findings. \n\nSincerely,\n\nDr. Marcus Vance"
+}

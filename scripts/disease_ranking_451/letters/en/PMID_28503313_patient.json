@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28503313_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 411,
+  "completion_tokens": 320,
+  "total_tokens": 3723,
+  "thoughts_tokens": 2992,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Doctor Vance,\n\nThank you for agreeing to assess this two-year-old boy regarding his congenital atypicalities. He is accompanied by his parents; his family background is non-consanguineous and unremarkable. He was born via normal spontaneous vaginal delivery in a cephalic position, with obstetrical records confirming the absence of a breech delivery or malpresentation.\n\nFrom birth, he presented with prominent genital ambiguity. Detailed physical examination of the perineum reveals a strikingly small phallic length along with an abnormally positioned ventral urethral opening. The scrotum exhibits marked midline clefting, accompanied by a complete failure of testicular descent bilaterally; subsequent pelvic imaging identified notably diminished gonad volume. His serum testosterone concentration was verified and has remained completely normal.\n\nGeneral examination shows a thriving toddler with clear breath sounds, normal heart tones, and no organomegaly. However, several dysmorphic features are readily apparent: he has a distinctly shortened nasal dorsum, ears that are seated well below the pupillary axis, and partial soft-tissue fusion between his second and third pedal digits. His skin demonstrates dry, pruritic flexural plaques consistent with infantile atopic eczema, which is currently managed with bland emollients.\n\nInitial metabolic workup demonstrated significantly reduced total circulating cholesterol. Subsequent targeted sterol quantification revealed striking elevations of 7-dehydrocholesterol in the bloodstream alongside a concomitantly increased plasma 8-dehydrocholesterol fraction.\n\nGiven this constellation of biochemical and anatomic findings, I would appreciate your formal assessment and guidance on how best to proceed with further diagnostic investigations.\n\nWarm regards,"
+}

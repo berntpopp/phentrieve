@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30099644_IV_11",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 435,
+  "total_tokens": 2794,
+  "thoughts_tokens": 1994,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindner,\n\nich überweise Ihnen Frau Leonie Bach, 26 Jahre alt, zur weiteren konsiliarischen Abklärung. \n\nDie Patientin, von Beruf Gymnasiallehrerin, stellt sich aufgrund einer beidseits bemerkten Visusminderung vor. Der genaue Beginn der Symptomatik ist zeitlich nicht präzise einzugrenzen. Eine Nachtblindheit wird anamnestisch klar verneint, im Dunkeln orientiere sie sich weiterhin problemlos. Die Familienanamnese ist bezüglich Augenerkrankungen unauffällig, Medikamente werden abgesehen von einer oralen Kontrazeption nicht eingenommen.\n\nIm aktuellen Befund imponiert eine herabgesetzte Sehschärfe mit einem bestkorrigierten Visus von 0,4 rechts und 0,5 links. Der vordere Augenabschnitt stellt sich beidseits vollkommen regelrecht dar, die Hornhaut ist klar, die Linse altersentsprechend transparent und der Augeninnendruck liegt mit 14 mmHg beidseits im Normbereich. \n\nFunduskopisch zeigt sich im hinteren Pol eine diffuse, feinfleckige RPE-Marmorierung mit Unregelmäßigkeiten des retinalen Pigmentepithels. Eine Papillenblässe liegt nicht vor, der Sehnervenkopf ist beidseits vital und randscharf begrenzt. Typische Knochenkörperchenpigmentierungen sind nicht vorhanden. Die Netzhautgefäße weisen keine Kalibereinengungen auf und präsentieren sich unauffällig. Auch girlandenartige oder bogenförmige chorioretinale Atrophiezonen fehlen gänzlich. Ein initial veranlasstes Ganzfeld-Elektroretinogramm zeigte einen eindeutig pathologischen Verlauf mit ausgeprägter Amplitudenreduktion.\n\nIch wäre Ihnen für eine Beurteilung dieses Befundbildes und eine Empfehlung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Tobias Weber"
+}

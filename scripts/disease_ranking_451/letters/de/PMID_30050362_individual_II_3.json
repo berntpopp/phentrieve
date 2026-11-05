@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30050362_individual_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 417,
+  "total_tokens": 2489,
+  "thoughts_tokens": 1701,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den zehn Monate alten Jungen Anton zur konsiliarischen Abklärung. \n\nDie Eltern schildern eine Symptomatik, die im Grunde bereits seit der Geburt besteht. Der Säugling zeigt eine erhebliche Gedeihstörung im Sinne einer manifesten Mangelernährung, das aktuelle Körpergewicht verharrt weit unter der dritten Perzentile. Im Alltag fällt eine ausgeprägte Reizbarkeit mit anhaltenden Schreiattacken auf. \n\nKlinisch zeigen sich an den Extremitäten manifeste Gelenkkontrakturen mit schmerzhafter Bewegungseinschränkung der Knie- und Ellbogengelenke, die passive Mobilisation wird prompt mit Schmerzäußerungen quittiert. Das Integument weist am Rumpf derbe, umschriebene sklerotische Plaques auf, an den Oberschenkeln finden sich zudem einzelne erythematöse Papeln. Bei der Inspektion des Mundes fällt ein deutlicher Gewebeüberschuss im Bereich der Gingiva auf.\n\nIn den laborchemischen Untersuchungen fand sich eine Hypoalbuminämie mit 21 g/l sowie eine milde Hyponatriämie von 130 mmol/l. Ursächlich hierfür ließ sich über den Nachweis einer stark gesteigerten fäkalen Alpha-1-Antitrypsin-Clearance eine enterale Proteinverlustenteropathie sichern. Die Nierenfunktionsparameter, Elektrolyte im Urin sowie Transaminasen waren normwertig. Auch kardiopulmonal ergab sich bei unauffälliger Auskultation kein pathologischer Befund. Die Familienanamnese der nicht blutsverwandten Eltern ist bezüglich chronischer Erkrankungen leer.\n\nAufgrund des multisystemischen Bildes bitte ich um Ihre geschätzte differentialdiagnostische Einschätzung und weitere Betreuung des Patienten.\n\nMit freundlichen kollegialen Grüßen"
+}

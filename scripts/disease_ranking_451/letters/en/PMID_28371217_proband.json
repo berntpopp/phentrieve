@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28371217_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 302,
+  "total_tokens": 2572,
+  "thoughts_tokens": 1890,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate Lucas, a 22-year-old young man under my general medical care. \n\nHe exhibits profound global cognitive deficits, remaining non-verbal and entirely dependent on his family for all activities of daily living. On physical examination, his occipitofrontal circumference measures well below the third percentile. Craniofacial inspection reveals prominent, thickened facial contours alongside an increased interpupillary distance and downward-angled oral commissures. \n\nGenitourinary examination demonstrates a diminutive phallic length and bilaterally empty scrotal sacs due to retained testicles. No ambiguous genitalia was identified, and the anatomy is distinctly phenotypic male. A baseline echocardiogram completed prior to past therapies was reassuring, showing a normal trileaflet aortic valve with no bicuspid configuration and no evidence of aortic coarctation. \n\nHis past medical history is notable for a high-grade malignant osteogenic bone tumor of the right distal femur, which was treated with surgical excision and systemic therapy. Serial laboratory assessments have documented persistent anemia characterized by a markedly reduced mean corpuscular volume. \n\nCurrently, his only regular medications are over-the-counter vitamin D and polyethylene glycol. His vital signs are stable, respiratory and abdominal examinations are unremarkable, and there is no family history of significant developmental or neoplastic disorders. \n\nGiven this constellation of features, I would be most grateful for your clinical assessment and any further recommendations you might offer. \n\nSincerely,\nDr. Marcus Vance"
+}

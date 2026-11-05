@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 358,
+  "total_tokens": 1837,
+  "thoughts_tokens": 1153,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 13-jährigen Jonas zur weiteren Abklärung und differenzialdiagnostischen Beurteilung. \n\nJonas fiel bereits unmittelbar post partum durch einen stark verminderten Schädelumfang weit unterhalb der dritten Perzentile auf. Dieses deutliche Zurückbleiben des Schädelwachstums setzt sich bis heute fort, der aktuelle Kopfumfang liegt mit 46,5 cm nach wie vor tief unter den Normkurven. Im Profil imponiert zudem eine auffallend nach hinten fliehende Stirnpartie. \n\nIm Entwicklungsverlauf manifestierte sich eine schwere kognitive Beeinträchtigung. Jonas besucht gegenwärtig eine Förderklasse mit Schwerpunkt auf geistiger Entwicklung; das Abstraktionsvermögen sowie die expressive Sprache und die Alltagsfertigkeiten sind hochgradig limitiert. \n\nKörperlich befindet sich der Junge in einem stabilen Allgemeinzustand. Die orientierende körperliche Untersuchung ergab unauffällige Vitalparameter, eine reine, rhythmische Herztätigkeit ohne pathologische Geräusche sowie ein weiches, indolentes Abdomen. Die Hör- und Sehfähigkeit wurden fachärztlich geprüft und zeigten sich intakt. Eine Dauermedikation besteht nicht, Allergien sind nicht bekannt. Die Familienanamnese ist bezüglich neurologischer Auffälligkeiten leer, die Eltern sind gesund und die zehnjährige Schwester zeigt eine vollkommen unauffällige Schullaufbahn.\n\nIch wäre Ihnen für eine fachärztliche Einschätzung des Jugendlichen und Empfehlungen zum weiteren diagnostischen Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

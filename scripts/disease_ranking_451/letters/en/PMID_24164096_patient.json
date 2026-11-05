@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24164096_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 285,
+  "total_tokens": 2225,
+  "thoughts_tokens": 1559,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for seeing this 12-year-old girl for a neurological assessment. Her difficulties first appeared around age ten. Her parents describe brief lapses of awareness paired with rhythmic arm twitching, as well as occasional abrupt losses of postural tone. Despite these sudden atonic events, she has managed to brace herself and has had no falls.\n\nDuring my examination, I noted frequent, brief, shock-like muscle jerks in her upper limbs, alongside a fine bilateral postural tremor in both hands. Audiologic evaluation previously confirmed sensorineural hearing loss in both ears. Her speech is articulate and her voice is entirely normal, without any hoarseness. A dilated funduscopic examination showed clear optic discs and maculae, with no cherry-red spots. Cranial nerves are otherwise intact, and her motor power is preserved at 5/5 throughout with symmetric deep tendon reflexes. \n\nHer family history is non-contributory, and she is currently doing well in the seventh grade. She is prescribed levetiracetam. Laboratory investigations, including circulating creatine kinase activity, have remained strictly within normal limits. Recent needle electromyography demonstrated features indicative of chronic denervation, and her cranial magnetic resonance imaging revealed a generalized reduction of cerebral white matter volume.\n\nI would be grateful for your comprehensive review and guidance regarding her ongoing care.\n\nSincerely,\nDr. Marcus Finch"
+}

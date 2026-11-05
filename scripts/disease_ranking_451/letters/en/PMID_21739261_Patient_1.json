@@ -1,0 +1,18 @@
+{
+ "case": "PMID_21739261_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 343,
+  "completion_tokens": 307,
+  "total_tokens": 2637,
+  "thoughts_tokens": 1987,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Palmer,\n\nThank you for evaluating Maya Vance, a nine-month-old infant girl referred for an expert opinion. Her parents brought her to my clinic for a well-child review, noting several distinctive physical characteristics that have been evident since birth.\n\nSince delivery, her parents have observed that her scalp hair, eyebrows, and eyelashes have been remarkably pale, presenting as nearly snow-white and lacking typical coloration relative to her family background. Her cutis is similarly extremely fair and diffusely lacking in pigment across her entire body. In addition, she demonstrates persistent, involuntary fine rhythmic oscillations of both eyes in the horizontal plane. \n\nReassuringly, her visual acuity is entirely preserved with no sign of reduction; she actively fixes on and smoothly tracks small objects across all visual fields. Binocular alignment is symmetric with no ocular misalignment or squint observed on cover-uncover testing. \n\nThe remainder of her physical and neurological evaluation is reassuring. She sits stably without support, transfers toys between hands, and vocalizes with reciprocal babble. Cardiopulmonary examination reveals a regular rate and rhythm with clear breath sounds bilaterally, and her abdomen is soft without organomegaly. She is meeting expected developmental milestones on a diet of breastmilk and solids, and takes vitamin D drops daily. Family history is non-contributory, and both parents are healthy.\n\nI would be grateful for your comprehensive assessment of these collective features and any recommendations you may have for subsequent investigations.\n\nSincerely,\nDr. Evelyn Cross"
+}

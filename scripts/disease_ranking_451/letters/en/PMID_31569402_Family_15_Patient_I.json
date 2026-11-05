@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31569402_Family_15_Patient_I",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 522,
+  "completion_tokens": 381,
+  "total_tokens": 5301,
+  "thoughts_tokens": 4398,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating Ms. Vance, a 36-year-old accountant with documented dietary hypersensitivities to tree nuts and shellfish. She is an active non-smoker whose only regular medication is daily fexofenadine.\n\nOn examination, she presents with a tall frame and disproportionately long extremities relative to her trunk, accompanied by noticeably elongated, slender digits. Craniofacial assessment demonstrates palpebral apertures that slope downward, though her sclerae are normal white rather than blue, and there is no strabismus, epicanthal folding, or keratoconus on recent slit-lamp review. Her nasal profile is not prominent, cheek contours show no malar flattening, the lower jaw is normal without micrognathia, and ear placement is not low-set. Oral inspection reveals a split uvular tip, while the palate remains intact without clefting or high arching.\n\nMusculoskeletal testing demonstrates marked generalized articular laxity. However, she denies recurrent joint dislocations or chronic osteoarthritis. Dynamic cervical flexion-extension imaging revealed instability of the cervical vertebrae, and she has visible lateral curvature of the spine. Her anterior chest wall lacks excavatum or carinatum deformities. Inspection of the lower extremities shows no genu valgum, clubfoot, flat feet, or varicose veins. Her skin has normal texture without velvety softness, milia, easy bruising, atrophic papyraceous scarring, or visible dermal translucency. Abdominal examination reveals no inguinal hernia.\n\nTransthoracic echocardiography showed systolic billowing of the mitral leaflets with secondary mitral insufficiency, whereas the ductus arteriosus was closed. Furthermore, magnetic resonance angiography documented extensive looping and tortuosity throughout the systemic arteries along with ectatic widening of the cerebral vessels.\n\nI would be most grateful for your comprehensive clinical assessment and recommended surveillance plan.\n\nSincerely,\nDr. Julian Davis"
+}

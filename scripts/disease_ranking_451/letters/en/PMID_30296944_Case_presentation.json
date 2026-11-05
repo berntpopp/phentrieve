@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30296944_Case_presentation",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 349,
+  "completion_tokens": 314,
+  "total_tokens": 3317,
+  "thoughts_tokens": 2654,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 17-year-old male who was recently transferred to our telemetry unit. He was successfully resuscitated from an out-of-hospital sudden cardiac arrest after collapsing during a casual soccer match. Immediate bystander chest compressions were initiated, and the initial rhythm strip confirmed coarse VF that successfully converted following a single automated external shock. On further questioning, his parents noted two discrete, unprovoked fainting spells during his early teens that were never formally investigated.\n\nUpon stabilization, his physical examination was unremarkable, with a resting blood pressure of 116/72 mmHg and clear lung fields. A 12-lead electrocardiogram revealed a complete RBBB with a QRS duration of 136 ms, and inpatient monitoring subsequently captured frequent premature ventricular complexes appearing in a bigeminal distribution. \n\nExtensive diagnostic testing has been undertaken. A contrast-enhanced cardiac MRI showed normal biventricular dimensions with preserved systolic function. There was no evidence of an underlying heart muscle disorder, and acute or chronic inflammatory myocardial involvement was convincingly ruled out. Routine laboratory investigations, including serum electrolytes, renal function panels, and serial cardiac biomarkers, have all remained normal. \n\nHe takes no prescription medications, has no personal history of substance use, and his family history is entirely negative for early mortality. Given his resuscitated arrest and documented conduction abnormalities, I would greatly value your electrophysiologic assessment and recommendations regarding secondary prevention and future management.\n\nSincerely,\nDr. Julian Sterling"
+}

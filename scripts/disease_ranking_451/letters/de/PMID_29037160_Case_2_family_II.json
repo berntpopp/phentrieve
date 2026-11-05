@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29037160_Case_2_family_II",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 328,
+  "completion_tokens": 439,
+  "total_tokens": 2107,
+  "thoughts_tokens": 1340,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die kleine Mathilda Becker, ein 32 Tage altes Mädchen, zur kardiologischen Mitbeurteilung und weiteren Betreuung.\n\nMathilda wurde nach unauffälliger Schwangerschaft spontan am Termin geboren (Geburtsgewicht 3420 g, Apgar 9/10). Die Eltern berichten über ein unauffälliges Trinkverhalten an der Brust und eine stetige Gewichtszunahme. Die Familienanamnese ist bezüglich relevanter Vorerkrankungen leer; es gibt keine Hinweise auf frühzeitige kardiale Ereignisse oder familiäre Hörprobleme.\n\nBereits nach der Geburt zeigte sich ein kontrollbedürftiges Neugeborenen-Hörscreening. Eine daraufhin veranlasste pädaudiologische BERA bestätigte nun das Vorliegen einer beidseitigen, bereits von Geburt an bestehenden Schallempfindungsstörung cochleären Ursprungs. \n\nIm Rahmen unserer Routineabklärung fertigten wir ein 12-Kanal-EKG an. Hierbei zeigte sich ein normofrequenter Sinusrhythmus, auffällig war jedoch eine ausgeprägte Verzögerung der ventrikulären Repolarisation mit einer frequenzkorrigierten Zeitdauer der QT-Strecke von 515 ms nach Bazett.\n\nKörperlich präsentiert sich der Säugling in gutem Allgemein- und altersentsprechendem Entwicklungszustand. Auskultatorisch sind die Herztöne rein und rhythmisch, ein pathologisches Herzgeräusch ist nicht feststellbar. Die peripheren Pulse sind kräftig und seitengleich tastbar, die Rekapillarisierungszeit liegt unter zwei Sekunden. Das Abdomen ist weich und unauffällig, die Spontanmotorik symmetrisch. Eine Medikation wird derzeit nicht verabreicht.\n\nVor dem Hintergrund der erhobenen Befunde bitte ich Sie um eine eingehende fachärztliche Beurteilung und Empfehlungen bezüglich des weiteren Procederes.\n\nMit freundlichen kollegialen Grüßen"
+}

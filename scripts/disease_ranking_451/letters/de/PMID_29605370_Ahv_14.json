@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29605370_Ahv_14",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 373,
+  "total_tokens": 2004,
+  "thoughts_tokens": 1305,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen das oben genannte Kind zur weiterführenden audiologischen und pädiatrischen Abklärung.\n\nBereits unmittelbar nach der Entbindung zeigte sich im Rahmen des Neugeborenen-Hörscreenings ein kontrollbedürftiger Befund. Die daraufhin veranlasste BERA-Diagnostik bestätigte eine beidseitige Schallempfindungsstörung mit cochleärem Schadensmuster, welche somit von Geburt an besteht. \n\nIm Rahmen unserer orientierenden Abklärung führten wir auch eine Überprüfung des Gleichgewichtsorgans durch. Die okulomotorischen Tests sowie der Video-Kopf-Impuls-Test zeigten regelrechte Reizantworten; die vestibuläre Funktion ist klinisch und apparativ vollständig erhalten. Die motorische Entwicklung verläuft unauffällig, und es bestehen keinerlei Stand- oder Gangunsicherheiten. Eine ophthalmologische Konsiliaruntersuchung erbrachte ebenfalls Normalbefunde bei der Funduskopie und Visusbestimmung, sodass keinerlei Seheinschränkungen vorliegen.\n\nDer otoskopische Befund ist bds. unauffällig mit zarten, gut beweglichen Trommelfellen. Auch der übrige körperliche Untersuchungsstatus zeigt sich unauffällig, insbesondere ergaben sich keine pathologischen Herz- oder Lungengeräusche. In der Familie sind keine Hörstörungen bekannt, und es wird aktuell keine Dauermedikation eingenommen.\n\nIch bitte um Ihre geschätzte Mitbeurteilung bezüglich der weiteren apparativen Versorgung und des weiteren diagnostischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen,\n\nDr. med. Thomas Lindemann\nFacharzt für Hals-Nasen-Ohrenheilkunde"
+}

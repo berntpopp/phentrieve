@@ -1,0 +1,18 @@
+{
+ "case": "PMID_41694855_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 425,
+  "total_tokens": 3652,
+  "thoughts_tokens": 2857,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung der vierjährigen Patientin Mia.\n\nDie frühe Entwicklung verlief nach Angaben der Eltern zunächst unauffällig. Ab dem zweiten Lebensjahr kam es jedoch zu einem progredienten Entwicklungsrückschritt mit deutlichem Verlust bereits erworbener sprachlicher und motorischer Meilensteine. Aktuell imponiert neurologisch eine erhebliche Stand- und Gangunsicherheit im Sinne einer Koordinationsstörung sowie wiederkehrende, blitzartig einschießende Muskelzuckungen an Rumpf und Extremitäten. Bei der Blickprüfung fällt eine Störung der willkürlichen horizontalen Sakkadengenerierung bei erhaltener vestibulookulärer Reflexmotorik auf. Zudem ereignete sich vor wenigen Wochen erstmals ein tonisch-klonischer Krampfanfall mit beidseitiger Beteiligung und primär generalisiertem Beginn.\n\nKörperlich lässt sich bei ansonsten unauffälligem kardiopulmonalem Status eine ausgeprägte Vergrößerung der Milz tasten, die sich auch sonographisch bestätigt. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer; das Kind lebt mit den gesunden Eltern zusammen. \n\nLaborchemisch zeigt sich eine manifeste Blutarmut mit einem Hämoglobinwert von 8,4 g/dl sowie eine verminderte Gesamtzahl der weißen Blutzellen von 3.100/µl. Die Thrombozytenzahl zeigte sich in mehreren Kontrollen hingegen stets normwertig. In einem extern durchgeführten Knochenmarkausstrich fanden sich auffällige, lipidbeladene Speicherhistiozyten mit charakteristischem, zerknittertem Zytoplasmaaspekt.\n\nDas Mädchen nimmt derzeit keine Dauermedikation ein. Zur weiteren ätiologischen Abklärung und Therapieplanung bitte ich um Ihre fundierte pädiatrisch-neurologische Expertise.\n\nMit freundlichen kollegialen Grüßen"
+}

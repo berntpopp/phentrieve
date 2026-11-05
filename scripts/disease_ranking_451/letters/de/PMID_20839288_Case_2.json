@@ -1,0 +1,18 @@
+{
+ "case": "PMID_20839288_Case_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 364,
+  "completion_tokens": 434,
+  "total_tokens": 2599,
+  "thoughts_tokens": 1801,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 22-jährige Patientin Frau Meyer zur weiteren konsiliarischen Einschätzung.\n\nKrankheitsbeginn war um das dritte Lebensjahr. Seither erlitt die Patientin immer wieder Knochenbrüche bereits bei leichten Bagatelltraumen, insbesondere an den Extremitäten. \n\nBei der aktuellen körperlichen Untersuchung imponiert ein ausgeprägter Minderwuchs mit einer Körpergröße von lediglich 144 cm bei einem Körpergewicht von 42 kg. Auffallend ist zudem eine zarte, bläuliche Tönung der Lederhäute beidseits. Die Wirbelsäule zeigt eine beträchtliche Fehlstellung im Sinne einer kombinierten Kyphose und Seitverbiegung. Im konventionellen Röntgenbild stellen sich die langen Röhrenknochen mit auffallend grazilen, stark verschlankten Schaftanteilen dar. Auf Schädelaufnahmen ließen sich zudem mehrere Nahtknochen entlang der Kalottennähte abgrenzen.\n\nDie peripheren Gelenke sind frei beweglich, fixierte Kontrakturen bestehen nicht. Die orientierende neurologische Untersuchung war unauffällig; die junge Frau studiert Betriebswirtschaftslehre und zeigt eine vollkommen regelrechte kognitive Entwicklung ohne jegliche intellektuelle Defizite. Ein kürzlich durchgeführter Hörtest ergab ein beidseits unbeeinträchtigtes, intaktes Gehör. Das Abdomen ist indolent, eine Vergrößerung von Leber oder Milz war sonographisch und palpatorisch sicher auszuschließen. Herz- und Lungenbefund präsentierten sich auskultatorisch unauffällig. In der Familie sind keine vergleichbaren ossären Auffälligkeiten bekannt, eine Dauermedikation wird nicht eingenommen.\n\nIch danke Ihnen herzlich für Ihre geschätzte Mitbeurteilung und differentialdiagnostische Einordnung des Beschwerdebildes.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Keller"
+}

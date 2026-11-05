@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 543,
+  "completion_tokens": 529,
+  "total_tokens": 4109,
+  "thoughts_tokens": 3037,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Mitbeurteilung des elfjährigen Maximilian. Die Auffälligkeiten zeigten sich bereits im Säuglingsalter nach unauffälliger, eutropher Reifgeburt ohne Anhalt für ein SGA. \n\nAktuell imponiert eine gravierende Verzögerung aller Entwicklungsschritte mit erheblichem grobmotorischem wie auch feinmotorischem Rückstand. Eine Lautsprache ist vollständig ausgeblieben, und es besteht ein schwerwiegendes kognitives Defizit. Autistische Verhaltensauffälligkeiten zeigen sich nicht. Im Muskeltonus überwiegt eine ausgeprägte Schlaffheit, während Zeichen einer Spastik fehlen. Zerebral bestehen rezidivierende myoklonische Anfallsereignisse.\n\nKranial fällt eine asymmetrische Schädelabflachung auf; die Sagittalnaht ist sonografisch offen, und der Kopfumfang liegt auf der 50. Perzentile, sodass weder ein Makro- noch ein Mikrozephalus vorliegt. Im Schädel-MRT zeigten sich ein reduziertes Volumen der zerebralen weißen Substanz, eine Schmächtigkeit der Commissura anterior sowie eine Hypoplasie des Vermis cerebelli.\n\nErgänzend wurden eine Hörminderung und ein Visusdefizit gesichert. Im Schlaf kommt es wiederholt zu hypoventilatorischen Episoden. Zudem bestehen ausgeprägte Schluckschwierigkeiten, eine chronische Obstipation und ein hartnäckiges Gedeihdefizit bei jedoch unauffälliger Körperlänge ohne Kleinwuchs. \n\nKörperlich finden sich regelrechte Ohrmuscheln ohne Mikrotie, horizontal stehende, normal dimensionierte Lidachsen ohne Epikanthus und getrennte Augenbrauen ohne Synophrys. Mundspalte, Philtrumlänge, Kinn und Naseneingänge sind unauffällig; eine Mikrognathie oder antevertierte Nares bestehen nicht. Die Mamillen sind evertiert, ein Hirsutismus sowie eine Klinodaktylie an Digitus V fehlen. Genital zeigen sich weder Phimose noch ein Chordee. Kardiologisch sind das Vorhofseptum intakt und der Ductus arteriosus verschlossen. Die Familienanamnese ist leer, das Routinelabor unauffällig.\n\nIch danke Ihnen herzlich für die Übernahme der weiteren Diagnostik und Einschätzung.\n\nMit freundlichen Grüßen"
+}

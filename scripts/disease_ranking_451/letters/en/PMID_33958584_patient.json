@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33958584_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 405,
+  "completion_tokens": 336,
+  "total_tokens": 2694,
+  "thoughts_tokens": 1953,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this 14-year-old young man for an updated neurodevelopmental opinion. His concerns first arose around five months of age, when his parents became concerned about deficient head stability and generalized axial floppiness. He has since displayed profound lags across all developmental spheres, remaining non-verbal with an absence of spoken words. \n\nOn physical evaluation, his occipitofrontal circumference measures well below the third percentile. Motor examination shows marked central trunk flaccidity accompanied by increased lower-extremity muscle stiffness and hyperreflexia. Cranial nerves are grossly intact, and he demonstrates no strabismus, although he displays significantly diminished reciprocal gaze. His presentation is further notable for atypical social interaction, repetitive mannerisms, and alarming self-harm actions such as frequent head-hitting. His mother notes severe, persistent sleeplessness, often waking multiple times nightly. He also has a history of generalized convulsions, which are partially managed on levetiracetam. \n\nReview of his prior records shows a persistent fluid collection between the septal leaflets on brain imaging. Auscultation reveals a distinct systolic cardiac murmur; past echocardiography demonstrated an interatrial septal aperture. From a digestive standpoint, he suffers from chronic gastroesophageal regurgitation and recurrent emesis episodes, both treated conservatively with feeding modifications. Abdominal ultrasound and basic metabolic labs were completely normal. He resides at home with both parents, and family history is non-contributory.\n\nGiven the complexity of his clinical trajectory, I would greatly value your assessment and guidance regarding further diagnostic evaluation and symptom management.\n\nSincerely,\nDr. Julian Vance"
+}

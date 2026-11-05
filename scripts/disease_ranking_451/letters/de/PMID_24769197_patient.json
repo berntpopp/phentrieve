@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24769197_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 440,
+  "completion_tokens": 465,
+  "total_tokens": 2960,
+  "thoughts_tokens": 2055,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen die 24-jährige Patientin zur fachärztlichen Beurteilung einer komplexen Befundkonstellation. \n\nKörperlich imponiert bei einer Körpergröße von 143 cm ein ausgeprägter Kleinwuchs. Das Gesicht zeigt vergröberte Konturen mit Hypertelorismus, verkürzten Lidspalten und bogenförmig hoch ansetzenden Augenbrauen. Die Nasenwurzel stellt sich tief eingesunken dar, die Nasenspitze breit. Auffallend sind ferner die weite Mundspalte, ein wulstig erscheinendes Lippenrot sowie deutliche Lücken zwischen den Zähnen. Der Hals ist auffallend kurz, am Thorax fällt eine erhebliche Trichterbrust auf und die Wirbelsäule zeigt eine betonte Kyphosierung. \n\nRöntgenologisch dokumentierten sich ausgedehnte, generalisierte Knochen- und Wirbelkörperveränderungen im Sinne einer komplexen Dysostose. Kardiologisch wurde eine Stenose der Aortenklappe diagnostiziert. Zudem liegt eine chronische Schallleitungsschwerhörigkeit vor. Kognitiv besteht seit jeher eine milde intellektuelle Beeinträchtigung; die Patientin lebt im familiären Umfeld und ist im geschützten Rahmen tätig.\n\nAugenärztlich zeigten sich die Hornhäute vollständig klar, ein kirschroter Fleck an der Makula fand sich nicht. Abdominell ergab der Ultraschall keinen Anhalt für eine Vergrößerung von Milz oder Leber. Das Gangbild ist stabil und frei von einer Ataxie, die Reflexe sind seitengleich mittellebhaft auslösbar. Dermatologisch finden sich keine Angiokeratome oder sonstige Gefäßauffälligkeiten. Eine kürzlich durchgeführte Stoffwechselabklärung erbrachte keinen Hinweis auf eine Aminoazidurie, auch die renalen und hepatischen Laborparameter waren unauffällig.\n\nIch bitte Sie um eine klinische Einschätzung des Gesamtbildes und Empfehlungen zur weiteren Einordnung. \n\nMit freundlichen kollegialen Grüßen"
+}

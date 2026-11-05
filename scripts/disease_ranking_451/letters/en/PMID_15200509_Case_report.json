@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15200509_Case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 247,
+  "total_tokens": 1567,
+  "thoughts_tokens": 988,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for seeing this 20-year-old university student for a comprehensive clinical assessment. \n\nHer history traces back to her early childhood when her parents first noted distinct, flat, dark brown hyperpigmented spots developing across the vermilion border of both her upper and lower lips. On inspection, she also displays similar discrete, dark pigmented macules scattered throughout her mouth, particularly along the inner buccal mucosa. \n\nShe recently underwent an upper endoscopy and colonoscopy to investigate intermittent vague dyspepsia. The investigations revealed dozens of polyps throughout her upper gastrointestinal tract and colon, with histological analysis identifying these lesions as hamartomas. \n\nHer general physical examination is otherwise unremarkable. Vital signs are normal, her abdomen is soft and non-tender without palpable organomegaly, and her cardiovascular and respiratory examinations are completely clear. She currently takes only a daily multivitamin and a combined oral contraceptive pill. Her family history is non-contributory, and both parents are alive and well. She does not drink alcohol or use tobacco.\n\nGiven the constellation of these findings, I would appreciate your specialist evaluation and guidance regarding her ongoing surveillance and management.\n\nSincerely,\n\nDr. Arthur Sterling"
+}

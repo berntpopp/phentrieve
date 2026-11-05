@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25533820_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 373,
+  "completion_tokens": 323,
+  "total_tokens": 2641,
+  "thoughts_tokens": 1945,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for evaluating this four-year-old girl, whom I am referring for comprehensive subspecialty assessment. \n\nHer parents initially raised concerns regarding profound difficulty navigating in low light, frequent tripping at night, and subnormal central sight. Ophthalmic examination revealed marked pallor of the optic discs, pronounced thinning and constriction of the retinal vasculature, and patchy, mottled disturbance throughout the retinal pigment epithelium. Cross-sectional OCT scanning demonstrated generalized retinal layer thinning, while electrophysiological testing confirmed bilateral photoreceptor degeneration affecting both the rod and cone systems. \n\nDevelopmentally, she exhibits significant cognitive deficits alongside severe delays in speech and language acquisition; she currently uses only three single words and struggles with simple verbal comprehension. In addition, she has developed excessive early-childhood weight gain, with her body mass index remaining persistently well above the ninety-ninth percentile. Her past surgical history is notable for the excision of a postaxial supernumerary digit on each foot shortly after birth.\n\nOn general examination, she is pleasant and interactive. Her cardiovascular exam reveals normal S1 and S2 without murmurs, her chest is clear to auscultation, and her abdomen is soft and non-tender without organomegaly. A recent audiologic evaluation was completely normal, and she takes no prescription medications aside from a standard over-the-counter multivitamin. Family history is negative for early vision loss or childhood metabolic concerns.\n\nI would greatly appreciate your evaluation and recommendations regarding appropriate management and further diagnostic investigations.\n\nSincerely,\nDr. Rachel Bennett, MD\nPediatric Primary Care"
+}

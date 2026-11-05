@@ -1,0 +1,18 @@
+{
+ "case": "PMID_37156989_P1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 345,
+  "completion_tokens": 315,
+  "total_tokens": 2541,
+  "thoughts_tokens": 1881,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for evaluating Ms. Elena Vance, a 28-year-old female who presents for expert consultation regarding complex systemic symptoms that first manifested when she was 18 years of age. \n\nHer history is notable for chronic transmural inflammatory enterocolitis involving the terminal ileum with documented skip areas and granulomatous change. Over time, she has demonstrated persistent features of generalized autoimmune dysregulation with multiple elevated circulating autoantibodies. Dermatologically, she exhibits well-demarcated erythematous plaques covered by thick, silvery micaceous scales across her extensor surfaces and scalp. In addition, she has recently developed deeply painful, rapidly progressive lower-leg ulcerations characterized by violaceous, undermined borders and central cribriform necrosis. Her course has also been complicated by repeated middle ear infections with persistent tympanic effusions, as well as longstanding inflammatory disease throughout her paranasal sinuses.\n\nOn physical examination today, her vital signs are unremarkable. Heart sounds are regular with no murmurs, chest is clear to auscultation bilaterally, and her abdomen is soft and non-tender to palpation. Cranial nerve testing and peripheral neurological assessments are entirely normal. She works as a graphic designer, does not use tobacco, and has no family history of chronic illness. Her current regimen consists only of oral iron supplementation and bland emollients.\n\nGiven the breadth and severity of these clinical features, I would greatly appreciate your insight and comprehensive assessment to help clarify the underlying picture and guide targeted management.\n\nSincerely,\n\nDr. Marcus Reed"
+}

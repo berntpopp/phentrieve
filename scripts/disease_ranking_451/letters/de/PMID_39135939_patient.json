@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39135939_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 451,
+  "completion_tokens": 449,
+  "total_tokens": 3267,
+  "thoughts_tokens": 2367,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die 12-jährige Mia zur weiteren Mitbeurteilung.\n\nDas Mädchen wurde reif, jedoch mit deutlichem Untergewicht bezogen auf das Gestationsalter geboren. Ab dem dritten Lebensmonat zeigte sich eine ausgeprägte Gedeihstörung; aktuell besteht ein persistierender Kleinwuchs deutlich unterhalb der 3. Perzentile. Die psychomotorische Entwicklung verlief hingegen vollkommen unauffällig, eine globale Entwicklungsverzögerung liegt nicht vor. Mia besucht die 6. Klasse und ist sozial gut integriert. Die Familienanamnese bezüglich renaler Erkrankungen ist leer.\n\nLaborchemisch imponiert eine chronische Niereninsuffizienz im Stadium 4, der Serumkreatininwert ist mit 2,4 mg/dl deutlich gesteigert; ein Stadium 5 ist bisher glücklicherweise nicht erreicht. Begleitend finden sich erhöhte Kaliumwerte sowie eine Hyperurikämie, klinische Zeichen einer Gicht traten bislang nie auf. Im Urin imponiert ein renaler Natriumverlust, eine Proteinurie besteht nicht. Endokrinologisch ist die Aldosteronkonzentration im Blut vermindert, während das Renin im Normbereich liegt. Im Blutbild zeigt sich eine verminderte absolute Zahl an neutrophilen Granulozyten, anamnestisch traten jedoch keine rezidivierenden Infekte auf. Die Immunglobuline IgG, IgM und IgA liegen allesamt im Referenzbereich.\n\nIn der vorbeschriebenen Nierenbiopsie zeigten sich histologisch vollständig sklerosierte Glomerula sowie eine ausgeprägte interstitielle und tubuläre Fibrosierung. Elektronenmikroskopisch kamen eine diffuse Verdickung der glomerulären Basalmembran und ein deutliches Verstreichen der Podozytenfußfortsätze zur Darstellung.\n\nKörperlich präsentiert sich Mia kardiopulmonal stabil mit normwertigem Blutdruck. Ich danke Ihnen für Ihre geschätzte Einschätzung und Empfehlungen zum weiteren therapeutischen Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

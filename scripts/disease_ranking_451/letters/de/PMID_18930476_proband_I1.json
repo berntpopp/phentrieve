@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18930476_proband_I1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 401,
+  "completion_tokens": 436,
+  "total_tokens": 2593,
+  "thoughts_tokens": 1756,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen Herrn Eberhard Vogt, 77 Jahre alt, zur fachneurologischen Beurteilung. Erste subtile motorische Auffälligkeiten bemerkte der Patient bereits um sein 45. Lebensjahr.\n\nIm aktuellen Status imponiert eine bilaterale Schwäche der kurzen Handmuskeln sowie eine reduzierte Kraft der Fingerbeuger (beidseits KG 4/5). Passend hierzu zeigt sich eine deutliche Atrophie der Thenarmuskulatur. An den unteren Extremitäten fallen eine kräftig entwickelte, hypertroph wirkende Wadenmuskulatur sowie ein beidseitig ausgeprägter Hohlfuß auf. Bei mechanischer Reizung mittels Reflexhammer lassen sich reproduzierbar rasche, wellenförmig über das Muskelbündel abrollende Kontraktionen beobachten. \n\nMuskelschmerzen werden konsequent verneint, ebenso bestehen weder Muskelsteifigkeit noch Neigungen zu Spasmen. Unwillkürliche Bewegungen wie Tremor oder Dyskinesien sind nicht vorhanden. Der Patient klagt über keinerlei Fatigue und verneint eine pathologische Belastungsintoleranz im Alltag. Kognitiv präsentiert sich der pensionierte Gymnasiallehrer lebhaft und völlig intakt; ein mentaler Abbau konnte explizit ausgeschlossen werden. \n\nLaborchemisch zeigt sich eine Hyper-CK-ämie (Kreatinkinase 580 U/l) sowie ein mäßig erhöhter Spiegel der Aspartat-Aminotransferase bei ansonsten unauffälligen Leberwerten. Das Serumlaktat ist normal, Zeichen einer Laktatazidose liegen nicht vor. Die internistische Basisuntersuchung inklusive Blutdruck und EKG war unauffällig. Außer einer Bedarfsmedikation mit Pantoprazol besteht keine Dauermedikation; die Familienanamnese ist leer.\n\nIch bedanke mich für Ihre kollegiale Untersuchung und Ihre differentialdiagnostische Einschätzung.\n\nMit freundlichen Grüßen\n\nDr. med. Thomas Weber"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36147795_Case_Presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 378,
+  "completion_tokens": 395,
+  "total_tokens": 2537,
+  "thoughts_tokens": 1764,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen die heute 13-jährige Mia zur weiteren differentialdiagnostischen Beurteilung. \n\nBereits im Säuglingsalter manifestierte sich bei der Patientin eine erhebliche globale Entwicklungsverzögerung. Motorische Meilensteine wurden nur stark verspätet erreicht; das freie Gehvermögen erlangte das Mädchen erst nach dem vierten Lebensjahr. Die Sprachentwicklung ist hochgradig retardiert, expressive Lautsprache existiert bis heute nicht. Insgesamt besteht das Bild einer tiefgreifenden kognitiven Beeinträchtigung. Im Verhaltensbereich imponieren ausgeprägte autistische Züge, repetitive flatternde Bewegungen der Hände sowie wiederkehrende, situativ völlig inadäquate Lachanfälle ohne erkennbaren Auslöser.\n\nIn der Vorgeschichte traten wiederholt zerebrale Krampfanfälle auf. In den interiktalen EEG-Ableitungen finden sich kontinuierlich epilepsietypische Auffälligkeiten mit verlangsamter Grundrhythmusaktivität und Spitzenpotenzialen. Aktuell ist Mia unter einer antikonvulsiven Monotherapie stabil eingestellt.\n\nKörperlich fallen ein auffallend langes Gesicht mit nach hinten fliehender Stirn sowie eine ungewöhnlich breite Nase auf. Zudem besteht ein manifester Strabismus. Die sonstige pädiatrische Untersuchung bot unauffällige Organbefunde: Auskultation von Herz und Lunge ist bland, das periphere Hörvermögen im Audiogramm intakt, das Wachstum liegt auf der 25. Perzentile. Die Familienanamnese ist unauffällig; die Eltern und die ältere Schwester sind gesund.\n\nIch wäre Ihnen für eine konsiliarische Begutachtung und Ihre Einschätzung zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24239060_mother_I_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 377,
+  "completion_tokens": 300,
+  "total_tokens": 3255,
+  "thoughts_tokens": 2578,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Mrs. Evelyn Vance, a 68-year-old retired archivist who has experienced progressive physical difficulties since early childhood. She lives with her husband and has no family history of neuromuscular disease. Routine serum chemistries, renal function, and thyroid panels were normal. Her sole medication is daily vitamin D.\n\nOver several decades, she has suffered from pervasive bodily debility and generalized fatigue, coupled with diffuse motor weakness across both upper and lower extremities. In recent years, she has suffered multiple recurrent chest infections and pneumonias. She also developed chronic ventilatory insufficiency secondary to diaphragmatic and chest-wall muscular paresis, culminating in a recent hospital admission for overt hypercapnic ventilatory failure.\n\nOn examination, there is widespread wasting of the somatic musculature. Testing demonstrates marked, global reduction in motor strength, with pronounced paresis of the cervical flexor musculature. Deep tendon reflexes were uniformly absent throughout all four limbs. Inspection of her spine shows a prominent mid-thoracic lateral curvature. When ambulating, she demonstrates a broad-based, swaying pelvic gait. Electromyography demonstrated clear intrinsic myopathic changes. Cranial nerve assessment was reassuring: extraocular motility was fully intact without any restriction, and there was no evidence of eyelid droop.\n\nGiven her childhood onset and progressive decline in motor and respiratory function, I would be grateful for your expert assessment and management recommendations.\n\nKind regards,\n\nDr. Arthur Pendelton"
+}

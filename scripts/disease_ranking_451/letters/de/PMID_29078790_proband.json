@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29078790_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 360,
+  "completion_tokens": 364,
+  "total_tokens": 2401,
+  "thoughts_tokens": 1677,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die vierjährige Patientin Emma zur konsiliarischen neurologischen Mitbeurteilung. Die Eltern bemerkten im Verlauf der letzten Monate eine neu aufgetretene Ungeschicklichkeit der Hände im Kindergartenalltag. Die frühe Entwicklung des Kindes verlief völlig unauffällig, Vorerkrankungen sind nicht bekannt, und es besteht keine Dauermedikation. Auch die Familienanamnese ist unauffällig.\n\nIn unserer klinischen Untersuchung imponierte vor allem eine Schwäche der langen Fingerstrecker beidseits (Kraftgrad ca. 4/5 nach MRC). Bei der Überprüfung der Sensibilität zeigte sich ein herabgesetztes Berührungsempfinden distal an den Akren. Auffälligkeiten der Fußkonfiguration, insbesondere ein Hohlfuß, ließen sich nicht feststellen. Die Muskeleigenreflexe an den oberen und unteren Extremitäten erwiesen sich als seitengleich mittellebhaft und in allen Qualitäten regelrecht. Die Hirnnervenfunktionen waren intakt, Zeichen einer Ataxie fanden sich nicht.\n\nIn der durchgeführten neurophysiologischen Diagnostik zeigten sich sowohl die motorischen als auch die sensiblen Nervenleitgeschwindigkeiten an den peripheren Nervenbahnen deutlich herabgesetzt. Eine serologische Abklärung auf Anti-Gangliosid-Antikörper erbrachte ein negatives Resultat. Ein Routinelabor inklusive Kreatinkinase und Entzündungswerten lag im Normbereich.\n\nIch bitte um Ihre geschätzte Beurteilung der Befunde und Ihre Empfehlung zum weiteren Vorgehen bei der kleinen Patientin.\n\nMit freundlichen kollegialen Grüßen"
+}

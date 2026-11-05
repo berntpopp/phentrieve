@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24269551_patient_IV_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 353,
+  "completion_tokens": 373,
+  "total_tokens": 2472,
+  "thoughts_tokens": 1746,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 12-jährigen Lukas zur konsiliarischen Mitbeurteilung unklarer morphologischer Besonderheiten. \n\nLukas besucht die 6. Klasse, ist kognitiv altersgerecht entwickelt und nimmt derzeit keine Dauermedikation ein. Die Familienanamnese hinsichtlich angeborener Auffälligkeiten ist leer. Körpergröße und Gewicht liegen stabil auf der 50. Perzentile, und der kardiopulmonale Untersuchungsbefund war unauffällig.\n\nIm Bereich des Schädels fällt eine betont kreisrunde Gesichtsmorphologie auf, kombiniert mit beidseits tief ansetzenden Ohrmuscheln. Bei der Inspektion der Mundhöhle zeigten sich an den oberen Inzisiven markante, palatinal gelegene akzessorische Höckerbildungen. Das Gebiss ist ansonsten vollzählig ohne Anhalt für fehlende Zahnanlagen, und die einzelnen Zahnkronen zeigen keine abnorme Verkleinerung.\n\nAn den Händen imponieren ebenfalls deutliche Befunde: Die Langfinger weisen beidseits eine sichtbare Schiefstellung mit Verkrümmung zur Seite auf, und radiologisch konnte an den Fingern der Nachweis überzähliger Phalangen geführt werden. Zudem findet sich an beiden Händen eine ausgeprägte Überstreckbarkeit des Daumenendglieds mit Z-förmig anmutender Fehlhaltung, klinisch ganz entsprechend einem Anhalterdaumen.\n\nZur weiteren Einordnung dieser Konstellation sowie zur Besprechung des weiteren Vorgehens darf ich den Jungen bei Ihnen vorstellen. Über Ihre geschätzte Einschätzung bedanke ich mich im Voraus.\n\nMit freundlichen Grüßen,\nDr. med. Thomas Weber"
+}

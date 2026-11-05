@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30679813_Individual_22",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 516,
+  "completion_tokens": 537,
+  "total_tokens": 3525,
+  "thoughts_tokens": 2472,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den 12-jährigen Jonas zur weiteren differentialdiagnostischen Beurteilung. \n\nAnamnestisch bestehen seit der frühen Kindheit ausgeprägte Ernährungsschwierigkeiten mit anhaltenden Fütterproblemen sowie ein deutlicher globaler Entwicklungsrückstand in den sprachlichen, motorischen und kognitiven Fähigkeiten. Er besucht derzeit eine Förderschule. Jonas nimmt keine regelmäßige Medikation ein, und die Familienanamnese ist blande.\n\nKörperlich liegt der Junge mit Körpergröße, Gewicht und Kopfumfang stabil im Bereich der 50. Perzentile, sodass weder ein Kleinwuchs, Übergewicht noch eine Mikrozephalie vorliegen. Die Schädelform zeigt keine Brachyzephalie. Kraniofazial fallen schräg nach außen-oben verlaufende Lidachsen, ein vollkommen glattes, merkmalsarmes Philtrum sowie ein auffallend dünnes Oberlippenrot auf. Das Philtrum ist in seinen Dimensionen unauffällig, weder verkürzt noch verlängert oder übermäßig breit. Das Unterlippenrot ist nicht evertiert, die Mundöffnung ist normal groß. Die Ohren sind orthotop inseriert und weisen keinen Tiefstand auf. An den Augen finden sich kein Epikanthus, keine Ptosis, keine Strabismuszeichen und keine verlängerten Lidspalten oder überlangen Wimpern. Die Bulbi sind nicht tiefliegend, und der interkanthale Abstand ist seitengleich normal (weder Hypo- noch Hypertelorismus). Die Nase imponiert schlank ohne knollige Auftreibung, ohne convexen oder breiten Nasenrücken, mit regelrechten Nasenflügeln und ohne nach vorne gerichtete Nasenlöcher.\n\nDer Muskeltonus ist regelrecht; es bestehen weder eine muskuläre Hypotonie noch überbewegliche Gelenke. Die Hände sind unauffällig, ohne sich verjüngende Fingerkuppen. Krampfanfälle traten nie auf, und ein kraniales MRT zeigte keine Ventrikelerweiterung. Im Alltag zeigt Jonas ein ruhiges, kontaktbereites Verhalten ohne autistische Züge, Hyperaktivität, Aufmerksamkeitsdefizite, Ängste oder Aggressionen. Der Nachtschlaf ist ungestört. Auch die internistische Untersuchung ergab regelrechte Befunde an Cor und Pulmo.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung zum weiteren Vorgehen.\n\nMit freundlichen Grüßen"
+}

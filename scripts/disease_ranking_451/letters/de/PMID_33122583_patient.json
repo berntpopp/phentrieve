@@ -1,0 +1,18 @@
+{
+ "case": "PMID_33122583_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 366,
+  "total_tokens": 2568,
+  "thoughts_tokens": 1806,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen den 15-jährigen Noah zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten traten anamnestisch bereits im frühen Säuglingsalter im Alter von etwa zehn Wochen auf. Der Jugendliche besucht derzeit die neunte Klasse, die Familienanamnese ist unauffällig.\n\nAktuell präsentierte sich der Patient mit therapierefraktärem Fieber und pulmonalen Infiltraten; mikrobiologisch und bildgebend wurde eine invasive pulmonale Aspergillose gesichert. Im aktuellen Labor imponiert eine ausgeprägte Panzytopenie mit einer deutlichen Thrombozytopenie sowie einer stark erniedrigten absoluten Zahl neutrophiler Granulozyten. Immunologisch zeigen sich im Serum signifikant reduzierte Spiegel für IgG und IgM, während die Lymphozytendifferenzierung eine drastisch verminderte Gesamtzahl der B-Zellen aufweist.\n\nIn der Knochenmarkpunktion zeigte sich das Mark auffallend hypozellulär, zudem fanden sich eindeutige Zeichen einer Hämophagozytose. Eine akute lymphoblastische Leukämie der B-Reihe konnte durchflusszytometrisch ebenso sicher ausgeschlossen werden wie eine T-ALL. Sonographisch fand sich kein Anhalt für eine Splenomegalie, auch die Leberwerte und Nierenretentionsparameter waren regelrecht. Die kardiale Untersuchung bot keinen pathologischen Befund. Zurzeit wird der Patient antimykotisch mit Voriconazol behandelt.\n\nIch wäre Ihnen für Ihre differentialdiagnostische Einschätzung und Empfehlungen bezüglich des weiteren Prozederes sehr dankbar.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30225196_Patient_1_V_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 385,
+  "completion_tokens": 446,
+  "total_tokens": 2827,
+  "thoughts_tokens": 1996,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des 15-jährigen Noah, der sich in Begleitung seiner Eltern in meiner Sprechstunde vorstellte. \n\nDie Symptomatik begann im frühen Kindesalter; anamnestisch fielen initial Meilensteine des Spracherwerbs deutlich verzögert aus, begleitet von einer progredienten kognitiven Beeinträchtigung. Obwohl er das freie Laufen zeitgerecht erlernt hatte, kam es im Verlauf zu einem schleichenden Verlust der Gehfähigkeit, sodass der Jugendliche nun dauerhaft auf den Rollstuhl angewiesen ist. Des Weiteren traten im Verlauf bilaterale tonisch-klonische Zerebralanfälle auf, die derzeit unter einer antikonvulsiven Monotherapie stabilisiert sind. Schlaganfallähnliche Episoden wurden in der Vorgeschichte nie beobachtet.\n\nIm aktuellen neurologischen Befund zeigt sich eine schwer verständliche, dysarthrische Sprache. Es imponiert eine ausgeprägte spastische Tetraparese mit gesteigerten Reflexen und beidseits positiven Pyramidenbahnzeichen; eine muskuläre Hypotonie liegt keineswegs vor. Zudem finden sich eine deutliche Rumpf- und Extremitätenataxie sowie ein feinschlägiger Händetremor bei Zielbewegungen. Das internistische Basisscreening inklusive EKG, Auskultation und laborchemischer Routineparameter war vollkommen unauffällig. Noah besucht derzeit eine Förderschule.\n\nIm aktuellen Schädel-MRT zeigte sich die Raumforderung eines Glioms. Die übrigen neuroanatomischen Strukturen stellten sich unauffällig dar; insbesondere fand sich keine zerebrale Atrophie des Großhirnparenchyms, und auch das Kleinhirn wies keinerlei atrophische Veränderungen auf. Das Corpus callosum war normal konfiguriert und zeigte keine Verschmälerung.\n\nIch danke Ihnen für Ihre geschätzte Einschätzung zum weiteren Vorgehen bei diesem komplexen Beschwerdebild.\n\nMit freundlichen kollegialen Grüßen"
+}

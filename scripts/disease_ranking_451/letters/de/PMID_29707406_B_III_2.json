@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_B_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 407,
+  "total_tokens": 2655,
+  "thoughts_tokens": 1908,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die 12-jährige Maya zur neuropädiatrischen Mitbeurteilung. \n\nBereits im Säuglingsalter fiel den Eltern eine verlangsamte Entwicklung der motorischen Meilensteine auf; das freie Sitzen und Laufen gelang erst mit deutlicher zeitlicher Verzögerung im Kleinkindalter. Im weiteren Verlauf traten wiederholt generalisierte Ereignisse mit initialer Versteifung und nachfolgenden rhythmischen Zuckungen aller vier Extremitäten auf, die aktuell medikamentös mit Levetiracetam behandelt werden. \n\nIm aktuellen Untersuchungsbefund zeigt sich ein unsicheres, auffallend breitbasiges Gangbild mit deutlichen Rumpfschwankungen sowie einer ausgeprägten Dysmetrie bei gezielten Bewegungsprüfungen. Auffällig ist ferner eine Unfähigkeit, auf Aufforderung willkürliche Lippen- und Zungenbewegungen zu imitieren oder gezielte oropharyngeale Bewegungsmuster auszuführen, obgleich die basale Schluckfunktion intakt wirkt. Reflexneurologisch fallen lebhafte Muskeleigenreflexe der unteren Extremitäten sowie beidseits eindeutig nachweisbare Babinski-Phänomene auf. \n\nDie vegetative Anamnese ist unauffällig. Internistisch präsentiert sich die Patientin kardiopulmonal stabil, die Herztöne sind rein, die Lunge ist seitengleich belüftet und das Abdomen weich. Pädaudiologische und ophthalmologische Voruntersuchungen erbrachten regelrechte Befunde. In der Familie sind keine neurologischen Erkrankungen bekannt. Das Mädchen besucht derzeit eine Förderschule und wird im häuslichen Umfeld liebevoll unterstützt.\n\nIch danke Ihnen für Ihre geschätzte fachärztliche Einschätzung der Patientin und Ihre Empfehlungen zum weiteren diagnostischen Prozedere.\n\nMit freundlichen Grüßen"
+}

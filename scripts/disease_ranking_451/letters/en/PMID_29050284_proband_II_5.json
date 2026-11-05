@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050284_proband_II_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 300,
+  "total_tokens": 2278,
+  "thoughts_tokens": 1630,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this male patient who presented to my clinic for an initial assessment. \n\nDuring his exam, he noted longstanding poor sight, and formal distance visual testing confirmed markedly diminished clarity at 20/120 in the right eye and 20/160 in the left. He demonstrated prominent glare intolerance, keeping his eyes partially closed due to discomfort from standard office illumination. On ocular inspection, there were persistent conjugate horizontal rhythmic oscillations of the globes. I also observed a distinct difference between his anterior segments, with a pale translucent blue right iris contrasting sharply with a predominantly hazel-brown left iris. \n\nOn physical inspection, his integumentary features are quite unusual. He displays generalized, diffuse cutaneous pallor, and his scalp hair is strikingly fair and silvery-white. Furthermore, his left superciliary arch displays a distinct localized patch of snow-white eyebrow hairs. \n\nThe remainder of his physical examination was unremarkable. His vital signs were stable, cardiac auscultation revealed normal heart sounds without murmurs, and his lung fields were clear bilaterally. Cranial nerves otherwise tested normally. He currently takes no prescription medications aside from an over-the-counter multivitamin. He does not smoke and works locally in administrative support. Family history is reportedly unremarkable.\n\nI would be very grateful for your comprehensive assessment of his ocular findings and your guidance regarding appropriate diagnostic follow-up.\n\nSincerely,\nDr. Arthur Pendelton"
+}

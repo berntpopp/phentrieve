@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_B_III_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 437,
+  "total_tokens": 2609,
+  "thoughts_tokens": 1832,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die 21-jährige Patientin Anna Meier zur konsiliarischen Beurteilung und weiteren differenzialdiagnostischen Abklärung.\n\nDie Krankheitsgeschichte reicht bis in das früheste Kindesalter zurück: Bereits im ersten Lebensjahr zeigte sich eine deutliche Verzögerung der motorischen Meilensteine, sodass das freie Gehen erst mit Vollendung des vierten Lebensjahres erlernt werden konnte. Im weiteren Verlauf traten wiederholt Episoden mit Bewusstseinsverlust, initialer generalisierter Tonisierung und anschließenden rhythmischen, klonischen Zuckungen aller Extremitäten auf, weswegen eine antikonvulsive Dauertherapie etabliert wurde. \n\nIn unserer aktuellen Untersuchung präsentiert sich die junge Frau mit einem breitbasigen, schwankenden Gangbild sowie ausgeprägten Koordinationsdefiziten bei zielgerichteten Bewegungen der Arme. Zudem imponiert im Bereich der Hirnnerven eine erhebliche Unfähigkeit, willkürliche Bewegungsabläufe der Lippen und der Zunge auf Nachfrage imitierend oder gezielt auszuführen, wohingegen automatische mimische Aktionen intakt bleiben. Der Reflexstatus ist an den unteren Extremitäten mit lebhaften, gesteigerten Reflexantworten auffällig; die Bestreichung der Fußsohle führt beidseits zu einer eindeutigen Dorsalextension der Großzehe im Sinne eines positiven Babinski-Phänomens.\n\nErgänzend darf ich berichten, dass die Familienanamnese hinsichtlich chronischer Erkrankungen bland ist. Die internistische Untersuchung einschließlich Vitalparameter erbrachte unauffällige Befunde, die Schilddrüsenwerte und das Routine-Basislabor zeigten sich normwertig. Die Patientin lebt gemeinsam mit ihren Eltern und wird im Alltag liebevoll unterstützt.\n\nIch wäre Ihnen für eine fundierte neuropädiatrische bzw. neurogene Einschätzung und weiterführende Empfehlungen zum Procedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40557693_Case_Description",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 409,
+  "completion_tokens": 429,
+  "total_tokens": 2622,
+  "thoughts_tokens": 1784,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Keller,\n\nich bitte um Ihre konsiliarische Einschätzung bei einem männlichen Neugeborenen an seinem ersten Lebenstag. Der Junge wurde nach unauffälliger Schwangerschaft reif bei 39+4 SSW spontan entbunden (Apgar 8/9/10, Geburtsgewicht 3350 g). Die Familienanamnese ist bezüglich angeborener Auffälligkeiten leer.\n\nKörperlich zeigt das Kind eine betont ausladende Stirnwölbung sowie einen auffällig weiten Augenabstand; die Bulbi wirken leicht hervorgetreten. Die Lidachsen sind beidseits nach lateral-unten gerichtet, und die Nasenwurzel imponiert deutlich flach bzw. eingesunken. An den Händen fallen beidseits verbreiterte Daumen sowie eine häutige Verwachsung zwischen dem dritten und vierten Finger auf. An den Füßen zeigen sich ebenfalls auffallend breite Halluces und eine kutane Syndaktylie zwischen den Zehen II und III. Das äußere Genitale ist altersentsprechend reif, die Testes sind beidseits palpabel deszendiert, ein Kryptorchismus liegt nicht vor. Die Neugeborenenreflexe sind kräftig und seitengleich auslösbar.\n\nIm Verlauf des ersten Lebenstages fiel wiederholt eine deutliche, profuse Schweißneigung auf. Die durchgeführte Echokardiographie zeigte neben einem noch offenen Foramen ovale einen Kammerscheidewanddefekt sowie eine Trikuspidalregurgitation mit Zeichen eines erhöhten pulmonalarteriellen Druckes. Die Sauerstoffsättigung liegt unter Raumluft stabil bei 94 %, das Trinkverhalten ist bislang suffizient.\n\nZur weiteren ätiologischen Einordnung dieser komplexen Befundkonstellation und zur Abstimmung des weiteren Vorgehens wäre ich Ihnen für eine zeitnahe konsiliarische Mitbeurteilung sehr dankbar.\n\nMit freundlichen Grüßen\nDr. med. Thomas Weber"
+}

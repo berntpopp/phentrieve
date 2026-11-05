@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11917274_Individual_II_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 337,
+  "completion_tokens": 285,
+  "total_tokens": 2237,
+  "thoughts_tokens": 1615,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Aris,\n\nThank you for seeing Mrs. Clara Higgins, a 51-year-old graphic designer who presented to my clinic complaining of progressive blurring of her vision over the past few months. She reports that the persistent haze has made it increasingly difficult to focus on detailed computer tasks.\n\nOn examination, her best-corrected visual acuity was notably reduced, measuring 20/50 in the right eye and 20/40 in the left. Slit-lamp biomicroscopy revealed diffuse, fine powdery opacities distributed throughout the lens cortex bilaterally, giving a characteristic dust-like appearance. Crucially, the lens nuclei appear entirely clear with no evidence of nuclear cataract, and there are no signs of membranous cataract or capsular collapse.\n\nThe remainder of her ocular examination was completely normal. Her corneas are clear, anterior chambers are deep and quiet, and intraocular pressures were measured at 15 mmHg in both eyes. Dilated fundus examination revealed sharp optic discs with healthy neuroretinal rims and normal maculae. Her medical background is non-contributory; she takes only daily vitamin D supplements, has no history of ocular trauma or corticosteroid use, and reports no relevant family ocular history.\n\nI would be grateful for your evaluation and recommendations regarding surgical or conservative management for her crystalline lens changes.\n\nSincerely,\nDr. Julian Vance"
+}

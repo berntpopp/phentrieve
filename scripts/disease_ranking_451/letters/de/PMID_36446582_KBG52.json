@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_KBG52",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 505,
+  "completion_tokens": 531,
+  "total_tokens": 3724,
+  "thoughts_tokens": 2688,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich bitte um Ihre konsiliarische Einschätzung bei einem männlichen Patienten mit auffälligem Phänotyp.\n\nBereits antenatal war eine intrauterine Wachstumsretardierung dokumentiert worden. Postpartal bestanden erhebliche Trink- und Fütterprobleme. Während die grobmotorische Entwicklung zeitgerecht verlief, imponieren heute eine signifikante kognitive Behinderung sowie eine schwere Sprachentwicklungsverzögerung. Anhaltspunkte für autistische Verhaltensweisen oder ein Aufmerksamkeitsdefizit-Hyperaktivitätssyndrom bestehen nicht, das Schlafverhalten ist völlig unauffällig. \n\nKörperlich zeigt sich ein ausgeprägter Kleinwuchs. Der Kopfumfang ist normwertig, eine Mikrozephalie liegt nicht vor. Im Gesichtsbild fallen eine dreieckige Gesichtsform, eine tief ansetzende Stirnhaargrenze sowie kräftige, buschige Brauen mit Synophrys auf. Der Interkanthalabstand ist regelrecht, ein Hypertelorismus fehlt. Die Nasenflügel zeigen antevertierte Nares, ohne dass das Organ prominent hervorspringt oder knollig verändert wirkt. Das Philtrum ist normal lang, der Amorbogen weist keine akzentuierte Konturierung auf. Das Kinn stellt sich klein und rückverlagert dar im Sinne einer Mikroretrognathie, eine mandibuläre Prognathie liegt nicht vor. Die Ohren imponieren tiefstehend und beidseits deutlich abstehend. \n\nNeurologisch besteht eine generalisierte Muskelhypotonie. An den oberen Extremitäten fallen morphologische Auffälligkeiten der Hände auf. Die abdominelle Untersuchung war unauffällig, insbesondere ohne Nachweis von Nabel- oder Leistenbrüchen. Echokardiographisch zeigten sich bland veränderte Herzstrukturen: Kein Vorhof- oder Ventrikelseptumdefekt, kein AV-Kanal, keine Pulmonalstenose und keine bikuspide Aortenklappe. Ein Ruhe-EEG erbrachte keine pathologischen epilepsietypischen Potentiale. Rezidivierende Otitiden traten im bisherigen Verlauf nicht auf. Die Familienanamnese ist bezüglich angeborener Fehlbildungen unauffällig, Dauermedikation besteht nicht.\n\nÜber Ihre geschätzte differenzialdiagnostische Beurteilung und Einleitung der humangenetischen Diagnostik würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25802881_P76",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 289,
+  "total_tokens": 2733,
+  "thoughts_tokens": 2090,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Alvarez,\n\nThank you for evaluating Chloe, a 22-month-old girl referred for an assessment of atypical physical growth and delayed development.\n\nOn physical examination, her linear length is severely compromised, tracking well below the 1st percentile, while her weight-for-length exceeds the 99th percentile, reflecting marked excessive adiposity. There are prominent concerns regarding profound cognitive delays; she lacks communicative gestures or words and demonstrates global cognitive impairment on standardized developmental testing. Recent radiographs of the hands demonstrated diminished length of the metacarpal bones. However, her fingers do not show generalized shortening, and the phalanges themselves appear proportionate. Careful inspection and palpation of her integument revealed no hard dermal deposits or ectopic bone formation within the subcutaneous tissues.\n\nRecent biochemical screening revealed normal serum total calcium and normal circulating phosphorus levels. Routine blood counts, renal function, and thyroid studies were also unremarkable. Her chest is clear to auscultation, cardiovascular exam reveals regular rhythm without murmurs, and her abdomen is soft and non-tender without organomegaly. She lives at home with healthy, non-consanguineous parents, and there is no family history of skeletal or metabolic disorders. Her only medication is a daily over-the-counter multivitamin.\n\nI would be grateful for your consultation and guidance on further evaluation for Chloe.\n\nWarm regards,\n\nDr. Marcus Vance\nPinnacle Pediatric Clinic"
+}

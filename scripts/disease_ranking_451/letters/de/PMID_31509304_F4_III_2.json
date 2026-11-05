@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31509304_F4_III_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 418,
+  "total_tokens": 2600,
+  "thoughts_tokens": 1816,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Lindner,\n\nich bitte um Ihre neuropädiatrische Mitbeurteilung des vierjährigen Max Bergmann, der sich in Begleitung seiner Mutter vorstellte. Erste Auffälligkeiten traten bereits im ersten Lebensmonat auf.\n\nIm Verlauf zeigte sich eine ausgeprägte motorische Entwicklungsverzögerung; die Meilensteine wurden nur stark verspätet erreicht. Ein vorübergehend mit Mühe erworbenes freies Laufen ist seit einigen Monaten wieder vollständig erloschen, Max ist aktuell gänzlich gehunfähig. Zudem besteht ein umfassender Entwicklungsrückstand, der auch die sprachlichen und kognitiven Fähigkeiten gravierend betrifft.\n\nIm neurologischen Status fällt eine ausgeprägte Hypotonie des Achsenskeletts auf, während an den unteren Extremitäten eine spastische Tonussteigerung vorherrscht. Die Muskeleigenreflexe sind generalisiert lebhaft gesteigert mit verbreiterten Reflexzonen. Okulomotorisch imponiert ein feinschlägiger Nystagmus, wohingegen die Sakkaden prompt und metrisch intakt sind; hypometrische Sakkaden ließen sich nicht auslösen. Eine Ataxie konnte nicht festgestellt werden. Zerebrale Anfälle wurden anamnestisch verneint und auch im häuslichen Umfeld nie beobachtet. Die Wirbelsäule ist geradlinig, eine Skoliose liegt nicht vor. Max schluckt sicher und isst pürierte sowie weiche Kost gut vom Löffel; eine Sondenernährung ist nicht erforderlich.\n\nKörperlicher Allgemeinzustand und Vitalparameter sind unauffällig, die Familienanamnese bezüglich neurologischer Leiden ist leer. Der Junge lebt mit den gesunden Eltern zusammen und nimmt derzeit keine Medikation ein.\n\nIch danke Ihnen für Ihre geschätzte Expertise bezüglich der weiteren diagnostischen Schritte.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Tobias Weber"
+}

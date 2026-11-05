@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 301,
+  "total_tokens": 2080,
+  "thoughts_tokens": 1453,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen heute die 14 Monate alte Patientin Lina zur weiteren spezialisierten Beurteilung. Erste Auffälligkeiten traten bei dem Mädchen bereits unmittelbar nach der Geburt während der Neonatalperiode zutage, weshalb sie sich seither bei uns in ambulanter Kontrolle befindet.\n\nIm Rahmen der diagnostischen Laboruntersuchungen zeigte sich im Plasma wiederholt eine ausgeprägte Erhöhung der Citrullinkonzentration weit oberhalb des altersentsprechenden Normbereichs. Eine Ausscheidung von Orotsäure im Urin ließ sich hingegen bei den Kontrollen nicht feststellen; der entsprechende Messwert im Spontanurin war durchgehend unauffällig.\n\nDie aktuelle körperliche Untersuchung bot unauffällige Organbefunde: Das Abdomen zeigte sich weich und ohne Tastbefunde, Herz und Lunge waren auskultatorisch bland, und der Muskeltonus stellte sich seitengleich regelrecht dar. Die somatische Entwicklung verläuft derzeit stabil entlang der mittleren Perzentilen. Lina lebt zusammen mit ihren Eltern und einem älteren Bruder. Die Familienanamnese ist unauffällig, und außer einer routinemäßigen Gabe von Vitamin D werden keine Medikamente verabreicht.\n\nIch wäre Ihnen für eine konsiliarische Einschätzung der Befunde sowie Empfehlungen zum weiteren Vorgehen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Tobias Berger"
+}

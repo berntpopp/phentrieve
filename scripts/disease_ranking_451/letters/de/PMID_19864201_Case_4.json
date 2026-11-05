@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19864201_Case_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 402,
+  "total_tokens": 2463,
+  "thoughts_tokens": 1691,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den sechsjährigen David zur konsiliarischen Beurteilung.\n\nDavid fiel bei der letzten Vorsorgeuntersuchung durch einen deutlichen Kleinwuchs auf. Mit einer aktuellen Körpergröße von 103 cm liegt er signifikant unterhalb der 3. Perzentile. Zudem imponieren am Integument multiple, scharf begrenzte, lentiginöse Hyperpigmentierungen, die sich vor allem über das Gesicht, den Nacken und den oberen Rumpfbereich verteilen.\n\nKraniofazial zeigt sich der Augenabstand regelrecht, ein vermehrter Interorbitalabstand besteht nicht. David besucht regulär den Kindergarten; kognitiv präsentiert er sich vollkommen altersgerecht entwickelt, Hinweise auf eine mentale Retardierung oder Lernschwierigkeiten finden sich nicht. Das Abdomen ist weich und unauffällig, Leber und Milz sind palpatorisch wie auch sonographisch nicht vergrößert. \n\nKardiologisch ergab die bisherige Diagnostik keinen pathologischen Befund: Im Ruhe- und Langzeit-EKG zeigte sich ein normofrequenter Sinusrhythmus ohne atriale oder ventrikuläre Extrasystolen. Erregungsleitungsstörungen im Sinne eines Linksschenkelblocks oder eines AV-Blocks 3. Grades waren nicht nachweisbar. In der transthorakalen Echokardiographie zeigte sich die Pulmonalklappe zart und ohne Anhalt für eine Stenose. \n\nDie Familienanamnese ist unauffällig, Dauermedikamente werden nicht eingenommen. \n\nZur weiteren differenzialdiagnostischen Abklärung der Kombination aus dem ausgeprägten Minderwuchs und den disseminierten Pigmentflecken bitte ich um Ihre geschätzte Beurteilung und weitere Empfehlungen.\n\nMit freundlichen kollegialen Grüßen,\nDr. med. Thomas Weber"
+}

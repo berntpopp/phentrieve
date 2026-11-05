@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Patient_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 270,
+  "total_tokens": 2243,
+  "thoughts_tokens": 1625,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Mr. Jason Bradley, a 34-year-old software analyst who presented to my clinic for a specialist opinion regarding long-standing motor difficulties. He notes that his symptoms first became apparent during early childhood, approximately at age five.\n\nHe reports prominent exertional weariness, becoming easily exhausted after routine daily tasks. On motor examination of the lower extremities, there is bilateral paresis of the ankle dorsiflexor muscle groups (MRC grade 4/5 bilaterally). In tandem with this, he exhibits striking gait abnormalities; he is entirely incapable of walking on his heels and displays a markedly diminished ability to sustain walking on his tiptoes.\n\nHis neurological exam is otherwise unrevealing. Cranial nerve assessment is unremarkable: there is no drooping of the eyelids, and he shows no features of bulbar dysfunction, with clear phonation and intact deglutition. Sensation is preserved across all modalities, and deep tendon reflexes are present and symmetric throughout. Strength in the proximal legs and throughout the upper limbs is completely preserved at 5/5. He takes no prescribed medications, has no known family history of mobility problems, and lives comfortably with his spouse.\n\nI would greatly appreciate your detailed assessment and advice on his ongoing care.\n\nKind regards,\nDr. Fiona Campbell"
+}

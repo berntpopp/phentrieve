@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27460976_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 407,
+  "completion_tokens": 434,
+  "total_tokens": 2682,
+  "thoughts_tokens": 1841,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen heute Frau Martina Baumgarten, geb. 12.04.1981, zur konsiliarischen Mitbeurteilung.\n\nDie 43-jährige Patientin berichtet über eine bereits im Kindesalter beginnende, chronisch-progrediente Symptomatik. In der aktuellen neurologischen Untersuchung imponiert ein parkinsonoides Beschwerdebild: Auffällig sind eine deutliche allgemeine Bewegungsverlangsamung, eine ausgeprägte Hypomimie, ein Haltetremor der oberen Extremitäten sowie ein beidseitiger Rigor. Zudem besteht eine erhebliche Gangstörung mit unsicherem Schrittmuster. Anamnestisch werden außerdem seit längerer Zeit bestehende Schluckstörungen angegeben. \n\nAm Bewegungsapparat zeigen sich distal betonte Muskelatrophien mit korrespondierender distaler Muskelschwäche. Orthopädisch finden sich beidseits ausgeprägte Hohlfüße sowie bilaterale Hammerzehen. Sinnesphysiologisch besteht eine Schallempfindungsschwerhörigkeit; zudem wurde augenärztlicherseits bereits in jüngeren Jahren eine vorzeitige Katarakt dokumentiert.\n\nApparativ zeigte sich in den somatosensibel evozierten Potenzialen eine Verzögerung der zentralen Leitungszeit. Eine vorbekannte bioptische Muskeluntersuchung erbrachte einen unauffälligen Befund ohne Nachweis von Ragged-Red-Fasern, und auch Cytochrom-C-Oxidase-negative Muskelfasern ließen sich darin nicht darstellen. Die kognitive Leistungsfähigkeit sowie die vegetative Anamnese sind unauffällig, die Familienanamnese ist leer. Die Patientin nimmt derzeit keine Dauermedikation ein und arbeitet halbtags im Büro.\n\nIch wäre Ihnen für eine differenzialdiagnostische Einschätzung und weitere diagnostische Empfehlungen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Meißner"
+}

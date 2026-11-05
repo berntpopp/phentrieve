@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39970126_FAMILY_2_individual_F2P2_pedigree_II1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 355,
+  "completion_tokens": 397,
+  "total_tokens": 2582,
+  "thoughts_tokens": 1830,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den 44-jährigen Herrn Thomas Weber zur weiterführenden differentialdiagnostischen Abklärung. \n\nDer Patient stellte sich notfallmäßig mit ausgeprägten, diffusen Muskelschmerzen vor, die im Anschluss an eine sportliche Ausbelastung aufgetreten waren. Derartige Episoden mit belastungsabhängigem Zerfall von Muskelgewebe seien anamnestisch bereits seit seinem 7. Lebensjahr immer wieder aufgetreten. Laborchemisch imponierte eine akute Entgleisung der CK-Werte im fünfstelligen Bereich. Es zeigte sich ein bierbraun verfärbter Urin mit erheblichem Myoglobinnachweis im Harn sowie eine begleitende, deutliche Verschlechterung der Nierenfunktion mit Anstieg der Retentionswerte (Kreatinin initial 2,6 mg/dl). Unter forzierter Diurese und Volumengabe stabilisierte sich der Zustand glücklicherweise rasch.\n\nKörperlich fällt eine auffallend kräftig ausgebildete, voluminöse Muskulatur der unteren Extremitäten auf, vor allem im Bereich beider Waden. Im Bereich der oberen Extremitäten lässt sich hingegen kein vermehrter Muskelzuwachs feststellen, die Arme präsentieren sich seitengleich normotroph. Die Hirnnerven waren intakt, die Muskeleigenreflexe seitengleich mittellebhaft auslösbar, und sensible Defizite bestanden nicht. Kardiopulmonal war der Untersuchungsbefund unauffällig, die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen leer, und der Patient nimmt regulär keine Medikamente ein.\n\nIch bitte um Ihre geschätzte Beurteilung und Empfehlungen hinsichtlich des weiteren Vorgehens bei diesem Patienten.\n\nMit freundlichen kollegialen Grüßen"
+}

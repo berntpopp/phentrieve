@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23559858_Family_B_IV_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 407,
+  "total_tokens": 2986,
+  "thoughts_tokens": 2191,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich überweise Ihnen heute eine junge Patientin zur weiteren konsiliarischen Einordnung des Gesamtbildes. Sie lebt bei ihren Eltern, die Familienanamnese ist bezüglich erblicher Erkrankungen leer, und eine Dauermedikation besteht nicht.\n\nAnamnestisch waren bereits kongenital Auffälligkeiten an den Akren dokumentiert; es fand sich beidseits ein ulnarer zusätzlicher Fingerstrahl, welcher operativ entfernt wurde. In der frühen Kindheit zeigte sich eine deutliche Verzögerung des Sprach- und Sprecherwerbs, im Verlauf manifestierte sich eine manifeste intellektuelle Beeinträchtigung. \n\nKörperlich imponiert aktuell eine ausgeprägte Adipositas (BMI 33 kg/m²). Bei der jungen Frau ist die Menarche bislang vollständig ausgeblieben. Ein Hypogonadismus ließ sich laborchemisch jedoch ausschließen, die basalen Gonadotropine und Sexualsteroide waren unauffällig. Die Nierenfunktion zeigt sich vollkommen stabil, eine Niereninsuffizienz liegt nicht vor. Auch ein Diabetes mellitus besteht bei normwertigem HbA1c und Nüchternblutzucker nicht. Bei der Inspektion der Mundhöhle fällt ein deutlicher Engstand der Zähne auf.\n\nOphthalmologisch imponiert eine erhebliche Netzhautdegeneration mit Befall des Stäbchen- und Zapfensystems. Im Fundus zeigen sich fadenförmig verengte Gefäße und periphere knochenkörperchenartige Pigmentveränderungen. Ein Strabismus wurde nicht beobachtet, und eine Myopie konnte refraktiv ausgeschlossen werden. Vitalparameter und Herz-Lungen-Befund waren regulär.\n\nIch bitte Sie um Ihre geschätzte Beurteilung und Empfehlungen zur weiteren Abklärung.\n\nMit freundlichen kollegialen Grüßen\nDr. med. M. Hartmann"
+}

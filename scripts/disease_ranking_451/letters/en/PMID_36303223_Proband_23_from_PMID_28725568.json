@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36303223_Proband_23_from_PMID_28725568",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 320,
+  "total_tokens": 2413,
+  "thoughts_tokens": 1712,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for agreeing to see this 2-year-and-8-month-old boy who first came to medical attention at 21 days of life following the onset of focal seizures. He is currently maintained on levetiracetam. He lives with his parents and older sister, and the family history is non-contributory.\n\nOn examination, his cranial circumference remains significantly below the 3rd percentile for his age. His general physical evaluation is otherwise unremarkable, with normal heart sounds, clear lungs, and a soft, non-tender abdomen. Neurologically, his milestones have been preserved, and he shows no evidence of global developmental delay. Furthermore, his parents confirm that he has experienced no developmental regression since infancy. Cranial nerve and deep tendon reflexes are intact, and he exhibits no extrapyramidal motor abnormalities, with entirely normal tone and an absence of chorea, dystonia, or resting tremors.\n\nInitial laboratory screening revealed pronounced hypouricemia with a serum uric acid of 0.6 mg/dL. Quantitative plasma amino acid profiling identified depressed cystine concentrations alongside subnormal total homocysteine, with repeated testing confirming no hyperhomocystinemia. Additionally, specialized urine testing identified the excretion of S-sulfocysteine accompanied by markedly elevated urinary taurine output. Routine renal and hepatic chemistries were within normal limits.\n\nI would appreciate your comprehensive assessment and guidance regarding further metabolic evaluation and ongoing management for this child. \n\nSincerely,\nDr. Julian Vance\nPediatric Neurology, Valley Children’s Hospital"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28371217_brother",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 427,
+  "total_tokens": 3238,
+  "thoughts_tokens": 2444,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen den 22-jährigen Patienten Lukas Meyer zur differenzialdiagnostischen Beurteilung.\n\nLukas wird von seinen Eltern betreut, die Familienanamnese hinsichtlich angeborener Erkrankungen ist leer. Es besteht eine schwerste geistige Entwicklungsstörung mit vollständigem Verlust der Alltagskompetenz und fehlender Sprachentwicklung. \n\nIm Rahmen der körperlichen Untersuchung fällt ein mit 50 cm Schädelumfang ausgeprägt vermindertes Schädelwachstum auf. Die Fazies wirkt auffallend vergröbert mit betonter Stirn- und breiter Nasenpartie. Genital imponiert ein morphologisch uneindeutiger Befund mit Scrotum bifidum und einer Hypospadie. Die Penislänge ist jedoch altersentsprechend, ein Mikropenis liegt nicht vor. Beide Testes lassen sich orthotop intraszkrotal palpieren, ein Kryptorchismus besteht nicht. \n\nKardiologisch vorbekannt sind eine zweizipflig angelegte Aortenklappe sowie eine kongenitale Einengung des Aortenisthmus, welche echokardiographisch derzeit stabil erscheinen. Vor zwei Jahren wurde am rechten Femur ein osteogenes Knochensarkom chirurgisch therapiert; die aktuellen Nachsorgeuntersuchungen blieben erfreulicherweise tumorfrei. Im Routinelabor zeigt sich aktuell eine ausgeprägte Blutarmut mit erniedrigtem Hämoglobin und stark vermindertem Erythrozytenvolumen (MCV 67 fl, MCH 21 pg). Die Nieren- und Leberparameter zeigten sich normwertig, der Auskultationsbefund von Lunge und Abdomen war unauffällig.\n\nAufgrund dieser komplexen Befundkonstellation bitte ich um Ihre geschätzte konsiliarische Einschätzung zum weiteren Vorgehen.\n\nMit besten kollegialen Grüßen\n\nDr. med. Christian Vonderau"
+}

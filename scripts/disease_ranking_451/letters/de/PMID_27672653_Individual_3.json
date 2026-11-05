@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27672653_Individual_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 388,
+  "completion_tokens": 387,
+  "total_tokens": 2482,
+  "thoughts_tokens": 1707,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den elfjährigen Felix zur differentialdiagnostischen Beurteilung. Die Eltern berichten von einer unauffälligen Schwangerschaft und Perinatalperiode; die Familienanamnese ist bland, das häusliche Umfeld stabil.\n\nErste Auffälligkeiten traten im Alter von etwa fünf Monaten auf. Neben einem ausgeprägten Schädelwachstum mit einem Kopfumfang weit jenseits der 97. Perzentile kam es im weiteren Verlauf zu einem Verlust bereits erworbener Fähigkeiten. Ein aktives Sprachvermögen hat sich bis heute nicht entwickelt, und der Junge ist dauerhaft gehunfähig. Das neurologische Bild wird aktuell von generalisierten dystonen Bewegungsmustern und Haltungsanomalien geprägt. Epileptische Anfälle sind anamnestisch nie aufgetreten, und Zeichen einer akuten Enzephalopathie ließen sich zu keinem Zeitpunkt beobachten. Im Kontakt wirkt das Kind keineswegs reizbar, das Verhalten ist ruhig und aufmerksam. Die internistische Untersuchung einschließlich Herz- und Lungenbefund war unauffällig.\n\nIn der kranialen Bildgebung imponierten auffällig erweiterte Zisternen der Fissura Sylvii sowie die Residuen einer Subduralblutung. Eine globale Hirnatrophie lag nicht vor, ebenso ergaben sich keine Anhaltspunkte für einen Hydrozephalus. In der organischen Säureanalytik aus dem Urin zeigte sich eine massiv gesteigerte renale Elimination von Glutarsäure, vergesellschaftet mit einem deutlich erhöhten Nachweis von 3-Hydroxyglutarsäure.\n\nZur weiteren ätiologischen Abklärung und für therapeutische Empfehlungen bitte ich um Ihre geschätzte konsiliarische Mitbeurteilung.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31643139_Patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 458,
+  "completion_tokens": 508,
+  "total_tokens": 2963,
+  "thoughts_tokens": 1997,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den heute 8-jährigen Julian zur weiteren differentialdiagnostischen Einschätzung bei globalem Entwicklungsrückstand und Dysmorphiezeichen. \n\nDer Junge wurde nach unauffälliger Schwangerschaft termingerecht geboren; eine Frühgeburt lag nicht vor. Die Geburtsmaße bewegten sich im Normbereich, ein hohes Geburtsgewicht für das Gestationsalter bestand nicht. Die Familienanamnese ist hinsichtlich genetischer oder neurologischer Erkrankungen leer, die Eltern sind nicht blutsverwandt. Aktuell nimmt Julian keine Dauermedikation ein.\n\nIm Verlauf fiel seit dem frühen Kindesalter ein überdurchschnittliches Längenwachstum auf; Julian zeigt einen ausgeprägten Hochwuchs, ein Kleinwuchs liegt keinesfalls vor. Zudem besteht ein deutliches Übergewicht im Sinne einer Adipositas. Der Kopfumfang liegt jenseits der 97. Perzentile im makrozephalen Bereich, wobei die Schädelform symmetrisch ist und keine Plagiozephalie erkennbar ist. Im Gesichtsbereich imponieren eine prominente Stirn mit betonten Stirnhöckern sowie ein auffallend hoher vorderer Haaransatz. Die Ohren sind tief angesetzt, jedoch ohne dorsale Rotation. Die Hoden sind beidseits intrascrotal tastbar, ein Kryptorchismus liegt nicht vor. Leistenbrüche sind nie aufgetreten.\n\nJulian weist eine signifikante kognitive Beeinträchtigung auf. Insbesondere die sprachliche Entwicklung ist schwer verzögert. Im Verhalten zeigen sich deutliche autistische Wesenszüge, eine hyperkinetische Symptomatik mit stark eingeschränkter Aufmerksamkeit sowie episodisch aggressives Verhalten. Epileptische Anfälle wurden anamnestisch nie beobachtet.\n\nIm kürzlich veranlassten Schädel-MRT zeigte sich das Ventrikelsystem normal weit, ohne Hinweis auf eine Ventrikulomegalie. Das Corpus callosum ist regelrecht angelegt, ohne Agenesie oder abnorme Verdickung. Der Kleinhirnwurm stellt sich unauffällig dar, eine Vermishypoplasie, eine Chiari-Malformation oder eine Syringomyelie ließen sich sicher ausschließen.\n\nÜber Ihre geschätzte Mitbeurteilung und Empfehlungen zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

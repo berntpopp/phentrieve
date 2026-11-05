@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28984260_child",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 408,
+  "completion_tokens": 444,
+  "total_tokens": 3268,
+  "thoughts_tokens": 2416,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung der 2 Jahre und 5 Monate alten Patientin Emma, die sich in Begleitung ihrer Eltern vorstellt. Erste Auffälligkeiten zeigten sich etwa im Alter von einem Jahr. Die Familienanamnese bezüglich chronischer Vorerkrankungen ist leer, die häusliche Versorgung ist stabil.\n\nKlinisch imponiert ein ausgeprägter Kleinwuchs bei deutlicher Gedeihstörung, wobei Körperlänge und Gewicht persistierend weit unterhalb der dritten Perzentile stagnieren. Bei der Untersuchung fällt ein ausladendes, vorgewölbtes Abdomen auf. Palpatorisch zeigt sich eine deutliche Lebervergrößerung mit einem Leberunterrand etwa 3,5 cm unter dem Rippenbogen, während die Milz palpatorisch und sonographisch unauffällig und nicht vergrößert ist. Zudem besteht ein sichtbares ikterisches Kolorit der Skleren sowie des gesamten Hautkolorits. Es gibt keinerlei Zeichen einer gesteigerten Blutungsneigung oder Hämatome. Zerebrale Anfälle traten nie auf, Erbrechen wurde verneint und das Kind war stets frei von rezidivierenden Fieberschüben. Die allgemeine geistige und motorische Entwicklung verläuft erfreulicherweise vollkommen altersgerecht. \n\nLaborchemisch imponiert eine deutliche Erhöhung der Transaminasen, wobei sowohl AST als auch ALT signifikant über dem Referenzbereich liegen, flankiert von einer massiv gesteigerten Aktivität der alkalischen Phosphatase. Das Lipidpanel erbrachte eine stark ausgeprägte Cholesterinerhöhung sowie begleitend hohe Triglyzeridwerte. Eine kürzlich durchgeführte Leberbiopsie zeigte histologisch bindegewebige Brückenbildungen im Parenchym.\n\nZur weiteren ätiologischen Abklärung und für Empfehlungen zum therapeutischen Prozedere danke ich Ihnen herzlich für die Übernahme der Mitbeurteilung.\n\nMit freundlichen Grüßen"
+}

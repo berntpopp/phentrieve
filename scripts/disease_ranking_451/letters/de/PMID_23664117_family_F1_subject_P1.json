@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23664117_family_F1_subject_P1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 404,
+  "completion_tokens": 436,
+  "total_tokens": 3136,
+  "thoughts_tokens": 2296,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 34-jährigen Herrn Lukas Meyer zur konsiliarischen Mitbeurteilung des Skelettsystems. Der Patient berichtet über eine seit vielen Jahren bestehende Formveränderung des Rumpfes; die Familienanamnese ist bezüglich ossärer Auffälligkeiten unergiebig, er arbeitet vollschichtig im kaufmännischen Bereich.\n\nKlinisch zeigt sich eine ausgeprägte kombinierte Seit- und Rundrückenverkrümmung der gesamten Wirbelsäule. Die axiale Bildgebung dokumentiert generalisiert abgeflachte Wirbelkörper sowie nach ventral schnabelartig ausgezogene Randkanten. An den oberen Extremitäten besteht eine funktionelle Bewegungseinschränkung beider Ellenbogengelenke in Extension und Flexion. Die Hände sind beidseits frei beweglich und zeigen keinerlei Gelenkkontrakturen. Die Daumen sind normal geformt und nicht spatelförmig verbreitert; radiologisch findet sich an der Handwurzel kein Anhalt für eine akzelerierte Ossifikation.\n\nIm Beckenbereich imponiert ein auffallend graziler, unterentwickelter Darmbeinkorpus. Die Trochanteren an beiden Femora stellen sich demgegenüber exzessiv vergrößert dar, und die metaphysären Knochenabschnitte erscheinen trompetenartig aufgetrieben. Eine Dysplasie der Femurköpfe liegt nicht vor, und die Hüftgelenke stehen regelrecht artikuliert ohne Luxation. Die unteren Extremitäten sind achsengerecht, Klumpfußfehlstellungen wurden ausgeschlossen. Der neurologische Befund ist unauffällig, insbesondere ist der Muskeltonus seitengleich kräftig und ohne Hypotonie.\n\nAußer einer bedarfsweisen Einnahme von Ibuprofen bei Rückenbeschwerden besteht keine Dauermedikation. Ich wäre Ihnen für Ihre geschätzte differenzialdiagnostische Beurteilung dieses Befundmusters sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

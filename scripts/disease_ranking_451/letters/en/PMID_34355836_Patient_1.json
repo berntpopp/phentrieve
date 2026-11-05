@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34355836_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 404,
+  "completion_tokens": 337,
+  "total_tokens": 3232,
+  "thoughts_tokens": 2491,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Palmer,\n\nThank you for seeing this 12-year-old male for a comprehensive clinical assessment. His medical history began in utero with complex congenital cardiovascular anomalies. \n\nCardiovascular imaging demonstrates lateralization defects characterized by morphologic right appendages bilaterally, an imperforate pulmonary valve, both great vessels emerging from the morphological right ventricle, and complete anomalous systemic routing of all four pulmonary veins. He also has paired superior caval veins and an aortic arch that courses to the right of the trachea. Extracardiac evaluation demonstrated total absence of splenic tissue. Additionally, neurovascular magnetic resonance angiography revealed pronounced corkscrew tortuosity of his carotids alongside a focal aneurysmal pouching of the vertebral artery.\n\nOn physical examination, he presents with generalized articular laxity across all major peripheral joints, a velvety and noticeably soft dermis, a marked sternal depression, and an evolving lateral curvature of the thoracic spine. Previous investigations have shown diminished bone mineral density on dual-energy X-ray absorptiometry and an isolated simple cortical fluid cyst in the left kidney. Functionally, he has had lifelong struggles with feeding and oral intake requiring caloric supplementation, and he exhibits significant delay across speech, fine motor, and cognitive milestones.\n\nHis family history is non-contributory; both parents and two older siblings are healthy. Cranial nerve testing is intact, recent audiometry and ophthalmology evaluations were completely normal, and routine blood counts remain stable on his current regimen of daily pediatric aspirin and cholecalciferol.\n\nI would greatly appreciate your evaluation regarding his multisystem presentation and guidance on further management.\n\nSincerely,\nDr. Ellis Wright"
+}

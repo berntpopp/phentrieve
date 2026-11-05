@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35308163_Patient_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 413,
+  "completion_tokens": 413,
+  "total_tokens": 2338,
+  "thoughts_tokens": 1512,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die dreijährige Patientin zur weiteren differenzialdiagnostischen Abklärung und Beurteilung. Erste Symptome traten anamnestisch bereits im Säuglingsalter mit etwa neun Monaten auf.\n\nAktuell wurde das Mädchen mit febrilen Temperaturen bis 39,2 °C und einer deutlichen Ruhedyspnoe bei uns vorstellig. Gastrointestinale Beschwerden wie Erbrechen oder Diarrhö bestehen nicht, und zerebrale Anfälle traten zu keinem Zeitpunkt auf. Bei der körperlichen Untersuchung imponiert neben der angestrengten Atmung vor allem ein palpatorisch deutlich über den Rippenbogen reichender Leberrand. Die Herztöne sind rein, die Auskultation der Lunge zeigte keine Rasselgeräusche. Die Familienanamnese ist bezüglich chronischer Leiden unauffällig, die Patientin lebt bei ihren gesunden Eltern.\n\nIn der Blutgasanalyse zeigte sich eine metabolische Azidose mit negativem Basenüberschuss. Das Labor ergab einen signifikanten Anstieg von ASAT und ALAT sowie eine Verminderung des Fibrinogenspiegels im Plasma. In den erweiterten metabolischen Untersuchungen fielen vermehrt Dikarbonsäuren im Spontanurin sowie ein erhöhter Serumspiegel von Acetylcarnitin auf. \n\nBeruhigenderweise lag der Blutzucker stets im Normbereich, Hypoglykämien waren nicht nachweisbar. Das Serumkalzium sowie das Laktat zeigten sich vollkommen unauffällig. Ebenso ließen sich weder eine Hyperammonämie noch erhöhte Triglyzeridwerte im Nüchternserum feststellen.\n\nAufgrund dieses Befundmusters bitten wir um Ihre geschätzte konsiliarische Einschätzung und Empfehlungen zum weiteren diagnostischen Procedere.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35362222_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 411,
+  "total_tokens": 2916,
+  "thoughts_tokens": 2130,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den fünfjährigen Noah zur konsiliarischen Beurteilung eines bisher unklaren Symptomkomplexes. \n\nBereits im Kleinkindalter zeigte sich eine deutliche Verzögerung der motorischen und sprachlichen Meilensteine, sodass eine erhebliche globale Retardierung vorliegt. Das Bewusstsein ist jedoch ungetrübt, und es finden sich keinerlei Hinweise auf das Vorliegen einer Enzephalopathie. \n\nDermatologisch zeigt sich eine diffuse, schuppige Verhornung der gesamten Körperhaut im Sinne einer fischhautartigen Schuppung, unterbrochen von schuppenden, psoriasisartigen Erythemen am Stamm. Zudem imponieren tastbare, follikelgebundene Verhornungsstörungen an den Extremitäten. Das Kopfhaar ist extrem schütter mit fortgeschrittenem Haarverlust. An mehreren Fingerendgliedern fallen schmerzhafte Entzündungen des Nagelwalls auf. Perioral bestehen ausgeprägte, persistierende Einrisse beider Mundwinkel sowie eine Rötung und Schwellung des Zahnfleischsaums; eine diffuse Entzündung der Mundschleimhaut oder Aphthen ließen sich nicht nachweisen.\n\nBegleitend leidet der Junge unter einer auffälligen Blendempfindlichkeit. Eine augenärztliche Voruntersuchung dokumentierte bereits beidseitige Linsentrübungen. \n\nDie internistische Basisuntersuchung war bland, Herz und Lunge waren auskultatorisch unauffällig. Im Labor zeigte sich der Zinkspiegel im Serum normwertig. In der Familie sind keine ähnlichen Erscheinungen bekannt, die jüngere Schwester entwickelt sich regelrecht. Noah nimmt derzeit keine Dauermedikation ein.\n\nAufgrund dieser Befundkonstellation bitte ich um Ihre geschätzte Einschätzung und Empfehlungen für das weitere Vorgehen.\n\nMit freundlichen Grüßen"
+}

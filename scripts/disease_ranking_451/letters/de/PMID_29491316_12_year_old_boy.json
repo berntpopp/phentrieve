@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29491316_12_year_old_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 372,
+  "completion_tokens": 409,
+  "total_tokens": 2474,
+  "thoughts_tokens": 1693,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn Lukas Wagner, einen 21-jährigen Patienten, zur weiteren Abklärung und konsiliarischen Mitbeurteilung.\n\nBei dem jungen Mann ist bereits seit seinem 12. Lebensjahr eine familiäre, nicht primär insulinpflichtige Form einer Glukosestoffwechselstörung bekannt, die damals im jugendlichen Alter manifest wurde. Der Patient, der als Student lebt und Nichtraucher ist, berichtet aktuell über eine schlechtere Stoffwechselführung. In unseren Kontrollen fielen ausgeprägte Hyperglykämien mit morgendlichen Nüchternwerten um 190 mg/dl auf; der glykierte Hämoglobinwert war mit einem HbA1c von 8,3 % deutlich über den Zielbereich angestiegen.\n\nDie serologische Abklärung auf Inselzellautoimmunität erbrachte keine wegweisenden Befunde: Antikörper gegen Glutamatdecarboxylase waren negativ, und auch Autoantikörper gegen das Inselzellantigen 2 sowie gegen Insulin konnten nicht nachgewiesen werden.\n\nIn der abdominellen Bildgebung zeigte sich das Parenchym der Bauchspeicheldrüse auffällig verschmälert und insgesamt im Sinne einer Organatrophie deutlich volumenvermindert. Zudem fanden sich beidseits multiple intrarenale Zysten. Die Nierenretentionsparameter waren dabei vollkommen normal, und das Urinsediment zeigte keine Auffälligkeiten. Die körperliche Untersuchung des normalgewichtigen Patienten (BMI 21,5 kg/m²) war unauffällig, die Blutdruckwerte lagen stabil bei 118/74 mmHg. \n\nIch darf Ihnen den Patienten zur weiteren differentialdiagnostischen Einordnung und Festlegung des weiteren therapeutischen Vorgehens vorstellen und danke Ihnen herzlich für Ihre geschätzte Unterstützung.\n\nMit freundlichen kollegialen Grüßen"
+}

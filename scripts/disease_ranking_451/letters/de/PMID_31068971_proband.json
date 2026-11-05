@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31068971_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 403,
+  "total_tokens": 2571,
+  "thoughts_tokens": 1781,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Sommer,\n\nich überweise Ihnen den 7 Monate alten Knaben Jonas zur weiteren Diagnostik. Seit dem Alter von etwa 3 Monaten imponiert eine ausgeprägte Gedeihstörung mit deutlicher Gewichtsstagnation. Begleitend fielen wiederholt ungeklärte Fieberschübe sowie rezidivierende bakterielle Infektionen auf, wobei zuletzt auch eine Bakteriämie mikrobiologisch dokumentiert werden konnte.\n\nDie Eltern schildern zudem Episoden von blutigen Stühlen sowie wiederkehrendes Nasenbluten. Bei der aktuellen körperlichen Untersuchung zeigten sich palpatorisch vergrößerte zervikale Lymphknoten sowie ein deutlicher Organbefund mit Vergrößerung von Leber und Milz. Das Abdomen war ansonsten weich, die Herztöne rein, die Lunge bds. vesikulär belüftet, und die vordere Fontanelle tastete sich normofrequent und im Niveau dar. Die Familienanamnese ist bezüglich chronischer oder frühkindlicher Erkrankungen leer; Jonas ist das erste Kind der Familie.\n\nLaborchemisch imponiert ein deutlicher Hämoglobinabfall im Sinne einer Anämie sowie eine manifeste Thrombozytopenie, während die Gesamtzahl der Leukozyten im peripheren Blut markant erhöht ist. Die zirkulierenden Immunglobulinspiegel im Serum zeigten sich vollkommen unauffällig. Auch die durchflusszytometrische Bestimmung der CD18-Dichte auf den Granulozyten erbrachte normale Werte ohne Hinweis auf eine Erniedrigung. \n\nZur weiteren differentialdiagnostischen Einordnung und Mitbeurteilung dieses komplexen Bildes bitte ich um Ihre geschätzte Expertise.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Becker\nFacharzt für Kinder- und Jugendmedizin"
+}

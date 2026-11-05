@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27732904_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 546,
+  "completion_tokens": 552,
+  "total_tokens": 3846,
+  "thoughts_tokens": 2748,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die heute genau zwei Monate alte Mia zur weiteren diagnostischen Einschätzung. \n\nDas Mädchen wurde nach unauffälliger Schwangerschaft reifgeboren, zeigte jedoch bereits peripartal ein auffallend niedriges Geburtsgewicht im Sinne einer deutlichen intrauterinen Wachstumsverzögerung. Ein Frühgeborenenstatus lag nicht vor. Im häuslichen Umfeld wird Mia voll gestillt; aktuell bestehen weder ein Kleinwuchs noch Zeichen einer Gedeihstörung. Auffällig ist seit kurzem eine ausgeprägte Blässe des Hautkolorits und der Konjunktiven. Unser Routinelabor ergab eine relevante Anämie mit erhöhtem mittlerem korpuskulärem Zellvolumen der Erythrozyten. Die Neutrophilenzahl war dabei normwertig, eine Verminderung der Retikulozyten ließ sich nicht nachweisen, und die Thrombozytenwerte zeigten weder einen Mangel noch einen Überschuss.\n\nDie neurologische und motorische Reife ist dem Säuglingsalter entsprechend unauffällig, ohne globale Entwicklungsverzögerung oder Hinweise auf eine spätere Intelligenzminderung. Bei der Inspektion imponieren eine normozephe Schädelkonfiguration, zeitgerechter Suturenverschluss und geschlossene Parietalknochen ohne Defekte. Die Lidachsen stehen horizontal, ein Schielen oder ein Hypertelorismus liegen nicht vor. Ebenso zeigen sich eine normal profilierte Nasenwurzel, ein unauffälliger Unterkiefer ohne Mikro- oder Retrognathie sowie intakte Lippen und ein flacher Gaumen ohne Spaltbildung. Der Hals ist regelrecht proportioniert, ohne Kürze oder Pterygiumbildung.\n\nKardiologisch schloss ein Screening ein Vitium wie einen Ventrikelseptumdefekt, einen Vorhofseptumdefekt oder eine Aortenisthmusstenose aus. Das Skelett zeigt einen normal weiten Thorax mit beidseits zwölf Rippen. Thorakale Halbwirbel fehlen, Sakrum, Steißbein und Beckenschaufeln sind radiologisch vollständig angelegt. An den Armen finden sich seitengleiche, kräftige Radii sowie bds. normal lange, zweigliedrige Daumen ohne Aplasie oder Dreigliedrigkeit. Familiär sind keine Neoplasien, insbesondere keine Osteosarkome oder Kolonkarzinome, bekannt.\n\nIch bedanke mich für Ihre Beurteilung bezüglich der weiteren Genese dieser Befunde.\n\nMit freundlichen Grüßen"
+}

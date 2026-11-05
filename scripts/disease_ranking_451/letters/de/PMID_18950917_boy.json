@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18950917_boy",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 390,
+  "completion_tokens": 421,
+  "total_tokens": 3112,
+  "thoughts_tokens": 2301,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den elfjährigen Schüler Lukas zur fachärztlichen Mitbeurteilung. Lukas ist im Alltag sportlich aktiv und voll belastbar. Die kardiopulmonale und abdominelle Untersuchung war vollkommen unauffällig, und in der Familie sind keine Vorerkrankungen bekannt. Regelmäßige Medikamente nimmt er derzeit nicht ein. Die Blutdruckwerte lagen bei wiederholten Messungen stets im altersentsprechenden Normbereich, eine arterielle Hypertonie liegt nicht vor.\n\nLaborchemisch imponiert eine Nierenfunktionseinschränkung: Das Serumkreatinin ist mit 1,5 mg/dl für sein Alter deutlich erhöht, und auch der Blutharnstoff ist merklich gesteigert. Ein terminales Nierenversagen im Sinne eines Stadiums 5 der chronischen Nierenkrankheit besteht jedoch nicht. Auffällig sind ferner erhöhte Harnsäurespiegel mit 8,6 mg/dl, wobei sich klinisch bislang keine Hinweise auf eine Gicht ergaben. Das intakte Parathormon im Serum ist mit 120 pg/ml signifikant angehoben. Urinanalytisch fand sich eine persistierende Proteinurie sowie bei konstant niedrigem spezifischem Gewicht das Bild einer ausgeprägten Hyposthenurie.\n\nSonographisch stellen sich beide Nierenparenchyme diffus hyperechogen dar. Die kortikomedulläre Differenzierung ist dabei regelrecht erhalten und nicht vermindert. Am linken Nierenunterpol ist eine solitäre, 7 mm messende Zyste abgrenzbar. Eine bioptische Sicherung zeigte histologisch umschriebene Areale einer interstitiellen Fibrose sowie eine begleitende renale Tubulusatrophie.\n\nIch wäre Ihnen für eine nephrologische Einschätzung des Befundkomplexes und Empfehlungen bezüglich des weiteren Procedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Tobias Weber"
+}

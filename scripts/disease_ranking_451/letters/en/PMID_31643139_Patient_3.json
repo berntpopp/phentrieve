@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31643139_Patient_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 458,
+  "completion_tokens": 349,
+  "total_tokens": 4043,
+  "thoughts_tokens": 3236,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Sterling,\n\nThank you for seeing Ethan, an 8-year-old boy referred for diagnostic assessment. He lives with his parents and attends a specialized classroom setting.\n\nEthan was delivered at 39 weeks following an unremarkable pregnancy; his birth weight was appropriate and not excessive for gestation, with no prematurity. Since early childhood, his developmental milestones were lagged across all spheres, and he continues to demonstrate pervasive cognitive limitations alongside severely delayed expressive and receptive language abilities. His family reports prominent attentional deficits accompanied by severe hyperactivity, frequent aggressive actions toward peers, and marked social detachment with stereotyped mannerisms. He has had no convulsive spells.\n\nOn examination, Ethan displays notable somatic overgrowth. His statural height and cranial circumference plot far above the 97th percentile, with no indication of stunted height, while his body mass index denotes marked adiposity. Craniofacial inspection reveals a projecting upper facies with prominent frontal protrusion, an anterior hair border placed unusually high, and pinnae that are low-lying. His head shape shows no asymmetry or cranial flattening, and the ears lack any posterior rotation. His cardiopulmonary examination is completely normal. The abdomen is soft, no groin herniation is present, and both testicles have fully descended into the scrotum.\n\nRecent neuroimaging was reviewed: the ventricular system was not dilated, the cerebellar vermis demonstrated no underdevelopment, and there was no cerebellar tonsillar displacement. The corpus callosum was completely intact with a normal caliber, showing neither callosal absence nor thickening, and the visualized cord demonstrated no syringomyelic cavity.\n\nI would be very grateful for your specialized evaluation of Ethan's overall clinical picture.\n\nSincerely,\nDr. Marcus Vance, MD"
+}

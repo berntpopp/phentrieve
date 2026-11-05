@@ -1,0 +1,18 @@
+{
+ "case": "PMID_9621512_Patient_KM05",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 312,
+  "completion_tokens": 394,
+  "total_tokens": 1766,
+  "thoughts_tokens": 1060,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die kleine Patientin Sophie Meier, bei der sich im Alter von rund zwei Jahren erstmals eine ausgeprägte metabolische Entgleisung manifestierte. \n\nIm Rahmen der damaligen Akutvorstellung sowie in den Kontrollanalysen imponierte ein deutlich dekompensierter Säure-Basen-Status im Sinne einer tiefen Azidose mit stark erniedrigtem Bikarbonat, einhergehend mit einer massiven Ketonurie sowie einem deutlich positiven Ketonkörpernachweis im Serum. \n\nDie körperliche Untersuchung der Patientin bot darüber hinaus keinerlei Auffälligkeiten. Das Abdomen zeigte sich weich, ohne Druckschmerz oder Resistenzen, die Darmgeräusche waren über allen vier Quadranten unauffällig regelrecht auskultierbar. Kardiopulmonal war das Kind zu jedem Zeitpunkt stabil, mit seitengleichem vesikulärem Atemgeräusch und reinen Herztönen. Auch der orientierende neurologische Befund präsentierte sich altersentsprechend völlig unauffällig, die Reflexe waren seitengleich mittellebhaft auslösbar.\n\nDie bisherige kindliche Entwicklung verlief bis zum Beginn des zweiten Lebensjahres vollkommen ungestört. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer, die Eltern sind gesund und nicht konsanguin. Eine medikamentöse Dauertherapie besteht nicht, Allergien sind nicht bekannt.\n\nAufgrund der beschriebenen azidotischen Episoden mit begleitender Ketonämie bitte ich Sie um eine weiterführende spezialisierte Beurteilung und die Einleitung einer entsprechenden weiterführenden Abklärung.\n\nÜber Ihre kollegiale Einschätzung würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\n\nDr. med. Stefan Berger\nFacharzt für Kinder- und Jugendmedizin"
+}

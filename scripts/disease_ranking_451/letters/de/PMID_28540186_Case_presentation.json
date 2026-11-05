@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28540186_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 414,
+  "total_tokens": 2788,
+  "thoughts_tokens": 2003,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nwir bitten um konsiliarische Mitbeurteilung des vier Monate alten Säuglings Florian. Der Knabe fiel bereits unmittelbar postnatal durch rezidivierende Apnoen sowie eine rasch progrediente respiratorische Insuffizienz auf, die seither eine kontinuierliche Atemunterstützung erfordert. \n\nIm weiteren Verlauf traten therapierefraktäre zerebrale Krampfanfälle auf. Zudem besteht eine ausgeprägte Fütterstörung mit klinisch gesichertem gastroösophagealem Reflux. Das Neugeborenenscreening war regelrecht, die Familienanamnese ist bezüglich neuromuskulärer Erkrankungen unauffällig. Die Eltern sind gesund und nicht blutsverwandt. \n\nIm Routinelabor imponierte eine persistierende Hyperlaktatämie im Serum bei ansonsten unauffälligen Transaminasen und Retentionsparametern. Radiologisch zeigte sich im Thoraxröntgen eine deutliche Kardiomegalie, echokardiografisch bestätigte sich passend hierzu eine ausgeprägte biventrikuläre Hypertrophie. \n\nIn der kranialen MRT-Untersuchung samt MR-Spektroskopie fand sich ein pathologischer zerebraler Laktatpeak. Zur weiteren Einordnung führten wir eine Biopsie des Musculus vastus lateralis durch. Hierbei zeigte sich in der Elektronenmikroskopie eine Schwellung der Mitochondrien. In der biochemischen Aufarbeitung des Muskelgewebes imponierte zudem ein signifikant erniedrigter Gehalt an Coenzym Q10. \n\nAktuell wird Florian über eine Magensonde ernährt und erhält Levetiracetam sowie eine säureblockierende Medikation. Angesichts des komplexen und angeborenen Beschwerdebildes bitten wir um Ihre geschätzte Beurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

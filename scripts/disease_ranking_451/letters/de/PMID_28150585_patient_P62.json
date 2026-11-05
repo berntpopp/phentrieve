@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28150585_patient_P62",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 343,
+  "completion_tokens": 406,
+  "total_tokens": 2105,
+  "thoughts_tokens": 1356,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nlieber Herr Kollege,\n\nich überweise Ihnen den jungen Patienten Julian zur weiteren differentialdiagnostischen Beurteilung.\n\nIm Rahmen der aktuellen Vorstellung fallen am Integument mehrere scharf begrenzte, milchkaffeeartige Pigmentflecken auf, die sich vor allem am Rumpf und an den Oberschenkeln befinden und jeweils einen Durchmesser von 1,5 bis 2,5 cm aufweisen. Eine feine Sprenkelung in den Axillen oder inguinal ließ sich bei der dermatologischen Inspektion hingegen nicht nachweisen. Auch umschriebene subkutane Fettgewebsgeschwulste oder tastbare Weichteilknoten liegen nicht vor.\n\nDer Patient besucht derzeit die Grundschule. Während die frühe motorische Meilensteinentwicklung sowie der Spracherwerb vollkommen zeitgerecht verliefen und Artikulation wie auch Sprachverständnis unauffällig sind, bestehen im schulischen Alltag ausgeprägte umschriebene Teilleistungsstörungen, insbesondere beim Schriftspracherwerb.\n\nKörperlich präsentiert sich der Patient in einem stabilen Allgemeinzustand. Der Kopfumfang liegt mit 52 cm exakt auf der 50. Perzentile, sodass ein übermäßiges Schädelwachstum ausgeschlossen werden kann. Die kardiopulmonale Untersuchung ergab Normalbefunde, das Abdomen ist weich und indolent. Hör- und Sehtests beim Pädiater erbrachten unauffällige Ergebnisse. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer, Dauermedikation wird nicht eingenommen.\n\nIch bitte um Ihre geschätzte kinder- und jugendärztliche Mitbeurteilung hinsichtlich der Hautveränderungen sowie der kognitiven Teilleistungsschwäche und danke Ihnen im Voraus für die kollegiale Zusammenarbeit.\n\nMit freundlichen Grüßen\nDr. med. Martin Weber"
+}

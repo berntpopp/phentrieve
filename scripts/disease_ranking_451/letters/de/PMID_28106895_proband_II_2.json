@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28106895_proband_II_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 404,
+  "total_tokens": 2076,
+  "thoughts_tokens": 1340,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute die 43-jährige Patientin Frau Petra Winter zur konsiliarischen Mitbeurteilung und weiteren diagnostischen Einordnung.\n\nDie Patientin berichtet über ein bereits seit ihrer frühen Kindheit bestehendes, langsam progredientes Nachlassen des Sehvermögens bei Dunkelheit und Dämmerungslicht. Aktuell beklagt sie zudem eine zunehmende Unsicherheit bei der räumlichen Orientierung. \n\nIn unserer heutigen Untersuchung zeigte sich eine herabgesetzte Sehschärfe mit einem bestkorrigierten Visus von 0,4 auf dem rechten und 0,5 auf dem linken Auge. Die computergestützte Gesichtsfelduntersuchung ergab beidseits ausgeprägte konzentrische Einschränkungen der peripheren Isopteren. Bei der Ophthalmoskopie des Augenhintergrundes imponierten in der mittleren Fundusperipherie beidseits deutliche knochenkörperchenartige Pigmentveränderungen. \n\nDer vordere Augenabschnitt stellte sich beidseits vollkommen regelrecht und reizfrei dar, die Hornhaut und Linse waren klar, und der Augeninnendruck lag im unauffälligen Bereich bei jeweils 15 mmHg. Allgemeinanamnestisch ist die Patientin abgesehen von den visuellen Einschränkungen beschwerdefrei, sie nimmt keine Dauermedikation ein und arbeitet im kaufmännischen Bereich. Systemische Erkrankungen sind nicht bekannt, und die Familienanamnese ist bezüglich okulärer Auffälligkeiten leer. Bei der heutigen Untersuchung war der Blutdruck mit 120/75 mmHg normwertig.\n\nIch wäre Ihnen für eine spezialisierte Beurteilung des Befundes sowie Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Martin Stein"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_25802881_P85",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 403,
+  "total_tokens": 2415,
+  "thoughts_tokens": 1656,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung des zweimonatigen Mädchens Lina Sommer, das sich im Rahmen der regulären Vorsorgeuntersuchung bei uns vorstellte. \n\nLaborchemisch zeigte sich bei einer Routineüberprüfung auffallend ein deutlich gesteigertes intaktes Parathormon im Serum. Korrespondierend hierzu imponierte eine Verminderung des Serumkalziums auf 1,88 mmol/l; eine Hyperkalzämie lag im Verlauf nie vor. \n\nKlinisch und radiologisch zeigte sich isoliert ein verkürzter Mittelhandknochen am vierten Strahl der rechten Hand. Eine weiterführende Brachydaktylie der übrigen Phalangen fand sich nicht. Ebenso ließen sich bei sorgfältiger Palpation des Integuments keine subkutanen Ossifikationen oder derbe Knötchen tasten.\n\nDas Kind ist normalgewichtig, eine Adipositas liegt keineswegs vor. Mit einer aktuellen Körperlänge von 57 cm (50. Perzentile) zeigt sich auch keinerlei Kleinwuchs. Neurologisch präsentiert sich Lina altersentsprechend agil, zeigt sicheren Blickkontakt und ein promptes soziales Lächeln; Anhaltspunkte für eine intellektuelle Beeinträchtigung bzw. Entwicklungsverzögerung bestehen derzeit nicht. \n\nDie Familienanamnese bezüglich endokrinologischer oder skelettaler Auffälligkeiten ist leer, die Eltern sind gesund. Das Mädchen wird voll gestillt, die Vitalparameter sowie der internistische Untersuchungsbefund waren unauffällig.\n\nÜber Ihre Expertise und eine differentialdiagnostische Einordnung dieser Konstellation würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen,\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

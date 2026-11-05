@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39013458_individual_KS110012",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 528,
+  "completion_tokens": 563,
+  "total_tokens": 4948,
+  "thoughts_tokens": 3857,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung der 20-jährigen Patientin.\n\nBei unauffälligen Geburtsmaßen (weder zu klein noch zu groß für das Gestationsalter) zeigte sich bereits früh ein verlangsamter Erwerb motorischer wie auch sprachlicher Meilensteine mit nachfolgend anhaltender kognitiver Einschränkung. Ein Entwicklungsrückschritt lag im Verlauf nie vor. Im Kleinkindalter bestanden erhebliche Probleme bei der Nahrungsaufnahme, eine Sondenernährung war jedoch zu keinem Zeitpunkt erforderlich. Zudem besteht seit jeher eine auffällige Infektanfälligkeit. Ophthalmologisch ist eine stärkere Weitsichtigkeit bekannt, ein Schielen liegt nicht vor. Zerebrale Krampfanfälle traten anamnestisch nie auf. Chronische Obstipation, gastroösophagealer Reflux oder rezidivierende Harnwegsinfekte werden verneint. \n\nIm aktuellen Status fällt ein moderates Übergewicht auf, die Kriterien einer Adipositas werden jedoch nicht erfüllt. Die Körperlänge liegt exakt im Normbereich (weder Minder- noch Hochwuchs), der Kopfumfang ist zeitgerecht (keine Mikrozephalie). Der Muskeltonus ist seitengleich regelrecht ohne muskuläre Hypotonie, und eine Überbeweglichkeit der Gelenke ist nicht nachweisbar. Skelettal fallen beidseits ausgeprägte Plattfüße auf; Zehenfehlstellungen wie ein Hallux valgus oder ein Klumpfuß finden sich nicht. Es zeigen sich keine Deformitäten von Wirbelsäule oder Thorax (keine Kyphose, keine Trichterbrust) sowie keine Klinodaktylie der Kleinfinger. Die Bauchdecken sind fest, ohne Leisten- oder Nabelbrüche. Das weibliche Genitale ist morphologisch unauffällig; urogenitale Fehlbildungen (familiär weder Hypospadie noch Kryptorchismus) wurden sonographisch ausgeschlossen, ohne Hinweis auf Nierenzysten, Hydronephrose oder eine Ureterabgangsstenose. \n\nKardiologisch waren Septen und Gefäße intakt (kein Vorhofseptumdefekt, kein Ventrikelseptumdefekt, kein Atrioventrikularkanal); auch ein persistierender Ductus arteriosus oder Koronarfisteln ließen sich echokardiographisch sicher ausschließen.\n\nFür Ihre fachliche Einschätzung und Empfehlungen zum weiteren Vorgehen danke ich Ihnen herzlich.\n\nMit freundlichen Grüßen"
+}

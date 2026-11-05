@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31213928_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 382,
+  "completion_tokens": 440,
+  "total_tokens": 3283,
+  "thoughts_tokens": 2461,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute die 15-jährige Schülerin Anna zur weiteren diagnostischen Abklärung. Erste Auffälligkeiten im Bewegungsablauf zeigten sich laut den Eltern bereits im Alter von etwa fünf Jahren. Die Familienanamnese ist bezüglich neuromuskulärer Vorerkrankungen unauffällig, Vorerkrankungen bestehen nicht, und Dauermedikamente werden derzeit nicht eingenommen.\n\nKürzlich ereignete sich erstmals ein Krampfanfall mit primär generalisiertem Beginn und beidseitigem tonisch-klonischem Ablauf. Zudem schildern die Eltern immer wieder unwillkürliche, blitzartige Myoklonien sowie ein auffälliges Zittern der Hände in körperlicher Ruhelage.\n\nKlinisch zeigt sich eine ausgeprägte Schwäche der zervikalen Haltemuskulatur, sodass die Halsbeugung und -streckung gegen leichten Widerstand kaum gehalten werden kann. Beim Gehen imponiert ein beidseits watschelndes Gangbild, und das Überwinden von Treppenstufen fällt der Jugendlichen sichtlich schwer. Aus der Hocke richtet sie sich unter typischem Abstützen der Hände an den Oberschenkeln auf. Sämtliche Muskeleigenreflexe sind seitengleich deutlich hypoaktiv. Bei Inspektion der Mundhöhle imponiert eine umschriebene Verschmächtigung der Zungensubstanz, begleitet von feinen, unruhigen Faszikulationen der Zungenränder. Die übrigen Hirnnervenfunktionen, die Sensibilität an Rumpf und Extremitäten sowie die Finger-Nase-Koordination stellen sich unbeeinträchtigt dar.\n\nIn unserer Basisdiagnostik lagen die Serumaktivität der Kreatinkinase sowie die zirkulierende Laktatdehydrogenase vollständig im Normbereich. \n\nZur weiteren differenzialdiagnostischen Einordnung und für Vorschläge zum weiteren Prozedere danke ich Ihnen im Voraus für die Übernahme der Patientin.\n\nMit freundlichen kollegialen Grüßen"
+}

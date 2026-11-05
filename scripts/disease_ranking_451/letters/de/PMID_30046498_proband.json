@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30046498_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 430,
+  "completion_tokens": 449,
+  "total_tokens": 3243,
+  "thoughts_tokens": 2364,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Liebe Kollegin, lieber Kollege,\n\nich bitte um deine geschätzte Mitbeurteilung des kleinen Jonas, 2 Jahre und 7 Monate alt.\n\nDie Symptomatik begann am 21. Lebenstag mit auffälligem Ikterus sowie entfärbten, hellen Stühlen. Laborchemisch persistiert seither eine hepatobiliäre Dysfunktion mit deutlicher Hyperbilirubinämie (überwiegend direkt), massiv erhöhter alkalischer Phosphatase, drastisch gesteigerter Gamma-GT und begleitendem Anstieg von ALT und AST. Klinisch tastet sich der Leberunterrand vergrößert etwa 3 cm unter dem rechten Rippenbogen. Die Haut ist durchgehend auffallend trocken und weist streckseitig multiple gelbliche Xanthome auf. \n\nPhänotypisch zeigen sich eine betont breite Stirn, tief liegende Augen, ein rarifizierter, spärlicher Augenbrauenwuchs, abstehende Ohrmuscheln und ein nach unten hin spitz zulaufendes, dreieckiges Gesicht. Die Spaltlampenuntersuchung zeigte beidseits einen prominenten, verlagerten Schwalbe-Grenzring im Kammerwinkel.\n\nRöntgenologisch fielen im Bereich der Brustwirbelsäule sagittale Spaltwirbelbildungen im Sinne von Schmetterlingswirbeln auf. Schnittbildradiologisch wurden minderentwickelte, hypoplastische Lungenareale beschrieben. Das kranielle MRT dokumentierte darüber hinaus eine Weitstellung der äußeren Subarachnoidalräume über den Hemisphären. \n\nHinsichtlich der statomotorischen Meilensteine entwickelt sich der Junge gut; eine globale Entwicklungsverzögerung liegt ausdrücklich nicht vor, Motorik und Sprache sind altersgerecht. Der familiäre Hintergrund ist blande, die Eltern sind nicht konsanguin. Jonas erhält derzeit supportiv Ursodesoxycholsäure sowie fettlösliche Vitamine.\n\nIch wäre für eine differenzialdiagnostische Einschätzung und weitere Empfehlungen zum klinischen Management sehr dankbar.\n\nHerzliche kollegiale Grüße"
+}

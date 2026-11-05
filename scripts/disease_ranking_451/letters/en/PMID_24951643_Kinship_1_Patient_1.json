@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24951643_Kinship_1_Patient_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 368,
+  "completion_tokens": 351,
+  "total_tokens": 3901,
+  "thoughts_tokens": 3182,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Mrs. Clara Higgins, a 45-year-old administrative assistant who presents for assessment of long-standing, slowly progressive motor difficulties. Her initial limitations began during adolescence at approximately age 15 and have advanced gradually over the ensuing three decades.\n\nOn cranial examination, extraocular movements were smooth and conjugate with no double vision reported, and the palpebral fissures were symmetric without any eyelid droop. Voluntary movements of the face were robust and symmetric, with no facial muscle weakness identified. Speech articulation and deglutition were completely unaffected, with a crisp palate elevation, active gag reflex, and an absence of any bulbar palsy.\n\nMotor testing demonstrated reduced strength across her periscapular and deltoid regions bilaterally (MRC grade 4-/5). Distally, she exhibited weakness involving the small intrinsic muscles of both hands, alongside notable wasting across the thenar eminences. Lower extremity testing revealed significant weakness of the proximal hip flexors and abductors, as well as bilateral paresis of the ankle dorsiflexors (4/5), causing difficulty with heel ambulation. During free walking, she demonstrated an exaggerated swaying, duck-like gait accompanied by compensatory lateral pelvic tilt.\n\nSensory testing to light touch, pinprick, and vibration was preserved throughout all limbs. Deep tendon reflexes were present and equal, with downgoing plantars. She takes only an over-the-counter multivitamin and occasional ibuprofen. She is a non-smoker, drinks alcohol rarely, and reports an unremarkable family history with no relatives known to have neuromuscular difficulties.\n\nI would be very grateful for your comprehensive assessment and diagnostic guidance.\n\nSincerely,\nDr. Marcus Reed"
+}

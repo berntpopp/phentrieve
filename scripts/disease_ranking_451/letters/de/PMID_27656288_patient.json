@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27656288_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 386,
+  "completion_tokens": 414,
+  "total_tokens": 2871,
+  "thoughts_tokens": 2071,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung des neunjährigen Paul, den ich Ihnen zur weiteren differentialdiagnostischen Abklärung vorstelle.\n\nAnamnestisch kam der Junge nach vorzeitigem Blasensprung zur Welt. Bereits am zweiten Lebenstag entwickelte sich eine akute Dünndarmperforation, die notfallmäßig operativ versorgt werden musste. Schon neonatal fiel ein auffällig reduzierter Muskeltonus auf. Eine angeborene Luxation der Hüftgelenke lag damals sonografisch nicht vor, ebenso zeigte sich kein Klumpfuß. Die grobmotorische Entwicklung verlief in den Folgejahren deutlich verzögert; das freie Laufen lernte er erst spät. Kognitiv und sprachlich ist er hingegen altersgemäß entwickelt und besucht ohne Schulbegleitung die dritte Klasse.\n\nIm aktuellen Untersuchungsbefund zeigt sich die Haut ausgesprochen samtig-weich und lässt sich über das physiologische Maß hinaus weit abheben. Weder pergamentartige Narben noch verbreiterte, atrophische Hautnarben sind nachweisbar; die alte Abdominalnarbe ist reizlos verheilt. Am Achsenskelett imponiert eine kombinierte Fehlkrümmung im Sinne einer Kyphoskoliose. Sämtliche peripheren Gelenke weisen eine ausgeprägte Überbeweglichkeit auf. Es besteht weiterhin eine generelle muskuläre Hypotonie sowie eine deutliche Schwäche der Halte- und Bewegungsmuskulatur.\n\nKardiopulmonal ist der Befund unauffällig, die Vitalparameter liegen im Normbereich. Medikamente werden nicht eingenommen, und die Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig.\n\nIch bedanke mich im Voraus herzlich für Ihre geschätzte Einschätzung und Veranlassung weiterer Schritte.\n\nMit freundlichen kollegialen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29883675_first_family_patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 351,
+  "completion_tokens": 302,
+  "total_tokens": 2437,
+  "thoughts_tokens": 1784,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating this 20-year-old woman who has been followed in my practice since early childhood after global concerns initially surfaced during her infancy. She resides at home with her parents and two healthy older siblings, and she is independent in basic self-care tasks.\n\nOn examination, her cranial circumference remains markedly reduced, measuring well below the first percentile for her age. Linear growth is similarly restricted, with her standing height plotting far beneath the standard population percentiles at 138 cm. Her previous brain imaging revealed distinct structural abnormalities, characterized by an attenuated, notably slender callosal body as well as an irregular cortical pattern with numerous crowded, diminutive gyri throughout the cerebral mantle. \n\nBehaviorally, her parents report increasing management difficulties due to unpredictable episodes of physical aggression directed at household members. Outside of these behavioral escalations, she does not display indiscriminate sociability or excessive friendliness toward strangers, and her overall affect is consistent, with no rapid emotional lability noted. \n\nThe rest of her general physical and neurological evaluation is reassuring. Her cardiovascular and pulmonary examinations are entirely normal, and deep tendon reflexes are symmetrically brisk. Inspection of her feet showed typical digital alignment, with no overlapping of the toes. Recent screening blood work, including a complete metabolic panel and thyroid studies, was completely unremarkable. She takes only a daily multivitamin.\n\nI would value your comprehensive evaluation and recommendations regarding her clinical picture and future care.\n\nSincerely,\nDr. Arthur Sterling"
+}

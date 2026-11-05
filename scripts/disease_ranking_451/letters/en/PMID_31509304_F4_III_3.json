@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31509304_F4_III_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 366,
+  "completion_tokens": 323,
+  "total_tokens": 2264,
+  "thoughts_tokens": 1575,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Davies,\n\nThank you for evaluating this 6-year-old girl who has exhibited significant neurodevelopmental difficulties since approximately four weeks of life. She currently resides with her parents and attends an adapted kindergarten program.\n\nHer early history was marked by profound lags in reaching both gross and fine motor milestones, accompanied by widespread developmental delays spanning cognitive and communicative domains. Although she had previously managed to take assisted steps with a pediatric mobility device around age three, she has since experienced functional regression and has completely stopped walking.\n\nOn examination today, she is alert and interactive. Her cranial nerve assessment demonstrates fine horizontal involuntary rhythmic oscillations of the eyes, though saccadic refixations show full excursion without any undershooting of visual targets. Tone is markedly increased in both lower extremities with prominent catch-and-give resistance, and her deep tendon reflexes are notably brisk (3+) throughout with unsustained clonus at the ankles. There is no evidence of central flaccidity or low tone, and coordination testing reveals no limb dysmetria or cerebellar unsteadiness. Her spinal alignment is upright and symmetrical without any abnormal lateral curvature. \n\nSystemic review is reassuring. Her parents confirm she has never suffered from convulsions or unprovoked paroxysmal events. She continues to safely manage an oral diet without requiring any enteral feeding tube, and her general growth parameters track steadily along the 25th percentile. \n\nGiven her motor decline alongside persisting upper motor neuron signs, I would value your comprehensive neurological evaluation and guidance on appropriate workup.\n\nSincerely,\n\nDr. Katherine Vance, MD\nGeneral Pediatrics"
+}

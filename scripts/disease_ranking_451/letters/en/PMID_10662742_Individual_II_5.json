@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10662742_Individual_II_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 458,
+  "completion_tokens": 379,
+  "total_tokens": 3743,
+  "thoughts_tokens": 2906,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating this 30-year-old male who first developed cardiac symptoms at 28 years of age. He initially presented with decompensated pump failure requiring intravenous diuresis, in the setting of primary chamber enlargement consistent with biventricular dilatation. Recent echocardiography demonstrated an elevated left ventricular end-diastolic cavity volume and a mildly depressed systolic ejection fraction of 47%, though certainly without moderate reduction in systolic function.\n\nHis clinical course has been complicated by severe rhythm disturbances. He was recently resuscitated following an out-of-hospital sudden cardiac arrest. Subsequent monitoring recorded non-sustained wide-complex ventricular tachyarrhythmia alongside episodes of an irregularly irregular atrial rhythm. His conduction disease has manifested as both Mobitz-type second-degree AV nodal block and periods of complete heart block, with baseline tracings displaying a broad left bundle conduction delay. Notably, there was no anterior hemiblock, and extended recording documented no premature atrial beats and an absence of narrow-complex supraventricular tachycardias.\n\nOn physical examination, his facial features appear entirely typical for his age with no premature senescent changes. Adipose distribution is normal across the trunk and limbs without subcutaneous fat loss. A detailed musculoskeletal survey demonstrated supple thoracolumbar motion without spinal stiffness, full active range of motion across all joints lacking any fixed contracture, and symmetric 5/5 power with no muscular weakness. His muscular bulk is well preserved without wasting, and his calves show no signs of abnormal enlargement. Laboratory analysis confirmed that circulating levels of the skeletal muscle creatine kinase isoform remain within standard limits.\n\nHe currently takes bisoprolol and sacubitril/valsartan, works as an accountant, and has no family history of cardiac issues. I would appreciate your assessment and management recommendations.\n\nSincerely,\nDr. Julian Thorne"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30249733_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 411,
+  "total_tokens": 2629,
+  "thoughts_tokens": 1819,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Weber,\n\nich überweise Ihnen den dreijährigen Julian zur weiteren differentialdiagnostischen Einschätzung. Er kam reif nach unauffälliger Schwangerschaft als erstes Kind gesunder, nicht verwandter Eltern zur Welt. Die Familienanamnese ist bezüglich relevanter Erkrankungen leer, Dauermedikamente werden nicht eingenommen.\n\nBereits seit der Geburt bestehen multiple Auffälligkeiten. Im Entwicklungsverlauf imponiert eine deutliche Verzögerung der grob- und feinmotorischen Meilensteine; das freie Gehen wurde erst vor wenigen Monaten erreicht. Im Status zeigt sich ein durchgehend schlaffer Muskeltonus bei gleichzeitig ausgeprägter Überstreckbarkeit der Gelenke. Zudem fällt eine ungewöhnlich leicht dehnbare Haut auf. An den Händen besteht eine persistierende Adduktionsstellung beider Daumen. Eine angeborene Klumpfußfehlstellung beidseits befindet sich bereits in orthopädischer Anbindung.\n\nKraniofazial zeigen sich tief ansetzende Ohrmuscheln, ein breiter Augenabstand, nach außen-unten geneigte Lidachsen sowie zentral zusammengewachsene Augenbrauen. Auffällig sind ferner stark vertiefte Nasolabialfalten, ein stark verschmälertes Oberlippenrot und ein hoher Gaumen.\n\nUrologisch wurde abdominell eine Hydronephrose gesichert, zudem besteht ein palpatorisch nicht im Skrotum liegender Hoden links. Die internistische Untersuchung einschließlich Herz- und Lungenbefund war völlig unauffällig, das Gehör und die Sehkraft sind intakt, und die Körpermaße liegen stabil auf der 45. Perzentile.\n\nIch danke Ihnen herzlich für die Übernahme der weiteren Abklärung und erbitte Ihre konsiliarische Beurteilung des Jungen.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Lindner"
+}

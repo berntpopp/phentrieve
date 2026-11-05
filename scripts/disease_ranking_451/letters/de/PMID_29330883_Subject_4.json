@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29330883_Subject_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 547,
+  "completion_tokens": 556,
+  "total_tokens": 3725,
+  "thoughts_tokens": 2622,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre konsiliarische Einschätzung bei der 13-jährigen Lea, die sich zur Verlaufskontrolle in unserer Ambulanz vorstellte. \n\nBereits im Neugeborenenalter fiel eine ausgeprägte generalisierte Muskelhypotonie auf. Die motorische und sprachliche Entwicklung verlief von Beginn an hochgradig verzögert; es besteht eine schwere kognitive Beeinträchtigung bei erheblichem Förderbedarf. Im kranialen MRT zeigte sich eine Dysplasie des Kleinhirns.\n\nDer kraniofaziale Phänotyp ist unauffällig: Das Kalottenwachstum liegt im Normbereich ohne Makrozephalie oder Plagiozephalie. Die Stirn ist weder verschmälert noch vorgewölbt, ohne frontales Bossing; der vordere Haaransatz ist regelrecht konfiguriert. Das Mittelgesicht ist nicht retrudiert, die Gesichtsform nicht dreieckig, ein Mikrogenismus liegt nicht vor. Die Lidachsen verlaufen horizontal ohne Aufwärts- oder Abwärtsschwung. Der Augenabstand ist seitengleich harmonisch ohne Hyper- oder Hypotelorismus; Epikanthus, Lidspaltenverengung, Ptosis, Kolobome oder eingesunkene Augenbulben fehlen. Die Augenbrauen sind schmal und nicht zusammengewachsen. \n\nDie Nasenwurzel ist normal angelegt, die Nasenspitze nicht kolbig aufgetrieben und die Nares nicht nach ventral gekippt; eine Choanalatresie besteht nicht. Das Philtrum zeigt ein deutliches Relief, der Mund ist normal weit ohne Lippenkerbe oder -spalte. Alveolarkämme und Gaumenbogen stellen sich unauffällig dar. Die Ohrmuscheln zeigen eine physiologische Fältelung ohne vereinfachte Anatomie, Tassenform, unterentwickelte oder überrollte Helices, vorspringenden Anthelixstamm, Ohrläppcheneinkerbungen oder präaurikuläre Fistelbildungen. Audiometrisch ergab sich kein Hinweis auf eine Innenohrschwerhörigkeit.\n\nDie Wirbelsäule ist achsengerecht ohne Skoliose. Ein vesikoureteraler Reflux wurde sonographisch und anamnestisch ausgeschlossen. Die Familienanamnese ist leer, Vorerkrankungen der Eltern sind nicht bekannt. Lea besucht eine Förderschule und erhält aktuell keine medikamentöse Therapie.\n\nWir bitten um Ihre fachliche Beurteilung bezüglich des weiteren diagnostischen Vorgehens.\n\nMit freundlichen Grüßen"
+}

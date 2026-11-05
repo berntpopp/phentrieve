@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39177731_Case_1_Patient_6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 419,
+  "completion_tokens": 446,
+  "total_tokens": 2959,
+  "thoughts_tokens": 2094,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 9-jährigen Felix zur neuropädiatrischen Mitbeurteilung.\n\nErste Auffälligkeiten zeigten sich bereits in der dritten Lebenswoche in Form einer ausgeprägten muskulären Schlaffheit. Die motorische Entwicklung verlief verzögert: Freies Sitzen gelang erst mit 15 Monaten, das freie Gehen erlernte er mit knapp drei Jahren. Auch der Spracherwerb setzte deutlich verlangsamt ein. Ein Entwicklungsrückschritt war zu keinem Zeitpunkt zu beobachten. Felix besucht regulär die Grundschule; eine Intelligenzminderung liegt nicht vor, das Sprachverständnis ist unbeeinträchtigt. Die Familienanamnese ist blande, Dauermedikamente werden nicht eingenommen.\n\nKlinisch imponiert eine generalisierte muskuläre Hypotonie. Felix zeigt ein breitbasig-unsicheres Gangbild sowie ein deutliches Pendeln und Schwanken des Rumpfes beim freien Sitzen. Die Finger-Nase- und Knie-Hacke-Versuche sind beidseits dysmetrisch, ein Intentionstremor lässt sich jedoch nicht provozieren. Hinweise auf eine Zerebralparese oder Spastik bestehen nicht. Die Sprache ist von einer verwaschenen, dysarthrischen Artikulation geprägt.\n\nBlickfolgebewegungen laufen auffällig sakkadiert und unruhig ab. Bei der Spaltlampenuntersuchung imponieren beidseits weite Pupillen, persistierende fadenförmige Pupillarmembranen sowie ein hypoplastisches Irisstroma. Ophthalmoskopisch zeigt sich ein auffallend hypopigmentierter Augenhintergrund.\n\nIm zerebralen MRT dokumentierte sich eine selektive Atrophie des Kleinhirnwurms; eine diffuse Kleinhirnatrophie besteht nicht, die Hemisphären stellen sich altersentsprechend dar.\n\nIch wäre Ihnen für eine konsiliarische Untersuchung des Jungen und Ihre differentialdiagnostische Einschätzung sehr dankbar.\n\nMit freundlichen Grüßen"
+}

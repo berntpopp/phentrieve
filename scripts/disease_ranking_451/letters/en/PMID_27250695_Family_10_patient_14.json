@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27250695_Family_10_patient_14",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 331,
+  "total_tokens": 2990,
+  "thoughts_tokens": 2311,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for agreeing to evaluate Clara, a 2-year-and-6-month-old female, for further assessment of ongoing developmental and physical growth concerns. \n\nHer parents noted delays early on, though a specific age of onset is uncertain. During developmental testing, Clara demonstrates significant cognitive impairment, functioning substantially behind chronological expectations across communicative, adaptive, and problem-solving milestones. Physical measurements reveal that her linear growth is profoundly restricted, with her height charting far below the first percentile. She also exhibits persistently deficient mass, with weight tracking under the second percentile. Additionally, her cranial circumference is notably small, plotting more than three standard deviations below the mean for age. \n\nBehaviorally, Clara is generally calm and cooperative. Her caregivers note no tendencies toward excessive restlessness or overly active conduct. There are no signs of aggressive outbursts, nor does she display any self-directed physical harm, such as biting or head-banging. Her parents also report no history of convulsive episodes or unusual staring events. \n\nHer physical exam is otherwise unremarkable. Heart sounds are regular without murmurs, and her chest is clear to auscultation. Her abdomen is soft and non-tender without hepatosplenomegaly. Deep tendon reflexes are 2+ bilaterally, and cranial nerves appear grossly intact. She lives with her parents, and the family medical history is non-contributory. She takes only daily vitamin D supplementation.\n\nI would appreciate your evaluation and recommendations regarding her constellation of growth restriction and global cognitive delays. \n\nSincerely,\n\nDr. Evelyn Reed, MD  \nPediatric Primary Care"
+}

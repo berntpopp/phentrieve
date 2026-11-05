@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26647175_Case_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 402,
+  "completion_tokens": 419,
+  "total_tokens": 2144,
+  "thoughts_tokens": 1323,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 10-jährigen Jonas zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten traten im Alter von etwa 18 Monaten auf, als eine deutliche globale Entwicklungsverzögerung augenscheinlich wurde. Der Junge erlernte das freie Gehen erst mit erheblichem zeitlichem Verzug, und bis heute ist keinerlei expressive Sprache entstanden. Im Alltag zeigt sich eine ausgeprägte kognitive Behinderung. Zudem bestehen seit Jahren schwere Ein- und Durchschlafstörungen sowie ein autistisches Verhaltensmuster mit Kontaktvermeidung. Im Grundschulalter manifestierten sich erstmals epileptische Anfälle, die medikamentös eingestellt wurden.\n\nKörperlich ist Jonas internistisch stabil, Cor und Pulmo sind auskultatorisch unauffällig. Die Familienanamnese ist leer, Jonas besucht eine Fördereinrichtung. Neurologisch imponiert ein unsicheres, deutlich breitbasiges und gangataktisches Bewegungsmuster. Die Muskeleigenreflexe sind seitengleich mittellebhaft auslösbar, Pyramidenbahnzeichen fehlen. \n\nIn der kranialen Bildgebung zeigte sich eine globale zerebrale Atrophie mit konsekutiver extraaxialer Liquoransammlung. Ergänzend ergab die MR-Spektroskopie einen erniedrigten Gehalt an N-Acetylaspartat im Gehirn. Die daraufhin veranlasste Neurotransmitteranalytik im Liquor erbrachte signifikant verminderte Konzentrationen von Homovanillinsäure sowie 5-Hydroxyindolessigsäure bei normwertigem Gesamteiweiß und unauffälliger Zellzahl. Das Routinelabor sowie ein Neugeborenen-Screening waren damals bland geblieben.\n\nZur weiteren Einordnung dieser Befundkonstellation und für Empfehlungen hinsichtlich der weiteren Betreuung bedanke ich mich für Ihre geschätzte Expertise.\n\nMit freundlichen Grüßen"
+}

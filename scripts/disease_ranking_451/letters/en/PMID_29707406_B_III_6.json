@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29707406_B_III_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 340,
+  "completion_tokens": 292,
+  "total_tokens": 1993,
+  "thoughts_tokens": 1361,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Claire Jenkins, a 21-year-old woman whom I am referring for an updated neurological evaluation. Her difficulties date back to early infancy, when her parents first recognized significant lags in reaching physical milestones; she did not sit unsupported until fifteen months and walked only after two and a half years of age. \n\nDuring childhood, she developed generalized convulsive episodes characterized by sudden loss of consciousness, whole-body stiffening, and rhythmic jerking of all four limbs. These have been partially controlled on a stable regimen of levetiracetam. On physical examination, Claire displays marked unsteadiness and poorly coordinated movements in both her gait and upper limbs, requiring close supervision when ambulating. She also demonstrates pronounced difficulty executing voluntary movements of the lips and tongue on command, severely affecting her articulation, though non-volitional movements remain relatively preserved. Neuromuscular testing reveals diffuse brisk reflexes alongside positive Babinski responses bilaterally. \n\nHer general medical examination is otherwise unremarkable, showing regular heart sounds, clear breath sounds, and normal fundoscopy. She lives at home with her supportive parents, and the family history is negative for any early-onset neurological conditions. \n\nGiven the longstanding nature of her presentation, I would greatly appreciate your formal assessment and recommendations regarding further specialized workup and ongoing management.\n\nSincerely,\nDr. Evelyn Vance\nDepartment of Neurology, St. Jude's Community Hospital"
+}

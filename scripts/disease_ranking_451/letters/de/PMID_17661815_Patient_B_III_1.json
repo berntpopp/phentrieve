@@ -1,0 +1,18 @@
+{
+ "case": "PMID_17661815_Patient_B_III_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 470,
+  "completion_tokens": 509,
+  "total_tokens": 3982,
+  "thoughts_tokens": 3003,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 19 Tage alten Knaben zur konsiliarischen Mitbeurteilung bei kongenitalem Befundkomplex. Die Schwangerschaft verlief bis zur Entbindung unauffällig, sonographisch bestand insbesondere kein Polyhydramnion. Auch die Familienanamnese ist bezüglich angeborener Erkrankungen leer.\n\nKlinisch imponiert eine ausgeprägte generalisierte muskuläre Hypotonie. Kraniofazial fallen ein deutlich fliehendes Kinn sowie beidseits tassenförmig eingerollte Ohrmuscheln auf. Beim Weinen zeigt sich eine periphere Schwäche der mimischen Muskulatur im Sinne einer Fazialisparese. Bei der Inspektion des Rachens fand sich ein gespaltenes Zäpfchen. Der Säugling saugt prinzipiell kräftig an der Flasche, zeigt jedoch erhebliche Koordinationsprobleme beim Schluckakt mit manifester Dysphagie; ein pathologischer gastroösophagealer Reflux ließ sich nicht sichern. Das äußere Genitale zeigt nicht deszendierte, im Leistenkanal palpierte Hoden bei altersentsprechend unauffälligem Phallus ohne Mikropenis. \n\nAugenärztlich wurde ein Netzhautkolobom festgestellt. Die Gehörgänge sind frei, Otitiden traten bislang nicht auf. In der Bildgebung des Felsenbeins stellten sich die Bogengänge normal dar, ohne Anhalt für eine Bogengangshypoplasie oder eine Incomplete Partition Typ II der Cochlea. Das cMRT erbrachte ein auffallend verdünntes Corpus callosum sowie eine beidseitige Aplasie der Bulbi olfactorii. Die Aa. carotides internae zeigten keine Hypoplasie. \n\nEchokardiographisch zeigte sich ein Defekt im Vorhofseptum. Das Ventrikelseptum ist intakt, die Aorta reitet nicht, und die Trikuspidalklappe lässt keine Ebstein-Anomalie erkennen. Das EKG ist normofrequent ohne supraventrikuläre Tachykardien, klinisch bestehen keinerlei Zeichen einer kardialen Dekompensation.\n\nÜber Ihre geschätzte differentialdiagnostische Einschätzung und Empfehlungen zum weiteren Prozedere würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34355836_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 404,
+  "completion_tokens": 470,
+  "total_tokens": 2683,
+  "thoughts_tokens": 1809,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung unseres mittlerweile 12-jährigen Patienten, den wir seit dem Säuglingsalter begleiten. Bereits pränatal waren sonographisch kardiale Besonderheiten aufgefallen.\n\nKardiovaskulär imponiert ein komplexes Bild: Es finden sich beidseits morphologisch rechte Vorhöfe sowie ein Ursprung beider großer Gefäßstämme aus der rechten Herzkammer. Zudem besteht ein bindegewebiger Verschluss der Pulmonalklappe, sämtliche Lungenvenen münden fehlanatomisch, der Bogen der Aorta verläuft rechtsdeszendierend, und es persistieren beidseits obere Hohlvenen. In der Gefäßbildgebung zeigten sich darüber hinaus ein gewundener Verlauf beider Karotiden und eine umschriebene aneurysmatische Aufweitung der Arteria vertebralis. \n\nSonographisch lässt sich intraabdominell kein Milzgewebe abgrenzen, an der rechten Niere besteht eine solitäre Zyste. Die Familienanamnese ist bezüglich angeborener Erkrankungen leer; die Eltern sind gesund und nicht blutsverwandt. Der Patient besucht derzeit eine Förderschule.\n\nIm bisherigen Verlauf fiel von Geburt an ein globaler Rückstand bei den motorischen und kognitiven Meilensteinen auf. Im frühen Kindesalter bestanden erhebliche Probleme bei der Nahrungsaufnahme mit schlechtem Gedeihen. Klinisch imponieren zudem eine bemerkenswert weiche Haut sowie eine generalisierte Überstreckbarkeit der peripheren Gelenke. Am Rumpf zeigen sich eine deutliche Trichterbrust und eine progrediente Wirbelsäulenverkrümmung. Eine Osteodensitometrie wies kürzlich eine reduzierte Knochendichte nach, weshalb wir Vitamin D substituierten. Ophthalmologische und pädaudiologische Kontrollen waren bisher unauffällig.\n\nWir bitten Sie um eine differenzialdiagnostische Einschätzung dieser Befundkonstellation und freuen uns über Ihre Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen Grüßen"
+}

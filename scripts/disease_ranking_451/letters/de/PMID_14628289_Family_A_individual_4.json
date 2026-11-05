@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14628289_Family_A_individual_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 356,
+  "completion_tokens": 372,
+  "total_tokens": 2290,
+  "thoughts_tokens": 1562,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin,\n\nich überweise Ihnen heute den 15-jährigen David zur Mitbeurteilung. Erstmalig im Alter von etwa zehn Jahren fiel den Eltern ein bis heute persistierendes nächtliches Einnässen auf, weshalb nun eine erweiterte Abklärung erfolgte. Rezidivierende Infektionen der Harnwege wurden anamnestisch glaubhaft verneint und traten nie auf.\n\nSonographisch imponiert an beiden Nieren eine ausgeprägte Echogenitätssteigerung im Bereich der Markpyramiden im Sinne von Verkalkungen des renalen Parenchyms. Die weiterführende Urindiagnostik aus dem 24-Stunden-Sammelurin zeigte eine exzessiv gesteigerte Ausscheidung von Calcium sowie parallel einen pathologisch erhöhten renalen Verlust von Magnesium. Die Serumretentionsparameter sind dabei stabil und unauffällig, Zeichen einer Einschränkung der Nierenfunktion liegen nicht vor. Ebenso fand sich bei der Bestimmung des intakten Parathormons im Serum ein gänzlich regelrechter Wert ohne jeden Hinweis auf eine Erhöhung.\n\nDer Jugendliche besucht derzeit die neunte Klasse einer Realschule, betreibt regelmäßig Schwimmsport und nimmt keine festen Medikamente ein. Der körperliche Untersuchungsbefund war vollkommen altersentsprechend, der Blutdruck mit 115/72 mmHg normwertig. In der Familie sind keine Nierenerkrankungen oder Steinleiden bekannt.\n\nIch bedanke mich für Ihre geschätzte nephrologische Expertise bezüglich dieser Befundkonstellation und freue mich auf Ihre Einschätzung und Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Christian Lindemann"
+}

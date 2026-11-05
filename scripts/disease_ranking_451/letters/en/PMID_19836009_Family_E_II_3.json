@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_E_II_3",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 332,
+  "total_tokens": 2163,
+  "thoughts_tokens": 1468,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing this 22-year-old university student for further multidisciplinary evaluation. He initially presented to our clinic for routine management of severe refractive issues, but his combination of ocular and musculoskeletal features warrants your expertise.\n\nOn physical examination, he demonstrates a distinctly low stature, with his standing height measuring 149 cm, falling well below the third percentile. His hands and feet display noticeably short, stubby digits. Furthermore, musculoskeletal assessment reveals generalized tightness and restricted passive range of motion across his wrists, elbows, and knees, though there is no associated joint tenderness, warmth, or active synovitis. He is otherwise in good health, takes no daily medications, and his systemic cardiovascular and pulmonary examinations were entirely normal. Family history is non-contributory.\n\nHis ophthalmic workup is notable for pronounced myopic refractive error exceeding minus ten diopters bilaterally. Tonometry revealed elevated intraocular pressures ranging between 26 and 28 mmHg in both eyes. Slit lamp biomicroscopy demonstrated remarkably flat, shallow anterior chambers; however, gonioscopy demonstrated open angles without any synechial adhesions. Interestingly, ultrasonic biometry revealed that globe axial lengths are completely normal, rather than elongated as one might expect with this degree of nearsightedness. His optic nerve heads remain robust, showing healthy neuroretinal rims with no enlargement of the physiological cup-to-disc ratio.\n\nGiven these coordinated ocular findings alongside his shortened digits, low height, and articular limitations, I would value your comprehensive clinical assessment and guidance regarding appropriate next steps.\n\nSincerely,\nDr. Alan Vance"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16900296_IV_5",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 272,
+  "total_tokens": 1583,
+  "thoughts_tokens": 986,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Finch,\n\nThank you for evaluating Maya Jenkins, an 8-year-old girl referred for further diagnostic assessment regarding developmental and cranial concerns. \n\nMaya was born at term via uncomplicated vaginal delivery to healthy, non-consanguineous parents. Since birth, she has exhibited a markedly reduced occipitofrontal circumference, which remains well below the first percentile for her age. On physical examination, her cranial shape is notable for a distinctly receding, sloped frontal contour. Her general examination is otherwise entirely reassuring; cardiovascular, pulmonary, and abdominal findings are normal, and both her height and weight continue to track steadily along the 25th percentile. \n\nFrom early childhood, Maya has displayed significant and pervasive cognitive limitations. She currently receives full-time specialized educational support, facing substantial challenges with abstract reasoning, functional communication, and adaptive living skills. Routine screening for vision and hearing was completed last year with normal results, and a recent basic metabolic panel was unremarkable. She lives at home with both parents and a neurotypical older brother, and she takes no daily medications other than a multivitamin. \n\nGiven her lifelong reduced head size present from delivery, unique frontal cranial profile, and profound learning impairment, I would greatly appreciate your evaluation and guidance on appropriate further workup.\n\nSincerely,\n\nEleanor Vance, MD\nOakridge Pediatrics"
+}

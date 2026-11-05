@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14560308_Patient_58",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 435,
+  "completion_tokens": 439,
+  "total_tokens": 3542,
+  "thoughts_tokens": 2668,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des kleinen Felix, bei dem sich bereits seit den ersten Lebensmonaten ein auffälliges Erscheinungsbild und Verzögerungen zeigen. \n\nDer Junge präsentiert sich mit einer Körpergröße deutlich unterhalb der dritten Perzentile bei insgesamt verzögerter statomotorischer und kognitiver Meilensteinentwicklung. Kraniofazial imponieren weit auseinanderstehende Bulbi, ein vergrößerter Abstand der inneren Lidwinkel sowie eine beidseitige Lidheberschwäche mit Herabhängen der Oberlider. Die Nase ist auffallend kurz mit nach vorne gekippten Nares. Der vertikale Abstand zwischen Lippenrot und Nase ist verlängert; das Philtrum zeigt sich dabei weder verkürzt noch ungewöhnlich breit.\n\nAn den Extremitäten finden sich verkürzte Finger mit fixierten Beugestellungen im Bereich der Mittelgelenke, eine transverse Vierfingerfurche und kutane Verwachsungen benachbarter Zehen. Auffällig ist zugleich eine ausgeprägte Überbeweglichkeit der großen und kleinen Gelenke. \n\nBei der Inspektion des Abdomens fällt ein spitz nach außen vorstehender Nabel auf; eine Nabelhernie ließ sich sonographisch jedoch eindeutig ausschließen. Leistenhernien liegen beidseits nicht vor. Das Skrotum umfasst den Penisansatz schürzenartig, zudem besteht ein einseitig palpatorisch nicht im Hodensack nachweisbarer Hoden. Die Harnröhrenmündung ist orthotop, eine Hypospadie liegt nicht vor. \n\nEchokardiographisch konnte ein Ventrikelseptumdefekt sicher ausgeschlossen werden. Das Hörvermögen und die Augenuntersuchung waren unauffällig, die Familienanamnese ist blande. Es besteht keine Dauermedikation.\n\nÜber Ihre weiterführende Einschätzung zur Klärung dieses Symptomkomplexes würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36463227_Case_presentation",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 399,
+  "completion_tokens": 443,
+  "total_tokens": 2303,
+  "thoughts_tokens": 1461,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute Herrn B., bei dem die Symptomatik im 29. Lebensjahr begann. Der Patient ist beruflich im IT-Bereich tätig, lebt in fester Partnerschaft und nimmt abgesehen von gelegentlichem Paracetamol keine Dauermedikation ein. Die Familienanamnese ist bezüglich chronischer oder hämatologischer Leiden unauffällig.\n\nHerr B. stellte sich mit anhaltendem Schwindelgefühl, ausgeprägter Inappetenz sowie wiederkehrender Übelkeit und mehrfachem Erbrechen vor. Klinisch imponieren ein deutlicher Ikterus der Skleren und der Haut sowie ein meteoristisch aufgetriebenes Abdomen. Herz und Lunge waren auskultatorisch völlig regelrecht, der Blutdruck lag bei 125/80 mmHg. Palpatorisch fanden sich sowohl eine vergrößerte Leber als auch ein tastbar vergrößerter Milzpol.\n\nAbdomensonographisch bestätigte sich die Vergrößerung beider Organe. Zudem zeigten sich eine ausgeprägte Steatose des Leberparenchyms, mehrere Konkremente innerhalb der Gallenblase sowie ein kleiner Stein im Bereich des linken Nierenbeckenkelchsystems ohne Harntransportstörung.\n\nIm Labor zeigt sich eine relevante Anämie mit Laborzeichen eines gesteigerten Erythrozytenabbaus bei deutlich erhöhtem Gehalt an unreifen Vorstufen der roten Blutkörperchen. Die mittlere korpuskuläre Hämoglobinkonzentration liegt deutlich unterhalb der Norm. Mikroskopisch lassen sich im peripheren Blutbild ausgeprägte Unregelmäßigkeiten bezüglich der Größe sowie auffällige Formvarianten der roten Blutkörperchen nachweisen. Ein direkter Coombs-Test erbrachte keinen Nachweis gebundener Antikörper und war somit negativ.\n\nZur weiteren ätiologischen Einordnung und Festlegung des therapeutischen Vorgehens bitte ich um Ihre geschätzte konsiliarische Mitbeurteilung.\n\nMit freundlichen kollegialen Grüßen"
+}

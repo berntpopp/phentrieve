@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29122497_29122497_P6",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 369,
+  "completion_tokens": 366,
+  "total_tokens": 2506,
+  "thoughts_tokens": 1771,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die elf Monate alte Patientin zur stationären neurologischen Mitbeurteilung. Das Mädchen entstammt einer komplikationslosen Schwangerschaft und Spontangeburt zum Termin. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, eine Vormedikation besteht nicht. \n\nAb einem Alter von etwa drei Monaten bemerkten die Eltern eine Stagnation sowie im weiteren Verlauf einen deutlichen Verlust bereits erworbener motorischer Meilensteine. Bei der aktuellen Untersuchung imponiert eine ausgeprägte axiale Rumpf- und Kopfhalteschwäche. Demgegenüber steht eine deutliche spastische Tonussteigerung sowohl der Beine als auch der oberen Extremitäten mit lebhaften Sehnenreflexen. Bei der Blickfolgebewegung fällt ein feinschlägiger horizontaler Pendelnystagmus auf. Eine kürzlich durchgeführte ophtalmologische Untersuchung zeigte beidseits blasse Papillen. \n\nDie extern veranlasste Bildgebung erbrachte in den T2-gewichteten Schnittbildern großflächig ineinander übergehende Signalanhebungen im zerebralen Marklager. Zusätzlich zeigte sich eine auffällige T2-Signalhyperintensität im Bereich des Myelons. Die übrigen pädiatrischen Organbefunde, insbesondere Herz- und Lungenauskultation sowie das Abdomen, präsentierten sich regelrecht. Das Gehör ist laut Neugeborenenscreening unauffällig.\n\nAufgrund dieses progredienten Krankheitsverlaufs bitte ich Sie um eine weiterführende neuropädiatrische Einordnung und Übernahme der weiteren Diagnostik. \n\nMit freundlichen kollegialen Grüßen"
+}

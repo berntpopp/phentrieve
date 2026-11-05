@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36233161_MD_320",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 279,
+  "total_tokens": 1897,
+  "thoughts_tokens": 1264,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reed,\n\nThank you for evaluating this five-year-old boy for further diagnostic assessment. He was accompanied by his mother, who reports that developmental concerns first surfaced around three months of age due to marked head lag and general floppiness.\n\nSince early infancy, he has shown substantial delays across motor, communicative, and cognitive domains, leading to significant ongoing intellectual disability. On our physical evaluation, his vitals, cardiovascular exam, and abdominal palpation were entirely normal. Cranial nerve assessment revealed a visible ocular misalignment along with sustained, rhythmic jerking movements elicited on lateral eccentric gaze. \n\nOn motor testing, he presents with pronounced axial low tone, yet his legs display persistent stiffness, increased catch, and brisk knee jerks bilaterally. He requires significant assistance to stand, exhibiting profound unsteadiness and irregular, uncoordinated limb movements during attempts to ambulate. His recent cranial MRI demonstrated noticeable volume loss involving the cerebellar vermis and hemispheres. \n\nHe was delivered at term without perinatal complications, and there is no family history of neurodevelopmental concerns; his older brother is healthy and meeting all milestones. He currently receives occupational and speech therapies at his specialized preschool and takes an over-the-counter multivitamin.\n\nI would appreciate your subspecialty assessment and guidance regarding the next steps in his diagnostic workup. \n\nSincerely,\nDr. Eleanor Vance"
+}

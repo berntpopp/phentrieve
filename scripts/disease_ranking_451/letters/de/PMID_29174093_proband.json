@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29174093_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 371,
+  "completion_tokens": 435,
+  "total_tokens": 3482,
+  "thoughts_tokens": 2676,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung der vierjährigen Emily, die sich mit ihren Eltern zur weiteren Abklärung in meiner kinderärztlichen Praxis vorstellte.\n\nErste Auffälligkeiten zeigten sich bereits im Säuglingsalter in Form einer tiefgreifenden Verzögerung sämtlicher Entwicklungsbereiche. Auffällig ist nach wie vor ein deutlich herabgesetzter axialer Muskeltonus. Distal zeigen sich motorische Auffälligkeiten mit unwillkürlichen choreoathetotischen Bewegungsmustern an den Extremitäten. Das freie Laufen gelingt der Patientin nur mit einem auffallend breitbasigen, unsicheren Gangmuster. Zudem berichten die Eltern über ein persistierendes, ausgeprägtes Zähneknirschen tagsüber wie nachts. \n\nIm Bereich des Gesichts fällt ein hypoplastischer Unterkiefer mit fliehendem Kinn ins Auge. An beiden Füßen besteht eine weichteilige Verwachsung zwischen der zweiten und dritten Zehe. Dermatologisch ist eine Mastozytose der Haut mit multiplen bräunlichen Makulae am Stamm dokumentiert. Urologisch ist ein vesikoureteraler Urinreflux bekannt, der sonographisch engmaschig überwacht wird. Relevante Fütter- oder Trinkschwierigkeiten wurden von den Eltern ausdrücklich verneint; die Nahrungsaufnahme und das Schlucken funktionierten von Geburt an völlig unauffällig.\n\nDie Familienanamnese ist bezüglich neurologischer Erkrankungen leer, die Eltern sind nicht konsanguin. Die kardiopulmonale Untersuchung ergab einen altersentsprechenden Normalbefund, die Sehkraft und das Hörvermögen erwiesen sich in den bisherigen Vorsorgen als regelrecht. Eine medikamentöse Dauertherapie besteht nicht.\n\nÜber Ihre geschätzte differenzialdiagnostische Einordnung und Empfehlungen zum weiteren Vorgehen wäre ich Ihnen sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

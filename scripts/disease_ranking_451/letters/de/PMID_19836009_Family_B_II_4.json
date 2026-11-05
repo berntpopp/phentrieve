@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19836009_Family_B_II_4",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 363,
+  "completion_tokens": 422,
+  "total_tokens": 2559,
+  "thoughts_tokens": 1774,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen heute die 14-jährige Mia zur weiteren fachärztlichen Beurteilung.\n\nDas Mädchen stellte sich initial konsiliarisch aufgrund einer ausgeprägten Sehminderung vor. Ophthalmologisch zeigt sich beidseits eine schwere Kurzsichtigkeit von knapp elf Dioptrien. Bemerkenswerterweise ist die axiale Bulbuslänge im Rahmen der Ultraschallbiometrie jedoch vollkommen normwertig, sodass keine Verlängerung des Augapfels nachweisbar ist. An der Spaltlampe fällt eine extrem flache vordere Augenkammer auf. Synechien im Bereich der Vorderkammer oder Irisverwachsungen bestehen nicht. Der Sehnervenkopf zeigt sich vital mit unauffälliger, altersentsprechender Exkavation ohne Anhalt für ein vergrößertes Cup-to-Disc-Verhältnis. Die Tensiometrie erbrachte beidseits regelrechte Werte von 14 mmHg, eine okuläre Hypertension liegt nicht vor.\n\nPädiatrisch besteht ein ausgeprägter Minderwuchs mit einer Körperlänge weit unterhalb der dritten Perzentile. Auffällig sind zudem stämmige, verkürzte Finger und Zehen. Zudem besteht eine deutliche Steifigkeit mehrerer Gelenke mit eingeschränktem Bewegungsumfang, klinisch ohne Erguss oder Überwärmung.\n\nDie kognitive Entwicklung verläuft unauffällig, Mia besucht regulär das Gymnasium. Ein Basislabor sowie die kardiopulmonale Untersuchung erbrachten Normalbefunde. Die Familienanamnese ist bezüglich ophthalmologischer oder skelettaler Auffälligkeiten leer; Dauermedikamente werden derzeit nicht eingenommen. \n\nAufgrund der Kombination aus den muskuloskelettalen Befunden und der okulären Konstellation erbitte ich Ihre geschätzte Mitbeurteilung und Empfehlungen bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

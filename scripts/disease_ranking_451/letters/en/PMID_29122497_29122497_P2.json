@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29122497_29122497_P2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 370,
+  "completion_tokens": 315,
+  "total_tokens": 1983,
+  "thoughts_tokens": 1298,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating this 28-month-old girl who presents for further assessment of neurodevelopmental decline. She was born at term following an uncomplicated pregnancy and met typical early motor milestones until approximately seven months of age. Since that time, her family noted a progressive loss of acquired skills; she lost the ability to sit unsupported, stopped reaching for objects, and lost vocalizations.\n\nOn examination, she is interactive and comforted by her parents. General pediatric examination is unremarkable, with clear lung fields, regular cardiac rhythm, and a soft, non-tender abdomen without organomegaly. Neurologic evaluation is notable for fine, horizontal nystagmus on visual tracking, and fundoscopy reveals bilateral pallor of the optic nerve heads. Significant head lag and poor trunk stability indicate marked axial floppiness. In contrast, there is pronounced hypertonicity affecting both her upper and lower extremities, with bilateral spastic catches and brisk deep tendon reflexes throughout her arms and legs. \n\nRecent magnetic resonance imaging demonstrated widespread, confluent T2 hyperintensity extending across the cerebral white matter. In addition, imaging of the neuroaxis showed contiguous high T2 signal abnormalities within the spinal cord. Her family history is non-contributory, and she currently takes only a daily multivitamin alongside physical and occupational therapy.\n\nGiven this ongoing motor regression and the accompanying imaging abnormalities, I would value your subspecialty assessment and recommendations regarding a definitive diagnostic evaluation.\n\nSincerely,\n\nDr. Eleanor Vance, MD\nDepartment of Pediatrics\nOakridge Health Center"
+}

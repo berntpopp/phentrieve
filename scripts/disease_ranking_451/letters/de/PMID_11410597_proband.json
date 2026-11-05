@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11410597_proband",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 405,
+  "total_tokens": 2425,
+  "thoughts_tokens": 1668,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Dr. Weber,\n\nich überweise Ihnen Herrn Thomas Schmidt, einen 45-jährigen kaufmännischen Angestellten, zur weiteren kardiologischen Beurteilung. Der Patient stellte sich im Rahmen eines betriebsärztlichen Routine-Check-ups vor. Er ist Nichtraucher, nimmt keine regelmäßige Medikation ein und berichtet über eine gute körperliche Leistungsfähigkeit.\n\nAnamnestisch ist der Patient völlig beschwerdefrei; er verspürte subjektiv nie Palpitationen und blieb im bisherigen Verlauf stets frei von Synkopen. Auch ein Kreislaufstillstand trat zu keinem Zeitpunkt auf. Ein plötzlicher Herztod ist in der Familienanamnese nicht bekannt. Die körperliche Untersuchung bot Normalbefunde mit unauffälligen Herztönen, vesikulärem Atemgeräusch und einem Blutdruck von 125/80 mmHg. Das Basislabor inklusive Serum-Elektrolyten und Nierenretentionswerten lag ausnahmslos im Normbereich.\n\nIm 12-Kanal-EKG zeigte sich eine rSr'-Formation über V1 und V2 im Sinne eines inkompletten Schenkelblocks der rechten Kammerleitung, kombiniert mit auffälligen ST-Strecken-Hebungen über den rechtspräkordialen Ableitungen. Das QT-Intervall erwies sich dabei als völlig normwertig und wies keine Verlängerung auf. Im anschließend veranlassten 24-Stunden-Holter-Monitoring wurde zudem eine kurze, selbstlimitierende ventrikuläre Tachykardie mit breiten Kammerkomplexen registriert.\n\nAufgrund dieser Befundkonstellation bitte ich Sie um eine rhythmologische Einschätzung sowie um Ihre geschätzte Empfehlung bezüglich des weiteren diagnostischen und therapeutischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Martin Behrens"
+}

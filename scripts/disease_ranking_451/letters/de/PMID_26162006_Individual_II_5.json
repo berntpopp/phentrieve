@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26162006_Individual_II_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 325,
+  "completion_tokens": 435,
+  "total_tokens": 2868,
+  "thoughts_tokens": 2108,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Herrn Weber, der sich im Erwachsenenalter erstmals zur gezielten ophthalmologischen Untersuchung in meiner Praxis vorstellte.\n\nDer Patient klagte über eine schleichende Verschlechterung des Seheindrucks. Der bestkorrigierte Fernvisus lag beidseits bei 1,0. Die vorderen Augenabschnitte zeigten sich an der Spaltlampe weitgehend unauffällig, die Hornhaut war klar und die Vorderkammer tief. Die Augenlinse stellte sich transparent dar; eine nukleäre Trübung oder sklerotische Veränderung des Linsenkerns lag nicht vor. Auch Makula und Netzhautperipherie boten einen altersentsprechend regelrechten Befund.\n\nAuffällig waren die applanatorisch gemessenen intraokularen Tensiowerte, die mit 28 mmHg rechts und 27 mmHg links pathologisch über der Norm lagen. Gonioskopisch präsentierte sich der Kammerwinkel beidseits zirkulär weit offen, ohne Nachweis von Verwachsungen. Fundoskopisch imponierte korrelierend hierzu eine ausgeprägte Aushöhlung der Sehnervenpapillen mit deutlichem Verlust des neuroretinalen Randsaums und einer vergrößerten Exkavation im Sinne einer fortgeschrittenen glaukomatösen Nervenfaserschädigung bei freien Filtrationswegen. In der computergestützten Schwellenperimetrie ließen sich hierzu passende, deutliche bogenförmige Defizite im Gesichtsfeld beidseits dokumentieren.\n\nDer Patient ist als Angestellter tätig, verneint einen Nikotinabusus und nimmt derzeit keine Dauermedikation ein. Relevante internistische Vorerkrankungen bestehen nicht. \n\nIch bitte um Ihre geschätzte fachärztliche Mitbeurteilung der Befundkonstellation und um Ihre Empfehlung bezüglich des weiteren therapeutischen Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

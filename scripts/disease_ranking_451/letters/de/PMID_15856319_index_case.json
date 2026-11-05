@@ -1,0 +1,18 @@
+{
+ "case": "PMID_15856319_index_case",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 344,
+  "completion_tokens": 335,
+  "total_tokens": 2083,
+  "thoughts_tokens": 1404,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 7 Monate alten Säugling zur weiteren nephrologischen Abklärung. Erste auffällige Befunde zeigten sich bereits im Alter von 2 Monaten im Rahmen einer pädiatrischen Routinekontrolle. \n\nDer Junge kam zeitgerecht zur Welt, das Hörscreening war unauffällig und die bisherige motorische Entwicklung verläuft altersentsprechend. Die Familienanamnese ist hinsichtlich frühkindlicher Erkrankungen leer. Aktuell erhält er lediglich die standardmäßige Vitamin-D-Prophylaxe.\n\nIn unseren aktuellen Laboruntersuchungen fällt wiederholt ein deutlich erniedrigter Magnesiumspiegel im Serum auf. Zudem zeigt sich eine manifeste Einschränkung der Filtrationsleistung der Nieren mit erhöhten Retentionsparametern. Auffällig ist weiterhin ein massiv über den Referenzbereich hinaus gesteigertes intaktes Parathormon. Im Urin ließ sich eine relevante Eiweißausscheidung objektivieren, begleitet von einer exzessiven renalen Harnsäureelimination mit pathologisch erhöhter Harnsäure-Kreatinin-Ratio. In der abdominellen Sonographie imponiert beidseits eine diffuse medulläre Echovermehrung der Nieren, passend zu ausgeprägten Verkalkungsprozessen im Bereich der Pyramiden, während die ableitenden Harnwege nicht dilatiert sind.\n\nAufgrund dieser Konstellation bitte ich um Ihre geschätzte Mitbeurteilung und Einleitung der weiteren spezialisierten Diagnostik zur Ätiologieklärung.\n\nMit freundlichen kollegialen Grüßen"
+}

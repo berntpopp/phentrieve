@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27439707_Individual_1",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 464,
+  "completion_tokens": 339,
+  "total_tokens": 2666,
+  "thoughts_tokens": 1863,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating Maya Lin, a 12-year-old girl referred for ongoing neurological evaluation. Her parents noted developmental stagnation starting around age two. She demonstrated comprehensive delays across early developmental domains, walking late and continuing to struggle with gross motor skills, alongside profound expressive speech delay and significant intellectual impairment. Over the past year, her family has also struggled with increasing physical aggression and behavioral outbursts. \n\nPhysical examination reveals generalized low muscle tone without spasticity, and a distinct coarsening of her facial features. Motor stereotypies are absent, and her respiratory pattern is regular with no episodes of hyperventilation. Vision and hearing evaluations are completely normal. Systemically, she suffers from chronic, hard-to-manage constipation.\n\nMaya recently developed spells characterized by blank staring with impaired awareness and responsiveness. She has no history of infantile spasms, nor any atonic drop attacks, tonic events, or bilateral tonic-clonic seizures. These focal discognitive episodes do not involve emotional features such as sudden panic or acute fear. A routine EEG was distinctly abnormal with multifocal discharges. \n\nHer brain MRI was re-reviewed: the corpus callosum was normal in caliber, without thinning or abnormal thickening, and cerebral white matter volume was fully preserved. There was no evidence of cortical dysplasia, periventricular leukomalacia, previous intraventricular hemorrhage, or volume loss affecting the cerebral cortex or the cerebellar vermis.\n\nShe lives at home with her healthy parents and currently takes levetiracetam and polyethylene glycol. I would appreciate your expert neurodevelopmental assessment and guidance on her ongoing management.\n\nSincerely,\nDr. Rachel Bennett, MD"
+}

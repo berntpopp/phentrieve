@@ -1,0 +1,18 @@
+{
+ "case": "PMID_19458539_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 386,
+  "completion_tokens": 389,
+  "total_tokens": 2960,
+  "thoughts_tokens": 2185,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Weber,\n\nich bitte um Ihre fachneurologische Mitbeurteilung der 57-jährigen Patientin Marion Vogt, die sich mit einer progredienten Muskelsymptomatik vorstellt, welche initial um das 41. Lebensjahr bemerkt wurde.\n\nAnamnestisch beklagt die Patientin ein stark erschwertes Aufstehen aus tieferen Sitzmöbeln sowie erhebliche Probleme bei der Bewältigung von Treppenstufen. Im Untersuchungsbefund imponiert ein watschelndes Gangmuster. Bei der manuellen Kraftprüfung fand sich eine proximale Schwäche, die an den Schulter- und Beckengürteln sowie an den Zervikalflektoren am deutlichsten ausgeprägt war. Die mimische Muskulatur zeigte sich hingegen vollkommen intakt und seitengleich kräftig. Die Muskeleigenreflexe waren generalisiert deutlich abgeschwächt. Sensibilität, Koordination und vegetative Funktionen waren unauffällig, der Blutdruck lag bei 125/80 mmHg. In der Familienanamnese finden sich keine relevanten Vorerkrankungen.\n\nLaborchemisch zeigte sich eine deutliche Erhöhung der Serum-Kreatinkinase auf 540 U/l. In einer extern durchgeführten Biopsie des Musculus vastus lateralis zeigten sich eine ausgeprägte Streuung der Faserdurchmesser, verstreute eckig konfigurierte atrophe Einzelfasern sowie eine vermehrte zentrale Kernverlagerung. Auffällig waren zudem typische Randsaumvakuolen in mehreren Muskelfasern. \n\nIch überweise Ihnen die Patientin zur differenzialdiagnostischen Einordnung sowie zur weiteren diagnostischen und therapeutischen Empfehlung.\n\nMit kollegialen Grüßen,\nDr. med. Thomas Keller"
+}

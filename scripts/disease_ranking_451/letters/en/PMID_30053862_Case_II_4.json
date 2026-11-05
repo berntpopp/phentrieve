@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30053862_Case_II_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 357,
+  "completion_tokens": 301,
+  "total_tokens": 2210,
+  "thoughts_tokens": 1552,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for agreeing to evaluate baby boy Reynolds, a 25-day-old male infant currently admitted to our neonatal intensive care unit. He was delivered at 39 weeks gestation to healthy, non-consanguineous parents, with clinical abnormalities apparent since delivery.\n\nOn examination, the infant exhibits marked diffuse swelling affecting his limbs, abdomen, and periorbital regions. Craniofacial inspection is notable for widely spaced eyes, auricles that are low-placed bilaterally, and a severely receded, small jaw. He demonstrates severe congenital microcephaly; subsequent neuroimaging revealed an abnormally smooth, agyric brain surface with simplified architecture.\n\nSystemic investigations have been notable for established end-stage renal failure, manifesting with profound azotemia, oliguria, and markedly elevated serum creatinine present from the first week of life. A renal ultrasound demonstrated kidneys with poor contrast between the cortex and medulla bilaterally. \n\nHis cardiovascular exam is reassuring, showing a regular rate and rhythm without murmurs. Lung fields are clear to auscultation bilaterally, and his abdomen is soft without organomegaly. His newborn metabolic screen was reported as normal, and thyroid studies are within reference limits. He is currently maintained on nutritional support and fluid management.\n\nGiven the complex multisystem presentation present from birth, we would greatly appreciate your evaluation regarding the underlying etiology and any recommendations for ongoing care.\n\nSincerely,\n\nDr. Evelyn Croft\nDepartment of Neonatology"
+}

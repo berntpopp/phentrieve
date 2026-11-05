@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29050398_Patient_14",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 398,
+  "completion_tokens": 359,
+  "total_tokens": 2675,
+  "thoughts_tokens": 1918,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate Maya Davis, who is now 4 years and 3 months old, for an expert second opinion regarding her intractable neurologic difficulties. Maya lives at home with both parents, and her family history is non-contributory.\n\nHer concerns started at 4 months of age when her parents noticed stereotyped clusters of jackknife flexor movements. Over time, she also developed brief paroxysms of generalized body stiffening. Her initial electroencephalogram demonstrated a characteristically disorganized, high-amplitude chaotic background with multifocal discharges. Importantly, her caregivers have observed no focal seizures, no staring spells consistent with absence episodes, and no bilateral tonic-clonic events. \n\nOn physical examination, Maya’s cranial circumference measures significantly below the 3rd percentile. She exhibits profound developmental delays across all motor, cognitive, and communicative milestones, functioning well below her chronological baseline. She displays pronounced axial floppiness, though her deep tendon reflexes are present and symmetric bilaterally. Her cardiac, pulmonary, and abdominal examinations are entirely normal, and routine laboratory screening has been non-revealing. She is currently prescribed levetiracetam and clonazepam.\n\nRecent magnetic resonance imaging of her neuroaxis demonstrated generalized supratentorial parenchymal volume loss, as well as distinct volume loss involving the cerebellar hemispheres and vermis. There is clear wasting of the brainstem structures, and the callosal body is markedly slender throughout. Additionally, central white matter maturation remains substantially behind what is expected for her age.\n\nGiven her refractory seizure history, marked subnormal head growth, and neuroimaging progression, I would greatly appreciate your assessment and recommendations for further workup.\n\nSincerely,\n\nDr. Marcus Vance, MD\nPediatric Neurology"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30580808_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 570,
+  "completion_tokens": 547,
+  "total_tokens": 3537,
+  "thoughts_tokens": 2420,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen den 5-jährigen Jonas zur differenzialdiagnostischen Beurteilung. \n\nDie Geburt erfolgte termingerecht ohne intrauterine Wachstumsretardierung oder perinatale Asphyxie mit respiratorischer Anpassungsstörung. Eine neonatale Hypotonie bestand nicht. Jonas zeigte im Kleinkindalter ein stabiles Gedeihen ohne Trinkschwäche, Kleinwuchs oder Hyperphagie. Aktuell imponiert eine leichte globale Entwicklungsverzögerung. Die sprachliche Entwicklung verläuft jedoch unauffällig, und eine Intelligenzminderung ist nicht festzustellen. Im Alltag zeigt er weder Zwangssymptome, motorische Stereotypien noch ein starres Festhalten an Routinen. Zeichen aus dem Autismus-Spektrum, Hyperaktivität, ausgeprägte Wutanfälle, Angstzustände, manische Phasen sowie selbstverletzendes oder aggressives Verhalten fehlen gänzlich. Auch der Nachtschlaf ist ungestört.\n\nPhänotypisch fällt eine auffallend breite Nase auf. Die Nasenlöcher sind nicht antevertiert, die Nasenspitze ist nicht plump oder knollig. Es zeigen sich keine Makrozephalie und keine spärliche Kopfbehaarung; eine Hypertrichose, abnorm lange Wimpern oder betonte Augenbrauen liegen nicht vor. Die Lidspalten sind frei ohne Ptosis. Das obere Lippenrot ist nicht verschmälert, das untere nicht verbreitert, und der Gaumen ist unauffällig konfiguriert. Pädaudiologisch ließen sich Schallempfindungs- und Schallleitungsschwerhörigkeit ausschließen. \n\nAn den Händen besteht beidseits eine Klinodaktylie des 5. Fingers; die Interphalangealgelenke sind normal und nicht prominent. Die Wirbelsäule weist physiologische Krümmungen ohne Skoliose, Kyphose oder thorakale Lordosierung auf, eine knöcherne Wirbelfehlbildung ist nicht bekannt. Abdominelle Hernien finden sich nicht. \n\nNeurologisch imponiert eine generalisierte muskuläre Hypotonie, wobei keine Hypertonie, Dystonie, Hyperkinesien oder extrapyramidale Dyskinesien vorliegen. Die Muskeleigenreflexe sind seitengleich mittellebhaft ohne pathologische Pyramidenbahnzeichen.\n\nIch danke Ihnen für die konsiliarische Mitbeurteilung des Jungen und verbleibe\n\nmit freundlichen Grüßen"
+}

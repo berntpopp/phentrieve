@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29330883_Subject_8",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 565,
+  "completion_tokens": 423,
+  "total_tokens": 4863,
+  "thoughts_tokens": 3875,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reynolds,\n\nThank you for seeing Maya, an eight-year-old girl referred for your clinical assessment. \n\nHer neonatal course was notable for severe intrauterine growth restriction following a pregnancy complicated by excess amniotic fluid. In the newborn period, she underwent repair of a type I common arterial trunk and surgical unroofing of bilateral choanal obstruction. Her developmental trajectory has been notable for delays across gross motor, fine motor, and speech domains, alongside significant intellectual disability. Her height tracks persistently beneath the third percentile. In addition, audiology confirms bilateral sensorineural hearing loss.\n\nOn physical examination, she demonstrates widely set eyes, inferonasal uveal and retinal colobomatous defects, and a noticeably prominent stem of the antihelix. Craniofacial evaluation shows an oval contour without a triangular face, macrocephaly, plagiocephaly, narrow forehead, frontal bossing, or excessive frontal prominence, and her anterior hairline is not low. The palpebral fissures are neutral, lacking upslant, downslant, blepharophimosis, epicanthic folds, ptosis, or close-set eyes. The eyebrows are not broad, and there is no synophrys or enophthalmos. Midface retrusion, a depressed nasal bridge, a bulbous nasal tip, and anteverted nares are absent. Examination of the oral cavity reveals no cleft lip, well-formed philtral pillars without a flattened philtrum, normal mouth width, unremarkable non-broadened alveolar ridges, standard palatal height, and no micrognathia. Her ears are not simplified, cupped, or overfolded, and show no helical hypoplasia, preauricular pits, or anterior earlobe creases. Musculoskeletal exam is notable for mild mid-thoracic scoliosis; she has preserved muscle tone with no hypotonia. Past renal ultrasound and cystography showed no vesicoureteral reflux.\n\nShe currently takes daily pediatric multivitamins and attends a special education program. I would value your comprehensive evaluation regarding her overall presentation.\n\nSincerely,\nDr. Karen Miller"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_14628289_Family_A_individual_6",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 354,
+  "completion_tokens": 266,
+  "total_tokens": 2798,
+  "thoughts_tokens": 2178,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Foster,\n\nThank you for seeing this seven-year-old girl in your clinic for specialized assessment. Her parents note that she has struggled with persistent bedwetting during sleep since approximately three years of age.\n\nDuring recent investigations for her ongoing nighttime incontinence, a renal ultrasound demonstrated diffuse medullary hyperechogenicity consistent with calcium deposition across the renal pyramids bilaterally. Subsequent metabolic urine collections revealed marked calcium wasting alongside an abnormally elevated loss of magnesium in her urine.\n\nHer blood work is reassuring in other respects. Renal function remains fully preserved, with serum creatinine and blood urea nitrogen remaining comfortably within normal limits for her age. Circulating parathyroid hormone is not elevated, with values falling well within the standard reference range. Furthermore, she has experienced no repeated urinary tract infections, and recent urine cultures have been sterile. \n\nOn examination, she is a cheerful child who appears entirely well. Her vital signs are stable, including a normal blood pressure of 96/60 mmHg, and her growth parameters track steadily along the 50th percentile. There is no family history of nephrolithiasis, and she takes no regular medications.\n\nI would be very grateful for your expert evaluation regarding these urinary solute abnormalities and your advice on optimal long-term management.\n\nSincerely,\nDr. Marcus Vance"
+}

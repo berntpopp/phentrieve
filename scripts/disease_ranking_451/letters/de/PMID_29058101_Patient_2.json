@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29058101_Patient_2",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 375,
+  "completion_tokens": 407,
+  "total_tokens": 2402,
+  "thoughts_tokens": 1620,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich überweise Ihnen die 4-jährige Patientin zur konsiliarischen Beurteilung und weiterführenden diagnostischen Abklärung. \n\nErste Symptome zeigten sich bereits im Säuglingsalter. Auffällig sind insbesondere chronisch-rezidivierende, ekzematöse Hautveränderungen, vor allem an den Beugen und am Rumpf, die auf Basispflege nur unzureichend ansprechen. Zudem bestehen seit längerer Zeit protrahiert verlaufende Durchfälle. In der Vorgeschichte finden sich zudem gehäufte Episoden von Otitis media, die mehrfach antibiotisch versorgt werden mussten. Pulmonale Infektionen wie eine Pneumonie traten bisher nicht auf, und respiratorisch war das Kind jederzeit vollkommen stabil, ohne Anhalt für ein akutes Atemnotsyndrom. \n\nLaborchemisch imponiert ein massiv erhöhtes zirkulierendes Gesamt-IgE. Das übrige Differenzialblutbild ist unauffällig; eine Erhöhung der absoluten Eosinophilenzahl ließ sich nicht nachweisen, und auch eine Anämie liegt nicht vor. \n\nTrotz der persistierenden Diarrhoen zeigt sich kein Gedeihstopp: Das Mädchen entwickelt sich entlang der 50. Perzentile für Größe und Gewicht. In der körperlichen Untersuchung imponiert ein weiches Abdomen ohne Druckschmerz, sonografisch fand sich keine Hepatosplenomegalie. Die peripheren Lymphknotenstationen sind unauffällig, eine generalisierte Lymphadenopathie ist klinisch ausgeschlossen. \n\nDie Familienanamnese ist bezüglich relevanter Vorerkrankungen unauffällig, die Patientin lebt mit ihren gesunden Eltern und besucht regelmäßig den Kindergarten.\n\nÜber eine Mitbeurteilung des Falles und Ihre Einschätzung zum weiteren Procedere würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

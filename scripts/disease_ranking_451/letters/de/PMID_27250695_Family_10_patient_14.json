@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27250695_Family_10_patient_14",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 348,
+  "completion_tokens": 385,
+  "total_tokens": 2370,
+  "thoughts_tokens": 1637,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen heute die zweieinhalbjährige Luisa zur konsiliarischen Mitbeurteilung.\n\nDie Eltern stellen das Mädchen wegen einer ausgeprägten Gedeih- und Entwicklungsverzögerung vor. Bei den anthropometrischen Daten fällt eine deutliche Längenminderung auf, wobei das Längenwachstum konstant unterhalb der 3. Perzentile verläuft. Auch das Körpergewicht ist stark vermindert und liegt weit unter den altersüblichen Referenzkurven. Zudem besteht ein auffallend geringer Kopfumfang, der sich messtechnisch ebenfalls deutlich unter der dritten Perzentile bewegt.\n\nIn der bisherigen Entwicklung zeigt Luisa einen manifesten Rückstand der geistigen Fähigkeiten, welcher insbesondere das Sprachverständnis sowie die kognitive Interaktion betrifft. Zerebrale Anfälle oder epilepsietypische Episoden traten im bisherigen Verlauf nie auf. Verhaltensbezogen ist das Kind im Alltag eher unauffällig und ruhig; es finden sich keine Hinweise auf eine motorische Hyperaktivität. Fremdaggressives Verhalten ist den Eltern fremd, und auch selbstverletzende Handlungen konnten zu keinem Zeitpunkt beobachtet werden. \n\nDie internistische Untersuchung erbrachte unauffällige Befunde für Herz, Lunge und Abdomen. Das orientierende Hör- und Sehscreening zeigte altersentsprechende Reaktionen. Eine Dauermedikation besteht nicht, und die Familienanamnese bezüglich relevanter Vorerkrankungen ist leer. Luisa lebt mit ihren gesunden Eltern zusammen und wird tagsüber zu Hause betreut.\n\nIch danke Ihnen für Ihre geschätzte Beurteilung und Empfehlungen zum weiteren diagnostischen Vorgehen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Weber\nFacharzt für Kinder- und Jugendmedizin"
+}

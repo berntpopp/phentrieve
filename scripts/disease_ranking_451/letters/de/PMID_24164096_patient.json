@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24164096_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 381,
+  "completion_tokens": 408,
+  "total_tokens": 2264,
+  "thoughts_tokens": 1475,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute die 12-jährige Schülerin Leonie zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten zeigten sich laut den Eltern im Alter von 10 Jahren. \n\nInitiiert wurde die Vorstellung primär durch unwillkürliche, arrhythmische Muskelzuckungen im Sinne von Myoklonien sowie einen distalen Tremor an beiden Armen. Anfallsanamnestisch imponieren zudem wiederkehrende myoklonische Absencen und abrupte atonische Anfälle; zu Stürzen kam es im Rahmen dieser Episoden bisher jedoch nicht. Eine ambulant durchgeführte audiologische Untersuchung ergab zudem eine beidseitige sensorineurale Schwerhörigkeit. \n\nIn den apparativen Voruntersuchungen zeigte die Bildgebung des Schädels eine messbare Volumenminderung der zerebralen weißen Substanz. Die elektromyographische Ableitung wies Zeichen einer chronischen Denervierung auf.\n\nOphthalmologisch bot sich ein unauffälliger Fundusbefund, insbesondere fand sich kein kirschroter Fleck an der Makula. Die Stimme des Mädchens ist kräftig und unauffällig, eine Heiserkeit wurde verneint. Die Bestimmung der Kreatinkinase im Serum erbrachte regelrechte Werte. Die weitere neurologische Untersuchung gestaltete sich bis auf die oben geschilderten Befunde unauffällig, die Pupillomotorik ist intakt und die Muskeleigenreflexe sind symmetrisch mittellebhaft auslösbar. \n\nLeonie besucht die 6. Klasse eines Gymnasiums. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer, eine feste Dauermedikation besteht nicht. \n\nIch wäre Ihnen für eine differenzialdiagnostische Evaluation und Empfehlungen zum weiteren Prozedere sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}

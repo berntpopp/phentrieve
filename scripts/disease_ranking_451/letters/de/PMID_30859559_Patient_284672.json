@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30859559_Patient_284672",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 692,
+  "completion_tokens": 616,
+  "total_tokens": 5634,
+  "thoughts_tokens": 4326,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich erbitte Ihre konsiliarische Einschätzung bei einem 8,5-jährigen Mädchen. Sie lebt bei gesunden Eltern, nimmt keine Dauermedikation ein und der Bauchbefund ist regelrecht.\n\nPränatal war sonografisch ein vergrößerter Nackensaum beschrieben worden; ein Hygroma colli oder Hydrops fetalis lagen nicht vor. Die frühe Kindheit war von Trink- und Fütterproblemen geprägt. Der freie Gehbeginn sowie die expressive Sprache waren deutlich verspätet. Es besteht ein globales Entwicklungsdefizit mit intellektueller Einschränkung. Krampfanfälle oder autistische Züge traten nicht auf.\n\nIm Phänotyp imponiert ein schmales, langes Gesicht mit blau pigmentierten Iriden, Ptose, Hypertelorismus und nach temporal abfallenden Lidachsen. Weder verlängerte Lidspalten, ein Epikanthus noch Strabismus liegen vor. Die Stirn ist normal dimensioniert (weder hoch, breit noch schmal, keine betonte Metopikanaht). Die Nase weist keinen flachen Sattel und keine antevertierten Nares auf; die Nasolabialfalten sind flach, die Züge fein und ohne Mittelgesichtsretraktion. Wir sehen ein spitzes Kinn bei Retrogenie, jedoch keine echte Mikrognathie. Intraoral bestehen ein spitzbogiger Gaumen und Zahnfehlstellungen. Das Kopfhaar ist glatt, der Stirnhaaransatz normal, okzipital jedoch auffällig tief. Die Ohren sind nach hinten gekippt, aber normal inseriert. Es besteht eine Schallempfindungs-Schwerhörigkeit.\n\nAuffallend sind der verkürzte Hals mit lateralen Flügelfalten (ohne überschüssige Nackenhaut), eine muskuläre Hypotonie und eine Trichterbrust. Eine Kielbrust, Skoliose oder ein weiter Mamillenabstand fehlen. Kardiologisch fand sich eine Mitralinsuffizienz; weder Mitralklappenprolaps, Pulmonalstenose, Kardiomyopathie noch Septumdefekte (kein ASD/VSD) sind nachweisbar. Länge und Kopfumfang sind altersentsprechend (kein Kleinwuchs, keine Mikrozephalie). \n\nAn den Händen besteht beidseits eine Vierfingerfurche ohne prominente Fingerpolster. Die Füße zeigen keinen Pes planus und keine D2/D3-Syndaktylie. Die Haut ist weder überdehnbar noch hyperkeratotisch, ohne Cutis laxa, Ekzeme oder Hyperpigmentierungen; Hirsutismus besteht nicht. Es ergaben sich nie Hinweise auf eine lymphatische Leukämie.\n\nFür Ihre diagnostische Einordnung danke ich Ihnen im Voraus.\n\nMit freundlichen Grüßen"
+}

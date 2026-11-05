@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23222957_Family_8_8_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 424,
+  "total_tokens": 3482,
+  "thoughts_tokens": 2666,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre konsiliarische Mitbeurteilung unseres 8-jährigen Patienten, den wir Ihnen zur Abklärung eines komplexen Beschwerdebildes vorstellen. \n\nEntwicklungsneurologisch besteht ein deutlicher motorischer Rückstand; Meilensteine wie freies Sitzen und Laufen wurden erst mit erheblicher Verzögerung erreicht. Zudem traten in der Vergangenheit wiederholt zerebrale Krampfanfälle auf, weswegen aktuell eine medikamentöse Therapie mit Levetiracetam erfolgt. Das kranielle MRT zeigte ein vollständiges Fehlen des Balkens. Augenärztlich wurde eine beidseitige Trübung der Augenlinsen beschrieben, ein Nystagmus liegt jedoch nicht vor. Bei der Inspektion imponieren auffallend helle, fleckig depigmentierte Areale der Haut.\n\nInternistisch besteht eine Myokardschwäche mit reduzierter Pumpfunktion. Wegen gehäufter bakterieller Infekte erfolgte eine Labordiagnostik, welche eine ausgeprägte Abwehrschwäche bestätigte; computertomographisch zeigte sich ein stark verkleinertes Thymusgewebe, wobei eine vollständige Aplasie des Thymus sicher ausgeschlossen werden konnte.\n\nDer Kopfumfang liegt mit 52 cm auf der 50. Perzentile, eine Mikrozephalie besteht somit nicht. Es zeigen sich weder eine Lippenspalte noch eine Gaumenspalte, der Mund-Rachen-Raum stellt sich morphologisch intakt dar. Das Abdomen ist weich, eine Hepatomegalie ist sonographisch nicht nachweisbar. Die Wirbelsäule zeigt sich klinisch geradlinig ohne Zeichen einer Skoliose. Die Vitalparameter sind unauffällig, die Familienanamnese ist bezüglich früherer neurologischer Erkrankungen leer.\n\nWir bitten Sie um eine Beurteilung des Krankheitsbildes und Vorschläge zum weiteren klinischen Vorgehen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26541327_Pat_2_FII",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 428,
+  "completion_tokens": 492,
+  "total_tokens": 2769,
+  "thoughts_tokens": 1849,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen heute Frau M., eine 22-jährige Patientin, die als kaufmännische Angestellte tätig ist, zur weiteren differentialdiagnostischen Abklärung. Die Krankheitsgeschichte reicht bis ins frühe Säuglingsalter zurück; erste Auffälligkeiten manifestierten sich im Alter von etwa sieben Monaten.\n\nAktuell bot sich das klinische Bild eines akuten Leberversagens. Laborchemisch zeigten sich exzessiv erhöhte Transaminasen (sowohl GOT als auch GPT deutlich gesteigert) sowie ein Anstieg der Gamma-GT. Auffallend waren zudem ein ausgeprägter Ammoniakanstieg, eine Hypoglykämie sowie eine Hyperlaktatämie. Das Serumbilirubin war insgesamt deutlich vermehrt, maßgeblich bedingt durch die konjugierte Fraktion. Die Gerinnung war mit einer relevant verlängerten Prothrombinzeit kompromittiert. Die Nierenretentionsparameter waren dabei stets normwertig, Herz und Lunge auskultatorisch bland.\n\nKürzlich erlitt die Patientin zudem ein erstmaliges epileptisches Anfallsereignis. Die daraufhin veranlasste kranielle Bildgebung dokumentierte eine diffuse Hirnatrophie. Kognitiv zeigt sich die junge Frau jedoch unbeeinträchtigt; eine Intelligenzminderung besteht keineswegs. Im Rahmen der körperlichen Statuserhebung fällt ein ausgeprägter Kleinwuchs bei unauffälliger Familienanamnese auf. Kraniofazial imponiert ein Hypotelorismus; ein Hypertelorismus liegt definitiv nicht vor.\n\nErgänzende augenärztliche Kontrollen ergaben einen unauffälligen Sehnervenbefund ohne Nachweis einer Optikusatrophie. Funktionell und radiologisch fand sich keine zervikale Instabilität der Halswirbelsäule. Die Knochendichtemessung schloss eine Osteopenie aus. Das Differenzialblutbild wies eine regelrechte Ausreifung ohne Hyposegmentierung der neutrophilen Granulozytenkerne auf.\n\nAufgrund dieses komplexen Verlaufs bitte ich um Ihre geschätzte Expertise und konsiliarische Beurteilung bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

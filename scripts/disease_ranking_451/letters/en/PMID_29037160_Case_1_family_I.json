@@ -1,0 +1,18 @@
+{
+ "case": "PMID_29037160_Case_1_family_I",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 338,
+  "completion_tokens": 317,
+  "total_tokens": 1933,
+  "thoughts_tokens": 1278,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Maya Lin, a 3-year-old female, for an urgent assessment regarding recent collapse and rhythm disturbances. \n\nMaya was brought to our emergency department following a sudden loss of consciousness accompanied by a generalized convulsive seizure lasting approximately ninety seconds. She was born at 39 weeks following an uneventful pregnancy, though she was identified at birth as having severe bilateral sensorineural hearing deficits, for which she uses bilateral cochlear implants. She has otherwise met motor and cognitive milestones appropriately and lives with her parents and healthy older brother.\n\nUpon presentation, her neurological examination showed no focal deficits and her vital signs were stable. Serum electrolytes, including potassium, calcium, and magnesium, were entirely unremarkable. However, her telemetry monitoring demonstrated intermittent non-sustained runs of ventricular tachycardia with changing, irregular QRS morphology. A resting 12-lead electrocardiogram revealed marked prolongation of the corrected QT interval, consistently measuring between 540 and 560 ms across multiple tracings. Her chest radiograph was clear, and bedside echocardiography showed a structurally normal heart with preserved biventricular systolic function. Family history is negative for unheralded syncope, unexplained drownings, or early cardiovascular demise.\n\nGiven the combination of her electrophysiologic abnormalities and the convulsive event, we have admitted her to the cardiac step-down unit on continuous telemetry. I would be very grateful for your comprehensive opinion on her management and any further risk stratification you recommend.\n\nSincerely,\nDr. Katherine Vance, MD"
+}

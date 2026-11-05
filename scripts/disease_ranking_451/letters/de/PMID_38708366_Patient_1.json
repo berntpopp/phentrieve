@@ -1,0 +1,18 @@
+{
+ "case": "PMID_38708366_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 387,
+  "completion_tokens": 436,
+  "total_tokens": 3208,
+  "thoughts_tokens": 2385,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\nsehr geehrter Herr Kollege,\n\nich überweise Ihnen den heute 7 1/2 Jahre alten Jungen zur konsiliarischen Mitbeurteilung bei komplexem Anfallsleiden. Die Erstmanifestation der neurologischen Symptomatik lag im Alter von 7 Monaten.\n\nAnfänglich traten herdbezogen beginnende motorische Anfallsepisoden auf, später kam es wiederholt auch zu generalisierten bilateralen Ereignissen mit initialer Tonisierung und konvulsiven Zuckungen. Blitz-Nick-Salaam-artige Spasmen der Säuglingsperiode waren nie zu verzeichnen. Isolierte klonische Phänomene oder myoklonische Rucke wurden seitens der Eltern ebenso verneint wie non-motorische Anfälle im Sinne typischer Absencen. Ein protrahierter Verlauf als Status epilepticus trat glücklicherweise nie ein.\n\nIm Hirnstrombild dokumentieren sich anhaltend schwere epilepsietypische Potenziale und generalisierte Verlangsamungen. Diese epileptische Aktivität bedingte eine ausgeprägte Enzephalopathie mit Stillstand und partiellem Verlust bereits erworbener Fertigkeiten. Von klein auf bestand eine globale Retardierung sämtlicher Entwicklungsbereiche; gegenwärtig imponiert eine deutliche kognitive Behinderung. Zwischenmenschlich zeigt sich der Patient jedoch kontaktfreudig und aufmerksam; Anhaltspunkte für ein Verhalten aus dem autistischen Formenkreis oder eine Aufmerksamkeitsdefizit-Hyperaktivitätsstörung gibt es nicht.\n\nDie somatische Untersuchung bietet unauffällige Organbefunde sowie blande Hautverhältnisse. Die Familienanamnese ist bezüglich zerebraler Erkrankungen leer, die jüngere Schwester entwickelt sich regelrecht. Unter einer laufenden Therapie mit Clobazam und Levetiracetam sistierten die Ereignisse bislang nicht zufriedenstellend.\n\nIch danke Ihnen für Ihre geschätzte Beurteilung und Empfehlungen zum weiteren Prozedere.\n\nMit freundlichen kollegialen Grüßen"
+}

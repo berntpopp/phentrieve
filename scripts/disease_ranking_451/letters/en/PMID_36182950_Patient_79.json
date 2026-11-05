@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_79",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 461,
+  "completion_tokens": 341,
+  "total_tokens": 3361,
+  "thoughts_tokens": 2559,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morrison,\n\nThank you for evaluating Lucas Davis, an 8-year-old boy referred for assessment. Lucas has demonstrated developmental challenges since infancy, with generalized slowness across his early milestones, particularly regarding the late acquisition of sitting and walking. In contrast, his verbal milestones were attained on time, and formal psychometric assessment ruled out any general cognitive deficit. He performs well in mainstream school with an intact attention span. Socially, he engages easily with peers, maintains steady eye contact, and displays no autistic traits, abnormal social conduct, personality-related dysfunction, repetitive compulsive rituals, or stereotyped motor behaviors. His mother reports he sleeps soundly through the night.\n\nPhysical examination reveals a child who is not overweight, plotting along the 50th percentile for body habitus. Cranial measurement confirms significant enlargement with an occipitofrontal circumference above the 98th percentile. His facies is elongated, featuring widely spaced eyes, a notably widened root of the nose, and a receding lower jaw. There is no downward slant of the palpebral fissures, no prominent or protruding jawline, and the chin does not appear pointed. Muscle tone is preserved throughout with no floppiness, and he has never experienced any convulsive episodes. He demonstrates well-formed arches without flat feet. A review of systems is negative for neonatal jaundice or elevated bilirubin levels, as well as gastrointestinal disturbances like constipation or loose stools. Recent specialty screens confirmed normal visual acuity and an intact audiogram. \n\nHis family history is noncontributory, and both parents are healthy. I would be grateful for your assessment regarding his presentation.\n\nWarm regards,\nDr. Clara Vance, MD"
+}

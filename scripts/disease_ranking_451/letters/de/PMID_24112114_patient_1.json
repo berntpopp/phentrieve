@@ -1,0 +1,18 @@
+{
+ "case": "PMID_24112114_patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 392,
+  "completion_tokens": 441,
+  "total_tokens": 2750,
+  "thoughts_tokens": 1917,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Sommer,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des nun 7-jährigen Felix, dessen Symptomatik anamnestisch im Alter von etwa drei Jahren begann.\n\nKörperlich fällt bei dem Jungen ein auffällig silbrig schimmerndes, graues Kopfhaar auf. Die abdominelle Sonographie zeigte eine beträchtliche Vergrößerung von Leber und Milz. Periphere Lymphknotenschwellungen ließen sich klinisch nicht tasten, und auch sonographisch fand sich keine Lymphadenopathie. Eine globale Entwicklungsverzögerung liegt nicht vor; Felix besucht regulär die Grundschule und zeigt altersgerechte kognitive wie motorische Fähigkeiten. Kardiopulmonal sowie neurologisch ergab die Untersuchung regelrechte Normalbefunde. Die Familienanamnese ist bezüglich relevanter Vorerkrankungen leer, eine Dauermedikation besteht nicht.\n\nHämatologisch imponiert eine Verminderung aller drei Zellreihen: Es besteht ein erniedrigter Hämoglobinwert von 8,6 g/dl im Sinne einer Anämie, die Gesamtleukozytenzahl ist mit 2,3/nl signifikant reduziert, und auch die Thrombozyten sind mit 52/nl deutlich vermindert. Im manuellen Differenzialblutbild fielen zudem massiv vergrößerte Riesengranula im Zytoplasma der neutrophilen Granulozyten auf.\n\nIn der Thrombozytenfunktionsdiagnostik zeigte sich eine unzureichende Aggregationsantwort nach Stimulation mit Kollagen, Arachidonsäure sowie Ristocetin. Passend dazu wies die ultrastrukturelle Aufarbeitung eine deutliche numerische Verminderung der dichten Granula in den Thrombozyten nach.\n\nÜber Ihre geschätzte differenzialdiagnostische Einschätzung dieser Befundkonstellation und Empfehlungen zum weiteren diagnostischen Prozedere würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen\n\nDr. med. Thomas Lindner"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_16865293_Family_1_individual_3Y8M",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 394,
+  "completion_tokens": 323,
+  "total_tokens": 2925,
+  "thoughts_tokens": 2208,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nI am referring Leo Fletcher, a 3-year-and-8-month-old boy, to your clinic for a comprehensive diagnostic assessment. \n\nLeo exhibits severe linear growth failure alongside marked weight faltering, with both measures tracking well beneath the 0.4th centile despite high-calorie supplementation. His head circumference is likewise profoundly reduced relative to standard percentiles. Across all domains, he demonstrates pervasive developmental delays, showing limited expressive speech and delayed motor milestones. \n\nOn physical examination, his facial features are notable for deep-set globes and an unusually prominent, sharp nasal profile. An oral inspection reveals extensive cavities and decay across his primary dentition. Musculoskeletal evaluation is significant for fixed flexion deformities and restricted range of motion at both the knees and elbows. His cardiovascular and pulmonary examinations are entirely unremarkable, his abdomen is soft, and his skin shows no signs of sun reactivity or cutaneous light sensitivity. Family history is negative for early developmental concerns; his parents and older sister are in good health.\n\nDiagnostic studies to date have identified bilateral sensorineural deficits on auditory brainstem testing. An ophthalmologic exam showed scattered granular pigment mottling across the retinal pigment layer. Recent neuroimaging demonstrated diffuse supratentorial volume loss accompanied by prominently dilated cerebral ventricles. Of note, the cerebellum appeared completely preserved with no evidence of volume loss, and there was no mineral deposition or calcification within the basal ganglia. \n\nThank you for seeing Leo to provide your thoughts regarding his clinical picture and any recommended next steps.\n\nSincerely,\nDr. Arthur Pendelton"
+}

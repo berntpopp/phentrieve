@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30083032_individual",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 402,
+  "completion_tokens": 370,
+  "total_tokens": 2978,
+  "thoughts_tokens": 2206,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Morris,\n\nThank you for evaluating Lucas, a 9-year-old boy referred for your expert assessment. He lives at home with his parents and is performing very well in the fourth grade. Family history is unremarkable, with no chronic illnesses or early childhood deaths reported.\n\nLucas was identified in early childhood with parathyroid hormone deficiency resulting in symptomatic hypocalcemia, currently maintained on calcitriol and oral calcium carbonate. Subsequent chest imaging revealed an underdeveloped, near-absent thymus gland. Additionally, he was born with a distinct supernumerary digit on the postaxial border of his right hand, which was surgically addressed in infancy. \n\nOn physical examination today, his overall facial contours and structure are entirely standard. His eyes are normally spaced with no excessive distance between the canthi, and his eyelid openings are typical in size without palpebral constriction. His nasal bridge and alae show normal proportions without thinning or narrowing. Both auricles are structurally typical with normal ear architecture. Examination of the oral cavity shows an intact roof of the mouth without clefting, along with a normal lower jaw profile lacking retrognathism. His speech resonance is crisp, lacking palatopharyngeal air escape. \n\nHis extremities show no fusion or webbing between any digits. Linear growth is steady, with his height plotting squarely at the 50th percentile. Cognitively and socially, he has achieved all speech, motor, and academic milestones strictly on schedule without any developmental lag. Routine audiometric screening demonstrates clear bilateral hearing with no nerve-related hearing loss, and his latest endocrine labs show a euthyroid profile with no indication of autoimmune hyperthyroidism.\n\nGiven these combined findings, I would appreciate your comprehensive evaluation and advice on next steps for his clinical management. \n\nWarm regards,\n\nDr. Evelyn Vance, MD"
+}

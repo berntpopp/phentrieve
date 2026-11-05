@@ -1,0 +1,18 @@
+{
+ "case": "PMID_35190816_STX_EG0169P",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 361,
+  "completion_tokens": 308,
+  "total_tokens": 2468,
+  "thoughts_tokens": 1799,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Palmer,\n\nThank you for evaluating this young boy, whose neurological concerns first appeared during the neonatal period. He was born at full term via an uncomplicated vaginal delivery to non-consanguineous parents, and his family history is non-contributory.\n\nHis seizure history began in the first few days of life with localized, unilateral rhythmic jerking of the left upper limb. In the ensuing weeks, his caregivers noted episodes of behavioral arrest accompanied by a loss of awareness, as well as distinct clusters of sudden flexor spasms. He exhibits marked developmental delays across motor, visual, and cognitive milestones, remaining unable to roll, track objects, or hold his head up.\n\nOn physical examination, his vital signs are stable, his anterior fontanelle is soft and flat, and his cranial nerve assessment is non-focal. Systemic cardiovascular and abdominal examinations are entirely normal. Neurologically, he displays pronounced axial floppiness, which contrasts with the marked stiffness and increased resistance to passive motion noted throughout all four limbs. \n\nSerial electroencephalograms have been profoundly abnormal. Earliest recordings revealed an invariant pattern of high-amplitude paroxysms alternating with intervals of marked voltage attenuation. More recent studies have demonstrated pervasive background slowing, along with recurrent runs of multiple spike-wave complexes.\n\nHe is currently maintained on levetiracetam and phenobarbital. I would be most grateful for your assessment of this child and your guidance on further diagnostic investigations and management strategies.\n\nSincerely,\nDr. Arthur Vance"
+}

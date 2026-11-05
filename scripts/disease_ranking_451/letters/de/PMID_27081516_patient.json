@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27081516_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 461,
+  "completion_tokens": 405,
+  "total_tokens": 2662,
+  "thoughts_tokens": 1796,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nwir bitten um konsiliarische Mitbeurteilung eines 6 Tage alten Mädchens, welches nach einer Schwangerschaft mit bereits ab dem zweiten Trimenon auffälligem Oligohydramnion aufgrund von akutem fetalem Distress per Notsectio entbunden werden musste. Die Familienanamnese der jungen Eltern ist unauffällig.\n\nKlinisch zeigt die Patientin eine ausgeprägte muskuläre Hypotonie, eine deutliche Mikrognathie, tief ansetzende Ohrmuscheln sowie eine redundante Nackenhaut. Das äußere Genitale imponiert hypoplastisch. Auffällig ist zudem ein schweißfußartiger Eigengeruch. Das Abdomen präsentiert sich stark distendiert; sonographisch stellten sich beidseits polyzystisch-dysplastische Nieren dar, passend zur bestehenden Oligurie. Im Echokardiogramm zeigten sich eine deutliche Kardiomegalie und eine hypertrophe Kardiomyopathie. Respiratorisch besteht bei V. a. sekundäre Lungenhypoplasie eine invasive Beatmungspflichtigkeit. Die Schädelsonographie dokumentierte unauffällige Parenchymstrukturen bei nachweisbarem Cavum septi pellucidi.\n\nIm Serum fielen rezidivierende Hypoglykämien, eine behandlungsbedürftige Hyperammonämie sowie eine dekompensierte metabolische Azidose auf. In der quantitativen Bestimmung der organischen Säuren im Urin zeigte sich ein komplexes Muster mit exzessiver Ausscheidung von Adipinsäure, Suberinsäure, Ethylmalonsäure, Glutarsäure und Fumarsäure sowie einer pathologisch veränderten Konzentration von Sebacinsäure.\n\nAufgrund dieser schweren Multisystemmanifestation bitten wir um Ihre geschätzte Expertise und Unterstützung bei der weiteren ätiologischen Einordnung.\n\nMit freundlichen Grüßen"
+}

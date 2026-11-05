@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36182950_Patient_74",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 439,
+  "completion_tokens": 308,
+  "total_tokens": 2170,
+  "thoughts_tokens": 1423,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for seeing this pleasant two-year-old boy for an expert developmental consultation. He attends home daycare and lives with his parents and older sister; the family history is unremarkable.\n\nOver the past year, his parents have become increasingly concerned regarding broad-based developmental lagging across multiple spheres. He exhibits evident motor delays, achieving unassisted ambulation only recently, coupled with marked delays in his speech and language acquisition, communicating with only a few isolated words. Overall cognitive testing is consistent with a mild intellectual deficit, though his abilities are clearly above the moderate, severe, or profound ranges. He presents with several autistic behavioral traits, yet he demonstrates good eye contact, normal social reciprocity, and intact early personality functioning. His attention span is age-appropriate, and he has not exhibited motor stereotypies, repetitive compulsive rituals, or sleep disturbances. \n\nPhysical examination reveals notable widely spaced eyes, but his head circumference tracks along the 50th percentile, ruling out macrocephaly. He is not overweight. Musculoskeletal assessment confirms preserved tone without hypotonia, and he shows normal plantar arches without flat feet. Systemic review is positive for chronic constipation managed with occasional dietary adjustments, but there is no history of diarrhea or past hyperbilirubinemia. There have been no seizures or spell-like events. Comprehensive screening confirmed normal vision and no hearing deficit.\n\nI would greatly appreciate your evaluation and recommendations regarding therapeutic services and further clinical workup. \n\nWarm regards,\n\nDr. Claire Davies\nCommunity Pediatrics"
+}

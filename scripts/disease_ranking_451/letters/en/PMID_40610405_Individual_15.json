@@ -1,0 +1,18 @@
+{
+ "case": "PMID_40610405_Individual_15",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 515,
+  "completion_tokens": 383,
+  "total_tokens": 3113,
+  "thoughts_tokens": 2215,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for seeing Leo, a 5-year-old boy whom I have followed since his infancy for complex neurodevelopmental concerns. His mother, an accountant, is his primary caregiver, and there is no family history of neurological disorders. He currently takes daily pediatric multivitamin drops.\n\nLeo was born appropriate for gestational age and continues to track steadily along the 45th percentile for height and weight, without failure to thrive or stunting. Head circumference remains at the 50th percentile, ruling out microcephaly or macrocephaly, and skull contours show no sagittal suture fusion. Dysmorphology examination reveals prominent inner canthal folds, upward-slanting eye apertures that are not abnormally elongated, an abbreviated vertical groove above the upper lip, well-separated eyebrows, and normally positioned nostrils without an upturned nasal tip. His oral aperture is normal in width, his lower jaw is proportionate, and his external ears are normally formed.\n\nNeurologically, Leo displays generalized axial floppiness without any spasticity. He exhibits profound cognitive limitation with substantial delays across both fine and gross motor domains, and he remains completely non-verbal. Neuro-ophthalmologic assessment confirmed cortical visual impairment, whereas audiology demonstrated intact hearing. He engages warmly with his caregivers, showing no autistic behaviors. Prior neuroimaging revealed an attenuated corpus callosum along with an underdeveloped cerebellar vermis. Overnight respiratory studies previously documented episodes of alveolar hypoventilation. In addition, cardiology follows him for a persistent arterial duct and a secundum-type atrial communication. \n\nPhysical examination also notes straight fifth digits, everted nipples, typical hair distribution, and unproblematic bowel motility. Genital examination reveals a straight phallus without penile curvature or foreskin stenosis.\n\nI would greatly value your assessment and input regarding his overall presentation. \n\nSincerely,\nDr. Julian Wright"
+}

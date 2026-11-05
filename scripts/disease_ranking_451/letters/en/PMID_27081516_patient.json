@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27081516_patient",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 461,
+  "completion_tokens": 373,
+  "total_tokens": 4803,
+  "thoughts_tokens": 3969,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nI am writing to request an urgent consultation for a six-day-old female infant currently admitted to our neonatal unit. Her mother's pregnancy was complicated by severely low amniotic fluid volume identified during the second trimester, and delivery was prompted by intrapartum fetal compromise. The non-consanguineous parents are healthy, and routine maternal viral panels were negative.\n\nOn physical examination, the neonate shows profound muscular flaccidity and diminished tone. Notable dysmorphic features include low-placed auricles, a receded, small lower jaw, and redundant skin folds along her neck. We also observed clearly underdeveloped external female genitalia and a swollen, protuberant abdomen. Furthermore, the clinical team noted a striking cutaneous odor reminiscent of sweaty feet.\n\nDue to severe pulmonary underdevelopment, she remains dependent on mechanical ventilation. A chest radiograph demonstrated gross enlargement of the cardiac silhouette, and subsequent echocardiography identified biventricular hypertrophic myopathy. Ultrasound of the urinary tract revealed diffuse polycystic renal dysplasia, and she has experienced prolonged low urine output since birth. Cranial ultrasound visualized a persistent fluid-filled space between the septal leaves of the forebrain without any intraventricular hemorrhage.\n\nInitial laboratory studies revealed profound metabolic acidemia, depressed blood glucose, and markedly elevated serum ammonia. Urine organic acid screening detected abnormally high urine adipic acid, increased concentrations of suberic acid in the urine, and atypical urinary sebacate levels, alongside elevated urinary excretion of fumarate, marked urinary glutarate, and prominent ethylmalonate in the urine. She has received intravenous dextrose and fluid support, and her pupillary reactions and fundoscopic evaluation are normal.\n\nWe would be extremely grateful for your expert input regarding further diagnostic evaluation and management for this infant.\n\nSincerely,\nDr. Julian Ward\nDepartment of Neonatology"
+}

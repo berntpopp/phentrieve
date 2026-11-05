@@ -193,3 +193,126 @@ cached in `letters/`, so a rerun does not call the LLM unless a letter is missin
 ## Results
 
 (appended after the test run)
+
+Run on 2026-10-28. The test split was scored once, at commit `8db60d1`, with the setting
+frozen on dev. Case-level ranks are in `results/ranks_test.csv`. All intervals are 95%
+PMID-clustered bootstrap intervals (2,000 replicates).
+
+**Frozen setting** (`results/tuning_dev.csv`): k = 1, which makes every weighting identical
+(dev Hit@10 0.523, German and English pooled). The soft arm is therefore the top affirmed
+candidate of each chunk.
+
+**Primary endpoint** (German, non-cited test, n = 289):
+
+| Arm | Hit@10 [95% CI] | Median terms |
+|---|---|---|
+| gold | 0.557 [0.485, 0.632] | 8 |
+| top-1 (default output) | 0.311 [0.250, 0.376] | 90 |
+| soft (k = 1) | 0.360 [0.297, 0.427] | 23 |
+
+- **H1: not met.** The best arm is soft. Its Hit@10 ratio to gold is 0.646 [0.558, 0.737],
+  below the 0.8 threshold.
+- **H2: not met.** soft minus top-1 = +4.8 pp [-0.3, +10.3] (McNemar p = 0.054). The lower
+  bound of the CI is not above 0.
+- **H3.** The gap is similar in both languages:
+  - German: soft minus gold -19.7 pp [-25.4, -14.0], ratio 0.646.
+  - English: soft minus gold -17.3 pp [-24.0, -11.1], ratio 0.689 [0.588, 0.795]; soft
+    minus top-1 +5.9 pp [+0.4, +11.6].
+
+**Decision: no-go** for building `phentrieve match` on the current extraction output. The
+recommended next step is rework (see `REPORT.md`).
+
+**Diagnostics**
+
+- **Term precision and recall vs gold** (German test, mean over cases):
+  - top-1: precision 0.06 exact / 0.25 with ancestor credit; recall 0.60 / 0.83.
+  - soft: precision 0.16 / 0.30; recall 0.34 / 0.65.
+
+  The gap is a precision problem: about 90 affirmed terms per letter against a median of 8
+  gold terms.
+- **Leakage** (share of gold labels appearing verbatim in the letter):
+  - German: median 0.06, p75 0.20, p90 0.31; 49% of letters have none.
+  - English: median 0.10, p75 0.20, p90 0.38; 42% have none.
+  - 97% of gold term mentions have a German label.
+  - No letter names the gene, the disease ID or the disease label. Two letters needed
+    regeneration.
+- **Hit@10 by verbatim tertile** (German, low to high):
+  - gold: 0.63 / 0.45 / 0.59
+  - top-1: 0.30 / 0.30 / 0.33
+  - soft: 0.34 / 0.35 / 0.39
+
+  There is no strong inflation from verbatim wording. In English, soft rises from 0.32 to
+  0.46 across the tertiles.
+- **Runtime:** extraction median 0.34 s per German letter (p95 0.48 s, GPU); scoring median
+  0.12 s (top-1) and 0.04 s (soft).
+- **RareBench sanity check** (gold profiles, Hit@10): MME 0.85, LIRICAL 0.75, HMS 0.56,
+  RAMEDIS 0.39. These are plausible, and the port behaves as expected.
+
+## Deviations
+
+### 2026-10-28: generator prompt tightened after a 3-case pilot
+
+- **What the pilot showed.** We generated 3 cases (6 letters) with the registered prompt. The
+  model added abnormal findings that were not in the phenopacket, e.g. dyspnoea, myocardial
+  hypertrophy and NT-proBNP in an amyloidosis case. Such findings are inferred disease
+  knowledge: they leak the diagnosis and add noise terms that are not gold.
+- **Change.** The distractor rule now requires every distractor to be normal or non-medical,
+  with no unlisted abnormal finding and no test that hints at a condition (`generate.py`,
+  `SYSTEM`).
+- **Consequence.** The pilot letters were discarded. No disease rank of any arm had been
+  computed, so no outcome informed the change.
+
+### 2026-10-28: sample cut to 400 cases for the proof of concept
+
+- **Change.** At the owner's request the 200 cited test cases are dropped; 400 cases remain.
+  All 289 non-cited test cases and the full dev split (60 non-cited, 51 cited) are kept.
+- **Effect on endpoints.** The primary endpoint (German Hit@10, non-cited test) is unchanged
+  and keeps its full sample. The secondary cited / all-test subsets are not reported. Tuning
+  still uses all 111 dev cases.
+- **Timing.** Decided after generating 109 letters, before any letter was run through
+  Phentrieve and before any disease rank was computed. Letters already generated for the
+  dropped cases were deleted.
+
+### 2026-10-28: truncated letters regenerated
+
+- **Problem.** Three English letters stopped at `MAX_TOKENS`: the model's thinking used up
+  the 8,192-token output budget, so the letter text was cut off.
+- **Fix.** A truncated letter now counts as a failed attempt. The budget was raised to 16,384
+  tokens, and only these three letters were regenerated. No disease rank had been computed.
+
+## Post-hoc exploratory analyses (2026-10-28, after the test run; not registered)
+
+These analyses were run after the test results were known, at the owner's request. They do
+not change the registered decision.
+
+- **Error profile** (`errors.py`). Counterfactual profiles separate the cost of missing terms
+  from the cost of wrong terms. Wrong terms are classified as exact, ancestor, descendant or
+  unrelated, and also counted as negation failures. Misses are broken down by organ system.
+- **The existing `--top-term-per-chunk` flag** (`explore_top_term.py`; extraction with
+  `extract.py --top-term-per-chunk`). On German non-cited test cases, Hit@10 is 0.370
+  [0.306, 0.438], a ratio of 0.665 to gold.
+
+Details are in `REPORT.md`, under "Post-hoc".
+- **LLM full-text backend** (`extract_llm.py`, run on 2026-10-28, `explore_arms.py`).
+  Phentrieve's `--extraction-backend llm` with its defaults: `gemini-3.1-flash-lite`,
+  two-phase, `whole_document_grounded`. Terms with status `present` that are not excluded
+  enter the profile; all 800 letters were extracted without failure. Non-cited test results:
+  - German: Hit@10 0.457 [0.381, 0.534], ratio to gold 0.82 [0.74, 0.89], Hit@1 0.194.
+  - English: Hit@10 0.509 [0.437, 0.584], ratio 0.91 [0.84, 0.98].
+
+  Caveat: Gemini also generated the letters. This arm was not registered, so it does not
+  change the registered decision.
+- **Grounded-negation fix and LLM reorder** (`POSTHOC.md`, run on 2026-10-28).
+  - Fix: the LLM extraction was re-run with the grounded-negation fix of PR #453.
+  - Reorder: a Claude Opus 5.5 reorder of the scorer's top 50, run via local Claude Code. The
+    prompt was tuned on dev and frozen (v2, `results/reorder_frozen.json`) before a single test
+    run.
+  - Non-cited test results:
+
+    | | Hit@1 | Hit@10 |
+    |---|---|---|
+    | German | 0.277 | 0.550 |
+    | English | 0.280 | 0.564 |
+    | Gold terms through the scorer | 0.232 | 0.557 |
+
+  This analysis was not registered and does not change the registered decision.

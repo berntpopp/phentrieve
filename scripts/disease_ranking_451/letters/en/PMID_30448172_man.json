@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30448172_man",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 367,
+  "completion_tokens": 327,
+  "total_tokens": 2614,
+  "thoughts_tokens": 1920,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mitchell,\n\nThank you for evaluating this 52-year-old gentleman whom I recently saw in follow-up. He was recently admitted under cardiology following an acute coronary event secondary to a spontaneous dissection of the left anterior descending artery, which was managed conservatively. He is currently recovering well on bisoprolol and low-dose aspirin. He lives with his wife, works in civil engineering, and has no family history of early vascular events.\n\nOn physical examination, his blood pressure was 118/74 mmHg with regular heart sounds and no murmurs. Examination of the oropharynx revealed an unusually widened, prominent uvula without a cleft palate. He demonstrates an atypical chest wall contour with a noticeable pectus excavatum, as well as a distinct lateral curvature of the thoracolumbar spine. Anthropometric assessment revealed disproportionately long lower limbs, yielding a diminished trunk-to-leg segment ratio, and his arm span clearly exceeds his standing height by nearly eight centimeters. Bilateral collapsed arches with pronounced flat feet were also evident. His skin demonstrated normal texture and healing.\n\nCross-sectional chest imaging during his admission demonstrated marked elongation and a tortuous course throughout the aorta; however, there was no thoracic aortic aneurysm identified, with normal luminal dimensions preserved throughout. A formal echocardiogram confirmed three distinct aortic cusps with no bicuspid aortic valve, and left ventricular systolic function was completely normal.\n\nGiven this constellation of arterial and musculoskeletal features in the setting of his recent coronary event, I would value your comprehensive clinical assessment and guidance regarding ongoing surveillance.\n\nKind regards,\nDr. Eleanor Vance"
+}

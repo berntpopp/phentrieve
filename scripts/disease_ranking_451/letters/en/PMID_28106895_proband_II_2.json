@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28106895_proband_II_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 332,
+  "completion_tokens": 291,
+  "total_tokens": 1869,
+  "thoughts_tokens": 1246,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating Ms. Clara Jenkins, a 43-year-old administrative assistant who presents for further evaluation of progressive visual concerns. \n\nHer symptoms first became apparent during early childhood, when she noticed significant trouble seeing in dim lighting and navigating outdoors at night. Over the intervening decades, this has progressively worsened. More recently, she reports a gradual loss of her side vision, describing a sensation of looking through narrowing tunnels, alongside a steady decline in her central clarity.\n\nOn examination today, best-corrected visual acuity was diminished at 20/50 in the right eye and 20/60 in the left eye. Confrontation testing and formal perimetry confirmed substantial bilateral concentric constriction of her visual fields. Dilated ophthalmoscopy revealed extensive bone-spicule-like pigment deposits distributed throughout the mid-peripheral retina bilaterally. \n\nHer anterior segment examination is entirely unremarkable, with clear corneas, quiet anterior chambers, and no lenticular opacities. Intraocular pressures are 15 mmHg in both eyes. Pupillary light reflexes and extraocular motilities are fully intact. She takes only an over-the-counter multivitamin, has no chronic medical illnesses, and reports no family history of early vision loss.\n\nI would greatly appreciate your specialized assessment, detailed retinal evaluation, and guidance on the best steps forward for her care.\n\nSincerely,\nDr. Marcus Brody"
+}

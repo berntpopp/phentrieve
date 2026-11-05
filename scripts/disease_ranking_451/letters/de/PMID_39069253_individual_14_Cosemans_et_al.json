@@ -1,0 +1,18 @@
+{
+ "case": "PMID_39069253_individual_14_Cosemans_et_al",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 483,
+  "completion_tokens": 485,
+  "total_tokens": 3018,
+  "thoughts_tokens": 2050,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 24-jährigen Herrn Lukas Meyer zur konsiliarischen Vorstellung und weiteren Abklärung. \n\nAnamnestisch bestand bereits frühkindlich eine globale Entwicklungsverzögerung, vergesellschaftet mit ausgeprägter muskulärer Hypotonie sowie massiven Fütterproblemen im Säuglingsalter. Die motorischen Meilensteine wurden erst deutlich verspätet erreicht, ebenso liegt eine gravierende Störung des Spracherwerbs vor. Aktuell zeigt sich eine manifeste Intelligenzminderung mit begleitenden autistischen Verhaltensweisen wie ausgeprägten Stereotypien und eingeschränkter sozialer Interaktion.\n\nKraniofazial fallen bei der Untersuchung ein prominenter Stirnkiel, hoch geschwungene Brauen, eine beidseitige Ptosis sowie nach außen abfallende Lidachsen mit begleitenden Epikanthusfalten auf. Der Augenabstand ist normal. Zudem imponieren tief sitzende Ohrmuscheln, ein breites Philtrum und ein übermäßig akzentuierter Amorbogen. Die Nase zeigt keine knollige Deformierung, die Nares sind nicht nach kranial gerichtet. Die Füße sind seitengleich unauffällig, ein Metatarsus adductus liegt nicht vor. Das Hörvermögen ist audiometrisch unbeeinträchtigt.\n\nEchokardiographisch zeigten sich stets unauffällige Verhältnisse: Die Aortenklappe ist regelrecht trikuspid angelegt, ein Ventrikelseptumdefekt, ein persistierender Ductus arteriosus, eine Transposition der großen Arterien oder ein Double-outlet-Ventrikel wurden sicher ausgeschlossen.\n\nIm zerebralen MRT dokumentierte sich eine Agenesie des Balkens. Die Bulbi olfactorii sind normal abgrenzbar. Es finden sich weder Hinweise auf eine Ventrikelerweiterung noch auf demyelinisierende Läsionen des ZNS. \n\nDer Patient lebt im betreuten Wohnen und nimmt derzeit keine Medikation ein. Die Routinelaborwerte waren regelrecht.\n\nIch bitte um Ihre geschätzte Einschätzung bezüglich des weiteren Vorgehens bei diesem komplexen Bild.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Stefan Wagner"
+}

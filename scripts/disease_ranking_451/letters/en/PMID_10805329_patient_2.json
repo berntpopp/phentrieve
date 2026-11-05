@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10805329_patient_2",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 380,
+  "completion_tokens": 284,
+  "total_tokens": 2815,
+  "thoughts_tokens": 2151,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for evaluating this seven-month-old female infant who was recently admitted to our pediatric intensive care unit. Her parents first noted feeding difficulties and motor delay at approximately one month of age. She was born at term following an uncomplicated pregnancy, and her newborn screening was normal.\n\nEarlier this week, she presented with severe increased work of breathing and grunting, which rapidly deteriorated into a sudden cardiopulmonary arrest requiring emergent resuscitation. Although return of spontaneous circulation was achieved, she suffered acute ventilatory failure managed with endotracheal intubation and mechanical ventilation. Bedside imaging confirmed decompensated cardiac failure, with formal echocardiography showing severe concentric ventricular hypertrophy. Laboratory studies revealed a persistent metabolic acidemia with a significant base deficit.\n\nOn examination, she demonstrates an atypical facial morphology, continuous horizontal pendular eye movements, and diffuse muscular flaccidity. She displays intermittent twisting, abnormal postures affecting all four extremities, alongside markedly diminished stretch reflexes in both the upper and lower limbs. Her abdomen is soft without palpable organomegaly, and her skin is clear. Electrodiagnostic testing demonstrated needle electromyography showing characteristic myopathic changes, as well as electrophysiological slowing reflecting generalized peripheral nerve dysfunction.\n\nGiven this complex multiorgan picture, I would greatly appreciate your assessment and guidance regarding the next steps in her diagnostic workup.\n\nSincerely,\nDr. Julian Hayes\nPediatric Intensive Care Unit"
+}

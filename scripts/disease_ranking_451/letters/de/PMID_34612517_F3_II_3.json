@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34612517_F3_II_3",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 414,
+  "completion_tokens": 397,
+  "total_tokens": 3111,
+  "thoughts_tokens": 2300,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin,\n\nich überweise Ihnen den heute 3 Monate alten Knaben zur konsiliarischen Mitbeurteilung. Erste Auffälligkeiten traten bereits antenatal im zweiten Trimenon auf. Pränatal zeigte sich eine regelrechte Dreigefäß-Nabelschnur ohne Nachweis einer singulären Umbilikalarterie. Die Familienanamnese ist bezüglich kardialer oder renaler Vorerkrankungen unauffällig.\n\nKardial imponiert seit Geburt ein gemeinsamer arterieller Gefäßstamm für Körper- und Lungenkreislauf sowie ein begleitender Kammerscheidewanddefekt. Ein unterbrochener Aortenbogen, ein rechtsanliegender Aortenbogen, eine Pulmonalstenose oder eine Trikuspidalatresie konnten echokardiographisch ausgeschlossen werden; ebenso zeigte sich kein Befund im Sinne einer Fallotschen Tetralogie und keine partielle Lungenvenenfehleinmündung.\n\nAktuell zeigt sich stationär eine progrediente Verschlechterung der Nierenfunktion mit stark reduzierter Harnausscheidung und deutlich erhöhtem Serum-Kreatinin. Sonographisch stellen sich beide Nieren regelrecht parenchymatös ohne Zysten dar; eine Hufeisenniere liegt nicht vor. Gastrointestinale Eiweißverluste im Sinne einer Proteinverlustenteropathie bestehen nicht.\n\nDer Kopfumfang liegt altersentsprechend auf der Medianen, eine Mikrozephalie liegt nicht vor. Das Neurosonogramm zeigte unauffällige Ventrikelverhältnisse und schloss eine Agenesie des Corpus callosum aus. Die bisherige Medikation beschränkt sich auf eine altersgerechte Vitamin-D-Substitution.\n\nIch danke Ihnen für die zeitnahe Begutachtung und Ihre fachliche Einschätzung bezüglich des weiteren Vorgehens.\n\nMit freundlichen Grüßen"
+}

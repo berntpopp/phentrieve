@@ -1,0 +1,18 @@
+{
+ "case": "PMID_18950917_father",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 320,
+  "completion_tokens": 449,
+  "total_tokens": 2253,
+  "thoughts_tokens": 1484,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich überweise Ihnen heute den 46-jährigen Patienten Herrn Thomas B. zur konsiliarischen Mitbeurteilung und Planung des weiteren Procederes. Der genaue Beginn der Nierenfunktionsverschlechterung ist anamnestisch leider nicht mehr sicher zu rekonstruieren.\n\nIn den rezenten laborchemischen Kontrollen imponiert ein terminales Nierenversagen mit einer geschätzten Filtrationsrate von zuletzt 10 ml/min/1,73 m² (CKD-EPI) sowie einem Serumkreatinin von 6,8 mg/dl und einem Harnstoff von 152 mg/dl. Bei dieser Niereninsuffizienz im Endstadium stellt sich nun dringlich die Frage nach der Vorbereitung auf ein Nierenersatzverfahren inklusive Shuntevaluation. \n\nTrotz der ausgeprägten renalen Retention traten in der Vorgeschichte keinerlei Gichtanfälle auf; akute Gelenkschwellungen, Zeichen einer Uratarthropathie oder ein Podagra wurden anamnestisch explizit verneint und boten sich auch inspektorisch an den Gelenken nicht dar.\n\nHerr B. ist als kaufmännischer Angestellter tätig, lebt mit seiner Familie und ist Nichtraucher. Der körperliche Untersuchungsbefund war weitgehend unauffällig: Der Blutdruck lag bei 128/82 mmHg, Cor und Pulmo boten regelrechte Verhältnisse, periphere Ödeme fehlen derzeit. Das Abdomen ist weich und nicht druckdolent. In der orientierenden Abdomensonographie stellten sich die Nieren bds. ohne Harnstau dar. Die Familienanamnese bezüglich renaler Vorerkrankungen ist leer. Als Vormedikation besteht lediglich eine Bedarfsmedikation mit Pantoprazol bei gelegentlicher Refluxsymptomatik.\n\nIch bitte um Ihre geschätzte fachärztliche Einschätzung bezüglich des weiteren Vorgehens und bedanke mich für die kollegiale Zusammenarbeit.\n\nMit freundlichen Grüßen\n\nDr. med. Stefan Meyer"
+}

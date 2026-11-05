@@ -1,0 +1,18 @@
+{
+ "case": "PMID_30099644_IV_11",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 365,
+  "completion_tokens": 278,
+  "total_tokens": 3524,
+  "thoughts_tokens": 2881,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Aris,\n\nThank you for evaluating Ms. Claire Jenkins, a 26-year-old graphic designer who presents with a gradual decline in sight. The exact onset of her symptoms remains unclear.\n\nOn examination, her Snellen sharpness was noticeably subnormal, measuring 20/60 in the right eye and 20/50 in the left with best correction. Anterior segments were quiet bilaterally, and intraocular pressures were measured at 14 mmHg in each eye. Funduscopy revealed fine, generalized mottling across the retinal pigment epithelium throughout the posterior pole. Notably, I did not observe any bone-spicule-like pigmentary deposits, and the retinal vasculature showed a healthy caliber with no vessel attenuation or constriction. Both optic nerve heads appeared crisp and pink, exhibiting no disc pallor, and there were no scalloped borders of chorioretinal atrophy. When questioned, she denied any night-blindness or trouble navigating in dim lighting.\n\nAn electroretinogram was recently completed and was distinctly abnormal, displaying bilaterally diminished photopic and scotopic wave amplitudes. \n\nMs. Jenkins has an otherwise unremarkable medical background, takes no daily medications, and her family history is negative for ocular conditions. \n\nI would appreciate your expert assessment and management recommendations for her ongoing care.\n\nSincerely,\nDr. Marcus Vance"
+}

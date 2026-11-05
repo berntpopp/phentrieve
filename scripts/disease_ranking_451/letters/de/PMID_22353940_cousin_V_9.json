@@ -1,0 +1,18 @@
+{
+ "case": "PMID_22353940_cousin_V_9",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 457,
+  "completion_tokens": 524,
+  "total_tokens": 2912,
+  "thoughts_tokens": 1931,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kollegin, sehr geehrter Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Beurteilung des mittlerweile elfjährigen David, den ich seit längerem neuropädiatrisch betreue. \n\nErstmals fiel den Eltern im Alter von vier Monaten eine deutliche Verzögerung der motorischen Meilensteine auf. Im Verlauf zeigte sich zudem eine manifeste kognitive Beeinträchtigung; eine Sprachentwicklung ist jedoch vorhanden, der Junge spricht in einfachen Wortkombinationen und versteht Alltagssituationen gut. \n\nKörperlich imponiert ein ausgeprägter Makrozephalus (KU oberhalb P97, eine Mikrozephalie liegt keineswegs vor) mit markanter Stirnprominenz, beidseitigem Epikanthus medialis und schräg nach außen-unten verlaufenden Lidachsen. Ein Einwärtsschielen (Esotropie) besteht nicht. Das Lippenrot ist unauffällig schmal konfiguriert. Eine Lippen- oder Gaumenspalte liegt nicht vor, und die oralen Schleimhautbändchen stellen sich morphologisch völlig regelrecht dar. Die Ohrmuscheln sind normgerecht positioniert und nicht tief ansetzend. An den Händen und Füßen finden sich jeweils fünf regelrechte Strahlen, eine postaxiale Polydaktylie an oberen oder unteren Extremitäten ist ausgeschlossen.\n\nIm zerebralen MRT zeigten sich neben einer vermehrten Furchung im Sinne einer frontalen Polymikrogyrie ein kraniokaudal typisch konfiguriertes Backenzahn-Zeichen am Hirnstamm sowie eine deutlich raumfordernde Erweiterung der Cisterna magna. Die Kleinhirnwurmanatomie zeigte sich hierbei ohne Hypoplasiezeichen. \n\nAbdomensonographisch stellten sich die Nieren mit einem diffus hyperechogenen Parenchymband dar, jedoch ohne Hinweis auf eine polyzystische Umwandlung oder Zystennieren. Die ophthalmologische Netzhautuntersuchung verlief altersentsprechend unauffällig, insbesondere ohne Befunde einer Stäbchen-Zapfen-Dystrophie.\n\nDavid lebt bei seinen Eltern, besucht eine Förderschule und nimmt derzeit keinerlei Dauermedikation ein. Die Familienanamnese hinsichtlich neurologischer oder renaler Vorerkrankungen ist leer.\n\nWir bitten um Ihre fachliche Einschätzung des Gesamtbildes. \n\nMit freundlichen Grüßen"
+}

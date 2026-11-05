@@ -1,0 +1,18 @@
+{
+ "case": "PMID_12161596_Patient_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 403,
+  "completion_tokens": 461,
+  "total_tokens": 3605,
+  "thoughts_tokens": 2741,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Kolleginnen und Kollegen,\n\nich bitte um Ihre geschätzte Mitbeurteilung einer Patientin mit seit dem Kindesalter auffälliger somatischer und kognitiver Entwicklung.\n\nKörperlich imponiert eine deutliche Wachstumsretardierung mit einer Körperlänge weit unter der dritten Perzentile, wobei der Schädelumfang im Verhältnis hierzu überproportional groß erscheint. Im Bereich des Skeletts fällt eine deutliche Asymmetrie der Thoraxwand auf; eine Kielbrust liegt nicht vor, und die Wirbelsäule zeigt keine Kyphose. Im Gesichtsbereich finden sich ein weit auseinanderliegender Augenabstand sowie beidseitige Lidfalten am inneren Kanthus. Die Lidspalten sind seitengleich weit geöffnet, eine Ptosis besteht nicht. Der Nacken ist unauffällig konfiguriert und weist kein Flügelfell auf. Ophthalmologisch imponieren braune Augen ohne blaue Iriden, und spaltlampenmikroskopisch ließen sich keine Lisch-Knötchen feststellen. \n\nDermatologisch präsentieren sich am Stamm und im Gesicht dicht gestreute, kleine bräunliche Maculae im Sinne einer ausgeprägten Lentiginose; Café-au-lait-Flecken waren klinisch keine nachweisbar. Kardiologisch wurde eine Myokardhypertrophie des linken Ventrikels dokumentiert. Das Ruhe-EKG zeigt eine reguläre Erregungsleitung, insbesondere liegt kein Linksschenkelblock vor. \n\nPneumonische Infekte traten in der Vorgeschichte nie rezidivierend auf. Das Abdomen ist palpatorisch weich ohne Organomegalie, die Auskultation der Lunge ist seitengleich vesikulär. Entwicklungsneurologisch besteht eine leichte Einschränkung der geistigen Fähigkeiten; die Patientin besucht aktuell eine Förderklasse. Die Familienanamnese ist bezüglich angeborener Erkrankungen leer, die Eltern sind nicht konsanguin. Es besteht keine Dauermedikation.\n\nÜber Ihre fachliche Einschätzung und Empfehlungen zur weiteren Einordnung würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

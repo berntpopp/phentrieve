@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27180139_case_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 389,
+  "completion_tokens": 420,
+  "total_tokens": 2394,
+  "thoughts_tokens": 1585,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich bitte um Ihre geschätzte konsiliarische Mitbeurteilung des nun 12-jährigen Jonas, der sich heute gemeinsam mit seinen Eltern in unserer kinderärztlichen Sprechstunde vorstellte. Erste Entwicklungsauffälligkeiten fielen den Eltern retrospektiv bereits im Säuglingsalter mit etwa 8 Monaten auf.\n\nIm weiteren Verlauf manifestierte sich eine globale kognitive Beeinträchtigung, begleitet von einem gravierenden Rückstand in der expressiven wie rezeptiven Sprachentwicklung. Eine zerebrale MRT-Untersuchung zeigte eine inkomplette Anlage des Balkens sowie eine umschriebene arachnoidale Zyste. Eine HNO-ärztliche Abklärung ergab zudem eine beidseitige Innenohrschwerhörigkeit.\n\nKörperlich imponiert bei dem Jungen ein dreieckig geformtes Gesicht mit tief im knöchernen Trichter liegenden Augen und auffallend lückenhafter, ausgedünnter Brauenbehaarung. Die Ohrmuscheln stellen sich beidseits nach dorsal rotiert dar. Am Bewegungsapparat besteht eine ausgeprägte Laxizität mit deutlicher Überstreckbarkeit beider Ellenbogengelenke sowie einer Hypermobilität der Knie. An beiden Füßen imponiert eine partielle Weichteilsyndaktylie zwischen den Zehen II und III.\n\nDer internistische Untersuchungsbefund bot regelrechte kardiopulmonale und abdominelle Verhältnisse. Jonas besucht aktuell eine integrative Förderschule, eine Dauermedikation wird nicht eingenommen. Die Familienanamnese ist bezüglich neurologischer oder syndromaler Erkrankungen leer; die ältere Schwester entwickelt sich zeitgerecht.\n\nÜber Ihre fachärztliche Einschätzung des vorliegenden Beschwerdebildes sowie Hinweise zu sinnvollen weiteren diagnostischen Schritten würde ich mich sehr freuen.\n\nMit freundlichen kollegialen Grüßen"
+}

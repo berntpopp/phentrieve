@@ -1,0 +1,18 @@
+{
+ "case": "PMID_10662742_Individual_II_5",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 458,
+  "completion_tokens": 510,
+  "total_tokens": 4379,
+  "thoughts_tokens": 3411,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrter Herr Kollege Dr. Schneider,\n\nich überweise Ihnen Herrn B., einen 30-jährigen kaufmännischen Angestellten, zur konsiliarischen Mitbeurteilung. Erste kardiologische Beschwerden traten bei dem Nichtraucher im Alter von 28 Jahren mit Belastungsdyspnoe auf. Kürzlich erlitt der Patient im häuslichen Umfeld einen plötzlichen Herztod, konnte jedoch durch unverzügliche Reanimation erfolgreich stabilisiert werden.\n\nKlinisch präsentierte sich zuletzt das Bild einer dekompensierten, kongestiven Herzinsuffizienz mit deutlichen Stauungszeichen und peripheren Ödemen. Im EKG und während des Monitorings zeigten sich Episoden von Vorhofflimmern, intermittierende AV-Blockierungen zweiten Grades sowie Übergänge in einen kompletten drittergradigen AV-Block. Zudem imponierten ein Linksschenkelblockbild und wiederholt dokumentierte ventrikuläre Tachykardien. Ein linksanteriorer Hemiblock, supraventrikuläre Tachykardien oder vorzeitige atriale Extrasystolen waren dabei zu keinem Zeitpunkt nachweisbar.\n\nEchokardiographisch zeigt sich der Befund einer dilatativen Kardiomyopathie mit deutlich vergrößertem linksventrikulärem enddiastolischem Volumen. Die linksventrikuläre Pumpfunktion ist hierbei lediglich leichtgradig reduziert; eine mittelgradige Ejektionsfraktionsminderung besteht nicht.\n\nKörperlich bietet der Patient einen regelrechten Habitus: Das Gesicht zeigt keine progeroiden Züge, und das Fettgewebe ist unauffällig verteilt ohne Zeichen einer Lipodystrophie. Es finden sich keine Gelenkkontrakturen, und die Wirbelsäule ist ohne Rigidität frei beweglich. Die neurologische Untersuchung ergab eine seitengleiche Kraftentwicklung ohne Muskelschwäche, keine Atrophien der Skelettmuskulatur und keine Wadenhypertrophie. Die zirkulierende Creatinkinase-Isoform CK-MM war im Serum nicht erhöht. Die laborchemischen Nieren- und Elektrolytwerte zeigten sich regelrecht. Die kardiovaskuläre Familienanamnese ist leer.\n\nWir bitten um Ihre geschätzte Einschätzung und Empfehlungen bezüglich des weiteren rhythmologischen Managements.\n\nMit freundlichen kollegialen Grüßen\nDr. med. Thomas Meier"
+}

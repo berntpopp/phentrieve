@@ -1,0 +1,18 @@
+{
+ "case": "PMID_34521999_Individual_15",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 587,
+  "completion_tokens": 365,
+  "total_tokens": 3179,
+  "thoughts_tokens": 2227,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Bennett,\n\nThank you for agreeing to evaluate this four-year-old girl who lives with her parents and attends preschool. Her perinatal course was uncomplicated, with no issues during pregnancy or delivery. Family history is non-contributory.\n\nOn examination, she exhibits central hypotonicity and noticeable gross motor delay, though she feeds well without dysphagia. Her weight tracks steadily along the median without evidence of wasting or excessive weight gain, and head circumference is normal, lacking primary, secondary, or postnatal macrocrania. Craniofacial inspection reveals an unusual cranial vault contour and high, arched brows. However, her eyebrows are neither sparse laterally, flat, nor meeting at the midline. Her eyes show no proptosis, deep-set placement, ptosis, strabismus, or colobomas, with normal intercanthal spacing and palpebral fissures that are neither elongated nor slanted upward or downward. Her midface is not retruded, the nasal bridge is unremarkable, her philtral ridges are distinct, the upper lip shows normal fullness, and dentition is age-appropriate. The ears are well-formed without low implantation or posterior tilt, and she has had no recurrent otitis media. \n\nShe exhibits an atypical, uneven bodily subcutaneous fat distribution. Her hands demonstrate normal finger anatomy, and she lacks generalized ligamentous laxity or pes planus. Systemic review is negative for neoplasms or seizures.\n\nPrior evaluations have been largely reassuring: renal ultrasound showed normal kidney structure, and echocardiography confirmed an intact atrial and ventricular septum. Neuroimaging demonstrated preserved ventricular size and cerebellar architecture, without cortical dysplasia, polymicrogyria, or white matter signal abnormalities; an electroencephalogram was entirely normal.\n\nI would greatly appreciate your assessment and recommendations.\n\nSincerely,\nDr. Julian Vance"
+}

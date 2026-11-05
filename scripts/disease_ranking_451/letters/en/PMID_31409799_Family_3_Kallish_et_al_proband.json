@@ -1,0 +1,18 @@
+{
+ "case": "PMID_31409799_Family_3_Kallish_et_al_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 482,
+  "completion_tokens": 345,
+  "total_tokens": 2651,
+  "thoughts_tokens": 1824,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Mercer,\n\nThank you for evaluating this 5-year-old girl who was referred to our clinic for complex congenital anomalies and recurrent respiratory infections. Her anatomical variations were first noted on prenatal ultrasonography. She lives at home with supportive parents and is meeting her general cognitive milestones appropriately.\n\nOn examination, she displays distinct craniofacial features including a markedly receded chin, a shortened nasal bridge with hypoplastic alar wings, an attenuated upper lip, and an unusually broad oral opening. Her chest examination is notable for the complete absence of bilateral nipples, though cardiovascular auscultation reveals a regular rhythm and no murmurs. Lower spine inspection demonstrates a discrete sacral pit. Genital examination shows hypoplasia of the labia. Musculoskeletal assessment reveals bilateral clubfeet, as well as cutaneous fusion involving the fingers and extending across the second through fifth toes bilaterally.\n\nHer laboratory workup demonstrated globally depressed immunoglobulins, with low circulating levels of IgG, IgA, and IgM. Post-vaccination titers following tetanus toxoid and conjugated Haemophilus influenzae type b immunizations showed an incomplete, blunted serological response. Lymphocyte subset analysis revealed an expanded proportion of CD8+ T cells alongside a depressed absolute natural killer cell count. Reassuringly, her total white blood cell count was completely normal, her CD4+ T-cell percentage was not elevated, and lymphocyte proliferation in response to mitogens was fully preserved. Furthermore, circulating total complement activity via CH50 was not reduced.\n\nGiven this combination of dysmorphic features and humoral defects, I would value your comprehensive clinical assessment and guidance regarding ongoing management.\n\nSincerely,\nDr. Evelyn Vance\nPediatric Medicine"
+}

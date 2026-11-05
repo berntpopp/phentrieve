@@ -1,0 +1,18 @@
+{
+ "case": "PMID_23099195_Patient_4",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 326,
+  "completion_tokens": 265,
+  "total_tokens": 2197,
+  "thoughts_tokens": 1606,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Reed,\n\nThank you for evaluating Maya Thompson, a 14-month-old girl referred to our clinic for ongoing evaluation of biochemical findings that first manifested in the neonatal period. \n\nDuring her first days of life, a brief period of poor feeding prompted an initial metabolic workup. Repeated quantification of circulating amino acids confirmed a significant elevation of citrulline in her plasma. Notably, concurrent evaluations of her urine showed normal excretion patterns, with no excess of orotic acid detected on organic acid analysis. \n\nMaya is currently thriving at home with her parents. Her vital signs are normal, and her height and weight remain steady along the 50th percentiles. Physical examination today is completely unremarkable: she has clear breath sounds, normal heart sounds, and a soft, non-tender abdomen without hepatomegaly or splenomegaly. Tone, reflexes, and developmental milestones are entirely appropriate for her age. Routine laboratory studies, including basic chemistries and liver panels, were all within reference ranges. There is no family history of early childhood disease or metabolic conditions.\n\nGiven her persistent plasma citrulline elevation alongside the absence of urinary orotic acid, I would appreciate your formal assessment to help clarify the underlying etiology and advise on appropriate next steps.\n\nSincerely,\nDr. Eleanor Vance"
+}

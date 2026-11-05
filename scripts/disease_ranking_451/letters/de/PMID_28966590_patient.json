@@ -1,0 +1,18 @@
+{
+ "case": "PMID_28966590_patient",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 396,
+  "completion_tokens": 469,
+  "total_tokens": 3478,
+  "thoughts_tokens": 2613,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich bitte um Ihre konsiliarische Beurteilung der 31-jährigen Patientin Anna Weber, die sich in Begleitung ihrer Betreuerin vorstellte.\n\nBereits in den ersten Lebensmonaten manifestierte sich ein infantiles zerebrales Schädigungsmuster mit deutlicher Verzögerung beim Erreichen der frühen motorischen Entwicklungsmeilensteine. Ergänzend besteht seit der Schulzeit eine Aufmerksamkeitsdefizit- und Hyperaktivitätssymptomatik. Im Jugendalter kam es wiederholt zu bilateralen tonisch-klonischen Krampfanfällen.\n\nBei der aktuellen neurologischen Untersuchung imponiert eine fixierte Fehlhaltung des Halses im Sinne eines Schiefhalses. Beim Halteversuch der Arme zeigt sich ein distal betonter Haltetremor, der phasenweise von unwillkürlichen myoklonischen Zuckungen überlagert wird. Der Muskeltonus präsentiert sich an allen vier Extremitäten vollkommen unauffällig und normoton, ohne spastische oder hypotoniebedingte Auffälligkeiten. Die Muskeleigenreflexe sind seitengleich mittellebhaft auslösbar, eine pathologische Reflexsteigerung liegt nicht vor. Die Pyramidenbahnzeichen inklusive des Babinski-Reflexes sind beidseits negativ.\n\nIm muskuloskelettalen Bereich bestehen eine ausgeprägte Lordosierung der Lendenwirbelsäule, beidseitige X-Bein-Deformitäten sowie vorbekannte dysplastische Veränderungen beider Hüftgelenke. \n\nIn der mitgebrachten MRT-Bildgebung des Gehirns zeigen sich vergröberte, verdickte Rindenwindungen vereinbar mit einer Pachygyrie, eine Fehlbildung des Kleinhirns sowie eine symmetrische Erweiterung der beiden Seitenventrikel.\n\nDie internistische Basisuntersuchung erbrachte einen unauffälligen Normalbefund. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer.\n\nÜber Ihre geschätzte Einschätzung bezüglich des Gesamtbildes und Empfehlungen zum weiteren Vorgehen würde ich mich sehr freuen.\n\nMit freundlichen Grüßen"
+}

@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27439707_Individual_1",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 464,
+  "completion_tokens": 470,
+  "total_tokens": 2705,
+  "thoughts_tokens": 1771,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, sehr geehrter Herr Kollege,\n\nich überweise Ihnen die heute 12 Jahre und 5 Monate alte Sophia zur neuropädiatrischen Mitbeurteilung. \n\nDie Eltern schildern einen Symptombeginn um das zweite Lebensjahr mit einem zunehmenden Rückstand in sämtlichen Entwicklungsbereichen. Die grobmotorischen Meilensteine wurden verspätet erreicht, das freie Laufen gelang erst mit drei Jahren. Auch der Spracherwerb verlief deutlich verzögert, aktuell besteht eine ausgeprägte kognitive Beeinträchtigung. Zudem berichten Schule und Familie über wiederkehrendes aggressives Verhalten und Wutausbrüche. Anfälle manifestierten sich zuletzt als fokalneurologische Episoden mit eingeschränktem Bewusstsein; eine fokal-emotionale Komponente mit Angst oder Panik bot sich dabei nicht. Frühere BNS-Episoden, tonische, atonische oder bilaterale tonisch-klonische Anfälle wurden verneint. Das EEG zeigte epilepsietypische Potenziale.\n\nKörperlich imponiert eine generalisierte muskuläre Hypotonie sowie vergröberte Gesichtszüge. Eine Spastik oder motorische Stereotypien bestehen nicht. Auffällige Atemmuster wie Hyperventilationen sind nicht zu beobachten. Die kardiopulmonale Untersuchung war unauffällig, abdominell besteht anamnestisch eine therapiebedürftige, hartnäckige Obstipation unter Macrogol. Die Familienanamnese ist bezüglich neurologischer Erkrankungen leer.\n\nIm kranialen MRT zeigten sich unauffällige Verhältnisse: Kein Anhalt für fokale kortikale Dysplasien, periventrikuläre Leukomalazien oder Residuen intraventrikulärer Blutungen. Das Volumen der weißen Substanz stellte sich regelrecht dar. Das Corpus callosum war normal konfiguriert, weder verdickt noch verschmälert. Es bestanden weder Zeichen einer allgemeinen zerebralen Atrophie noch einer Vermisatrophie des Kleinhirns.\n\nIch bitte Sie um eine konsiliarische Einschätzung und Beratung bezüglich des weiteren Vorgehens.\n\nMit freundlichen kollegialen Grüßen"
+}

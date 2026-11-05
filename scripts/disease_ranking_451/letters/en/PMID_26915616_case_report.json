@@ -1,0 +1,18 @@
+{
+ "case": "PMID_26915616_case_report",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 386,
+  "completion_tokens": 282,
+  "total_tokens": 2391,
+  "thoughts_tokens": 1723,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Henderson,\n\nThank you for agreeing to see this 58-year-old gentleman who has experienced a progressive constellation of symptoms over the past four years.\n\nHis initial complaints began around age 54 with tingling and pins-and-needles in his hands, accompanied by recurrent, painful muscle cramps in his limbs. He also reports a distinct inability to sweat properly, noting remarkably little perspiration even in high temperatures. \n\nOn examination, cranial nerve testing shows notable bilateral facial palsy, with prominent weakness when attempting forced eyelid closure. Frequent fasciculatory twitches were evident across his midface and throughout the lingual musculature. Inspection of his oral cavity demonstrated a heavily grooved and fissured dorsal tongue. Strikingly, he also exhibits loose, redundant skin that hangs in soft, inelastic folds over his torso and neck.\n\nRecent electrodiagnostic testing was abnormal. Sensory nerve studies showed marked attenuation of distal action potentials in the upper limbs. Motor evaluations demonstrated slowed conduction velocities alongside reduced motor response amplitudes.\n\nHis baseline laboratory evaluations, including complete blood counts, renal function, and thyroid panel, were unremarkable. He takes no regular medications besides over-the-counter vitamin D, works in retail management, and has an unremarkable family history. \n\nGiven this unusual presentation, I would welcome your comprehensive assessment and recommendations for further diagnostic workup.\n\nSincerely,\nDr. Marcus Rowe"
+}

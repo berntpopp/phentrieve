@@ -1,0 +1,18 @@
+{
+ "case": "PMID_27146836_No_11_Family_TAAD048",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 445,
+  "completion_tokens": 442,
+  "total_tokens": 3780,
+  "thoughts_tokens": 2893,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin Dr. Sommer,\n\nich überweise Ihnen die 42-jährige Patientin Claudia Beringer zur differentialdiagnostischen Beurteilung.\n\nIn der Vorgeschichte erfolgte nach einer Dissektion der Aorta ascendens ein herzchirurgischer Aortenersatz. Angiographisch zeigte sich ein ausgeprägt geschlängelter Verlauf der intrakraniellen Gefäße, während eine Tortuositas der Karotiden ausgeschlossen werden konnte. Zudem klagt die Patientin über rezidivierende Nackenschmerzen; radiologisch wurde eine signifikante Instabilität der Halswirbelsäule gesichert. Des Weiteren berichtet sie über eine frühere operative Versorgung einer Leistenhernie sowie einen im Jugendalter behandelten Kryptorchismus. An beiden Beinen besteht inspektorisch eine deutliche Varikosis.\n\nKlinisch fallen beidseitige Epikanthusfalten auf. Die übrige kraniofaziale Untersuchung bot jedoch regelrechte Befunde: Ein abgeflachter Nasenrücken, herabgezogene Mundwinkel sowie ein verschmälertes Oberlippenrot fehlen. Die Wangenknochen sind nicht abgeflacht. Die Ohren stehen nicht tief und zeigen keine Überfaltung der Helix. Das Gaumenzäpfchen ist intakt und nicht gespalten. Die Schädelform zeigt weder einen Dolichozephalus noch eine vorwölbende Stirn. Ophthalmologisch ergaben sich keine Hinweise auf eine Ektopie der Linsen oder tief liegende Augen; ein Hypertelorismus sowie abfallende Lidachsen wurden verneint. Das Philtrum ist unauffällig konfiguriert und nicht verkürzt.\n\nFrau Beringer ist als Bibliothekarin tätig, Nichtraucherin und nimmt lediglich Bisoprolol 2,5 mg täglich ein. Die Familienanamnese ist bezüglich vaskulärer Vorerkrankungen leer.\n\nFür Ihre geschätzte Einschätzung und Empfehlungen zum weiteren diagnostischen Vorgehen bedanke ich mich herzlich.\n\nMit besten kollegialen Grüßen\nDr. med. Thomas Lindner"
+}

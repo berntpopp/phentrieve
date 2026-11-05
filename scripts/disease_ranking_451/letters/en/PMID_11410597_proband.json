@@ -1,0 +1,18 @@
+{
+ "case": "PMID_11410597_proband",
+ "lang": "en",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 352,
+  "completion_tokens": 304,
+  "total_tokens": 2433,
+  "thoughts_tokens": 1777,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Dear Dr. Vance,\n\nThank you for seeing this 45-year-old gentleman who presented to our outpatient service for a cardiovascular screening ahead of an upcoming charity race. He is currently asymptomatic, works as an administrator, is a non-smoker, and takes no prescription medications.\n\nHis resting 12-lead electrocardiogram revealed an rSr' morphology in the right precordial leads consistent with a partial right bundle branch delay, accompanied by prominent, persistent upward shifting of the ST segments in leads V1 and V2. Because of these findings, a 48-hour ambulatory monitor was arranged, which captured several short, asymptomatic runs of broad-complex ventricular tachyarrhythmia.\n\nOn direct questioning, he denies any fainting episodes, near-blackouts, or transient loss of consciousness. He has had no sensations of rapid heart fluttering or skipped beats. He has never suffered a circulatory arrest, and his family history is entirely negative for instances of sudden unexpected demise in young relatives. \n\nPhysical examination was unremarkable, with a resting blood pressure of 122/76 mmHg and clear heart sounds without murmurs, rubs, or gallops. Basic laboratory evaluations, including serum electrolytes and routine chemistries, were entirely normal. His repolarization parameters were likewise preserved, showing a corrected QT measurement well within reference limits without any lengthening.\n\nGiven these electrical anomalies, I would appreciate your expert electrophysiology assessment and advice regarding further risk stratification.\n\nSincerely,\n\nDr. Arthur Miller"
+}

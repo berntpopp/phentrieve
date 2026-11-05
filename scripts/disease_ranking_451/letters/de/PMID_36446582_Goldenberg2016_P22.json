@@ -1,0 +1,18 @@
+{
+ "case": "PMID_36446582_Goldenberg2016_P22",
+ "lang": "de",
+ "model": "gemini-3.7-flash",
+ "temperature": 0.0,
+ "seed": 451,
+ "attempt": 1,
+ "finish_reason": "FinishReason.STOP",
+ "usage": {
+  "prompt_tokens": 345,
+  "completion_tokens": 396,
+  "total_tokens": 2256,
+  "thoughts_tokens": 1515,
+  "cached_content_tokens": 0
+ },
+ "mentions": [],
+ "text": "Sehr geehrte Frau Kollegin, lieber Herr Kollege,\n\nich bitte um Ihre geschätzte Mitbeurteilung des jungen Patienten Felix, der sich in Begleitung seiner Eltern in unserer kinderärztlichen Sprechstunde vorstellte. Die Schwangerschaft und Spontangeburt verliefen vollkommen komplikationslos, auch das Neugeborenenscreening war unauffällig. Die Familienanamnese ist bezüglich chronischer Erkrankungen leer, eine Dauermedikation besteht nicht.\n\nIm bisherigen Verlauf zeigt sich ein deutlicher Rückstand bei den allgemeinen motorischen und kognitiven Meilensteinen. Zudem imponiert eine erhebliche Verzögerung des Spracherwerbs; Felix artikuliert bisher lediglich vereinzelte ungerichtete Laute ohne sicheren Wortgebrauch, wenngleich das Hörvermögen im Screening regelrecht war.\n\nKörperlich fallen morphologische Besonderheiten an beiden Händen mit einer ungewöhnlichen Konfiguration der Fingerstrahlen auf. Bei der Inspektion der Mundhöhle zeigen sich überdurchschnittlich groß angelegte, voluminöse Zähne. Eine kürzlich veranlasste Röntgenaufnahme der linken Hand dokumentierte zudem eine signifikant verlangsamte ossäre Reifung gegenüber dem Lebensalter.\n\nDas Längenwachstum verläuft kontinuierlich entlang der 40. Perzentile, ein Kleinwuchs liegt somit nicht vor. Auch der Schädelumfang liegt stabil im Bereich der 50. Perzentile; Anhaltspunkte für eine Mikrozephalie finden sich zu keinem Zeitpunkt. Die internistische Untersuchung einschließlich Herz und Abdomen erbrachte einen unauffälligen Normalbefund.\n\nZur weiteren differenzialdiagnostischen Einordnung dieser Befundkonstellation und zur Beratung der Familie wäre ich Ihnen für eine fachärztliche Einschätzung sehr dankbar.\n\nMit freundlichen kollegialen Grüßen"
+}
