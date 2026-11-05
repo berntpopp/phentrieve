@@ -8,7 +8,7 @@ including:
 - Automatic extraction and verification
 - Fallback to local data preparation if download fails
 
-See: https://github.com/berntpopp/phentrieve/issues/117
+See: https://github.com/phentrieve/phentrieve/issues/117
 """
 
 from __future__ import annotations

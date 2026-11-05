@@ -13,7 +13,7 @@ This page explains how to deploy Phentrieve using Docker for the backend and NPM
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/berntpopp/phentrieve.git
+git clone https://github.com/phentrieve/phentrieve.git
 cd phentrieve
 ```
 

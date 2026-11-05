@@ -42,7 +42,7 @@ ARG SQLITE_SHA3_256=9b2b1e73f577def1d5b75c5541555a7f42e6e073ad19f7a9118478389c9b
 
 # Pre-built data bundle URL (Mode 1)
 # Default: BioLORD multivector bundle - recommended model/index.
-ARG BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz"
+ARG BUNDLE_URL="https://github.com/phentrieve/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz"
 
 # Build indexes from scratch (Mode 2) - requires BUNDLE_URL=""
 ARG BUILD_INDEXES="false"
@@ -279,8 +279,8 @@ LABEL org.opencontainers.image.title="Phentrieve API" \
       org.opencontainers.image.description="AI-powered HPO term mapping API" \
       org.opencontainers.image.vendor="Phentrieve" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/berntpopp/phentrieve" \
-      org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
+      org.opencontainers.image.source="https://github.com/phentrieve/phentrieve" \
+      org.opencontainers.image.documentation="https://github.com/phentrieve/phentrieve/blob/main/README.md" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
 # Install runtime dependencies and apply security updates.

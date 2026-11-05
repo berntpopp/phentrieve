@@ -54,8 +54,8 @@ LABEL org.opencontainers.image.title="Phentrieve Frontend" \
       org.opencontainers.image.description="Vue.js frontend for Phentrieve HPO term mapping" \
       org.opencontainers.image.vendor="Phentrieve" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/berntpopp/phentrieve" \
-      org.opencontainers.image.documentation="https://github.com/berntpopp/phentrieve/blob/main/README.md" \
+      org.opencontainers.image.source="https://github.com/phentrieve/phentrieve" \
+      org.opencontainers.image.documentation="https://github.com/phentrieve/phentrieve/blob/main/README.md" \
       org.opencontainers.image.authors="Bernt Popp <bernt.popp@gmail.com>"
 
 # Copy nginx configuration (as nginx user)

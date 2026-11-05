@@ -33,7 +33,7 @@ as well as the curated (gold) HPO terms of the same patient?
 All SHA256 hashes are in `manifest.json`.
 
 - **HPO v2026-09-01:** `hp.json`, `phenotype.hpoa`, `genes_to_phenotype.txt`.
-- **Phentrieve data bundle `hpo-v2026-09-01-r1`:** from `berntpopp/phentrieve-data`, file
+- **Phentrieve data bundle `hpo-v2026-09-01-r1`:** from `phentrieve/phentrieve-data`, file
   `phentrieve-data-v2026-09-01-biolord-multivec.tar.gz`. Model `FremyCompany/BioLORD-2023-M`,
   multi-vector index.
 - **phenopacket-store 0.1.27:** `all_phenopackets.zip`.
