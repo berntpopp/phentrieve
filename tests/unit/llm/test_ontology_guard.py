@@ -139,9 +139,10 @@ def test_guard_counts_drops_across_proband_family_and_other(monkeypatch):
     keep = LLMPhenotype(term_id="HP:9000002", label="term-b")
     drop = LLMPhenotype(term_id="HP:9000001", label="term-a")
 
-    proband, family, other, dropped = TwoPhaseLLMPipeline._apply_ontology_guard(
+    *guarded, dropped = TwoPhaseLLMPipeline._apply_ontology_guard(
         [keep, drop], [drop], []
     )
+    proband, family, other = guarded
 
     assert [t.term_id for t in proband] == ["HP:9000002"]
     assert family == [] and other == []
