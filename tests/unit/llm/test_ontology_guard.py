@@ -8,6 +8,8 @@ so a real finding is never dropped.
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 import phentrieve.llm.ontology_guard as ontology_guard
 from phentrieve.llm.pipeline import TwoPhaseLLMPipeline
 from phentrieve.llm.types import LLMPhenotype
@@ -81,3 +83,47 @@ def test_pipeline_drops_non_phenotypic_terms(monkeypatch):
     kept = TwoPhaseLLMPipeline._drop_non_phenotypic(terms)
 
     assert [t.term_id for t in kept] == ["HP:0001250"]
+
+
+def test_modifier_candidates_never_reach_mapping(monkeypatch):
+    """A modifier match must not cost the finding: "recurrent seizures" matches
+    Seizure cluster exactly, and the post-mapping guard then dropped it."""
+    _guard_with_map(
+        monkeypatch,
+        {
+            "HP:0033349": {"HP:0000001", "HP:0012823"},  # Seizure cluster (course)
+            "HP:0001250": {"HP:0000001", "HP:0000118"},  # Seizure
+        },
+    )
+
+    class ToolExecutor:
+        def query_batch_hpo_terms(self, *, phrases, language, n_results):
+            return [
+                {
+                    "candidates": [
+                        {"hpo_id": "HP:0033349", "term_name": "Cluster", "score": 1.0},
+                        {"hpo_id": "HP:0001250", "term_name": "Seizure", "score": 0.8},
+                    ]
+                }
+                for _ in phrases
+            ]
+
+    pipeline = TwoPhaseLLMPipeline(provider=MagicMock(), tool_executor=ToolExecutor())
+
+    results = pipeline._retrieve_candidates(
+        actionable=[
+            {
+                "phrase": "recurrent seizures",
+                "category": "abnormal",
+                "negated_qualifier": None,
+                "chunk_ids": [1],
+                "evidence_text": "recurrent seizures",
+                "start_char": 0,
+                "end_char": 18,
+            }
+        ],
+        grounded_chunks=[],
+        language="en",
+    )
+
+    assert [c["hpo_id"] for c in results[0]["candidates"]] == ["HP:0001250"]

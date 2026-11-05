@@ -155,6 +155,108 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "context-pseudo", "language": "en", "note": "Negation of change, not existence"}
+    },
+    {
+      "literal": "cannot be ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "can't be ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "could not be ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not been ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not be ruled out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "cannot rule out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "can't rule out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "could not rule out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not rule out",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "cannot be excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "can't be excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "could not be excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not be excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "not been excluded",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "cannot exclude",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
+    },
+    {
+      "literal": "could not exclude",
+      "category": "PSEUDO",
+      "direction": "PSEUDO",
+      "metadata": {"source": "phentrieve-issue-459", "language": "en", "note": "Finding stays open"}
     }
   ]
 }

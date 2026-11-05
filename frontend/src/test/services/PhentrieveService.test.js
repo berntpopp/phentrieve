@@ -69,6 +69,16 @@ describe('PhentrieveService', () => {
     expect(axios.post.mock.calls[1][2].timeout).toBe(60000);
   });
 
+  it('asks the API to auto-detect when no language is selected (#458)', async () => {
+    axios.post.mockResolvedValue({ data: {} });
+
+    await PhentrieveService.processText({ text: 'Keine Krampfanfälle.', language: null });
+    await PhentrieveService.processText({ text: 'Keine Krampfanfälle.', language: 'de' });
+
+    expect(axios.post.mock.calls[0][1].language).toBe('auto');
+    expect(axios.post.mock.calls[1][1].language).toBe('de');
+  });
+
   it('sends extraction_backend=llm in text process requests', async () => {
     axios.post.mockResolvedValue({ data: { meta: { extraction_backend: 'llm' } } });
 

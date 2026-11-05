@@ -6,6 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import de from '../../locales/de.json';
 import FullTextResponseReceipt from '../../components/FullTextResponseReceipt.vue';
 import { useFullTextCurationStore } from '../../stores/fullTextCuration';
 
@@ -21,7 +22,7 @@ const i18n = createI18n({
   missing: () => '',
 });
 
-function mountReceipt(props = {}) {
+function mountReceipt(props = {}, plugins = [vuetify, i18n]) {
   return mount(FullTextResponseReceipt, {
     props: {
       item: {
@@ -44,7 +45,7 @@ function mountReceipt(props = {}) {
       ...props,
     },
     global: {
-      plugins: [vuetify, i18n],
+      plugins,
       stubs: {
         ResultItem: {
           name: 'ResultItem',
@@ -66,6 +67,59 @@ function mountReceipt(props = {}) {
 }
 
 describe('FullTextResponseReceipt', () => {
+  it('lists family and other-person findings apart from the patient findings', () => {
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-related',
+        response: {
+          aggregated_hpo_terms: [],
+          family_history_findings: [
+            { hpo_id: 'HP:0001250', name: 'Seizure', status: 'negated', excluded: true },
+          ],
+          other_person_findings: [
+            {
+              hpo_id: 'HP:0000821',
+              name: 'Hypothyroidism',
+              status: 'present',
+              text_attributions: [{ matched_text_in_chunk: 'hypothyroidism' }],
+            },
+          ],
+          processed_chunks: [{ chunk_id: 1, text: 'Her roommate has hypothyroidism.' }],
+        },
+      },
+    });
+
+    const family = wrapper.get('[data-testid="full-text-related-findings-family"]');
+    expect(family.text()).toContain('Seizure');
+    expect(family.text()).toContain('Absent');
+
+    const other = wrapper.get('[data-testid="full-text-related-findings-other"]');
+    expect(other.text()).toContain('Hypothyroidism');
+    expect(other.text()).toContain('"hypothyroidism"');
+    expect(other.text()).not.toContain('Absent');
+
+    // Never offered for collection as the patient's phenotypes.
+    expect(wrapper.find('[data-testid="full-text-response-add-all"]').exists()).toBe(false);
+  });
+
+  it('warns only when the API flags a partial extraction', () => {
+    const warning = '[data-testid="full-text-incomplete-warning"]';
+    expect(mountReceipt().find(warning).exists()).toBe(false);
+
+    const wrapper = mountReceipt({
+      item: {
+        id: 'turn-partial',
+        response: {
+          meta: { incomplete: true, incomplete_reason: 'failed for 1 chunk group(s)' },
+          aggregated_hpo_terms: [{ hpo_id: 'HP:0001250', name: 'Seizure', status: 'present' }],
+          processed_chunks: [{ chunk_id: 1, text: 'Patient had recurrent seizures.' }],
+        },
+      },
+    });
+
+    expect(wrapper.get(warning).text()).toContain('Findings may be missing');
+  });
+
   it('emits add-all-to-collection for normalized full-text phenotypes', async () => {
     const wrapper = mountReceipt({
       item: {
@@ -246,5 +300,28 @@ describe('FullTextResponseReceipt', () => {
     expect(wrapper.findAll('[data-testid="full-text-response-phenotype"]')).toHaveLength(1);
     expect(wrapper.find('[data-testid="finding-origin-badge"]').exists()).toBe(true);
     expect(wrapper.get('.result-item-stub').text()).toContain('Microcephaly');
+  });
+
+  it('translates the receipt summary line (#469)', () => {
+    const deI18n = createI18n({ legacy: false, locale: 'de', messages: { de } });
+
+    expect(mountReceipt({}, [vuetify, i18n]).text()).toContain(
+      '1 finding across 1 document section(s)'
+    );
+    expect(mountReceipt({}, [vuetify, deI18n]).text()).toContain(
+      '1 Befund in 1 Dokumentabschnitt(en)'
+    );
+
+    const noteReview = mountReceipt(
+      {
+        item: {
+          id: 'turn-2',
+          query: 'Recurrent seizures since infancy. Mild ataxia.',
+          response: { aggregated_hpo_terms: [], processed_chunks: [] },
+        },
+      },
+      [vuetify, deI18n]
+    );
+    expect(noteReview.text()).toContain('0 Befunde aus der eingereichten Notiz');
   });
 });

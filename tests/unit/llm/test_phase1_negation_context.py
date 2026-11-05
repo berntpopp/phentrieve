@@ -25,16 +25,16 @@ from phentrieve.llm.prompts.loader import get_prompt
 from phentrieve.llm.types import AnnotationMode, GroundedChunk
 
 SOURCE = (
-    "On examination, there were no plantar or palmar pits, facial "
-    "abnormalities or macrocephaly. There was no hepatosplenomegaly."
+    "On examination, we found no axillary or inguinal nodes, skin "
+    "lesions or clubbing. There was no splenomegaly."
 )
 CLEANED = [
     "examination",
-    "plantar",
-    "palmar pits",
-    "facial abnormalities",
-    "macrocephaly",
-    "hepatosplenomegaly",
+    "axillary",
+    "inguinal nodes",
+    "skin lesions",
+    "clubbing",
+    "splenomegaly",
 ]
 
 
@@ -97,11 +97,11 @@ def test_grounded_chunks_restore_stripped_leading_context(monkeypatch) -> None:
     # chunk in the source, so a coordinated list stays recognisable.
     assert [chunk.prompt_text for chunk in chunks] == [
         "On examination,",
-        "there were no plantar",
-        "or palmar pits,",
+        "we found no axillary",
+        "or inguinal nodes,",
         None,
-        "or macrocephaly.",
-        "There was no hepatosplenomegaly.",
+        "or clubbing.",
+        "There was no splenomegaly.",
     ]
 
 
@@ -182,7 +182,7 @@ def test_prompt_text_does_not_repeat_an_unlocated_chunk() -> None:
 def test_prompt_text_is_none_without_positions(monkeypatch) -> None:
     class _NoPositions(_FakeTextProcessingPipeline):
         def process(self, raw_text: str, include_positions: bool = False):
-            return [{"text": "plantar pits", "status": "affirmed"}]
+            return [{"text": "axillary nodes", "status": "affirmed"}]
 
     _patch_text_pipeline(monkeypatch)
     monkeypatch.setattr(
@@ -190,7 +190,7 @@ def test_prompt_text_is_none_without_positions(monkeypatch) -> None:
     )
 
     chunks = build_grounded_chunks_from_text_pipeline(
-        text="no plantar pits",
+        text="no axillary nodes",
         language="en",
         chunking_pipeline_config=[],
         assertion_config={"disable": True},
@@ -203,8 +203,8 @@ def test_prompt_text_is_none_without_positions(monkeypatch) -> None:
 def _dict_chunks() -> list[dict[str, Any]]:
     return [
         {"chunk_id": 1, "text": "examination", "prompt_text": "On examination"},
-        {"chunk_id": 2, "text": "plantar", "prompt_text": "there were no plantar"},
-        {"chunk_id": 3, "text": "facial abnormalities", "prompt_text": None},
+        {"chunk_id": 2, "text": "axillary", "prompt_text": "we found no axillary"},
+        {"chunk_id": 3, "text": "skin lesions", "prompt_text": None},
     ]
 
 
@@ -215,20 +215,20 @@ def test_phase1_user_prompt_renders_prompt_text() -> None:
         grounded_chunks=_dict_chunks(),
     )
 
-    assert "- chunk_id=2: there were no plantar\n" in prompt
-    assert "- chunk_id=3: facial abnormalities" in prompt
+    assert "- chunk_id=2: we found no axillary\n" in prompt
+    assert "- chunk_id=3: skin lesions" in prompt
 
 
 def test_runtime_group_chunk_index_renders_prompt_text() -> None:
     rendered = TwoPhaseLLMPipeline._render_chunk_index(_dict_chunks())
 
-    assert "- chunk_id=2: there were no plantar" in rendered.splitlines()
+    assert "- chunk_id=2: we found no axillary" in rendered.splitlines()
 
 
 def test_group_chunk_index_fallback_renders_prompt_text() -> None:
     rendered = render_group_chunk_index_text(group={}, grounded_chunks=_dict_chunks())
 
-    assert "chunk_id=2: there were no plantar" in rendered
+    assert "chunk_id=2: we found no axillary" in rendered
 
 
 class _CountingProvider:
@@ -241,11 +241,11 @@ def test_precomputed_extraction_groups_render_prompt_text() -> None:
         grounded_chunks=[
             GroundedChunk(
                 chunk_id=1,
-                text="plantar",
+                text="axillary",
                 start_char=None,
                 end_char=None,
                 status="affirmed",
-                prompt_text="there were no plantar",
+                prompt_text="we found no axillary",
             )
         ],
         provider=_CountingProvider(),
@@ -253,7 +253,7 @@ def test_precomputed_extraction_groups_render_prompt_text() -> None:
         max_prompt_tokens=100,
     )
 
-    assert groups[0].text == "chunk_id=1: there were no plantar"
+    assert groups[0].text == "chunk_id=1: we found no axillary"
 
 
 def test_rebuilt_large_groups_keep_prompt_text() -> None:
@@ -265,7 +265,7 @@ def test_rebuilt_large_groups_keep_prompt_text() -> None:
         extraction_prompt=get_prompt(AnnotationMode.TWO_PHASE, "en"),
     )
 
-    assert "chunk_id=2: there were no plantar" in groups[0]["text"]
+    assert "chunk_id=2: we found no axillary" in groups[0]["text"]
 
 
 def test_benchmark_grounded_chunk_dicts_carry_prompt_text(monkeypatch) -> None:
@@ -279,15 +279,15 @@ def test_benchmark_grounded_chunk_dicts_carry_prompt_text(monkeypatch) -> None:
         retrieval_model_name="FremyCompany/BioLORD-2023-M",
     )
 
-    assert chunks[1]["text"] == "plantar"
-    assert chunks[1]["prompt_text"] == "there were no plantar"
+    assert chunks[1]["text"] == "axillary"
+    assert chunks[1]["prompt_text"] == "we found no axillary"
 
 
 def test_phase2_grounded_context_keeps_cleaned_chunk_text() -> None:
     context = build_grounded_context(
-        item={"phrase": "plantar pits", "chunk_ids": [2]},
+        item={"phrase": "axillary nodes", "chunk_ids": [2]},
         grounded_chunks=_dict_chunks(),
     )
 
-    assert context["primary_chunk_text"] == "plantar"
-    assert context["neighbor_chunk_texts"] == ["examination", "facial abnormalities"]
+    assert context["primary_chunk_text"] == "axillary"
+    assert context["neighbor_chunk_texts"] == ["examination", "skin lesions"]

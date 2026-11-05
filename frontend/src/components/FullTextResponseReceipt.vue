@@ -4,6 +4,16 @@
     <div class="text-caption text-medium-emphasis">
       {{ receiptMeta }}
     </div>
+    <v-alert
+      v-if="item?.response?.meta?.incomplete"
+      data-testid="full-text-incomplete-warning"
+      type="warning"
+      variant="tonal"
+      density="compact"
+      class="mt-2"
+    >
+      {{ $t('queryInterface.fullTextReceipt.incomplete') }}
+    </v-alert>
     <div v-if="phenotypes.length > 0" class="d-flex justify-end mt-3">
       <v-btn
         data-testid="full-text-response-add-all"
@@ -61,6 +71,33 @@
         </div>
       </div>
     </v-list>
+    <section
+      v-for="group in relatedFindings"
+      :key="group.key"
+      :data-testid="`full-text-related-findings-${group.key}`"
+      class="mt-3"
+    >
+      <div class="full-text-receipt__title">
+        {{ $t(`queryInterface.fullTextReceipt.${group.key}Findings`) }}
+      </div>
+      <div class="text-caption text-medium-emphasis">
+        {{ $t('queryInterface.fullTextReceipt.relatedFindingsHint') }}
+      </div>
+      <v-list density="compact" class="full-text-response-list">
+        <v-list-item
+          v-for="term in group.terms"
+          :key="`${group.key}-${term.hpo_id}`"
+          :title="term.name"
+          :subtitle="relatedFindingDetail(term)"
+        >
+          <template v-if="isExcludedFinding(term)" #append>
+            <v-chip size="x-small" color="warning" variant="tonal" label>
+              {{ $t('queryInterface.fullTextReceipt.relatedFindingAbsent') }}
+            </v-chip>
+          </template>
+        </v-list-item>
+      </v-list>
+    </section>
   </div>
 </template>
 
@@ -106,8 +143,12 @@ try {
 } catch {
   i18n = null;
 }
-function translate(key, fallback) {
-  return i18n ? i18n.t(key) : fallback;
+function translate(key, fallback, params) {
+  if (!i18n) return fallback;
+  // A numeric `count` selects the plural form ("1 word | {count} words").
+  return typeof params?.count === 'number'
+    ? i18n.t(key, params, params.count)
+    : i18n.t(key, params ?? {});
 }
 
 const curation = useFullTextCuration(props.item.id);
@@ -145,11 +186,37 @@ const receiptMeta = computed(() => {
   const chunks = props.item?.response?.processed_chunks?.length ?? 0;
 
   if (chunks === 0 && typeof props.item?.query === 'string' && props.item.query.trim().length > 0) {
-    return `${terms} findings in submitted note review`;
+    return translate(
+      'queryInterface.fullTextReceipt.metaNoteReview',
+      `${terms} findings in submitted note review`,
+      { count: terms }
+    );
   }
 
-  return `${terms} findings across ${chunks} document sections`;
+  return translate(
+    'queryInterface.fullTextReceipt.metaSections',
+    `${terms} findings across ${chunks} document sections`,
+    { count: terms, sections: chunks }
+  );
 });
+
+// Findings about relatives and other people stay out of the patient's list and "Add all".
+const relatedFindings = computed(() => {
+  const response = props.item?.response;
+  return [
+    { key: 'family', terms: response?.family_history_findings },
+    { key: 'other', terms: response?.other_person_findings },
+  ].filter((group) => Array.isArray(group.terms) && group.terms.length > 0);
+});
+
+function relatedFindingDetail(term) {
+  const evidence = term.text_attributions?.[0]?.matched_text_in_chunk;
+  return evidence ? `${term.hpo_id} · "${evidence}"` : term.hpo_id;
+}
+
+function isExcludedFinding(term) {
+  return normalizeAssertionStatus(term.status, term.excluded) === 'negated';
+}
 
 function parseScoreValue(value) {
   if (typeof value === 'number' && Number.isFinite(value)) {
