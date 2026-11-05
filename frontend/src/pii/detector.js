@@ -179,7 +179,20 @@ function hasNameContext(text, candidate, config) {
 
 function scoreNameCandidate(text, candidate, config) {
   const normalizedValues = candidate.tokens.map((token) => normalizeNameToken(token.value));
-  if (normalizedValues.some((value) => config.blockedTerms.includes(value))) {
+  // Particles inside a name ("van der Berg") are not blocked terms; a leading
+  // "Der" never gets here because isNameToken rejects it.
+  const blocked = candidate.tokens.some(
+    (token) =>
+      !isNameParticle(token, config) &&
+      config.blockedTerms.includes(normalizeNameToken(token.value))
+  );
+  if (blocked) {
+    return 0;
+  }
+  if (
+    config.nonNameFirstTokenPattern.test(normalizedValues[0]) ||
+    config.nonNameLastTokenPattern.test(normalizedValues.at(-1))
+  ) {
     return 0;
   }
 

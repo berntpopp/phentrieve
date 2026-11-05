@@ -1,5 +1,7 @@
 from typing import Any
 
+import pytest
+
 from phentrieve.text_processing.assertion_detection import (
     AssertionStatus,
     CombinedAssertionDetector,
@@ -81,3 +83,46 @@ def test_any_negative_preference_keeps_uncertain_result_when_detectors_disagree(
     assert details["final_status"] == "uncertain"
     assert details["keyword_status"] == "uncertain"
     assert details["dependency_status"] == "affirmed"
+
+
+@pytest.mark.parametrize(
+    ("language", "text"),
+    [
+        ("en", "seizures were ruled out"),
+        ("en", "Epilepsy has been ruled out"),
+        ("en", "negative for seizures"),
+        ("en", "absence of seizures"),
+        ("en", "free of seizures"),
+        ("de", "Krampfanfälle wurden ausgeschlossen"),
+    ],
+)
+def test_default_detector_negates_multi_word_cues(language: str, text: str) -> None:
+    """Multi-word cues must survive the dependency preference (#459)."""
+    detector = CombinedAssertionDetector(language=language, preference="dependency")
+
+    assert detector.detect(text)[0] is AssertionStatus.NEGATED
+    assert detector.detect_batch([text])[0][0] is AssertionStatus.NEGATED
+
+
+@pytest.mark.parametrize(
+    ("language", "text"),
+    [
+        ("en", "seizures cannot be ruled out"),
+        ("en", "seizures were not ruled out"),
+        ("en", "cannot rule out seizures"),
+        ("en", "a seizure disorder could not be excluded"),
+        ("en", "not only seizures"),
+        ("de", "Krampfanfälle wurden nicht ausgeschlossen"),
+        ("de", "Krampfanfälle sind nicht auszuschließen"),
+        ("es", "no se puede descartar epilepsia"),
+        ("fr", "une épilepsie ne peut être exclue"),
+        ("nl", "epilepsie is niet uit te sluiten"),
+    ],
+)
+def test_default_detector_keeps_open_findings_unnegated(
+    language: str, text: str
+) -> None:
+    """A finding that was not excluded must never read as absent (#459)."""
+    detector = CombinedAssertionDetector(language=language, preference="dependency")
+
+    assert detector.detect(text)[0] is not AssertionStatus.NEGATED

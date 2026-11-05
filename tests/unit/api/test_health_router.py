@@ -4,6 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
+from api.routers import health
+from phentrieve.config import DEFAULT_MODEL
 
 pytestmark = pytest.mark.unit
 
@@ -31,6 +33,23 @@ def test_health_aliases_return_the_canonical_payload(alias):
     data = response.json()
     assert set(data) == HEALTH_KEYS
     assert data["status"] == "healthy"
+
+
+def test_ready_route_stays_503_until_the_default_model_is_loaded(monkeypatch):
+    monkeypatch.setattr(health, "LOADED_SBERT_MODELS", {})
+    response = client.get("/api/v1/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["status"] == "loading"
+    assert response.headers["Retry-After"] == "30"
+    # Liveness does not depend on the model.
+    assert client.get("/api/v1/health").status_code == 200
+
+    monkeypatch.setattr(health, "LOADED_SBERT_MODELS", {DEFAULT_MODEL: object()})
+    response = client.get("/api/v1/health/ready")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ready"
 
 
 def test_only_the_canonical_health_route_is_documented():

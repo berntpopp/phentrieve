@@ -258,7 +258,12 @@
       "addAll": "Alle hinzufügen ({count})",
       "addAllConfirm": "Erneut klicken, um alle {count} hinzuzufügen",
       "metaSections": "{count} Befund in {sections} Dokumentabschnitt(en) | {count} Befunde in {sections} Dokumentabschnitt(en)",
-      "metaNoteReview": "{count} Befund aus der eingereichten Notiz | {count} Befunde aus der eingereichten Notiz"
+      "metaNoteReview": "{count} Befund aus der eingereichten Notiz | {count} Befunde aus der eingereichten Notiz",
+      "incomplete": "Ein Teil dieses Textes konnte nicht analysiert werden. Es können Befunde fehlen. Prüfen Sie ihn daher manuell oder starten Sie die Analyse erneut.",
+      "familyFindings": "Familienanamnese",
+      "otherFindings": "Andere Personen",
+      "relatedFindingsHint": "Keine Befunde des Patienten und nicht in „Alle hinzufügen“ enthalten.",
+      "relatedFindingAbsent": "Nicht vorhanden"
     }
   },
   "annotatedDocumentPane": {
