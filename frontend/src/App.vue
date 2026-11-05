@@ -161,7 +161,7 @@
                 v-bind="props"
                 icon="mdi-book-open-page-variant-outline"
                 size="small"
-                href="https://berntpopp.github.io/phentrieve/"
+                href="https://phentrieve.github.io/phentrieve/"
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="text"
@@ -456,7 +456,7 @@ export default {
         {
           icon: 'mdi-book-open-page-variant-outline',
           label: 'app.footer.docsTooltip',
-          href: 'https://berntpopp.github.io/phentrieve/',
+          href: 'https://phentrieve.github.io/phentrieve/',
         },
         {
           icon: 'mdi-license',

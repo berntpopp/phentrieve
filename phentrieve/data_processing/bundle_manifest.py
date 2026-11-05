@@ -10,7 +10,7 @@ The manifest is stored as manifest.json in bundle root and contains:
 - Term statistics (active vs obsolete)
 - File checksums for integrity verification
 
-See: https://github.com/berntpopp/phentrieve/issues/117
+See: https://github.com/phentrieve/phentrieve/issues/117
 """
 
 from __future__ import annotations

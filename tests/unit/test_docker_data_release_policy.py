@@ -8,7 +8,7 @@ pytestmark = pytest.mark.unit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BUNDLE_URL = (
-    "https://github.com/berntpopp/phentrieve-data/releases/download/"
+    "https://github.com/phentrieve/phentrieve-data/releases/download/"
     "hpo-v2026-09-01-r1/"
     "phentrieve-data-v2026-09-01-biolord-multivec.tar.gz"
 )

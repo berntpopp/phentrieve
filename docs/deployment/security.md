@@ -400,13 +400,13 @@ Before deploying to production, verify:
 **Scanning for Vulnerabilities:**
 ```bash
 # Scan local images with Docker Scout
-docker scout cves ghcr.io/berntpopp/phentrieve/api:latest
+docker scout cves ghcr.io/phentrieve/phentrieve/api:latest
 
 # Scan with Trivy (more detailed)
-trivy image ghcr.io/berntpopp/phentrieve/api:latest
+trivy image ghcr.io/phentrieve/phentrieve/api:latest
 
 # Only show HIGH and CRITICAL
-trivy image --severity HIGH,CRITICAL ghcr.io/berntpopp/phentrieve/api:latest
+trivy image --severity HIGH,CRITICAL ghcr.io/phentrieve/phentrieve/api:latest
 ```
 
 **Automated Scanning:**
@@ -478,7 +478,7 @@ secrets:
 4. **Rebuild and Redeploy:**
    ```bash
    docker-compose down
-   docker pull ghcr.io/berntpopp/phentrieve/api:latest
+   docker pull ghcr.io/phentrieve/phentrieve/api:latest
    docker-compose up -d
    ```
 

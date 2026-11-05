@@ -29,8 +29,8 @@ Phentrieve provides Docker images with comprehensive security hardening for host
 - ✅ **Health checks** - Built-in liveness and readiness probes
 
 **Docker Images**:
-- `ghcr.io/berntpopp/phentrieve/api:latest` - FastAPI backend
-- `ghcr.io/berntpopp/phentrieve/frontend:latest` - Vue.js frontend (nginx)
+- `ghcr.io/phentrieve/phentrieve/api:latest` - FastAPI backend
+- `ghcr.io/phentrieve/phentrieve/frontend:latest` - Vue.js frontend (nginx)
 
 ---
 
@@ -56,7 +56,7 @@ Phentrieve provides Docker images with comprehensive security hardening for host
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/berntpopp/phentrieve.git
+git clone https://github.com/phentrieve/phentrieve.git
 cd phentrieve
 ```
 
@@ -100,7 +100,7 @@ NPM_SHARED_NETWORK_NAME=npm_proxy_network
 
 ### 4. Prepare HPO Data
 
-> **Note**: If using pre-built Docker images from GHCR (`ghcr.io/berntpopp/phentrieve/api:latest`), HPO data and indexes are **already included**. Skip to Step 5.
+> **Note**: If using pre-built Docker images from GHCR (`ghcr.io/phentrieve/phentrieve/api:latest`), HPO data and indexes are **already included**. Skip to Step 5.
 
 For custom builds or volume-mounted data, prepare HPO data:
 
@@ -168,17 +168,17 @@ docker build -t phentrieve-api ./api
 
 # Or specify a different bundle
 docker build \
-  --build-arg BUNDLE_URL="https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz" \
+  --build-arg BUNDLE_URL="https://github.com/phentrieve/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz" \
   -t phentrieve-api ./api
 ```
 
-**Available bundles** (from [the dedicated data releases](https://github.com/berntpopp/phentrieve-data/releases)):
+**Available bundles** (from [the dedicated data releases](https://github.com/phentrieve/phentrieve-data/releases)):
 - `phentrieve-data-v2026-06-23-biolord-multivec.tar.gz` - BioLORD multivector, recommended
 - `phentrieve-data-v2026-06-23-biolord.tar.gz` - BioLORD single-vector
 - `phentrieve-data-v2026-06-23-minimal.tar.gz` - HPO SQLite database only
 
 The legacy `data-v2026-02-16` assets remain in the software repository. Set
-`PHENTRIEVE_DATA_RELEASE_REPOSITORY=berntpopp/phentrieve` only when a legacy
+`PHENTRIEVE_DATA_RELEASE_REPOSITORY=phentrieve/phentrieve` only when a legacy
 release must be installed.
 
 ### Mode 2: Build from Scratch
@@ -432,7 +432,7 @@ docker-compose build --no-cache
 **Multi-platform build** (for deployment to different architectures):
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t ghcr.io/berntpopp/phentrieve/api:custom \
+  -t ghcr.io/phentrieve/phentrieve/api:custom \
   -f api/Dockerfile \
   --push .
 ```
@@ -896,14 +896,14 @@ docker-compose --env-file .env.docker up -d
 - [Docker Security Best Practices](https://docs.docker.com/develop/security-best-practices/)
 - [Nginx Proxy Manager Documentation](https://nginxproxymanager.com/)
 - [Phentrieve API Documentation](http://localhost:8000/docs)
-- [Phentrieve GitHub Repository](https://github.com/berntpopp/phentrieve)
+- [Phentrieve GitHub Repository](https://github.com/phentrieve/phentrieve)
 
 ---
 
 ## Getting Help
 
 **Issues**:
-- [GitHub Issues](https://github.com/berntpopp/phentrieve/issues)
+- [GitHub Issues](https://github.com/phentrieve/phentrieve/issues)
 
 **Logs**:
 When reporting issues, include:

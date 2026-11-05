@@ -168,7 +168,7 @@
           </a>
           documentation, or the
           <a
-            href="https://berntpopp.github.io/phentrieve/"
+            href="https://phentrieve.github.io/phentrieve/"
             target="_blank"
             rel="noopener noreferrer"
           >

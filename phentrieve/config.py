@@ -345,7 +345,7 @@ _DEFAULT_HPO_BASE_URL_FALLBACK = (
 )
 _DEFAULT_HPO_DOWNLOAD_TIMEOUT_FALLBACK = 60
 _DEFAULT_HPO_CHUNK_SIZE_FALLBACK = 8192
-DEFAULT_DATA_RELEASE_REPOSITORY = "berntpopp/phentrieve-data"
+DEFAULT_DATA_RELEASE_REPOSITORY = "phentrieve/phentrieve-data"
 
 
 # =============================================================================

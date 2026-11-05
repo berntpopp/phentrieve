@@ -37,7 +37,7 @@
 
 services:
   phentrieve_api:
-    image: ghcr.io/berntpopp/phentrieve/api:latest
+    image: ghcr.io/phentrieve/phentrieve/api:latest
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -58,11 +58,11 @@ services:
         #   BUNDLE_URL: ""
         #   BUILD_INDEXES: "false"
         # =============================================================================
-        BUNDLE_URL: ${PHENTRIEVE_BUNDLE_URL:-https://github.com/berntpopp/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz}
+        BUNDLE_URL: ${PHENTRIEVE_BUNDLE_URL:-https://github.com/phentrieve/phentrieve-data/releases/download/hpo-v2026-09-01-r1/phentrieve-data-v2026-09-01-biolord-multivec.tar.gz}
         BUILD_INDEXES: ${PHENTRIEVE_BUILD_INDEXES:-false}
         BUILD_MODEL: ${PHENTRIEVE_BUILD_MODEL:-FremyCompany/BioLORD-2023-M}
       cache_from:
-        - ghcr.io/berntpopp/phentrieve/api:latest
+        - ghcr.io/phentrieve/phentrieve/api:latest
 
     # NOTE: Container starts as root to fix volume permissions, then drops to
     # non-root user (phentrieve:10001) via entrypoint script. This follows Docker
@@ -218,7 +218,7 @@ services:
       - npm_proxy_network
 
   phentrieve_frontend:
-    image: ghcr.io/berntpopp/phentrieve/frontend:latest
+    image: ghcr.io/phentrieve/phentrieve/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -226,7 +226,7 @@ services:
         BUILDKIT_INLINE_CACHE: 1
         VITE_API_URL: ${VITE_API_URL_PUBLIC}
       cache_from:
-        - ghcr.io/berntpopp/phentrieve/frontend:latest
+        - ghcr.io/phentrieve/phentrieve/frontend:latest
 
     # SECURITY: Run as non-root (nginx:nginx = 101:101)
     user: "101:101"

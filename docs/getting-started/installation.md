@@ -15,7 +15,7 @@ The easiest way to run Phentrieve is using the provided Docker configuration, wh
 
 ```bash
 # Clone the repository
-git clone https://github.com/berntpopp/phentrieve.git
+git clone https://github.com/phentrieve/phentrieve.git
 cd phentrieve
 
 # Copy the environment template
@@ -56,7 +56,7 @@ We provide a `Makefile` to automate environment setup:
 
 ```bash
 # Clone the repository
-git clone https://github.com/berntpopp/phentrieve.git
+git clone https://github.com/phentrieve/phentrieve.git
 cd phentrieve
 
 # Install dependencies and create virtual environment automatically

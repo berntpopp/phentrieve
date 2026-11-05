@@ -58,7 +58,7 @@ jobs:
       - name: Checkout pinned Phentrieve source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: berntpopp/phentrieve
+          repository: phentrieve/phentrieve
           ref: ${{ inputs.source_commit }}
           path: phentrieve
           persist-credentials: false

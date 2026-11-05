@@ -23,20 +23,20 @@ pytestmark = pytest.mark.unit
 def test_data_release_repository_defaults_to_dedicated_repository(monkeypatch):
     monkeypatch.delenv("PHENTRIEVE_DATA_RELEASE_REPOSITORY", raising=False)
 
-    assert get_data_release_repository() == "berntpopp/phentrieve-data"
+    assert get_data_release_repository() == "phentrieve/phentrieve-data"
     assert (
         get_data_release_releases_url()
-        == "https://api.github.com/repos/berntpopp/phentrieve-data/releases"
+        == "https://api.github.com/repos/phentrieve/phentrieve-data/releases"
     )
 
 
 def test_data_release_repository_honors_explicit_legacy_override(monkeypatch):
-    monkeypatch.setenv("PHENTRIEVE_DATA_RELEASE_REPOSITORY", "berntpopp/phentrieve")
+    monkeypatch.setenv("PHENTRIEVE_DATA_RELEASE_REPOSITORY", "phentrieve/phentrieve")
 
-    assert get_data_release_repository() == "berntpopp/phentrieve"
+    assert get_data_release_repository() == "phentrieve/phentrieve"
     assert (
         get_data_release_releases_url()
-        == "https://api.github.com/repos/berntpopp/phentrieve/releases"
+        == "https://api.github.com/repos/phentrieve/phentrieve/releases"
     )
 
 

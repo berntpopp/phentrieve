@@ -133,7 +133,7 @@ def get_hpo_json_url(version: str) -> str:
 # Consortium modifies the JSON schema format.
 #
 # Design: Simple utility functions (not classes) following KISS principle
-# See: https://github.com/berntpopp/phentrieve/issues/23
+# See: https://github.com/phentrieve/phentrieve/issues/23
 # ---
 
 
@@ -304,7 +304,7 @@ def log_parsing_summary(stats: dict[str, int], total_terms: int) -> None:
 # 2. Label starts with "obsolete " (case-insensitive)
 #
 # See: https://github.com/obophenotype/human-phenotype-ontology/wiki/Obsoletion
-# See: https://github.com/berntpopp/phentrieve/issues/133
+# See: https://github.com/phentrieve/phentrieve/issues/133
 # ---
 
 

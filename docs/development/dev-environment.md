@@ -29,7 +29,7 @@ The project includes a `Makefile` to automate common tasks.
 
 ```bash
 # Clone the repository
-git clone https://github.com/berntpopp/phentrieve.git
+git clone https://github.com/phentrieve/phentrieve.git
 cd phentrieve
 
 # Install uv (if not already installed)
@@ -328,7 +328,7 @@ git push -u origin feature/your-feature-name
 gh pr create --title "feat: Your feature" --body "Description..."
 
 # Or create PR via web interface
-# https://github.com/berntpopp/phentrieve/compare
+# https://github.com/phentrieve/phentrieve/compare
 ```
 
 ## Environment Variables
@@ -535,8 +535,8 @@ make typecheck-fast
 ## Getting Help
 
 - **Documentation**: Browse `docs/` directory
-- **GitHub Issues**: https://github.com/berntpopp/phentrieve/issues
-- **Discussions**: https://github.com/berntpopp/phentrieve/discussions
+- **GitHub Issues**: https://github.com/phentrieve/phentrieve/issues
+- **Discussions**: https://github.com/phentrieve/phentrieve/discussions
 - **CLI Help**: `phentrieve --help` or `phentrieve <command> --help`
 
 !!! tip "Hot Reload"

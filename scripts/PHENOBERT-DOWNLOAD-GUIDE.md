@@ -131,7 +131,7 @@ Source: https://github.com/EclipseCN/PhenoBERT
 Source version: commit abc123def456 (2024-12-15)
 Converter: Phentrieve v1.0.0
 Conversion date: 2025-01-18
-Converter repository: https://github.com/berntpopp/phentrieve
+Converter repository: https://github.com/phentrieve/phentrieve
 ```
 
 ## Troubleshooting

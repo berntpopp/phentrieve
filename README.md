@@ -6,7 +6,7 @@ Phentrieve is an advanced AI-powered research system for mapping phenotype descr
 
 **Research use only:** Phentrieve is not a medical device and must not be used for diagnosis, treatment selection, patient triage, or other clinical decision-making. See the [Research Use Only guide](docs/compliance/research-use.md) and [Privacy and LLM Processing](docs/compliance/privacy-and-llm-processing.md).
 
-**For comprehensive documentation, please visit the [Phentrieve Documentation Site](https://berntpopp.github.io/phentrieve/).**
+**For comprehensive documentation, please visit the [Phentrieve Documentation Site](https://phentrieve.github.io/phentrieve/).**
 
 ## Key Features
 
@@ -35,7 +35,7 @@ Install Phentrieve using pip:
 pip install phentrieve
 ```
 
-For detailed setup and usage instructions, including Docker deployment, please see our [Getting Started Guide](https://berntpopp.github.io/phentrieve/getting-started/installation/).
+For detailed setup and usage instructions, including Docker deployment, please see our [Getting Started Guide](https://phentrieve.github.io/phentrieve/getting-started/installation/).
 
 ## Basic Usage
 
@@ -47,7 +47,7 @@ phentrieve query --interactive
 phentrieve text process "The research note mentions microcephaly and frequent seizures."
 ```
 
-Discover more commands and options in the [User Guide](https://berntpopp.github.io/phentrieve/user-guide/).
+Discover more commands and options in the [User Guide](https://phentrieve.github.io/phentrieve/user-guide/).
 
 ## Configuration
 
@@ -89,4 +89,4 @@ For detailed deployment instructions, security best practices, and troubleshooti
 
 ---
 
-[Full Documentation](https://berntpopp.github.io/phentrieve/) | [Contributing Guide](https://berntpopp.github.io/phentrieve/development/) | [License](LICENSE)
+[Full Documentation](https://phentrieve.github.io/phentrieve/) | [Contributing Guide](https://phentrieve.github.io/phentrieve/development/) | [License](LICENSE)
