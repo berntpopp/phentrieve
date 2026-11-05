@@ -636,6 +636,7 @@ def adapt_standard_response(
     | Mapping[str, Any]
     | None,
     extra_meta: dict[str, Any] | None = None,
+    family_results: Sequence[Mapping[str, Any]] = (),
 ) -> StableBackendResponse:
     """Convert pipeline and extraction outputs into the stable response shape.
 
@@ -680,6 +681,7 @@ def adapt_standard_response(
             "meta": meta_block,
             "processed_chunks": adapted_chunks,
             "aggregated_hpo_terms": adapted_terms,
+            "family_history_findings": _adapt_aggregated_terms(list(family_results)),
         },
         extraction_backend="standard",
     )
@@ -692,7 +694,10 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     from phentrieve.text_processing.hpo_extraction_orchestrator import (
         orchestrate_hpo_extraction,
     )
-    from phentrieve.text_processing.pipeline import TextProcessingPipeline
+    from phentrieve.text_processing.pipeline import (
+        FAMILY_EXPERIENCER,
+        TextProcessingPipeline,
+    )
 
     text_pipeline = kwargs.pop("text_pipeline", None)
     retriever = kwargs.pop("retriever", None)
@@ -782,6 +787,38 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
     chunk_results = extraction_result.chunk_results
     raw_query_results = extraction_result.raw_query_results
 
+    # Findings of relatives leave the patient's aggregate (#400). Both aggregates
+    # reuse the retrieval above; the other group's chunks get empty results.
+    family_results: list[dict[str, Any]] = []
+    family_idx = {
+        idx
+        for idx, chunk in enumerate(processed_chunks)
+        if (chunk.get("assertion_details") or {}).get("experiencer")
+        == FAMILY_EXPERIENCER
+    }
+    if family_idx:
+        aggregated_results, family_results = (
+            orchestrate_hpo_extraction(
+                text_chunks=text_chunks,
+                retriever=retriever,
+                num_results_per_chunk=num_results_per_chunk,
+                chunk_retrieval_threshold=chunk_retrieval_threshold,
+                language=language,
+                top_term_per_chunk=top_term_per_chunk,
+                min_confidence_for_aggregated=min_confidence_for_aggregated,
+                assertion_statuses=assertion_statuses,
+                include_details=include_details,
+                precomputed_query_results=[
+                    result if (idx in family_idx) == family else {}
+                    for idx, result in enumerate(raw_query_results)
+                ],
+                chunk_negated_scope_texts=chunk_negated_scope_texts,
+            ).aggregated_results
+            for family in (False, True)
+        )
+        for term in family_results:
+            term["experiencer"] = FAMILY_EXPERIENCER
+
     # Adaptive rechunking - opt-in. No behavior change when config is absent
     # or disabled.
     adaptive_meta: dict[str, Any] | None = None
@@ -807,6 +844,8 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         # ``aggregated_results`` and expects the caller to keep the initial
         # aggregate. Only swap in the rechunker's aggregate when it actually
         # re-ran aggregation.
+        # shortcut: this aggregate covers family chunks too; split it like the
+        # initial one if adaptive rechunking becomes a default.
         if rechunk.aggregated_results:
             aggregated_results = rechunk.aggregated_results
         chunk_results = rechunk.chunk_results
@@ -816,6 +855,7 @@ def run_standard_backend(*, text: str, **kwargs: Any) -> StableBackendResponse:
         processed_chunks,
         (aggregated_results, chunk_results),
         extra_meta={"adaptive_rechunking": adaptive_meta} if adaptive_meta else None,
+        family_results=family_results,
     )
 
 

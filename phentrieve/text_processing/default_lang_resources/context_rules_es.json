@@ -167,6 +167,96 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "phentrieve-issue-459", "language": "es", "note": "Finding stays open"}
+    },
+    {
+      "literal": "madre",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "padre",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "padres",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "hermano",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "hermana",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "hermanos",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "hijo",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "hija",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "abuela",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "abuelo",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "tía",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "tío",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "primo",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "prima",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "antecedentes familiares",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "es", "note": "Experiencer is a relative"}
     }
   ]
 }

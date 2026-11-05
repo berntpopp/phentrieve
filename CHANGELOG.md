@@ -40,6 +40,15 @@ together:
 
 ### Fixed
 
+- **Standard negation covers whole lists, and relatives' findings leave the patient's list
+  (#400).** In "No evidence of hearing loss or cataract." only the first chunk was negated.
+  A forward negation cue now reaches every chunk of the list it opens, up to a sentence
+  end, a scope terminator (but, however, except, sondern, ...) or a new clause.
+  "His brother has scoliosis." affirmed scoliosis for the patient; family cues from the
+  ConText rules (mother, Bruder, ...) now move such findings to `family_history_findings`.
+  Behaviour change: standard results can report more negated terms and fewer patient
+  terms. "Mother reports seizures." is read as a family finding; "Mother reports that he
+  has seizures." stays the patient's.
 - **Standard negation no longer inverts clinical meaning (#459).** Multi-word cues such as
   "ruled out", "negative for" and "absence of" were affirmed, and "cannot be ruled out" was
   negated. This also holds when chunking splits such a phrase. Open findings are reported
