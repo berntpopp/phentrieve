@@ -51,21 +51,32 @@ export function resolveChunkOffsetsInNote(noteText, chunks) {
   return offsets;
 }
 
-export function resolveMatchedTextRange(noteText, matchedText) {
+/**
+ * First case-insensitive match of matchedText within noteText[from, to). The
+ * search runs on the original note, because lowering it first can change its
+ * length ("İ" lowers to two code points) and shift the offsets (#411). Any
+ * whitespace run matches any other, since chunk text has its whitespace collapsed.
+ */
+export function resolveMatchedTextRange(noteText, matchedText, from = 0, to = noteText.length) {
   if (typeof matchedText !== 'string' || matchedText.trim() === '') {
     return null;
   }
 
-  const normalizedNote = noteText.toLowerCase();
-  const normalizedMatch = matchedText.toLowerCase();
-  const start = normalizedNote.indexOf(normalizedMatch);
-  if (start === -1) {
+  const pattern = matchedText
+    .trim()
+    .split(/\s+/u)
+    .map((word) => word.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&'))
+    .join('\\s+');
+  // Every word is escaped; only literal words joined by \s+ reach the RegExp.
+  // eslint-disable-next-line security/detect-non-literal-regexp
+  const match = new RegExp(pattern, 'iu').exec(noteText.slice(from, to));
+  if (!match) {
     return null;
   }
 
   return {
-    start,
-    end: start + matchedText.length,
+    start: from + match.index,
+    end: from + match.index + match[0].length,
   };
 }
 
@@ -230,6 +241,35 @@ export function seedAnnotationsFromResponse({ note, response }) {
     return offset != null && chunkText ? { start: offset, end: offset + chunkText.length } : null;
   }
 
+  // Note position of a chunk whose text sits there verbatim, so chunk-relative
+  // attribution offsets can be added to it. Chunk text has its whitespace
+  // collapsed, so a chunk that crosses a line break has no such position.
+  function verbatimChunkStart(chunkId) {
+    const chunk = chunkById.get(String(chunkId));
+    const chunkText = typeof chunk?.text === 'string' ? chunk.text : chunk?.chunk_text;
+    if (
+      chunkText &&
+      Number.isInteger(chunk.start_char) &&
+      noteText.startsWith(chunkText, chunk.start_char)
+    ) {
+      return chunk.start_char;
+    }
+    return chunkOffsets.get(String(chunkId)) ?? null;
+  }
+
+  // Text searched within the given chunks, or within the whole note only when
+  // none of them has a note position: a whole-note search takes the first
+  // occurrence, which may be another sentence (#411).
+  function findInChunks(text, chunkIds) {
+    const ranges = chunkIds.map(chunkRange).filter(Boolean);
+    if (ranges.length === 0) return resolveMatchedTextRange(noteText, text);
+    for (const { start, end } of ranges) {
+      const found = resolveMatchedTextRange(noteText, text, start, end);
+      if (found) return found;
+    }
+    return null;
+  }
+
   const validTerms = terms.filter(
     (term) => term && typeof term.hpo_id === 'string' && typeof term.name === 'string'
   );
@@ -274,10 +314,7 @@ export function seedAnnotationsFromResponse({ note, response }) {
   function exactSpans(term) {
     const spans = (Array.isArray(term.text_attributions) ? term.text_attributions : [])
       .map((attr) => {
-        const base =
-          chunkOffsets.get(attr?.chunk_id) ??
-          chunkOffsets.get(String(attr?.chunk_id)) ??
-          chunkOffsets.get(Number(attr?.chunk_id));
+        const base = verbatimChunkStart(attr?.chunk_id);
 
         if (base != null) {
           const start = Math.max(
@@ -291,7 +328,7 @@ export function seedAnnotationsFromResponse({ note, response }) {
           if (end > start) return { start, end, text: noteText.slice(start, end) };
         }
 
-        const resolved = resolveMatchedTextRange(noteText, attr?.matched_text_in_chunk);
+        const resolved = findInChunks(attr?.matched_text_in_chunk, [attr?.chunk_id]);
         return resolved
           ? { ...resolved, text: noteText.slice(resolved.start, resolved.end) }
           : null;
@@ -301,9 +338,13 @@ export function seedAnnotationsFromResponse({ note, response }) {
 
     // Fallback: some backends (notably the grounded LLM extractor) return
     // terms with no usable text attributions. If the term's own label appears
-    // verbatim in the note, locate it so the term is still highlighted.
+    // in its source chunks, locate it so the term is still highlighted.
     if (spans.length === 0) {
-      const byLabel = resolveMatchedTextRange(noteText, term.name);
+      const sourceIds = [
+        term.top_evidence_chunk_id,
+        ...(Array.isArray(term.source_chunk_ids) ? term.source_chunk_ids : []),
+      ].filter((id) => id != null);
+      const byLabel = findInChunks(term.name, sourceIds);
       if (byLabel) {
         spans.push({
           start: byLabel.start,
