@@ -157,11 +157,16 @@ export default {
 
     // Listen for window resize to update positions
     window.addEventListener('resize', this.updateHighlight);
+    window.addEventListener('keydown', this.onKeydown);
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.updateHighlight);
+    window.removeEventListener('keydown', this.onKeydown);
   },
   methods: {
+    onKeydown(event) {
+      if (event.key === 'Escape' && this.isVisible) this.skipTutorial();
+    },
     updateTutorialState() {
       if (tutorialService.isRunning()) {
         this.currentStep = tutorialService.getCurrentStep();

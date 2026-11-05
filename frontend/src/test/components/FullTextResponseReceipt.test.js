@@ -6,6 +6,7 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createI18n } from 'vue-i18n';
 import en from '../../locales/en.json';
+import de from '../../locales/de.json';
 import FullTextResponseReceipt from '../../components/FullTextResponseReceipt.vue';
 import { useFullTextCurationStore } from '../../stores/fullTextCuration';
 
@@ -21,7 +22,7 @@ const i18n = createI18n({
   missing: () => '',
 });
 
-function mountReceipt(props = {}) {
+function mountReceipt(props = {}, plugins = [vuetify, i18n]) {
   return mount(FullTextResponseReceipt, {
     props: {
       item: {
@@ -44,7 +45,7 @@ function mountReceipt(props = {}) {
       ...props,
     },
     global: {
-      plugins: [vuetify, i18n],
+      plugins,
       stubs: {
         ResultItem: {
           name: 'ResultItem',
@@ -246,5 +247,28 @@ describe('FullTextResponseReceipt', () => {
     expect(wrapper.findAll('[data-testid="full-text-response-phenotype"]')).toHaveLength(1);
     expect(wrapper.find('[data-testid="finding-origin-badge"]').exists()).toBe(true);
     expect(wrapper.get('.result-item-stub').text()).toContain('Microcephaly');
+  });
+
+  it('translates the receipt summary line (#469)', () => {
+    const deI18n = createI18n({ legacy: false, locale: 'de', messages: { de } });
+
+    expect(mountReceipt({}, [vuetify, i18n]).text()).toContain(
+      '1 finding across 1 document section(s)'
+    );
+    expect(mountReceipt({}, [vuetify, deI18n]).text()).toContain(
+      '1 Befund in 1 Dokumentabschnitt(en)'
+    );
+
+    const noteReview = mountReceipt(
+      {
+        item: {
+          id: 'turn-2',
+          query: 'Recurrent seizures since infancy. Mild ataxia.',
+          response: { aggregated_hpo_terms: [], processed_chunks: [] },
+        },
+      },
+      [vuetify, deI18n]
+    );
+    expect(noteReview.text()).toContain('0 Befunde aus der eingereichten Notiz');
   });
 });

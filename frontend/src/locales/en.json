@@ -256,7 +256,9 @@
     "fullTextReceipt": {
       "title": "Full-text analysis ready",
       "addAll": "Add all ({count})",
-      "addAllConfirm": "Click again to add all {count}"
+      "addAllConfirm": "Click again to add all {count}",
+      "metaSections": "{count} finding across {sections} document section(s) | {count} findings across {sections} document section(s)",
+      "metaNoteReview": "{count} finding in submitted note review | {count} findings in submitted note review"
     }
   },
   "annotatedDocumentPane": {
@@ -278,7 +280,8 @@
       "auto": "Auto",
       "manual": "Manual"
     },
-    "spanAriaLabel": "Edit annotation: {label}"
+    "spanAriaLabel": "Edit annotation: {label}",
+    "wordCount": "{count} word | {count} words"
   },
   "hpoTermPicker": {
     "changeTitle": "Change HPO term",
