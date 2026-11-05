@@ -167,6 +167,96 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "phentrieve-issue-459", "language": "fr", "note": "Finding stays open"}
+    },
+    {
+      "literal": "mère",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "père",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "parents",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "frère",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "sœur",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "soeur",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "fils",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "fille",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "grand-mère",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "grand-père",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "tante",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "oncle",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "cousin",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "cousine",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "antécédents familiaux",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "fr", "note": "Experiencer is a relative"}
     }
   ]
 }

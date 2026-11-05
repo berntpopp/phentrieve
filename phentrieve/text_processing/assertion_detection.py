@@ -332,8 +332,11 @@ def parse_context_rules(context_data: dict[str, Any]) -> list[ConTextRule]:
 
 
 @lru_cache(maxsize=32)
-def load_context_cues(lang: str, category: str) -> tuple[str, ...]:
-    """Lowercased literals of one ConText category, falling back to English."""
+def load_context_cues(
+    lang: str, category: str, direction: str | None = None
+) -> tuple[str, ...]:
+    """Lowercased literals of one ConText category (and optionally direction),
+    falling back to English."""
     import importlib.resources
     import json
 
@@ -350,6 +353,7 @@ def load_context_cues(lang: str, category: str) -> tuple[str, ...]:
                 rule["literal"].strip().lower()
                 for rule in context_data.get("context_rules", [])
                 if rule.get("category") == category
+                and direction in (None, rule.get("direction"))
             )
         except (FileNotFoundError, AttributeError, KeyError):
             continue

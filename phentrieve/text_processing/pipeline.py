@@ -14,6 +14,9 @@ from phentrieve.text_processing.assertion_detection import (
     AssertionDetector,
     AssertionStatus,
     CombinedAssertionDetector,
+    _is_cue_match,
+    get_spacy_model,
+    load_context_cues,
     pseudo_cue_spans,
 )
 from phentrieve.text_processing.chunkers import (
@@ -28,6 +31,163 @@ from phentrieve.text_processing.spans import find_span_in_text
 from phentrieve.utils import sanitize_log_value as _sanitize
 
 logger = logging.getLogger(__name__)
+
+_SENTENCE_BREAKS = (".", "!", "?", ";", "\n")
+_SUBJECT_DEPS = ("nsubj", "nsubjpass", "nsubj:pass", "sb")
+FAMILY_EXPERIENCER = "family_history"
+
+
+def _cue_spans(text_lower: str, cues: tuple[str, ...]) -> list[tuple[int, int]]:
+    """All word-bounded matches of the cues, sorted by position."""
+    spans = []
+    for cue in cues:
+        index = text_lower.find(cue)
+        while index >= 0:
+            if _is_cue_match(text_lower, cue, index):
+                spans.append((index, index + len(cue)))
+            index = text_lower.find(cue, index + 1)
+    return sorted(spans)
+
+
+class _SentenceContext:
+    """Cue and parse lookups over the sentences of one document (#400)."""
+
+    def __init__(self, text: str, language: str, pseudo_spans: list[tuple[int, int]]):
+        self.text = text
+        self.lower = text.lower()
+        # "not only" / "cannot be ruled out" hold no usable cue
+        for start, end in pseudo_spans:
+            self.lower = self.lower[:start] + " " * (end - start) + self.lower[end:]
+        self.nlp = get_spacy_model(language)
+        self.forward_negation = load_context_cues(
+            language, "NEGATED_EXISTENCE", "FORWARD"
+        )
+        self.terminate = load_context_cues(language, "TERMINATE")
+        self.family = load_context_cues(language, "FAMILY")
+        self._docs: dict[int, Any] = {}
+
+    def sentence_start(self, pos: int) -> int:
+        return max(self.text.rfind(t, 0, pos) for t in _SENTENCE_BREAKS) + 1
+
+    def cues(
+        self, cues: tuple[str, ...], start: int, end: int
+    ) -> list[tuple[int, int]]:
+        return [
+            (start + s, start + e) for s, e in _cue_spans(self.lower[start:end], cues)
+        ]
+
+    def tokens(self, start: int, end: int) -> list[Any]:
+        """Parsed tokens in [start, end); the whole sentence is parsed for context."""
+        if self.nlp is None:
+            return []
+        sent_start = self.sentence_start(start)
+        if sent_start not in self._docs:
+            sent_end = min(
+                (i for t in _SENTENCE_BREAKS if (i := self.text.find(t, start)) >= 0),
+                default=len(self.text),
+            )
+            self._docs[sent_start] = self.nlp(self.text[sent_start:sent_end])
+        return [
+            t
+            for t in self._docs[sent_start]
+            if start <= sent_start + t.idx < end and not t.is_space
+        ]
+
+    def opens_clause(self, start: int, end: int) -> bool:
+        """True if [start, end) holds a new clause: a finite verb or a subject."""
+        return any(
+            "Fin" in t.morph.get("VerbForm") or t.dep_ in _SUBJECT_DEPS
+            for t in self.tokens(start, end)
+        )
+
+
+def _propagate_list_negation(
+    context: _SentenceContext,
+    chunks: list[dict[str, Any]],
+    spans: list[tuple[int, int]],
+) -> None:
+    """Carry a forward negation cue over the coordinated list it introduces.
+
+    Chunking splits "No A, B or C" into "A" | "B" | "C", and only the chunk next
+    to the cue saw it (#400). A chunk inherits the negation of the chunk before
+    it when both are in the same sentence and the text between holds no scope
+    terminator (but, however, ...) and no new clause.
+    """
+    if context.nlp is None:
+        return
+    for idx in range(1, len(chunks)):
+        prev, chunk = chunks[idx - 1], chunks[idx]
+        (prev_start, prev_end), (start, end) = spans[idx - 1], spans[idx]
+        if (
+            prev["status"] is not AssertionStatus.NEGATED
+            or chunk["status"] is not AssertionStatus.AFFIRMED
+            or prev_start < 0
+            or start < prev_end
+        ):
+            continue
+        if not prev["assertion_details"].get("propagated_negation"):
+            # The cue must open a list: a forward cue, and the chunk must end
+            # in its object ("Seizures were not observed, ataxia" does not).
+            cue_spans = context.cues(
+                context.forward_negation, context.sentence_start(prev_start), prev_end
+            )
+            prev_tokens = [
+                t for t in context.tokens(prev_start, prev_end) if not t.is_punct
+            ]
+            if (
+                not cue_spans
+                or context.cues(context.terminate, cue_spans[-1][1], prev_end)
+                or not prev_tokens
+                or prev_tokens[-1].pos_ in ("VERB", "AUX")
+            ):
+                continue
+        between = context.text[prev_end:start]
+        if (
+            any(t in between for t in _SENTENCE_BREAKS)
+            or context.cues(context.terminate, prev_end, end)
+            or context.opens_clause(prev_end, end)
+        ):
+            continue
+        chunk["status"] = AssertionStatus.NEGATED
+        chunk["assertion_details"] = {
+            **chunk["assertion_details"],
+            "final_status": AssertionStatus.NEGATED.value,
+            # The whole chunk is in scope, so the chunk-level status applies.
+            "negated_scope_texts": [],
+            "propagated_negation": True,
+        }
+
+
+def _mark_family_experiencer(
+    context: _SentenceContext,
+    chunks: list[dict[str, Any]],
+    spans: list[tuple[int, int]],
+) -> None:
+    """Mark chunks about a relative ("His brother has scoliosis", #400).
+
+    A family cue from the bundled ConText rules counts for the rest of its
+    sentence, up to a scope terminator or another subject ("Mother reports
+    that he has seizures" stays the patient's).
+    shortcut: cue-after-finding ("scoliosis in his brother") and other people
+    (donor, neighbour) are not detected; extend the rules if that matters.
+    """
+    if context.nlp is None or not context.family:
+        return
+    for chunk, (start, end) in zip(chunks, spans, strict=True):
+        if start < 0:
+            continue
+        cue_spans = context.cues(context.family, context.sentence_start(start), end)
+        if not cue_spans:
+            continue
+        cue_end = cue_spans[-1][1]
+        if context.cues(context.terminate, cue_end, end) or any(
+            t.dep_ in _SUBJECT_DEPS for t in context.tokens(cue_end, end)
+        ):
+            continue
+        chunk["assertion_details"] = {
+            **chunk["assertion_details"],
+            "experiencer": FAMILY_EXPERIENCER,
+        }
 
 
 def _splits_pseudo_cue(
@@ -285,7 +445,7 @@ class TextProcessingPipeline:
                 # concept's cue is not pulled into this chunk's scope.
                 gap = original_text[search_start:start_char]
                 last_terminator = max(
-                    (gap.rfind(t) for t in (".", "!", "?", ";", "\n")),
+                    (gap.rfind(t) for t in _SENTENCE_BREAKS),
                     default=-1,
                 )
                 if last_terminator >= 0:
@@ -347,6 +507,15 @@ class TextProcessingPipeline:
                 assertion_details = {**assertion_details, "negated_scope_texts": []}
             chunk_data["status"] = assertion_status
             chunk_data["assertion_details"] = assertion_details
+
+        if not self.assertion_config.get("disable", False):
+            context = _SentenceContext(original_text, self.language, pseudo_spans)
+            _propagate_list_negation(
+                context, processed_chunks_with_assertion, chunk_document_spans
+            )
+            _mark_family_experiencer(
+                context, processed_chunks_with_assertion, chunk_document_spans
+            )
 
         logger.info(
             "TextProcessingPipeline processed text into %s final asserted chunks.",

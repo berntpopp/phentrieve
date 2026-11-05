@@ -149,6 +149,108 @@
       "category": "PSEUDO",
       "direction": "PSEUDO",
       "metadata": {"source": "phentrieve-issue-459", "language": "nl", "note": "Finding stays open"}
+    },
+    {
+      "literal": "moeder",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "vader",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "ouders",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "broer",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "zus",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "zuster",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "broers",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "zussen",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "zoon",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "dochter",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "grootmoeder",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "grootvader",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "oma",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "opa",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "tante",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "oom",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
+    },
+    {
+      "literal": "familieanamnese",
+      "category": "FAMILY",
+      "direction": "FORWARD",
+      "metadata": {"source": "phentrieve-issue-400", "language": "nl", "note": "Experiencer is a relative"}
     }
   ]
 }
