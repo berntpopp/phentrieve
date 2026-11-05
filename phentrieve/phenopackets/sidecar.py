@@ -57,6 +57,8 @@ def build_annotation_sidecar(
             annotation["certainty"] = record.certainty
         if record.evidence_text is not None:
             annotation["evidence_text"] = record.evidence_text
+        if record.temporality is not None:
+            annotation["temporality"] = record.temporality
         if record.source_mode is not None:
             annotation["provenance"]["source_mode"] = record.source_mode
         if record.match_method is not None:

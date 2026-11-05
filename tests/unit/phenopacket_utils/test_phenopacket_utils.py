@@ -483,6 +483,90 @@ class TestPhenopacketUtils:
             )
 
 
+class TestIssue399Export:
+    """Export keeps assertion and temporality detail (#399)."""
+
+    @staticmethod
+    def _features(bundle: dict) -> list[dict]:
+        return json.loads(bundle["phenopacket_json"]).get("phenotypicFeatures", [])
+
+    @pytest.mark.parametrize("status", ["uncertain", "suspected", "possible"])
+    def test_uncertain_finding_is_not_exported_as_observed(self, status):
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {"id": "HP:0001252", "name": "Hypotonia", "status": status},
+                {"id": "HP:0001250", "name": "Seizure", "status": "present"},
+            ],
+            include_annotation_sidecar=True,
+        )
+        assert [f["type"]["id"] for f in self._features(bundle)] == ["HP:0001250"]
+        annotations = bundle["annotation_sidecar"]["annotations"]
+        assert [a["hpo_id"] for a in annotations] == ["HP:0001250"]
+
+    def test_opposite_polarity_twins_collapse_to_observed_feature(self):
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {
+                    "id": "HP:0002239",
+                    "name": "Hematemesis",
+                    "status": "negated",
+                    "excluded": True,
+                    "temporality": "current",
+                },
+                {
+                    "id": "HP:0002239",
+                    "name": "Hematemesis",
+                    "status": "present",
+                    "temporality": "historical",
+                },
+            ],
+            include_annotation_sidecar=True,
+        )
+        features = self._features(bundle)
+        assert len(features) == 1
+        assert features[0].get("excluded", False) is False
+        description = features[0]["evidence"][0]["reference"]["description"]
+        assert "Temporality: historical" in description
+        assert "Also reported: negated (current)" in description
+        annotations = bundle["annotation_sidecar"]["annotations"]
+        assert len(annotations) == 1
+        assert annotations[0]["assertion"] == "affirmed"
+
+    def test_temporality_is_carried_in_packet_and_sidecar(self):
+        bundle = export_phenopacket_bundle(
+            aggregated_results=[
+                {
+                    "id": "HP:0002099",
+                    "name": "Asthma",
+                    "status": "present",
+                    "temporality": "historical",
+                }
+            ],
+            include_annotation_sidecar=True,
+        )
+        feature = self._features(bundle)[0]
+        description = feature["evidence"][0]["reference"]["description"]
+        assert "Temporality: historical" in description
+        annotation = bundle["annotation_sidecar"]["annotations"][0]
+        assert annotation["temporality"] == "historical"
+        validate_annotation_sidecar(bundle["annotation_sidecar"])
+
+    def test_term_cited_by_several_chunks_exports_once(self):
+        chunk_results = [
+            {
+                "chunk_idx": idx,
+                "chunk_text": f"chunk {idx}",
+                "matches": [{"id": "HP:0002099", "name": "Asthma", "score": 0.9}],
+            }
+            for idx in (3, 4, 5)
+        ]
+        bundle = export_phenopacket_bundle(
+            chunk_results=chunk_results, include_annotation_sidecar=True
+        )
+        assert len(self._features(bundle)) == 1
+        assert len(bundle["annotation_sidecar"]["annotations"]) == 1
+
+
 class TestNormalizedExportModels:
     def test_normalized_span_direct_construction_and_legacy_dict_constructor(self):
         span = NormalizedSpan(

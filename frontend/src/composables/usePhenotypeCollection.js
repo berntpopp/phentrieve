@@ -22,6 +22,15 @@ const isExcluded = (a) =>
       .trim()
       .toLowerCase()
   );
+// Mirrors the Python uncertain set: a hedged finding is neither observed nor
+// excluded, so it is left out of the Phenopacket (#399).
+const UNCERTAIN_ASSERTIONS = new Set(['uncertain', 'possible', 'suspected', 'probable']);
+const isUncertain = (a) =>
+  UNCERTAIN_ASSERTIONS.has(
+    String(a ?? '')
+      .trim()
+      .toLowerCase()
+  );
 
 /**
  * Composable for managing phenotype collection state and actions.
@@ -163,6 +172,7 @@ export function usePhenotypeCollection() {
         if (Object.keys(phenopacket.subject).length === 0) delete phenopacket.subject;
       }
       phenotypes.forEach((cp) => {
+        if (isUncertain(cp.assertion_status)) return;
         phenopacket.phenotypicFeatures.push({
           type: { id: cp.hpo_id, label: cp.label },
           excluded: isExcluded(cp.assertion_status),

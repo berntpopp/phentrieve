@@ -289,12 +289,28 @@ def test_normal_assertion_exports_as_negated_excluded():
     assert out is not None and out.assertion_status == "negated"
 
 
-def test_uncertain_does_not_crash_and_is_not_excluded():
+def test_uncertain_stays_uncertain_not_affirmed():
+    # #399: uncertain must not be coerced to affirmed (observed).
     out = _coerce_export_phenotype(
         ExportPhenotypeRequest, {"hpo_id": "HP:0001250", "assertion": "uncertain"}, 0
     )
-    # not excluded, and no ValidationError
-    assert out.assertion_status == "affirmed"
+    assert out.assertion_status == "uncertain"
+
+
+def test_export_leaves_uncertain_out_of_the_packet():
+    out = export_phenopacket_service(
+        case_id="CASE-U",
+        case_label=None,
+        input_text=None,
+        subject=None,
+        phenotypes=[
+            {"id": "HP:0001252", "name": "Hypotonia", "status": "uncertain"},
+            {"id": "HP:0001250", "name": "Seizure", "status": "present"},
+        ],
+        include_annotation_sidecar=False,
+    )
+    feature_ids = [f["type"]["id"] for f in out["phenopacket"]["phenotypicFeatures"]]
+    assert feature_ids == ["HP:0001250"]
 
 
 @pytest.mark.parametrize(

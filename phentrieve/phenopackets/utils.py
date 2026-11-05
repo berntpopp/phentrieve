@@ -40,6 +40,62 @@ def _coerce_rank(value: Any) -> int:
         return 0
 
 
+def _select_export_records(
+    records: list[NormalizedPhenotypeExportRecord],
+) -> list[tuple[int, list[NormalizedPhenotypeExportRecord]]]:
+    """Pick the records that become phenotypic features (#399).
+
+    Uncertain findings are dropped: a packet feature can only be observed or
+    excluded, and a hedged finding is neither. Records of the same HPO term
+    collapse into one feature (no per-chunk duplicates, no observed/excluded
+    twins): an observed record wins over an excluded one, a non-historical
+    over a historical one. Returns ``(index, other_records)`` per feature, in
+    first-seen order.
+    """
+    groups: dict[str, list[int]] = {}
+    for index, record in enumerate(records):
+        if record.assertion != "uncertain":
+            groups.setdefault(record.hpo_id, []).append(index)
+    selected: list[tuple[int, list[NormalizedPhenotypeExportRecord]]] = []
+    for indices in groups.values():
+        best = min(
+            indices,
+            key=lambda i: (
+                records[i].assertion == "negated",
+                records[i].temporality == "historical",
+            ),
+        )
+        selected.append((best, [records[i] for i in indices if i != best]))
+    return selected
+
+
+def _temporal_note_parts(
+    record: NormalizedPhenotypeExportRecord,
+    others: list[NormalizedPhenotypeExportRecord],
+) -> list[str]:
+    """Evidence notes for temporality and collapsed twins of another polarity.
+
+    Phenopacket ``onset``/``resolution`` need an age or date that the
+    extraction does not provide, so temporality is carried as a note instead.
+    """
+    parts = []
+    if record.temporality:
+        parts.append(f"Temporality: {record.temporality}")
+    also = []
+    for other in others:
+        note: str = other.assertion
+        if other.temporality:
+            note += f" ({other.temporality})"
+        if (other.assertion, other.temporality) != (
+            record.assertion,
+            record.temporality,
+        ) and note not in also:
+            also.append(note)
+    if also:
+        parts.append(f"Also reported: {', '.join(also)}")
+    return parts
+
+
 def _build_phenotypic_feature(
     record: NormalizedPhenotypeExportRecord,
     *,
@@ -236,7 +292,10 @@ def export_phenopacket_bundle(
         phenopacket_id = json.loads(phenopacket_json)["id"]
         annotation_sidecar = build_annotation_sidecar(
             phenopacket_id=phenopacket_id,
-            records=normalized_records,
+            records=[
+                normalized_records[index]
+                for index, _ in _select_export_records(normalized_records)
+            ],
             generated_by_version=resolved_phentrieve_version,
         )
         validate_annotation_sidecar(annotation_sidecar)
@@ -289,7 +348,8 @@ def _format_from_chunk_results(
     normalized_records = _normalize_export_records(chunk_results=chunk_results)
     phenotypic_features = []
 
-    for record in normalized_records:
+    for index, others in _select_export_records(normalized_records):
+        record = normalized_records[index]
         description_parts = [
             f"Phentrieve retrieval confidence: {(record.confidence or 0.0):.4f}",
         ]
@@ -300,6 +360,7 @@ def _format_from_chunk_results(
             description_parts.append(f"End: {record.spans[0].end_char}")
         if record.assertion:
             description_parts.append(f"Assertion: {record.assertion}")
+        description_parts.extend(_temporal_note_parts(record, others))
         if record.evidence_text:
             description_parts.append(f"Source text: {record.evidence_text}")
         phenotypic_features.append(
@@ -344,18 +405,17 @@ def _format_from_aggregated_results(
     normalized_results = _normalize_aggregated_results(sorted_results)
 
     phenotypic_features = []
-    for index, (legacy_result, result) in enumerate(
-        zip(sorted_results, normalized_results, strict=True),
-        start=1,
-    ):
+    for index, others in _select_export_records(normalized_results):
+        result = normalized_results[index]
         confidence = result.confidence or 0.0
-        rank = legacy_result.get("rank", index)
+        rank = sorted_results[index].get("rank", index + 1)
 
         phenotypic_features.append(
             _build_phenotypic_feature(
                 result,
                 description_parts=[
-                    f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}"
+                    f"Phentrieve retrieval confidence: {confidence:.4f}, Rank: {rank}",
+                    *_temporal_note_parts(result, others),
                 ],
             )
         )

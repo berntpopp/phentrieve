@@ -147,7 +147,10 @@ class ExportPhenotypeRequest(BaseModel):
 
     hpo_id: str = Field(pattern=r"^HP:\d{7}$")
     label: str = Field(min_length=1)
-    assertion_status: Literal["affirmed", "negated"] = "affirmed"
+    # "uncertain" is accepted so a hedged finding can be handed over as-is; it
+    # is left out of the packet instead of exporting as observed (#399).
+    assertion_status: Literal["affirmed", "negated", "uncertain"] = "affirmed"
+    temporality: str | None = None
     certainty: str | None = None
     confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     evidence_text: str | None = None
@@ -209,6 +212,7 @@ class AnnotationSidecarAnnotationResponse(BaseModel):
     confidence: float | None = None
     certainty: str | None = None
     evidence_text: str | None = None
+    temporality: str | None = None
 
 
 class AnnotationSidecarResponse(BaseModel):

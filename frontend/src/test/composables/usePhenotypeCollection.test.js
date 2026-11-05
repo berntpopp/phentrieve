@@ -169,5 +169,19 @@ describe('usePhenotypeCollection', () => {
       const [phenopacket] = downloadJsonMock.mock.calls[0];
       expect(phenopacket.phenotypicFeatures[0].excluded).toBe(false);
     });
+
+    it('leaves assertion_status "uncertain" out instead of exporting it as observed', () => {
+      const store = useConversationStore();
+      store.addPhenotype({
+        hpo_id: 'HP:0001252',
+        label: 'Hypotonia',
+        assertion_status: 'uncertain',
+      });
+      store.addPhenotype({ hpo_id: 'HP:0001250', label: 'Seizure', assertion_status: 'present' });
+      const { exportAsPhenopacket } = usePhenotypeCollection();
+      exportAsPhenopacket();
+      const [phenopacket] = downloadJsonMock.mock.calls[0];
+      expect(phenopacket.phenotypicFeatures.map((f) => f.type.id)).toEqual(['HP:0001250']);
+    });
   });
 });

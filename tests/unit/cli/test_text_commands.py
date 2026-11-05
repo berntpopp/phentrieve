@@ -342,6 +342,53 @@ def test_text_process_phenopacket_output_defaults_to_no_sidecar(monkeypatch):
     assert json.loads(result.stdout)["id"] == "packet-1"
 
 
+def test_text_process_phenopacket_exports_one_feature_per_term(monkeypatch):
+    # #399: a term citing several chunks must not repeat once per chunk.
+    chunks = [
+        {
+            "chunk_id": idx,
+            "text": f"chunk {idx}",
+            "start_char": idx * 10,
+            "end_char": idx * 10 + 7,
+            "hpo_matches": [
+                {"id": "HP:0001250", "name": "Seizure", "score": 0.9},
+                {"id": "HP:0001263", "name": "Developmental delay", "score": 0.8},
+            ],
+        }
+        for idx in (1, 2, 3)
+    ]
+    monkeypatch.setattr(
+        "phentrieve.cli.text_commands.run_full_text_service",
+        lambda **kwargs: {
+            "meta": {"extraction_backend": "llm"},
+            "processed_chunks": chunks,
+            "aggregated_hpo_terms": [
+                {"id": "HP:0001250", "name": "Seizure", "status": "present"},
+                {
+                    "id": "HP:0001263",
+                    "name": "Developmental delay",
+                    "status": "present",
+                },
+            ],
+        },
+    )
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "text",
+            "process",
+            "clinical note",
+            "--output-format",
+            "phenopacket_v2_json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    features = json.loads(result.stdout)["phenotypicFeatures"]
+    assert [f["type"]["id"] for f in features] == ["HP:0001250", "HP:0001263"]
+
+
 def test_text_process_phenopacket_sidecar_requires_output_file(monkeypatch):
     runner = CliRunner()
     monkeypatch.setattr(
